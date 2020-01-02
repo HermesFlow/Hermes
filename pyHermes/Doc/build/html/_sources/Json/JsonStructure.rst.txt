@@ -1,0 +1,110 @@
+The JSON Structure 
+===================
+
+In general, JSON (JavaScript Object Notation ) is a structure saved as a string, which is a lightweight data-interchange format.
+
+The JSON structure is consist of the following types of data:
+
+*    String 
+*    Number
+*    Array
+*    Object
+*    Boolean
+*    null
+
+The object type consists of key and value pairs. A key name can not repeat itself in the same object.
+
+It is recommended to verify the JSON structure before using it. 
+A link for a `JSON Formatter & Validator   <https://jsonformatter.curiousconcept.com>`_
+
+Also, the Hermes workflow uses the **react-jsonschema-form**.
+This allows a dynamic display, which based on the data been inserted into the JSON structure.
+
+
+The react-jsonschema-form
+-------------------------
+An input JSON file includes 3 parts:
+    
+*   **Schema** - define the basic type, name, and structure of the form
+*   **uiSchema** - add a display data for the objects been defined at Schema part
+*   **formData** - contain the user input of the form
+
+It is recommended to include all 3 parts in the JSON, even if there are empty values.
+Each one of those parts is an object, which includes the data been mentioned above.
+
+More information can be found in the `react-jsonschema-form_documentation <https://react-jsonschema-form.readthedocs.io/en/latest>`_
+
+Examples for Basic react-jsonschema-form can be found in `live playground  <https://rjsf-team.github.io/react-jsonschema-form/>`_
+
+**Pay attention**
+
+*    Do not use double apostrophes (") at the formData part - will cause problems because of the JSON structure
+*    Avoid using "default" values at the Schema part  -  may create unwanted data at the 'formdata' section,
+     better define values directly at the 'formData' section
+*    "anyOf"- pay attention not to use the same property name on different list items -> inside the Brackets '[...]',
+     even if it is a different object, it will cause problems
+
+
+Hermes workflow JSON structure
+-------------------------------
+The Hermes workflow consists of a combination of nodes, each one has its contribution (more information at the Hermes workflow section)
+As a result, the JSON of the Hermes workflow must contain the following objects:
+
+*    **nodeList** - Contain a list of all nodes of the workflow
+*    **nodes** - contain the data of each node, including :
+
+    *    typeJ - the type of the execution node
+    *    typeFC - the type of Freecad node
+    *    Input - The input of the executer
+    *    properties - properties of the FreeCAD object
+    *    webGui - contain the JSON of the "react-jsonschema-form" (Scheme,uiScheme and formData been mention above)
+ 
+In addition, it is optional to add a **Templates** object. This Object will contain repetetive JSON parts,
+which will help the user to create some nodes more easily. This ability allows us to add or edit the data after been using the template.
+
+**Import Data**
+
+Because the JSON has lots of data, it can cause to long documents.
+Instead, we add the option to create some shorts JSON documents, and they will be called by reference to each other, until creating the whole JSON structure.
+
+The reference can be written as an absolute path or as a relative path to the file
+
+The JSON structure, in this case, is as follow:
+    1.    Create an object in the proper place, name it "importJsonFronFile"
+    2.    Add to the object the following entries:
+        
+        *    "path" [string] - the path to the file
+        *    "field"[list] (optional) - allows you to take specific data from a file.
+             It is saved as a *list* to get multiply fields data from a given file.    
+
+    3.    (optional)Add/Edit the data from the file 
+        
+        *    write the name of the property and its new value - "property":"new data"
+        *    in case of an object - "objectName": { new data }
+        *    in case of property nested inside an object - "object":{ "property":"new data" }
+
+    4.    Multiply files - The "importJsonFronFile" will contain an object for each file. their properties will be the same as been mention in (2).
+          "importJsonFronFile":{ "file1":{...} , "file2":{...}}
+
+A similar structure applied when using a template from the Template object,    
+    1.     Create an object in the proper place, name it "Template"
+    2.    Add to the object the following entries:
+
+        *    "TypeFC": the name of the wanted template at the Templates object
+        *    "field"[list] (optional) - allows you to take specific data from a file.
+             It is saved as a *list* to get multiply fields data from a given file.
+
+    3.    Same as in file import
+    4.    Multiply files - The "Template" will contain an object for each file. their properties will be the same as been mention in (2).
+          "importJsonFronFile":{ "template1":{...} , "template2":{...}}
+
+* pay attention - it is possible to Add/Edit data from different sources. 
+
+    -    In the case of new data, it will be added to the structure
+    -    In case the data already exists, the new data will override the old data.
+         It means, the last data been imported, will override any previous data.
+
+ Examples to JSON structure can be found at the "examples" section 
+
+
+

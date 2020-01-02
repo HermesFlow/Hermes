@@ -1,0 +1,69 @@
+# get to the html page
+firefox build/html/index.html 
+
+# compile the sphninx
+after changing files, first compile so the changes will be updated
+cd /michelangelo/alon/Downloads/FreeCAD/freecad_build_deb/Mod/Hermes/Doc
+make html
+
+# add folders which folders/files the their content will apear in the html page
+cd /michelangelo/alon/Downloads/FreeCAD/freecad_build_deb/Mod/Hermes/Doc/source
+pico index.rst
+
+- get under the:
+
+ Welcome to Hermes's documentation!
+==================================
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+==> add here the folders the gonna be shown
+for example: (in the same row of all the top(maxdepth etc)
+
+    test/me.rst
+
+# add folders and  file contents in source
+cd /michelangelo/alon/Downloads/FreeCAD/freecad_build_deb/Mod/Hermes/Doc/source
+mkdir folderName (in the example test)
+- make a file inside
+pico fileName.rst
+
+# edit the content
+get to the XXX.rst file
+-in this case
+cd /michelangelo/alon/Downloads/FreeCAD/freecad_build_deb/Mod/Hermes/Doc/source/test
+pico me.rst
+and write whatever content you want in this page
+
+# start a new sphinx project
+- get to the Moudule or the folder that contains all the data need to be document
+- write : sphinx-quickstart
+- each question will be define sphinx project properties - all can be changed later
+ here are the quetions and the the answers for example 
+1 > Separate source and build directories (y/n) [n]: y
+2 > Name prefix for templates and static dir [_]: 
+3 > Project name: Hermes
+4 > Author name(s): Noga
+5 > Project release []: 0.0.1
+6 > Project language [en]: 
+7 > Source file suffix [.rst]:
+8 > Name of your master document (without suffix) [index]:
+9 > autodoc: automatically insert docstrings from modules (y/n) [n]: y
+10 > doctest: automatically test code snippets in doctest blocks (y/n) [n]: n
+11 > intersphinx: link between Sphinx documentation of different projects (y/n) [n]: n
+12 > todo: write "todo" entries that can be shown or hidden on build (y/n) [n]: n
+13 > coverage: checks for documentation coverage (y/n) [n]: n
+14 > imgmath: include math, rendered as PNG or SVG images (y/n) [n]: y
+15 > mathjax: include math, rendered in the browser by MathJax (y/n) [n]: n
+16 > ifconfig: conditional inclusion of content based on config values (y/n) [n]: n
+17 > viewcode: include links to the source code of documented Python objects (y/n) [n]: y
+18 > githubpages: create .nojekyll file to publish the document on GitHub pages (y/n) [n]: y
+19 > Create Makefile? (y/n) [y]: y
+20 > Create Windows command file? (y/n) [y]: n
+
+- then we got to Doc and compile as explain above
+- 
+
+
+

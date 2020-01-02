@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>The JSON Structure &#8212; Hermes 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Simple Workflow" href="../simpleWorkflow/intro.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-json-structure">
+<h1>The JSON Structure<a class="headerlink" href="#the-json-structure" title="Permalink to this headline">¶</a></h1>
+<p>In general, JSON (JavaScript Object Notation ) is a structure saved as a string, which is a lightweight data-interchange format.</p>
+<p>The JSON structure is consist of the following types of data:</p>
+<ul class="simple">
+<li>String</li>
+<li>Number</li>
+<li>Array</li>
+<li>Object</li>
+<li>Boolean</li>
+<li>null</li>
+</ul>
+<p>The object type consists of key and value pairs. A key name can not repeat itself in the same object.</p>
+<p>It is recommended to verify the JSON structure before using it.
+A link for a <a class="reference external" href="https://jsonformatter.curiousconcept.com">JSON Formatter &amp; Validator</a></p>
+<p>Also, the Hermes workflow uses the <strong>react-jsonschema-form</strong>.
+This allows a dynamic display, which based on the data been inserted into the JSON structure.</p>
+<div class="section" id="the-react-jsonschema-form">
+<h2>The react-jsonschema-form<a class="headerlink" href="#the-react-jsonschema-form" title="Permalink to this headline">¶</a></h2>
+<p>An input JSON file includes 3 parts:</p>
+<ul class="simple">
+<li><strong>Schema</strong> - define the basic type, name, and structure of the form</li>
+<li><strong>uiSchema</strong> - add a display data for the objects been defined at Schema part</li>
+<li><strong>formData</strong> - contain the user input of the form</li>
+</ul>
+<p>It is recommended to include all 3 parts in the JSON, even if there are empty values.
+Each one of those parts is an object, which includes the data been mentioned above.</p>
+<p>More information can be found in the <a class="reference external" href="https://react-jsonschema-form.readthedocs.io/en/latest">react-jsonschema-form_documentation</a></p>
+<p>Examples for Basic react-jsonschema-form can be found in <a class="reference external" href="https://rjsf-team.github.io/react-jsonschema-form/">live playground</a></p>
+<p><strong>Pay attention</strong></p>
+<ul class="simple">
+<li>Do not use double apostrophes (“) at the formData part - will cause problems because of the JSON structure</li>
+<li>Avoid using “default” values at the Schema part  -  may create unwanted data at the ‘formdata’ section,
+better define values directly at the ‘formData’ section</li>
+<li>“anyOf”- pay attention not to use the same property name on different list items -&gt; inside the Brackets ‘[…]’,
+even if it is a different object, it will cause problems</li>
+</ul>
+</div>
+<div class="section" id="hermes-workflow-json-structure">
+<h2>Hermes workflow JSON structure<a class="headerlink" href="#hermes-workflow-json-structure" title="Permalink to this headline">¶</a></h2>
+<p>The Hermes workflow consists of a combination of nodes, each one has its contribution (more information at the Hermes workflow section)
+As a result, the JSON of the Hermes workflow must contain the following objects:</p>
+<ul class="simple">
+<li><strong>nodeList</strong> - Contain a list of all nodes of the workflow</li>
+<li><strong>nodes</strong> - contain the data of each node, including :</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>typeJ - the type of the execution node</li>
+<li>typeFC - the type of Freecad node</li>
+<li>Input - The input of the executer</li>
+<li>properties - properties of the FreeCAD object</li>
+<li>webGui - contain the JSON of the “react-jsonschema-form” (Scheme,uiScheme and formData been mention above)</li>
+</ul>
+</div></blockquote>
+<p>In addition, it is optional to add a <strong>Templates</strong> object. This Object will contain repetetive JSON parts,
+which will help the user to create some nodes more easily. This ability allows us to add or edit the data after been using the template.</p>
+<p><strong>Import Data</strong></p>
+<p>Because the JSON has lots of data, it can cause to long documents.
+Instead, we add the option to create some shorts JSON documents, and they will be called by reference to each other, until creating the whole JSON structure.</p>
+<p>The reference can be written as an absolute path or as a relative path to the file</p>
+<dl class="docutils">
+<dt>The JSON structure, in this case, is as follow:</dt>
+<dd><ol class="first arabic simple">
+<li>Create an object in the proper place, name it “importJsonFronFile”</li>
+<li>Add to the object the following entries:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>“path” [string] - the path to the file</li>
+<li>“field”[list] (optional) - allows you to take specific data from a file.
+It is saved as a <em>list</em> to get multiply fields data from a given file.</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>(optional)Add/Edit the data from the file</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>write the name of the property and its new value - “property”:”new data”</li>
+<li>in case of an object - “objectName”: { new data }</li>
+<li>in case of property nested inside an object - “object”:{ “property”:”new data” }</li>
+</ul>
+</div></blockquote>
+<ol class="last arabic simple" start="4">
+<li>Multiply files - The “importJsonFronFile” will contain an object for each file. their properties will be the same as been mention in (2).
+“importJsonFronFile”:{ “file1”:{…} , “file2”:{…}}</li>
+</ol>
+</dd>
+<dt>A similar structure applied when using a template from the Template object,</dt>
+<dd><ol class="first arabic simple">
+<li>Create an object in the proper place, name it “Template”</li>
+<li>Add to the object the following entries:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>“TypeFC”: the name of the wanted template at the Templates object</li>
+<li>“field”[list] (optional) - allows you to take specific data from a file.
+It is saved as a <em>list</em> to get multiply fields data from a given file.</li>
+</ul>
+</div></blockquote>
+<ol class="last arabic simple" start="3">
+<li>Same as in file import</li>
+<li>Multiply files - The “Template” will contain an object for each file. their properties will be the same as been mention in (2).
+“importJsonFronFile”:{ “template1”:{…} , “template2”:{…}}</li>
+</ol>
+</dd>
+</dl>
+<ul>
+<li><p class="first">pay attention - it is possible to Add/Edit data from different sources.</p>
+<blockquote>
+<div><ul class="simple">
+<li>In the case of new data, it will be added to the structure</li>
+<li>In case the data already exists, the new data will override the old data.
+It means, the last data been imported, will override any previous data.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<blockquote>
+<div>Examples to JSON structure can be found at the “examples” section</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Hermes</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../About/aboutHermes.html">About Hermes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../FreeCAD/FreeCAD.html">FreeCAD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simpleWorkflow/intro.html">Simple Workflow</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The JSON Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-react-jsonschema-form">The react-jsonschema-form</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hermes-workflow-json-structure">Hermes workflow JSON structure</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../simpleWorkflow/intro.html" title="previous chapter">Simple Workflow</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Noga.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/Json/JsonStructure.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
