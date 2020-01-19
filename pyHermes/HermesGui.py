@@ -31,6 +31,7 @@
 import FreeCAD,FreeCADGui, WebGui
 import HermesTools
 from HermesTools import addObjectProperty
+
 # import the App Test module
 import TestApp               #Test as Module name not possible
 import sys
@@ -679,6 +680,12 @@ class _HermesNode(_SlotHandler):
         #Exportile property- get the directory path of where we want to export our files
         addObjectProperty(obj, "ExportNodeJSONFile", "", "App::PropertyPath", "IO", "Path to save Node JSON File")
         
+        #RunWorkflow property - Run the workflow as a basic to luigi if change to true
+        addObjectProperty(obj, "RunNodeWorkflow", False, "App::PropertyBool", "Run", "Run the Node workflow as a basic to luigi")
+        
+        #RunLuigi property - Run luigi
+        addObjectProperty(obj, "RunNodeLuigi", False, "App::PropertyBool", "Run", "Run Node luigi")
+        
        
                 
 
@@ -852,8 +859,18 @@ class _ViewProviderNode:
         if (str(prop) == 'ExportNodeJSONFile' and len(str(obj.ExportNodeJSONFile)) > 0):
             #get "workflowObj" from been parent of the node obj
             workflowObj=obj.getParentGroup()
-            workflowObj.Proxy.saveJson(workflowObj,obj.ExportNodeJSONFile,obj.Name,obj.Label)
+            workflowObj.Proxy.prepareJsonVar(workflowObj,obj.Name)
+            workflowObj.Proxy.saveJson(workflowObj,obj.ExportNodeJSONFile,obj.Label)
             obj.ExportNodeJSONFile = ''
+            
+        if (str(prop) == 'RunNodeWorkflow' and (obj.RunNodeWorkflow)):
+            workflowObj=obj.getParentGroup()
+            workflowObj.Proxy.prepareJsonVar(workflowObj,obj.Name)
+            workflowObj.Proxy.RunworkflowCreation(workflowObj)
+            
+        if (str(prop) == 'RunNodeLuigi' and (obj.RunNodeLuigi)):
+            workflowObj=obj.getParentGroup()
+            workflowObj.Proxy.RunLuigiScript()    
         
         #----------------------------------------------------------------------------------
         
@@ -1236,6 +1253,7 @@ class _HermesWorkflow:
         self.initProperties(obj)
         
         self.JsonObject = []
+        self.JsonObjectString=""
         self.JsonObjectfromFile = []
         self.Templates=[]
         self.nLastNodeId="-1"
@@ -1248,15 +1266,20 @@ class _HermesWorkflow:
         
         self.importJsonfromfile="importJsonfromfile"
         self.getFromTemplate="Template"
+        
+        self.WD_path=""
 
     def initProperties(self, obj):
         
         #ImportJSONFile propert- get the file path of the wanted json file
         addObjectProperty(obj, "ImportJSONFile", "", "App::PropertyFile", "IO", "Browse JSON File")
         
-        #ExportJSONFile property- get the directory path of where we want to export our files
+        #ExportJSONFile property- get the directory path of where we want to export the json file
         addObjectProperty(obj, "ExportJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
         
+        #WorkingDirectory property- get the directory path of where we want to export our files
+        addObjectProperty(obj, "WorkingDirectory", "", "App::PropertyPath", "IO", "Path to working directory")
+           
         
         #JSONString property - keep the json data as a string
         addObjectProperty(obj, "JSONString", "", "App::PropertyString", "", "JSON Stringify",4)
@@ -1270,6 +1293,12 @@ class _HermesWorkflow:
         #make some properties to be 'read-only'
         obj.setEditorMode("IsActiveWorkflow", 1)  # Make read-only (2 = hidden)
         obj.setEditorMode("Group", 1)
+        
+        #RunWorkflow property - Run the workflow as a basic to luigi if change to true
+        addObjectProperty(obj, "RunWorkflow", False, "App::PropertyBool", "Run", "Run the workflow as a basic to luigi")
+        
+        #RunLuigi property - Run luigi
+        addObjectProperty(obj, "RunLuigi", False, "App::PropertyBool", "Run", "Run luigi")
         
 
     def onDocumentRestored(self, obj):
@@ -1286,27 +1315,26 @@ class _HermesWorkflow:
             
         #parse json data        
 #        self.JsonObject = json.loads(obj.JSONString)
-
-              
-    def saveJson(self, obj,jsonSaveFilePath,rootVal,FileSaveName):
         
-      #^^^Export Json-file
+    def prepareJsonVar(self,obj,rootVal):
         
-        #update JsonString before export
         self.updateJsonBeforeExport(obj)
         
         if rootVal=="null":
             #"To-Do"-change string into null json
-            self.JsonObject["root"]=json.loads("null")
+            self.JsonObject["workflow"]["root"]=json.loads("null")
         else:
-            self.JsonObject["root"]=rootVal
+            self.JsonObject["workflow"]["root"]=rootVal
+            
+        self.JsonObjectString=json.dumps(self.JsonObject)
         
-#        #get the path of directory want to export
-#        jsonSaveFilePath = obj.ExportJSONFile
         
-        #get the name of the workflow to set it as the name of json file been export
-#        workflowName=obj.Name
+
+              
+    def saveJson(self,obj,jsonSaveFilePath,FileSaveName):
+
         
+      #^^^Export Json-file
         
         #define the full path of the export file
         jsonSaveFileName=jsonSaveFilePath+'/'+FileSaveName+'.json'
@@ -1351,14 +1379,9 @@ class _HermesWorkflow:
         self.JsonObjectfromFile=self.loadJsonFromfile(jsonFileName)
         
 #        tempJson = self.loadJsonFromfile("/home/noga/Noga/FreeCad/jsonFiles/json.json", "node1.Properties")
-#        FreeCAD.Console.PrintMessage("\n")        
-#        FreeCAD.Console.PrintMessage(tempJson)
-        
-        
+            
         #create jsonObject varieble that contain all data, including imported data from files/templates
         self.createJsonObject()
-#        self.JsonObject=self.JsonObjectfromFile.copy()
-#        FreeCAD.Console.PrintMessage(self.JsonObject)
         
         #assign the data been import to the JSONString property after dumps
         obj.JSONString=json.dumps(self.JsonObject)
@@ -1385,10 +1408,10 @@ class _HermesWorkflow:
     def createJsonObject(self):
         
         #check if there is a reference to templates file in JsonObjectfromFile
-        if "Templates" in self.JsonObjectfromFile:
+        if "Templates" in self.JsonObjectfromFile["workflow"]:
             
             #Create the Template Json Object - import files if needed
-            self.Templates=self.getImportedJson(self.JsonObjectfromFile["Templates"])
+            self.Templates=self.getImportedJson(self.JsonObjectfromFile["workflow"]["Templates"])
             
 #            FreeCAD.Console.PrintMessage("Templates="+str(self.Templates)+"\n")
 #            FreeCAD.Console.PrintMessage("###################################\n")
@@ -1397,10 +1420,11 @@ class _HermesWorkflow:
 
         #Create JsonObject will contain all the imported date from file/template
         self.JsonObject=self.JsonObjectfromFile
+        workflow=self.JsonObject["workflow"]
         
         #get the List of nodes , and the 'nodes' from jsonObject 
-        nodeList=self.JsonObject["nodeList"]
-        nodes=self.JsonObject["nodes"]
+        nodeList=workflow["nodeList"]
+        nodes=workflow["nodes"]
         new_nodes={}
         
         #to-do:check option of get the node list from a file
@@ -1421,8 +1445,9 @@ class _HermesWorkflow:
 
             
         #update the data in JsonObject to be the new dictionary new_nodes
-        self.JsonObject["nodes"]=new_nodes
-
+#        self.JsonObject["nodes"]=new_nodes
+        workflow["nodes"]= new_nodes
+        self.JsonObject["workflow"]=workflow
     
     def getImportedJson(self,jsonObjStruct):
                 
@@ -1977,7 +2002,7 @@ class _HermesWorkflow:
 
 
         x=1; 
-        nodes=self.JsonObject["nodes"]
+        nodes=self.JsonObject["workflow"]["nodes"]
         for y in nodes:
             
             #get Node data
@@ -2013,7 +2038,7 @@ class _HermesWorkflow:
         
     def updateJsonBeforeExport(self,obj):
         
-        nodes=self.JsonObject["nodes"]
+        nodes=self.JsonObject["workflow"]["nodes"]
          #loop all children in HermesWorkflow
         for child in obj.Group:
             
@@ -2033,10 +2058,93 @@ class _HermesWorkflow:
             nodes[nodename]=nodaData
             
         #update the child nodeDate in the JsonObject
-        self.JsonObject["nodes"]=nodes
+        self.JsonObject["workflow"]["nodes"]=nodes
 
         return
-         
+    
+    def RunworkflowCreation(self,obj):
+       
+        # save the current work directory before it changed
+        currentDirFC=os.getcwd()
+        
+        
+        # create path to Resource dir
+        ResourceDir = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/"
+        #create path to simpleWorkflow2 dir
+        current_dir=ResourceDir+'pyHermes/doc/examples/simpleWorkflow2/'
+
+
+        #insert the path to sys
+        # insert at 1, 0 is the script path (or '' in REPL)
+        sys.path.insert(1, current_dir)
+        sys.path.insert(1, ResourceDir)
+        
+        
+        #update 'current_dir' to full path- absolute
+        current_dir=os.path.abspath(current_dir)
+        
+        #update the current work directory
+        os.chdir(current_dir)  
+
+        # import the testLuigi2 module - to run the workflow 
+        import testLuigi2
+        
+        # run workflow - send the path of workflow json been exported
+#        testLuigi2.run(currentDirFC+"/HermesWorkflow1.json")
+        # run workflow - send the updated json string 
+        testLuigi2.run(self.JsonObjectString,self.WD_path,ResourceDir)
+        
+        # return the working directory to what it was
+        os.chdir(currentDirFC)
+
+        
+    
+    def RunLuigiScript(self):
+        
+        import shutil
+        import os
+#        os.system("echo HI > /tmp/outputs_path.txt")
+
+        # save the current work directory before it changed
+        currentDirFC=os.getcwd()
+        
+        # create path to Resource dir- which in this case also the current_dir
+        ResourceDir = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/"
+        current_dir=ResourceDir
+        
+        # insert the path to sys
+        # insert at 1, 0 is the script path (or '' in REPL)
+        sys.path.insert(1, current_dir)
+        sys.path.insert(1, self.WD_path)
+#        
+        #update 'current_dir' to full path- absolute
+        current_dir=os.path.abspath(current_dir)
+        
+        os.chdir(self.WD_path) 
+        shutil.rmtree('OpenFOAMfiles', ignore_errors=True)
+        
+               
+        # remove the output folder
+        shutil.rmtree(self.WD_path+'/outputs', ignore_errors=True)
+        
+        os.mkdir(self.WD_path+"/OpenFOAMfiles")
+        
+        import stat
+
+        fullPath=ResourceDir+"pyHermes/doc/examples/simpleWorkflow2/runLuigi.sh"
+
+        os.chmod(fullPath, stat.S_IRWXU)
+        os.system(fullPath)
+        
+        # return the working directory to what it was
+        os.chdir(currentDirFC)
+    
+    def updateWorkingDirectory(self,path):
+        self.WD_path=path
+
+        
+        
+
       
 # =============================================================================
 #     "_CommandCreateHermesWorkflow" class
@@ -2108,12 +2216,31 @@ class _ViewProviderHermesWorkflow:
         #Check if the JSONFile parameter changed and its not empty path
         if (str(prop) == 'ImportJSONFile' and len(str(obj.ImportJSONFile)) > 0):
             obj.Proxy.readJson(obj)
+            # seperate file and dir, and define dir as workingDir
+            Dirpath=os.path.dirname(obj.ImportJSONFile)
+            # update workind directory to self of hermes class
+            obj.Proxy.updateWorkingDirectory(Dirpath)
+            # update workind directory to the hermes obj
+            obj.WorkingDirectory=Dirpath
             obj.ImportJSONFile = ''
         if (str(prop) == 'ExportJSONFile' and len(str(obj.ExportJSONFile)) > 0):
-            obj.Proxy.saveJson(obj,obj.ExportJSONFile,"null",obj.Label)
+            obj.Proxy.prepareJsonVar(obj,"null")
+            obj.Proxy.saveJson(obj,obj.ExportJSONFile,obj.Label)
             obj.ExportJSONFile = ''
+        if (str(prop) == 'RunWorkflow' and (obj.RunWorkflow)):
+            obj.Proxy.prepareJsonVar(obj,"null")
+            obj.Proxy.RunworkflowCreation(obj)
+            
+        if (str(prop) == 'RunLuigi' and (obj.RunLuigi)):
+            obj.Proxy.RunLuigiScript()    
+            
+        if (str(prop) == 'WorkingDirectory' and len(str(obj.WorkingDirectory)) > 0):
+            obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
-            return
+            
+            
+
+
         
 
     def onChanged(self, vobj, prop):
