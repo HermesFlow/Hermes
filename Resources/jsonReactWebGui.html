@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>2 Read Schema and show</title>
+		<link rel="stylesheet" id="theme" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<!--	 <link rel="stylesheet" href="./styles.css">-->
+	
+		<style>
+			* {box-sizing: border-box}
+			body {font-family: "Lato", sans-serif;}
+
+			/* Style the tab */
+			.tab {
+/*  				float: left;
+  				border: 1px solid #ccc;
+  				background-color: #f1f1f1;
+  				width: 30%;
+  				height: 300px;*/
+			}
+
+
+			/* Style the tab content */
+			.tabcontent {
+/*	  			float: left;
+  				padding: 0px 12px;
+  				border: 1px solid #ccc;
+  				width: 70%;
+  				border-left: none;
+  				height: 300px;*/
+			}
+		</style>
+	</head>
+	<body>
+		
+		<!--	Define reference link to allow usage at JS	-->
+  		<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  		<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  		<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  		<script src="https://unpkg.com/react-jsonschema-form/dist/react-jsonschema-form.js"></script>
+
+
+<!--		<div id="Node-1" class="tabcontent">-->
+			<!--where all been displayed from show data-->
+  			<div id="app1"></div>
+		
+	<!-------------------------	Script 1 start - processUser	------------------------------>
+		<script language="JavaScript">
+ 			var JsonDataFromFile={}; // the main Json file
+ 			var UpdateFormData={};  // the data been updated at the form(return as string)
+ 			
+		//**********************processUser start *********************************************************     			
+  			function processUser(){
+  			// the function get arguments from the URL and put it in a variable
+    			var parameters = location.search.substring(1).split("&");
+    			    var temp = parameters[0].split("=");
+    				 var JsonSTR = unescape(temp[1]);
+				JsonDataFromFile=JSON.parse(JsonSTR);
+				var jsonData = JSON.stringify(JsonDataFromFile);
+				webview.process(0, jsonData);
+				alert(jsonData);
+				
+  			}
+  		//**********************processUser end ********************************************************* 
+  		
+  			
+  			
+  			processUser();
+		</script>
+	<!-------------------------	Script 1 end- processUser	------------------------------>
+		
+		
+	<!-------------------------	Script 2 start - getArrayData,onChange	------------------------------>	
+		<script type="text/javascript">
+
+      	var Scheme_ARR=getArrayData();
+
+   	//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function getArrayData start ^^^^^^^^^^^^^^^^^^^^^^^^^
+      		function getArrayData() {
+   	  		//the function take the needed data - Schema,uiSchema,formData
+				if (JsonDataFromFile != null) {
+					var x;
+					for (x in JsonDataFromFile) {
+						if (typeof(JsonDataFromFile[x])=='object') {
+							if(x=='Schema'){
+								var schema=JsonDataFromFile[x];
+							}else if (x=='uiSchema') {
+								var uiSchema=JsonDataFromFile[x];
+							}else if (x=='formData') {
+								var formData=JsonDataFromFile[x];
+							}
+						}
+					}
+			   }
+			   return [schema,uiSchema,formData];
+			  	
+   		 	}//getArrayData
+   	//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function getArrayData end ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+		//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function onChange start ^^^^^^^^^^^^^^^^^^^^^^^^^
+  			function onChange(mydata) {
+			// the function update the data been changed to the var JsonDataFromFile
+			// get - "mydata" - var with the data of the last node:scheme,uiScheme,formData
+			
+				Object.assign(JsonDataFromFile.formData, mydata.formData); // assign the data from the submit into the structure
+				//console.log(JsonDataFromFile.formData)
+				//UpdateFormData=JSON.stringify(JsonDataFromFile.formData);
+				UpdateFormData=JSON.stringify(JsonDataFromFile);
+				webview.process(0, UpdateFormData);
+				alert(UpdateFormData);
+				//console.log(UpdateFormData)
+
+  			}//mysubmit
+		//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function onChange end ^^^^^^^^^^^^^^^^^^^^^^^^^
+		</script>
+		
+	<!-------------------------	Script 2 end - getArrayData,onChange	------------------------------>
+	<script type="text/javascript">	
+  		function test1() {
+  			
+  			return '42';
+  		} 
+  		
+  		function test2() {
+  			
+  			return 42;
+  		}
+  		
+  		function test3(x,y) {
+  			
+  			return x+y;
+  		}
+  		
+  		function test4() {
+  			
+		alert("Hello World");
+  		} 
+  	</script>
+
+	<!-------------------------	Script 3 start - ShowData	------------------------------>	
+		<!--show the file-->
+		<script type="text/babel">
+		   ShowData(Scheme_ARR);
+
+		//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function ShowData start ^^^^^^^^^^^^^^^^^^^^^^^^^
+			 function ShowData(Scheme_ARR) {
+			 
+			// the function display the form and the data on the "web'
+			// get - schema- var that contain all the form-data scheme
+			// 	 - uiScheme- var that contain all the form-data uiScheme
+			// 	 - formData- var that contain all the data being filled from the form
+
+	 			const Form = JSONSchemaForm.default; 
+	 			
+	 			const customFormats = {
+  					'vector': /\(?\d{1}\)?[\s-]?\d{1}[\s-]?\d{1}$/
+				};
+
+	 			const onError = (errors) => console.log("I have this errors", errors);
+			
+				var schema=Scheme_ARR[0];
+				var uiSchema=Scheme_ARR[1];
+				var formData=Scheme_ARR[2];
+
+				//magic here- make it display
+	 			ReactDOM.render((
+  				<Form schema={schema}
+	   	   	   uiSchema={uiSchema}
+   	   		   formData={formData}
+   	   		   onChange={onChange}
+      	   		onError={onError}
+      	   		customFormats={customFormats}
+     				   >
+     				   	<div>
+      						<button hidden="hidden" type="submit" >submit</button>
+    						</div>
+     				   </Form>
+     				   ), document.getElementById("app1"));
+       	    		
+
+			}//ShowData
+		//^^^^^^^^^^^^^^^^^^^^^^^^^^^ function ShowData end^^^^^^^^^^^^^^^^^^^^^^^^^
+
+		</script>
+	<!-------------------------	Script 3 end - ShowData	------------------------------>	
+	</body>
+</html>
+
+
+
+
+
+
