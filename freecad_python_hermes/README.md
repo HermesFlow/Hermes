@@ -10,6 +10,6 @@ the location of the files:
 $fc_build/Mod/Hermes
 
 Steps:
-1. Create the Hermes directory inside Mod
+1. Create the Hermes directory inside $fc_build/Mod
 2. Copy the files from freecad_python_hermes to the Hermes directory.
 
