@@ -1,0 +1,11 @@
+{
+    "simulationType":"RAS",
+    "RAS":{
+        "RASModelCoeffs":{
+
+        },
+        "RASModel":"kEpsilon",
+        "turbulence":true,
+        "printCoeffs":true
+    }
+}

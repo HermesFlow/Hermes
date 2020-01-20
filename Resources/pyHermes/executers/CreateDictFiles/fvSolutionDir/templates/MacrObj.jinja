@@ -1,0 +1,36 @@
+{#-macro that will print dictionary values, include nested dictionaties-#}
+{%- macro macrObj(dict,Bspace) -%}
+{%- set space=' ' -%}
+{%- for key, value in dict.items() -%}
+{%- if value is mapping %}
+{%- if key is string  and key|first=="(" -%}
+{{ space|safe*Bspace }}"{{key}}"
+{{ space|safe*Bspace }}{
+{{macrObj(value,Bspace+4)}}
+{{ space|safe*Bspace }}}
+{% else -%}
+{{ space|safe*Bspace }}{{key}}
+{{ space|safe*Bspace }}{
+{{macrObj(value,Bspace+4)}}
+{{ space|safe*Bspace }}}
+{%- endif %}
+{% else -%}
+{%- if key|length<12 -%}
+{%- set lenSpace=12-key|length -%}
+{#-multiply 1 spcace in the wanted lenght - lenSpace'-#}
+{%- if key is string  and key|first=="(" -%}
+{{ space|safe*Bspace }}"{{ key }}" {{ space|safe*lenSpace }} {{ value -}};
+{%- else -%}
+{{ space|safe*Bspace }}{{ key }} {{ space|safe*lenSpace }} {{ value -}};
+{%- endif %}
+{%- else -%}
+{%- if key is string  and key|first=="(" -%}
+{{- space|safe*Bspace }}"{{ key }}" {{ value -}};
+{%- else -%}
+{{- space|safe*Bspace }}{{ key }} {{ value -}};
+{%- endif %}
+{%- endif %}
+{% endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+

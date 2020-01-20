@@ -1,0 +1,154 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version       2.0;
+    format        ascii;
+    class         dictionary;
+    object        snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh on;
+snap          off;
+addLayers     on;
+
+geometry
+{
+
+    buildings.stl
+    {
+        typeTSM       triSurfaceMesh;
+        nameTSM       buildings;
+
+    }
+
+    topo.stl
+    {
+        typeTSM       triSurfaceMesh;
+        nameTSM       topo;
+
+    }
+
+    refinementBox
+    {
+        typeBox       searchableBox;
+        minBox        (-250 -250   0);
+        maxBox        (250 250  10);
+
+    }
+
+}
+
+castellatedMeshControls
+{
+    nCellsBetweenLevels 2;
+    maxLocalCells 200000000;
+    maxGlobalCells 200000000;
+
+    features
+    (
+      { file          "topo.eMesh";
+        levels        ((3 2) (20 1)); }
+
+    );
+
+    features
+    (
+      { file          "buildings.eMesh";
+        levels        ((3 2) (20 1)); }
+
+    );
+
+    refinementSurfaces
+    {
+
+        buildings
+        {
+            Levels        (2 1);
+            patchInfo     type wall;
+
+        }
+
+        topo
+        {
+            Levels        (2 1);
+            patchInfo     type wall;
+
+        }
+
+    }
+
+    refinementRegions
+    {
+
+        refinementBox
+        {
+            mode          inside;
+            levels        (1E15 1);
+
+        }
+
+    }
+    locationInMesh (207000 738000 635);
+
+}
+
+snapControls
+{
+    explicitFeatureSnap True;
+    implicitFeatureSnap False;
+
+}
+
+addLayersControls
+{
+    relativeSizes True;
+
+    layers
+    {
+        name          buildings;
+
+        layerProperties
+        {
+            nSurfaceLayers 1;
+
+        }
+
+    }
+    expansionRatio 1;
+    finalLayerThickness 0.3;
+    minThickness 0.1;
+    nGrow         0;
+    featureAngle 60;
+    slipFeatureAngle 30;
+    nRelaxIter    3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedianAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter    50;
+
+}
+
+meshQualityControls
+{
+
+}
+
+writeFlags
+(
+    scalarLevels
+    layerSets
+    layerFields
+);
+
+mergeTolerance 1e-06;

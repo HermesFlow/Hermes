@@ -1,0 +1,10 @@
+{%- set Bspace=4 -%}
+{%- set spaces=' ' -%}
+{%- for key, value in Foamdict.items() -%}
+{%- if key|length<12 -%}
+{%- set lenSpace=12-key|length %}
+{{ spaces|safe*Bspace }}{{ key }} {{ spaces|safe*lenSpace }} {{ value -}};
+{%- else -%}
+{{ spaces|safe*Bspace }}{{ key }} {{ value -}};
+{%- endif -%}
+{%- endfor -%}

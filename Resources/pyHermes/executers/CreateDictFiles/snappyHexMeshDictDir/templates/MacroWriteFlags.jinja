@@ -1,0 +1,13 @@
+{#-macro that will print list from "writeFlags"-#}
+{%- macro MacroWriteFlags(list) -%}
+{%- set Bspace=4 -%}
+{%- set spaces=' ' %}
+writeFlags
+(
+{%- for item in list %}
+{{ spaces|safe*Bspace }}{{ item }}
+{%- endfor %}
+);
+
+{% endmacro %}
+

@@ -1,0 +1,21 @@
+{#-macro that will print list from "writeFlags"-#}
+{%- macro MacroFeatures(dict,Bspace) -%}
+{%- set space=' ' -%}
+{%- for key, value in dict.items() -%}
+{% if value is mapping %}
+{{ space|safe*Bspace }}features
+{{ space|safe*Bspace }}(
+{{MacroFeatures(value,Bspace+4)}}
+{{ space|safe*Bspace }});
+{% elif key=="file" %}
+{%- set lenSpace=12-key|length -%}
+{{- space|safe*(Bspace-2) }}{ {{ key }} {{ space|safe*lenSpace }} "{{ value -}}";
+{% else -%}
+{%- set lenSpace=12-key|length -%}
+{#-multiply 1 spcace in the wanted lenght - lenSpace'-#}
+{{- space|safe*Bspace }}{{ key }} {{ space|safe*lenSpace }} {{ value -}}; }
+{% endif %}
+{%- endfor -%}
+
+{% endmacro %}
+
