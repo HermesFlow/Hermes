@@ -1,8 +1,8 @@
-Instruction for setting up deveoper environment of PyHermes2
-============================================================
+# Instruction for setting up deveoper environment of PyHermes
 
-FreeCad source
---------------
+
+## FreeCad source
+
 Download source and checkout the hash 5a352ea63:
 
 1. git clone 5a352ea63
@@ -51,8 +51,8 @@ Copy docker launch scripts:
 docker.sh
 docker_build.sh
 
-Docker for builders: 
--------------------
+## Docker for builders: 
+
 1. docker pull registry.gitlab.com/daviddaish/freecad_docker_env:latest
 
 2. change directory to the location where FreeCad source resides ($FCSRC/..)
@@ -67,8 +67,8 @@ Docker for builders:
 cd /mnt/source
 ./build_script.sh
 
-Docker for users: 
--------------------
+## Docker for users: 
+
 1. docker pull registry.gitlab.com/daviddaish/freecad_docker_env:latest
 
 2. launch freecad_build_files/docker.sh
@@ -77,7 +77,6 @@ Docker for users:
 3. run the command:
 ( apt-get update && apt-get install libqt5webkit5-dev)
 (commit it to your docker image?)
-
 
 4. /mnt/build/bin/FreeCad
 
