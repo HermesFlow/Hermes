@@ -10,13 +10,15 @@ The package also constructs GUI to set the parameters of the workflow.
 Since the workflow is focused on CFD/structural simulations the GUI is based on FreeCAD package. 
 
 
-
-
-
-
 ## This project contains
 1. FreeCad source modifications that allow the functionality of pyHermes
 
 2. pyHermes Python source files and example
 
+## Installation
+
+### For users 
+
+
+### For developers. 
 
