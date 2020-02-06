@@ -1,7 +1,6 @@
 #!/bin/sh
 
-fc_source=$PWD/source
-fc_build=$PWD/build
+fc_build="$PWD/build"
 
 docker run -it --rm \
 -v $fc_build:/mnt/build \
