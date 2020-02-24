@@ -1,6 +1,10 @@
 #!/bin/sh
 
 wd=`basename $0`
+if [ "x$wd" = "x" ]; then
+    wd="$PWD"
+    fi
+
 fc_source="$wd/source"
 fc_build="$wd/build"
 fc_build_files="$PWD/pyHermes/freecad_build_files/"

@@ -1,6 +1,10 @@
 #!/bin/sh
 
 wd=`basename $0`
+if [ "x$wd" = "x" ]; then
+    wd="$PWD"
+    fi
+    
 fc_build="$wd/build"
 
 docker run -it --rm \
