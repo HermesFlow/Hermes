@@ -17,6 +17,9 @@ Since the workflow is focused on CFD/structural simulations the GUI is based on 
 
 ## Installation
 
+The provided install.sh script can be used to produce a directory with all the necessary repositories (HermesFlow/pyHermes, HermesFlow/JsonExample, FreeCad), installs the docker image from https://gitlab.com/daviddaish/freecad_docker_env and sets up 2 docker scripts. 
+
+
 ### For users 
 
 

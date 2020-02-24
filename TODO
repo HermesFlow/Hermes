@@ -1,0 +1,2 @@
+1. docker_dev.sh fails to run when launched using absolute path. 
+
