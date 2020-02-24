@@ -1,7 +1,7 @@
 #!/bin/sh
 
-wd=`basename $0`
-if [ ! "x$wd" = x\/* ]; then
+wd=`dirname $0`
+if [ ! "x$wd" = x\/* && ! "x$wd" = x~ ]; then
     wd="$PWD/$wd"
     fi
 
