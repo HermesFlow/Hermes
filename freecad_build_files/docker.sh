@@ -1,9 +1,12 @@
 #!/bin/sh
 
+#Gets absolute path
+get_abs_filename() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+me=`get_abs_filename $0`
 wd=`dirname $0`
-if [ ! "x$wd" = x\/* -a ! "x$wd" = x~ ]; then
-    wd="$PWD/$wd"
-    fi
 
 fc_examples="$wd/examples"    
 fc_build="$wd/build"
