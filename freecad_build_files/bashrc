@@ -17,7 +17,7 @@
 # alias cp='cp -i'
 # alias mv='mv -i'
 
-freecad=/mnt/build/FreeCad 
+freecad=/mnt/build/bin/FreeCad 
 echo "Expanding FreeCad .bashrc for rinning FreeCad"
 echo "Command that runs FreeCad: $freecad"
 $freecad

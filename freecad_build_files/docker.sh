@@ -7,6 +7,7 @@ if [ ! "x$wd" = x\/* -a ! "x$wd" = x~ ]; then
 
 fc_examples="$wd/examples"    
 fc_build="$wd/build"
+fc_build_files="$wd/pyHermes/freecad_build_files/"
 
 docker run -it --rm \
 -v "$fc_build":/mnt/build \

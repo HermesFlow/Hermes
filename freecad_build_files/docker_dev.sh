@@ -10,7 +10,7 @@ fc_examples="$wd/examples"
 fc_build="$wd/build"
 fc_build_files="$wd/pyHermes/freecad_build_files/"
 
-sudo docker run -it --rm \
+docker run -it --rm \
 -v "$fc_source":/mnt/source \
 -v "$fc_build":/mnt/build \
 -v "$fc_build_files":/mnt/build_files \

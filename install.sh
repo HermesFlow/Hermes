@@ -14,6 +14,7 @@ Options:
     -b build_destination    scpecify separate build directory, default: $destination/build
     -d hash                 specify docker image hash to pull, default: $DOCKER_IMAGE_HASH
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
+    -p diff-file            specify freecad source diff that fixes compilation problems
     -h,-?                   print this help message
     
 Author: Yakov Mindelis
@@ -28,7 +29,13 @@ myexit() {
     exit
     }
 
-    
+#Gets absolute path
+get_abs_filename() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+ 
 git_pull() {
     res=0
     git_clone_output=`git clone "https://github.com/HermesFlow/$1.git" 2>&1`
@@ -64,34 +71,28 @@ check_docker() {
 #verify docker image exists, download if needed
 setup_docker() {
 #docker image inspect -f "{{.Id}}" 518df783c4d6
-    sudo=
-    [ "x$OS" = "xLinux" ] && sudo=sudo
     docker_inspect_cmd=$sudo' docker image inspect -f "{{.Id}}" registry.gitlab.com/daviddaish/freecad_docker_env'
     echo $docker_inspect_cmd  "$docker_inspect_cmd" > docker_inspect_cmd
     docker_inspect=`$docker_inspect_cmd`
     echo $docker_inspect
 #    if [[ "x$docker_inspect" = x*518df783c4d6* ]]; then 
-    if [[ "x$docker_inspect" = x*ee7e3ecee4ca* ]]; then 
+    if [[ "x$docker_inspect" = x*"$DOCKER_IMAGE_HASH"* ]]; then 
         echo "Docker image exists"
         return 0
         fi
         
     res=0
     echo "Docker image doesn't exist, will try to download"
-    $sudo docker pull registry.gitlab.com/daviddaish/freecad_docker_env:$DOCKER_IMAGE_HASH  || ( echo "Docker image pull failed"  ; res=1)
+    docker pull registry.gitlab.com/daviddaish/freecad_docker_env:$DOCKER_IMAGE_HASH  || ( echo "Docker image pull failed"  ; res=1)
 
     return $res
     }
 
 setup_docker_launch() {
-    #cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker.sh"     | sed "s#"\$"wd#"$DESTINATION_FULL/"#g"  \
-    #> "$DOCKER"     || ( echo "Docker launch script generation for users failed"; return 1)
     cp -a "$DESTINATION_FULL/pyHermes/freecad_build_files/docker.sh"  "$DESTINATION_FULL/"
     chmod +x "$DOCKER"
     echo "Docker launch script generation for users"
 
-    #cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev.sh" | sed "s#"\$"wd#"$DESTINATION_FULL/"#g"  \
-    #> "$DOCKER_DEV" || ( echo "Docker launch script generation for developers failed"; return 1)
     cp -a "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev.sh"  "$DESTINATION_FULL/"
     chmod +x "$DOCKER_DEV"
     echo "Docker launch script generation for developers"
@@ -99,29 +100,28 @@ setup_docker_launch() {
     }
 
 setup_source() {
-
     if [ ! -d "$DESTINATION_FULL/source/.git" ]; then 
         git clone https://github.com/FreeCAD/FreeCAD.git "$DESTINATION_FULL/source"
 
     else
         echo "\"$DESTINATION_FULL/source\" appears to be a git tree, will try to checkout"
     fi
+
     HASH=`(cd "$DESTINATION_FULL/source";  git describe --tags --long 2>/dev/null)`
-    echo "HASH $HASH"
-    set -x
     if [ "x$HASH" = "x$FREECAD_SOURCE_HASH" ]; then
         echo "Hash  $FREECAD_SOURCE_HASH already cheked out"
     else
-        (cd "$DESTINATION_FULL/source"; git checkout $FREECAD_SOURCE_HASH)
+        (cd "$DESTINATION_FULL/source"; git reset --hard $FREECAD_SOURCE_HASH)
     fi
     #verify
     if [ "x$HASH" != "x$FREECAD_SOURCE_HASH" ]; then
         echo "Hash  $FREECAD_SOURCE_HASH wasn't cheked out"
         return 1
     fi
-
     cp -a "$DESTINATION_FULL/pyHermes/freecad_build_files/build_script.sh"  "$DESTINATION_FULL/source"
-
+    if [[ ! "x$FREECAD_SOURCE_PATCH" = "x" ]]; then
+        (cd "$DESTINATION_FULL/source" && patch -p1 -N -r /dev/null < "$FREECAD_SOURCE_PATCH" )
+        fi 
     return 0
 
     }
@@ -146,11 +146,14 @@ if [ "x$ARGS" = "x" ]; then
 fi
 
 #defaults
+##FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
+##FREECAD_SOURCE_HASH="0.19_pre-813-g5a352ea63"
 FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
-DOCKER_IMAGE_HASH=518df783c4d6
+FREECAD_SOURCE_PATCH=`get_abs_filename "freecad_5a352ea63_git.diff"`
+DOCKER_IMAGE_HASH=ee7e3ecee4ca
 
 # Process the options
-while getopts "o:b:d:f:h" opt
+while getopts "o:b:d:f:p:h" opt
 do
     case $opt in
 #columns    
@@ -158,6 +161,7 @@ do
         b)      BUILD_DESTINATION="$OPTARG";; 
         d)      HASH="$OPTARG";; 
         f)      FREECAD_SOURCE_HASH="$OPTARG";; 
+        p)      FREECAD_SOURCE_PATCH=`get_abs_filename "$OPTARG"`;; 
         h|\?)   usage ;;
     esac
 done
@@ -168,7 +172,7 @@ OS=`uname -s`
 DESTINATION_FULL=
 DOCKER_DEV=
 DOCKER=
-DESTINATION_FULL="$DESTINATION"
+DESTINATION_FULL=`get_abs_filename "$DESTINATION"`
 if [[ "x$DESTINATION" = x.* ]] || [[ ! "x$DESTINATION" = x~* ]] || [[ ! "x$DESTINATION" = x\/* ]]  ; then 
     DESTINATION_FULL="$PWD/$DESTINATION"
     fi
