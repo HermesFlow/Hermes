@@ -19,33 +19,36 @@ Since the workflow is focused on CFD/structural simulations the GUI is based on 
 
 The provided install.sh script can be used to produce and environment to run/develop FreeCad with HermesFlow.
 The scriptperforms the following:
-    1. downloads and installs the docker image from:
-        https://gitlab.com/daviddaish/freecad_docker_env 
 
-    2. sets up two docker launch scripts:
-        docker.sh
-        docker_dev.sh
+1. downloads and installs the docker image from:
+    https://gitlab.com/daviddaish/freecad_docker_env 
 
-     
-    3. downloads  the necessary repositories:
-        HermesFlow/pyHermes
-        HermesFlow/JsonExample
-        FreeCad
+2. sets up two docker launch scripts:
+    docker.sh
+    docker_dev.sh
 
-    4. sets up the python environment needed for running/development in "dot_local" directory that is bound to ~/.local of the docker user by means of bind directive in doker launch script, it contains the following python components:
-        PyQt5
-        jsonpath_rw_ext
-        luigi
+ 
+3. downloads  the necessary repositories:
+    HermesFlow/pyHermes
+    HermesFlow/JsonExample
+    FreeCad
 
-       to update the dot_local: 
-       a. modify docker_dev.sh to bind the .local in read-write mode (rw)
-       b. "pip3 --user install" the additional packages inside docker
-       c. exit docker
-       d. to commit the updated dot_local into git:
-           i.   tar cvf dot_local.tar.gz
-           ii.  move the tarbal into freecad_build_files of thew git tree
-           iii. git commit -m "some comment" freecad_build_files/dot_local.tar.gz
-           iv.  git push
+4. sets up the python environment needed for running/development in "dot_local" directory that is bound to ~/.local of the docker user by means of bind directive in doker launch script, it contains the following python components:
+    PyQt5
+    jsonpath_rw_ext
+    luigi
+
+   to update the dot_local: 
+   
+   a. modify docker_dev.sh to bind the .local in read-write mode (rw)
+   b. "pip3 --user install" the additional packages inside docker
+   c. exit docker
+   d. to commit the updated dot_local into git:
+   
+       i.   tar cvf dot_local.tar.gz
+       ii.  move the tarbal into freecad_build_files of thew git tree
+       iii. git commit -m "some comment" freecad_build_files/dot_local.tar.gz
+       iv.  git push
 
 
 
