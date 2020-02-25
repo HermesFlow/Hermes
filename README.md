@@ -41,8 +41,11 @@ The scriptperforms the following:
    to update the dot_local: 
    
    a. modify docker_dev.sh to bind the .local in read-write mode (rw)
+
    b. "pip3 --user install" the additional packages inside docker
+   
    c. exit docker
+   
    d. to commit the updated dot_local into git:
    
        i.   tar cvf dot_local.tar.gz
