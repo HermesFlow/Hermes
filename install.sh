@@ -14,7 +14,7 @@ Options:
     -b build_destination    scpecify separate build directory, default: $destination/build
     -d hash                 specify docker image hash to pull, default: $DOCKER_IMAGE_HASH
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
-    -p diff-file            specify freecad source diff that fixes compilation problems
+    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  $FREECAD_SOURCE_PATCH
     -h,-?                   print this help message
     
 Author: Yakov Mindelis

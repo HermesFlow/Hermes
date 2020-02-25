@@ -49,7 +49,7 @@ The scriptperforms the following:
 
 
 
-Usage of install.sh:
+Usage of install.sh, requires executable permissions of the script:
 
 Usage:
     install.sh -d target_directory [-h git_hash] [-b build_destination]
@@ -60,21 +60,25 @@ Options:
     -o destination          directory which will contain the build files
     -b build_destination    scpecify separate build directory, default: /build
     -d hash                 specify docker image hash to pull, default: ee7e3ecee4ca
-    -f hash                 specify freecad source hash to pull, default: "0.19_pre-813-g5a352ea63
-    -p diff-file            specify freecad source diff that fixes compilation problems
+    -f hash                 specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
+    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  /Users/jack/iscfdc/freecad/freecad_5a352ea63_git.diff
     -h,-?                   print this help message
 
         
 to produce a diff file from non-default source dir one should fixe the compilation problems and run:
     git diff > file.diff
 
+To start working default patvh file and install script only are needed. 
+
 ### For users 
 
-Use docker.sh script inside the installation directory
+Use docker.sh script inside the installation directory. Note: "xhost +"  is required to allow X11 connection from docker to hosts's X11 server to allow displaying graphics. 
 
 ### For developers. 
 
-Use docker_dev.sh script inside the installation directory. The script will launch the /mnt/source/build_script.sh wish was producedfrom the original build_script.sh, it has the following modification:
+Use docker_dev.sh script inside the installation directory. The script will launch the /mnt/source/build_script.sh wish was produced from the original build_script.sh, it has the following modification:
 
     -D FREECAD_USE_QTWEBMODULE="Qt\ Webkit" 
+
+Invoking the script will trigger build process. 
 
