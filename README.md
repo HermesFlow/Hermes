@@ -74,7 +74,8 @@ Options:
 to produce a diff file from non-default source dir one should fixe the compilation problems and run:
     git diff > file.diff
 
-To start working default patvh file and install script only are needed. 
+To start working default patch file (freecad_build_files/freecad_5a352ea63_git.diff) and install script only are requiered to be located in the same directory, example installation command:
+./install.sh -o output_directory
 
 ### For users 
 
