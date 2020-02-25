@@ -1,0 +1,1100 @@
+diff --git a/src/3rdParty/salomesmesh/inc/Rn.h b/src/3rdParty/salomesmesh/inc/Rn.h
+index 6ec871d93..bbdfd69bc 100644
+--- a/src/3rdParty/salomesmesh/inc/Rn.h
++++ b/src/3rdParty/salomesmesh/inc/Rn.h
+@@ -25,7 +25,8 @@
+ 
+ #ifndef Rn__h
+ #define Rn__h
+-
++//Jack:
++#include <istream>
+ #include <gp_Pnt.hxx>      //Dans OpenCascade
+ #include <gp_Vec.hxx>      //Dans OpenCascade
+ #include <gp_Dir.hxx>      //Dans OpenCascade
+@@ -180,12 +181,12 @@ class R4: public R3
+ {
+   friend std::ostream& operator <<(std::ostream& f, const R4 & P )
+   { f << P.x << ' ' << P.y << ' ' << P.z << ' ' << P.omega; return f; }
+-  friend istream& operator >>(istream& f,  R4 & P)
++  friend std::istream& operator >>(std::istream& f,  R4 & P)
+   { f >> P.x >>  P.y >>  P.z >> P.omega ; return f; }
+ 
+   friend std::ostream& operator <<(std::ostream& f, const R4 * P )
+   { f << P->x << ' ' << P->y << ' ' << P->z << ' ' << P->omega; return f; }
+-  friend istream& operator >>(istream& f,  R4 * P)
++  friend std::istream& operator >>(std::istream& f,  R4 * P)
+   { f >> P->x >>  P->y >>  P->z >> P->omega ; return f; }
+ 
+ public:  
+diff --git a/src/Mod/Drawing/App/DrawingExport.cpp b/src/Mod/Drawing/App/DrawingExport.cpp
+index 0c3c23231..822011feb 100644
+--- a/src/Mod/Drawing/App/DrawingExport.cpp
++++ b/src/Mod/Drawing/App/DrawingExport.cpp
+@@ -434,7 +434,7 @@ void SVGOutput::printGeneric(const BRepAdaptor_Curve& c, int id, std::ostream& o
+             out << c << " " << nodes(i).X() << " " << nodes(i).Y()<< " " ; 
+             c = 'L';
+         }
+-        out << "\" />" << endl;
++        out << "\" />" << std::endl;
+     } else if (c.GetType() == GeomAbs_Line) {
+         //BRep_Tool::Polygon3D assumes the edge has polygon representation - ie already been "tessellated"
+         //this is not true for all edges, especially "floating edges"
+@@ -447,7 +447,7 @@ void SVGOutput::printGeneric(const BRepAdaptor_Curve& c, int id, std::ostream& o
+         out << c << " " << s.X() << " " << s.Y()<< " " ; 
+         c = 'L';
+         out << c << " " << e.X() << " " << e.Y()<< " " ; 
+-        out << "\" />" << endl;
++        out << "\" />" << std::endl;
+     }
+ }
+ 
+@@ -485,10 +485,10 @@ std::string DXFOutput::exportEdges(const TopoDS_Shape& input)
+ 
+ void DXFOutput::printHeader( std::ostream& out)
+ {
+-        out	 << 0          << endl;
+-        out << "SECTION"  << endl;
+-        out << 2          << endl;
+-        out << "ENTITIES" << endl;
++        out	 << 0          << std::endl;
++        out << "SECTION"  << std::endl;
++        out << 2          << std::endl;
++        out << "ENTITIES" << std::endl;
+ }
+ 
+ void DXFOutput::printCircle(const BRepAdaptor_Curve& c, std::ostream& out)
+@@ -512,22 +512,22 @@ void DXFOutput::printCircle(const BRepAdaptor_Curve& c, std::ostream& out)
+     if (s.SquareDistance(e) < 0.001) {
+         //out << "<circle cx =\"" << p.X() << "\" cy =\"" 
+             //<< p.Y() << "\" r =\"" << r << "\" />";
+-	    out << 0			<< endl;
+-	    out << "CIRCLE"		<< endl;
+-	    out << 8			<< endl;	// Group code for layer name
+-	    out << "sheet_layer"	<< endl;	// Layer number
+-        out << "100"        << endl;
+-        out << "AcDbEntity" << endl;
+-        out << "100"        << endl;
+-        out << "AcDbCircle"   << endl;
+-	    out << 10			<< endl;	// Centre X
+-	    out << p.X()		<< endl;	// X in WCS coordinates
+-	    out << 20			<< endl;
+-	    out << p.Y()		<< endl;	// Y in WCS coordinates
+-	    out << 30			<< endl;
+-	    out << 0		<< endl;	// Z in WCS coordinates-leaving flat
+-	    out << 40			<< endl;	//
+-	    out << r		<< endl;	// Radius
++	    out << 0			<< std::endl;
++	    out << "CIRCLE"		<< std::endl;
++	    out << 8			<< std::endl;	// Group code for layer name
++	    out << "sheet_layer"	<< std::endl;	// Layer number
++        out << "100"        << std::endl;
++        out << "AcDbEntity" << std::endl;
++        out << "100"        << std::endl;
++        out << "AcDbCircle"   << std::endl;
++	    out << 10			<< std::endl;	// Centre X
++	    out << p.X()		<< std::endl;	// X in WCS coordinates
++	    out << 20			<< std::endl;
++	    out << p.Y()		<< std::endl;	// Y in WCS coordinates
++	    out << 30			<< std::endl;
++	    out << 0		<< std::endl;	// Z in WCS coordinates-leaving flat
++	    out << 40			<< std::endl;	//
++	    out << r		<< std::endl;	// Radius
+                                 }
+ 
+ 
+@@ -555,28 +555,28 @@ void DXFOutput::printCircle(const BRepAdaptor_Curve& c, std::ostream& out)
+ 		double temp = start_angle;
+ 		start_angle = end_angle;
+ 		end_angle = temp;}
+-	out << 0			<< endl;
+-	out << "ARC"		<< endl;
+-	out << 8			<< endl;	// Group code for layer name
+-	out << "sheet_layer"	<< endl;	// Layer number
+-    out << "100"        << endl;
+-    out << "AcDbEntity" << endl;
+-    out << "100"        << endl;
+-    out << "AcDbCircle" << endl;
+-	out << 10			<< endl;	// Centre X
+-	out << p.X()		<< endl;	// X in WCS coordinates
+-	out << 20			<< endl;
+-	out << p.Y()		<< endl;	// Y in WCS coordinates
+-	out << 30			<< endl;
+-	out << 0		<< endl;	// Z in WCS coordinates
+-	out << 40			<< endl;	//
+-	out << r		<< endl;	// Radius
+-    out << "100"        << endl;
+-    out << "AcDbArc" << endl;
+-	out << 50			<< endl;
+-	out << start_angle	<< endl;	// Start angle
+-	out << 51			<< endl;
+-	out << end_angle	<< endl;	// End angle
++	out << 0			<< std::endl;
++	out << "ARC"		<< std::endl;
++	out << 8			<< std::endl;	// Group code for layer name
++	out << "sheet_layer"	<< std::endl;	// Layer number
++    out << "100"        << std::endl;
++    out << "AcDbEntity" << std::endl;
++    out << "100"        << std::endl;
++    out << "AcDbCircle" << std::endl;
++	out << 10			<< std::endl;	// Centre X
++	out << p.X()		<< std::endl;	// X in WCS coordinates
++	out << 20			<< std::endl;
++	out << p.Y()		<< std::endl;	// Y in WCS coordinates
++	out << 30			<< std::endl;
++	out << 0		<< std::endl;	// Z in WCS coordinates
++	out << 40			<< std::endl;	//
++	out << r		<< std::endl;	// Radius
++    out << "100"        << std::endl;
++    out << "AcDbArc" << std::endl;
++	out << 50			<< std::endl;
++	out << start_angle	<< std::endl;	// Start angle
++	out << 51			<< std::endl;
++	out << end_angle	<< std::endl;	// End angle
+ 
+ 
+ 
+@@ -628,32 +628,32 @@ void DXFOutput::printEllipse(const BRepAdaptor_Curve& c, int /*id*/, std::ostrea
+ 		start_angle = end_angle;
+ 		end_angle = temp;
+ 	}
+-	out << 0			<< endl;
+-	out << "ELLIPSE"		<< endl;
+-	out << 8			<< endl;	// Group code for layer name
+-	out << "sheet_layer"	<< endl;	// Layer number
+-    out << "100"        << endl;
+-    out << "AcDbEntity" << endl;
+-    out << "100"        << endl;
+-    out << "AcDbEllipse"   << endl;
+-	out << 10			<< endl;	// Centre X
+-	out << p.X()		<< endl;	// X in WCS coordinates
+-	out << 20			<< endl;
+-	out << p.Y()		<< endl;	// Y in WCS coordinates
+-	out << 30			<< endl;
+-	out << 0		<< endl;	// Z in WCS coordinates
+-	out << 11			<< endl;	//
+-	out << major_x		<< endl;	// Major X
+-	out << 21			<< endl;
+-	out << major_y		<< endl;	// Major Y
+-	out << 31			<< endl;
+-	out << 0		<< endl;	// Major Z
+-	out << 40			<< endl;	//
+-	out << ratio		<< endl;	// Ratio
+-	out << 41		<< endl;
+-	out << start_angle	<< endl;	// Start angle
+-	out << 42		<< endl;
+-	out << end_angle	<< endl;	// End angle
++	out << 0			<< std::endl;
++	out << "ELLIPSE"		<< std::endl;
++	out << 8			<< std::endl;	// Group code for layer name
++	out << "sheet_layer"	<< std::endl;	// Layer number
++    out << "100"        << std::endl;
++    out << "AcDbEntity" << std::endl;
++    out << "100"        << std::endl;
++    out << "AcDbEllipse"   << std::endl;
++	out << 10			<< std::endl;	// Centre X
++	out << p.X()		<< std::endl;	// X in WCS coordinates
++	out << 20			<< std::endl;
++	out << p.Y()		<< std::endl;	// Y in WCS coordinates
++	out << 30			<< std::endl;
++	out << 0		<< std::endl;	// Z in WCS coordinates
++	out << 11			<< std::endl;	//
++	out << major_x		<< std::endl;	// Major X
++	out << 21			<< std::endl;
++	out << major_y		<< std::endl;	// Major Y
++	out << 31			<< std::endl;
++	out << 0		<< std::endl;	// Major Z
++	out << 40			<< std::endl;	//
++	out << ratio		<< std::endl;	// Ratio
++	out << 41		<< std::endl;
++	out << start_angle	<< std::endl;	// Start angle
++	out << 42		<< std::endl;
++	out << end_angle	<< std::endl;	// End angle
+ }
+ 
+ void DXFOutput::printBSpline(const BRepAdaptor_Curve& c, int id, std::ostream& out) //Not even close yet- DF 
+@@ -692,31 +692,31 @@ void DXFOutput::printBSpline(const BRepAdaptor_Curve& c, int id, std::ostream& o
+         spline->Poles(poles);
+ 
+ 
+-        str << 0 << endl
+-            << "SPLINE" << endl
+-            << 8 << endl // Group code for layer name
+-            << "sheet_layer" << endl // Layer name
+-            << "100"        << endl
+-            << "AcDbEntity" << endl
+-            << "100"        << endl
+-            << "AcDbSpline"   << endl
+-            << 70 << endl
+-            << spline->IsRational()*4 << endl //flags
+-            << 71 << endl << spline->Degree() << endl
+-            << 72 << endl << knotsequence.Length() << endl
+-            << 73 << endl << poles.Length() << endl
+-            << 74 << endl << 0 << endl; //fitpoints
++        str << 0 << std::endl
++            << "SPLINE" << std::endl
++            << 8 << std::endl // Group code for layer name
++            << "sheet_layer" << std::endl // Layer name
++            << "100"        << std::endl
++            << "AcDbEntity" << std::endl
++            << "100"        << std::endl
++            << "AcDbSpline"   << std::endl
++            << 70 << std::endl
++            << spline->IsRational()*4 << std::endl //flags
++            << 71 << std::endl << spline->Degree() << std::endl
++            << 72 << std::endl << knotsequence.Length() << std::endl
++            << 73 << std::endl << poles.Length() << std::endl
++            << 74 << std::endl << 0 << std::endl; //fitpoints
+ 
+         for (int i = knotsequence.Lower() ; i <= knotsequence.Upper(); i++) {
+-            str << 40 << endl << knotsequence(i) << endl;
++            str << 40 << std::endl << knotsequence(i) << std::endl;
+         }
+         for (int i = poles.Lower(); i <= poles.Upper(); i++) {
+             gp_Pnt pole = poles(i);
+-            str << 10 << endl << pole.X() << endl
+-                << 20 << endl << pole.Y() << endl
+-                << 30 << endl << pole.Z() << endl;
++            str << 10 << std::endl << pole.X() << std::endl
++                << 20 << std::endl << pole.Y() << std::endl
++                << 30 << std::endl << pole.Z() << std::endl;
+             if (spline->IsRational()) {
+-                str << 41 << endl << spline->Weight(i) << endl;
++                str << 41 << std::endl << spline->Weight(i) << std::endl;
+             }
+         }
+ 
+@@ -740,24 +740,24 @@ void DXFOutput::printGeneric(const BRepAdaptor_Curve& c, int /*id*/, std::ostrea
+     gp_Vec VE;
+     c.D1(uEnd, PE, VE);
+ 
+-    out << "0"			<< endl;
+-    out << "LINE"		<< endl;
+-    out << "8"			<< endl;	// Group code for layer name
+-    out << "sheet_layer" << endl; // Layer name 
+-    out << "100"        << endl;
+-    out << "AcDbEntity" << endl;
+-    out << "100"        << endl;
+-    out << "AcDbLine"   << endl;
+-    out << "10"			<< endl;	// Start point of line
+-    out << PS.X()		<< endl;	// X in WCS coordinates
+-    out << "20"			<< endl;
+-    out << PS.Y()		<< endl;	// Y in WCS coordinates
+-    out << "30"			<< endl;
+-    out << "0"		<< endl;	// Z in WCS coordinates
+-    out << "11"			<< endl;	// End point of line
+-    out << PE.X()		<< endl;	// X in WCS coordinates
+-    out << "21"			<< endl;
+-    out << PE.Y()		<< endl;	// Y in WCS coordinates
+-    out << "31"			<< endl;
+-    out << "0"		<< endl;	// Z in WCS coordinates
++    out << "0"			<< std::endl;
++    out << "LINE"		<< std::endl;
++    out << "8"			<< std::endl;	// Group code for layer name
++    out << "sheet_layer" << std::endl; // Layer name 
++    out << "100"        << std::endl;
++    out << "AcDbEntity" << std::endl;
++    out << "100"        << std::endl;
++    out << "AcDbLine"   << std::endl;
++    out << "10"			<< std::endl;	// Start point of line
++    out << PS.X()		<< std::endl;	// X in WCS coordinates
++    out << "20"			<< std::endl;
++    out << PS.Y()		<< std::endl;	// Y in WCS coordinates
++    out << "30"			<< std::endl;
++    out << "0"		<< std::endl;	// Z in WCS coordinates
++    out << "11"			<< std::endl;	// End point of line
++    out << PE.X()		<< std::endl;	// X in WCS coordinates
++    out << "21"			<< std::endl;
++    out << PE.Y()		<< std::endl;	// Y in WCS coordinates
++    out << "31"			<< std::endl;
++    out << "0"		<< std::endl;	// Z in WCS coordinates
+ }
+diff --git a/src/Mod/Inspection/App/InspectionFeature.cpp b/src/Mod/Inspection/App/InspectionFeature.cpp
+index aac0006ba..a209727f2 100644
+--- a/src/Mod/Inspection/App/InspectionFeature.cpp
++++ b/src/Mod/Inspection/App/InspectionFeature.cpp
+@@ -571,12 +571,12 @@ void PropertyDistanceList::setPyObject(PyObject *value)
+ void PropertyDistanceList::Save (Base::Writer &writer) const
+ {
+     if (writer.isForceXML()) {
+-        writer.Stream() << writer.ind() << "<FloatList count=\"" <<  getSize() <<"\">" << endl;
++        writer.Stream() << writer.ind() << "<FloatList count=\"" <<  getSize() <<"\">" << std::endl;
+         writer.incInd();
+         for(int i = 0;i<getSize(); i++)
+-            writer.Stream() << writer.ind() << "<F v=\"" <<  _lValueList[i] <<"\"/>" << endl; ;
++            writer.Stream() << writer.ind() << "<F v=\"" <<  _lValueList[i] <<"\"/>" << std::endl; ;
+         writer.decInd();
+-        writer.Stream() << writer.ind() <<"</FloatList>" << endl ;
++        writer.Stream() << writer.ind() <<"</FloatList>" << std::endl ;
+     }
+     else {
+         writer.Stream() << writer.ind() << "<FloatList file=\"" << 
+diff --git a/src/Mod/Part/App/Geometry.cpp b/src/Mod/Part/App/Geometry.cpp
+index 2fe18c997..af2eef6f3 100644
+--- a/src/Mod/Part/App/Geometry.cpp
++++ b/src/Mod/Part/App/Geometry.cpp
+@@ -203,7 +203,7 @@ unsigned int Geometry::getMemSize (void) const
+ void Geometry::Save(Base::Writer &writer) const
+ {
+     const char c = Construction?'1':'0';
+-    writer.Stream() << writer.ind() << "<Construction value=\"" <<  c << "\"/>" << endl;
++    writer.Stream() << writer.ind() << "<Construction value=\"" <<  c << "\"/>" << std::endl;
+ }
+ 
+ void Geometry::Restore(Base::XMLReader &reader)
+@@ -323,7 +323,7 @@ void GeomPoint::Save(Base::Writer &writer) const
+                 << "X=\"" <<  Point.x <<
+                 "\" Y=\"" <<  Point.y <<
+                 "\" Z=\"" <<  Point.z <<
+-             "\"/>" << endl;
++             "\"/>" << std::endl;
+ }
+ 
+ void GeomPoint::Restore(Base::XMLReader &reader)
+@@ -793,7 +793,7 @@ void GeomBezierCurve::Save(Base::Writer& writer) const
+          << writer.ind()
+              << "<BezierCurve "
+                 << "PolesCount=\"" <<  poles.size() <<
+-             "\">" << endl;
++             "\">" << std::endl;
+ 
+     writer.incInd();
+ 
+@@ -808,11 +808,11 @@ void GeomBezierCurve::Save(Base::Writer& writer) const
+             "\" Y=\"" << (*itp).y <<
+             "\" Z=\"" << (*itp).z <<
+             "\" Weight=\"" << (*itw) <<
+-        "\"/>" << endl;
++        "\"/>" << std::endl;
+     }
+ 
+     writer.decInd();
+-    writer.Stream() << writer.ind() << "</BezierCurve>" << endl ;
++    writer.Stream() << writer.ind() << "</BezierCurve>" << std::endl ;
+ }
+ 
+ void GeomBezierCurve::Restore(Base::XMLReader& reader)
+@@ -1270,7 +1270,7 @@ void GeomBSplineCurve::Save(Base::Writer& writer) const
+                  "\" KnotsCount=\"" <<  knots.size() <<
+                  "\" Degree=\"" <<  degree <<
+                  "\" IsPeriodic=\"" <<  (int) isperiodic <<
+-             "\">" << endl;
++             "\">" << std::endl;
+ 
+     writer.incInd();
+ 
+@@ -1285,7 +1285,7 @@ void GeomBSplineCurve::Save(Base::Writer& writer) const
+             "\" Y=\"" << (*itp).y <<
+             "\" Z=\"" << (*itp).z <<
+             "\" Weight=\"" << (*itw) <<
+-        "\"/>" << endl;
++        "\"/>" << std::endl;
+     }
+ 
+     std::vector<double>::const_iterator itk;
+@@ -1297,11 +1297,11 @@ void GeomBSplineCurve::Save(Base::Writer& writer) const
+             << "<Knot "
+             << "Value=\"" << (*itk)
+             << "\" Mult=\"" << (*itm) <<
+-        "\"/>" << endl;
++        "\"/>" << std::endl;
+     }
+ 
+     writer.decInd();
+-    writer.Stream() << writer.ind() << "</BSplineCurve>" << endl ;
++    writer.Stream() << writer.ind() << "</BSplineCurve>" << std::endl ;
+ }
+ 
+ void GeomBSplineCurve::Restore(Base::XMLReader& reader)
+@@ -1903,7 +1903,7 @@ void GeomCircle::Save(Base::Writer& writer) const
+                 "\" NormalZ=\"" <<  normal.Z() <<
+                 "\" AngleXU=\"" <<  AngleXU <<
+                 "\" Radius=\"" <<  this->myCurve->Radius() <<
+-             "\"/>" << endl;
++             "\"/>" << std::endl;
+ }
+ 
+ void GeomCircle::Restore(Base::XMLReader& reader)
+@@ -2132,7 +2132,7 @@ void GeomArcOfCircle::Save(Base::Writer &writer) const
+                 "\" Radius=\"" <<  circle->Radius() <<
+                 "\" StartAngle=\"" <<  this->myCurve->FirstParameter() <<
+                 "\" EndAngle=\"" <<  this->myCurve->LastParameter() <<
+-             "\"/>" << endl;
++             "\"/>" << std::endl;
+ }
+ 
+ void GeomArcOfCircle::Restore(Base::XMLReader &reader)
+@@ -2383,7 +2383,7 @@ void GeomEllipse::Save(Base::Writer& writer) const
+             << "MajorRadius=\"" <<  this->myCurve->MajorRadius() << "\" "
+             << "MinorRadius=\"" <<  this->myCurve->MinorRadius() << "\" "
+             << "AngleXU=\"" << AngleXU << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomEllipse::Restore(Base::XMLReader& reader)
+@@ -2653,7 +2653,7 @@ void GeomArcOfEllipse::Save(Base::Writer &writer) const
+             << "AngleXU=\"" << AngleXU << "\" "
+             << "StartAngle=\"" <<  this->myCurve->FirstParameter() << "\" "
+             << "EndAngle=\"" <<  this->myCurve->LastParameter() << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomArcOfEllipse::Restore(Base::XMLReader &reader)
+@@ -2826,7 +2826,7 @@ void GeomHyperbola::Save(Base::Writer& writer) const
+             << "MajorRadius=\"" <<  this->myCurve->MajorRadius() << "\" "
+             << "MinorRadius=\"" <<  this->myCurve->MinorRadius() << "\" "
+             << "AngleXU=\"" << AngleXU << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomHyperbola::Restore(Base::XMLReader& reader)
+@@ -3083,7 +3083,7 @@ void GeomArcOfHyperbola::Save(Base::Writer &writer) const
+             << "AngleXU=\"" << AngleXU << "\" "
+             << "StartAngle=\"" <<  this->myCurve->FirstParameter() << "\" "
+             << "EndAngle=\"" <<  this->myCurve->LastParameter() << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomArcOfHyperbola::Restore(Base::XMLReader &reader)
+@@ -3236,7 +3236,7 @@ void GeomParabola::Save(Base::Writer& writer) const
+             << "NormalZ=\"" <<  normal.Z() << "\" "
+             << "Focal=\"" <<  this->myCurve->Focal() << "\" "
+             << "AngleXU=\"" << AngleXU << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomParabola::Restore(Base::XMLReader& reader)
+@@ -3436,7 +3436,7 @@ void GeomArcOfParabola::Save(Base::Writer &writer) const
+             << "AngleXU=\"" << AngleXU << "\" "
+             << "StartAngle=\"" <<  this->myCurve->FirstParameter() << "\" "
+             << "EndAngle=\"" <<  this->myCurve->LastParameter() << "\" "
+-            << "/>" << endl;
++            << "/>" << std::endl;
+ }
+ 
+ void GeomArcOfParabola::Restore(Base::XMLReader &reader)
+@@ -3581,7 +3581,7 @@ void GeomLine::Save(Base::Writer &writer) const
+                 "\" DirX=\"" <<  Dir.x <<
+                 "\" DirY=\"" <<  Dir.y <<
+                 "\" DirZ=\"" <<  Dir.z <<
+-             "\"/>" << endl;
++             "\"/>" << std::endl;
+ }
+ void GeomLine::Restore(Base::XMLReader &reader)
+ {
+@@ -3722,7 +3722,7 @@ void GeomLineSegment::Save       (Base::Writer &writer) const
+                 "\" EndX=\"" <<  End.x <<
+                 "\" EndY=\"" <<  End.y <<
+                 "\" EndZ=\"" <<  End.z <<
+-             "\"/>" << endl;
++             "\"/>" << std::endl;
+ }
+ 
+ void GeomLineSegment::Restore    (Base::XMLReader &reader)
+diff --git a/src/Mod/Part/App/Geometry2d.cpp b/src/Mod/Part/App/Geometry2d.cpp
+index fb1de909c..7a716248e 100644
+--- a/src/Mod/Part/App/Geometry2d.cpp
++++ b/src/Mod/Part/App/Geometry2d.cpp
+@@ -183,7 +183,7 @@ void Geom2dPoint::Save(Base::Writer &writer) const
+         << "<Geom2dPoint "
+         << "X=\"" << Point.x << "\" "
+         << "Y=\"" << Point.y << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dPoint::Restore(Base::XMLReader &reader)
+@@ -875,7 +875,7 @@ void Geom2dCircle::Save(Base::Writer& writer) const
+     SaveAxis(writer, axis);
+     writer.Stream()
+         << "Radius=\"" << c.Radius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dCircle::Restore(Base::XMLReader& reader)
+@@ -990,7 +990,7 @@ void Geom2dArcOfCircle::Save(Base::Writer &writer) const
+     SaveAxis(writer, axis, u, v);
+     writer.Stream()
+         << "Radius=\"" << c.Radius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dArcOfCircle::Restore(Base::XMLReader &reader)
+@@ -1152,7 +1152,7 @@ void Geom2dEllipse::Save(Base::Writer& writer) const
+     writer.Stream()
+         << "MajorRadius=\"" << e.MajorRadius() << "\" "
+         << "MinorRadius=\"" << e.MinorRadius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dEllipse::Restore(Base::XMLReader& reader)
+@@ -1329,7 +1329,7 @@ void Geom2dArcOfEllipse::Save(Base::Writer &writer) const
+     writer.Stream()
+         << "MajorRadius=\"" << e.MajorRadius() << "\" "
+         << "MinorRadius=\"" << e.MinorRadius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dArcOfEllipse::Restore(Base::XMLReader &reader)
+@@ -1458,7 +1458,7 @@ void Geom2dHyperbola::Save(Base::Writer& writer) const
+     writer.Stream()
+         << "MajorRadius=\"" <<  h.MajorRadius() << "\" "
+         << "MinorRadius=\"" <<  h.MinorRadius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dHyperbola::Restore(Base::XMLReader& reader)
+@@ -1591,7 +1591,7 @@ void Geom2dArcOfHyperbola::Save(Base::Writer &writer) const
+     writer.Stream()
+         << "MajorRadius=\"" <<  h.MajorRadius() << "\" "
+         << "MinorRadius=\"" <<  h.MinorRadius() << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dArcOfHyperbola::Restore(Base::XMLReader &reader)
+@@ -1702,7 +1702,7 @@ void Geom2dParabola::Save(Base::Writer& writer) const
+     SaveAxis(writer, axis);
+     writer.Stream()
+         << "Focal=\"" << focal << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dParabola::Restore(Base::XMLReader& reader)
+@@ -1815,7 +1815,7 @@ void Geom2dArcOfParabola::Save(Base::Writer &writer) const
+     SaveAxis(writer, axis, u, v);
+     writer.Stream()
+         << "Focal=\"" << focal << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dArcOfParabola::Restore(Base::XMLReader &reader)
+@@ -1930,7 +1930,7 @@ void Geom2dLine::Save(Base::Writer &writer) const
+         << "PosY=\"" << Pos.y << "\" "
+         << "DirX=\"" << Dir.x << "\" "
+         << "DirY=\"" << Dir.y << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dLine::Restore(Base::XMLReader &reader)
+@@ -2064,7 +2064,7 @@ void Geom2dLineSegment::Save(Base::Writer &writer) const
+         << "StartY=\"" << Start.y << "\" "
+         << "EndX=\"" << End.x << "\" "
+         << "EndY=\"" << End.y << "\" "
+-        << "/>" << endl;
++        << "/>" << std::endl;
+ }
+ 
+ void Geom2dLineSegment::Restore(Base::XMLReader &reader)
+diff --git a/src/Mod/Part/App/PropertyGeometryList.cpp b/src/Mod/Part/App/PropertyGeometryList.cpp
+index ac2924b15..7dd27628f 100644
+--- a/src/Mod/Part/App/PropertyGeometryList.cpp
++++ b/src/Mod/Part/App/PropertyGeometryList.cpp
+@@ -154,18 +154,18 @@ void PropertyGeometryList::setPyObject(PyObject *value)
+ 
+ void PropertyGeometryList::Save(Writer &writer) const
+ {
+-    writer.Stream() << writer.ind() << "<GeometryList count=\"" << getSize() <<"\">" << endl;
++    writer.Stream() << writer.ind() << "<GeometryList count=\"" << getSize() <<"\">" << std::endl;
+     writer.incInd();
+     for (int i = 0; i < getSize(); i++) {
+         writer.Stream() << writer.ind() << "<Geometry  type=\""
+-                        << _lValueList[i]->getTypeId().getName() << "\">" << endl;;
++                        << _lValueList[i]->getTypeId().getName() << "\">" << std::endl;;
+         writer.incInd();
+         _lValueList[i]->Save(writer);
+         writer.decInd();
+-        writer.Stream() << writer.ind() << "</Geometry>" << endl;
++        writer.Stream() << writer.ind() << "</Geometry>" << std::endl;
+     }
+     writer.decInd();
+-    writer.Stream() << writer.ind() << "</GeometryList>" << endl ;
++    writer.Stream() << writer.ind() << "</GeometryList>" << std::endl ;
+ }
+ 
+ void PropertyGeometryList::Restore(Base::XMLReader &reader)
+diff --git a/src/Mod/Part/App/PropertyTopoShape.cpp b/src/Mod/Part/App/PropertyTopoShape.cpp
+index b986d82fe..9c990ccdb 100644
+--- a/src/Mod/Part/App/PropertyTopoShape.cpp
++++ b/src/Mod/Part/App/PropertyTopoShape.cpp
+@@ -282,12 +282,13 @@ static void BRepTools_Write(const TopoDS_Shape& Sh, Standard_OStream& S) {
+ static Standard_Boolean  BRepTools_Write(const TopoDS_Shape& Sh,
+                                    const Standard_CString File)
+ {
+-  ofstream os;
+-#if OCC_VERSION_HEX >= 0x060800
++    std::ofstream os;
++#if 0 //OCC_VERSION_HEX >= 0x060800
+   OSD_OpenStream(os, File, ios::out);
+ #else
+-  os.open(File, ios::out);
++  os.open(File, std::ios::out);
+ #endif
++
+   if (!os.rdbuf()->is_open()) return Standard_False;
+ 
+   Standard_Boolean isGood = (os.good() && !os.eof());
+diff --git a/src/Mod/Raytracing/App/AppRaytracingPy.cpp b/src/Mod/Raytracing/App/AppRaytracingPy.cpp
+index d48c51c97..b7677a272 100644
+--- a/src/Mod/Raytracing/App/AppRaytracingPy.cpp
++++ b/src/Mod/Raytracing/App/AppRaytracingPy.cpp
+@@ -105,13 +105,13 @@ private:
+ 
+         PovTools::writeShape(out,PartName,aShape,(float)0.1);
+         // This must not be done in PovTools::writeShape!
+-        out << "// instance to render" << endl
+-            << "object {" << PartName << endl
+-            << "  texture {" << endl
+-            << "      pigment {color rgb <"<<r<<","<<g<<","<<b<<">}" << endl
+-            << "      finish {StdFinish } //definition on top of the project" << endl
+-            << "  }" << endl
+-            << "}" << endl   ;
++        out << "// instance to render" << std::endl
++            << "object {" << PartName << std::endl
++            << "  texture {" << std::endl
++            << "      pigment {color rgb <"<<r<<","<<g<<","<<b<<">}" << std::endl
++            << "      finish {StdFinish } //definition on top of the project" << std::endl
++            << "  }" << std::endl
++            << "}" << std::endl   ;
+         return Py::String(out.str());
+     }
+     Py::Object getPartAsLux(const Py::Tuple& args)
+@@ -128,10 +128,10 @@ private:
+ 
+         // write a material entry
+         // This must not be done in PovTools::writeShape!
+-        out << "MakeNamedMaterial \"FreeCADMaterial_" << PartName << "\"" << endl;
+-        out << "    \"color Kd\" [" << r << " " << g << " " << b << "]" << endl;
+-        out << "    \"float sigma\" [0.000000000000000]" << endl;
+-        out << "    \"string type\" [\"matte\"]" << endl << endl;
++        out << "MakeNamedMaterial \"FreeCADMaterial_" << PartName << "\"" << std::endl;
++        out << "    \"color Kd\" [" << r << " " << g << " " << b << "]" << std::endl;
++        out << "    \"float sigma\" [0.000000000000000]" << std::endl;
++        out << "    \"string type\" [\"matte\"]" << std::endl << std::endl;
+ 
+         LuxTools::writeShape(out,PartName,aShape,(float)0.1);
+         return Py::String(out.str());
+diff --git a/src/Mod/Raytracing/App/LuxFeature.cpp b/src/Mod/Raytracing/App/LuxFeature.cpp
+index 930fe12b7..e811c9a7f 100644
+--- a/src/Mod/Raytracing/App/LuxFeature.cpp
++++ b/src/Mod/Raytracing/App/LuxFeature.cpp
+@@ -88,23 +88,23 @@ App::DocumentObjectExecReturn *LuxFeature::execute(void)
+     const App::Color& c = Color.getValue();
+     long t = Transparency.getValue();
+     if (t == 0) {
+-        result << "MakeNamedMaterial \"FreeCADMaterial_" << Name << "\"" << endl
+-               << "    \"color Kd\" [" << c.r << " " << c.g << " " << c.b << "]" << endl
+-               << "    \"float sigma\" [0.000000000000000]" << endl
+-               << "    \"string type\" [\"matte\"]" << endl << endl;
++        result << "MakeNamedMaterial \"FreeCADMaterial_" << Name << "\"" << std::endl
++               << "    \"color Kd\" [" << c.r << " " << c.g << " " << c.b << "]" << std::endl
++               << "    \"float sigma\" [0.000000000000000]" << std::endl
++               << "    \"string type\" [\"matte\"]" << std::endl << std::endl;
+     } else {
+         float trans = t/100.0f;
+-        result << "MakeNamedMaterial \"FreeCADMaterial_Base_" << Name << "\"" << endl
+-               << "    \"color Kd\" [" << c.r << " " << c.g << " " << c.b << "]" << endl
+-               << "    \"float sigma\" [0.000000000000000]" << endl
+-               << "    \"string type\" [\"matte\"]" << endl << endl
+-               << "MakeNamedMaterial \"FreeCADMaterial_Null_" << Name << "\"" << endl
+-               << "    \"string type\" [\"null\"]" << endl << endl
+-               << "MakeNamedMaterial \"FreeCADMaterial_" << Name << "\"" << endl
+-               << "    \"string namedmaterial1\" [\"FreeCADMaterial_Null_" << Name << "\"]" << endl
+-               << "    \"string namedmaterial2\" [\"FreeCADMaterial_Base_" << Name << "\"]" << endl
+-               << "    \"float amount\" [" << trans << "]" << endl
+-               << "    \"string type\" [\"mix\"]" << endl << endl;
++        result << "MakeNamedMaterial \"FreeCADMaterial_Base_" << Name << "\"" << std::endl
++               << "    \"color Kd\" [" << c.r << " " << c.g << " " << c.b << "]" << std::endl
++               << "    \"float sigma\" [0.000000000000000]" << std::endl
++               << "    \"string type\" [\"matte\"]" << std::endl << std::endl
++               << "MakeNamedMaterial \"FreeCADMaterial_Null_" << Name << "\"" << std::endl
++               << "    \"string type\" [\"null\"]" << std::endl << std::endl
++               << "MakeNamedMaterial \"FreeCADMaterial_" << Name << "\"" << std::endl
++               << "    \"string namedmaterial1\" [\"FreeCADMaterial_Null_" << Name << "\"]" << std::endl
++               << "    \"string namedmaterial2\" [\"FreeCADMaterial_Base_" << Name << "\"]" << std::endl
++               << "    \"float amount\" [" << trans << "]" << std::endl
++               << "    \"string type\" [\"mix\"]" << std::endl << std::endl;
+     }
+     
+     LuxTools::writeShape(result,Name.c_str(),shape);
+diff --git a/src/Mod/Raytracing/App/LuxProject.cpp b/src/Mod/Raytracing/App/LuxProject.cpp
+index 61f72f1db..2652013d3 100644
+--- a/src/Mod/Raytracing/App/LuxProject.cpp
++++ b/src/Mod/Raytracing/App/LuxProject.cpp
+@@ -92,24 +92,24 @@ App::DocumentObjectExecReturn *LuxProject::execute(void)
+         if(line.find("#RaytracingContent") == string::npos) {
+             if(line.find("#RaytracingCamera") == string::npos) {
+                 // if not -  write through
+-                ofile << line << endl;
++                ofile << line << std::endl;
+             } else {
+                 // in luxrender, the camera info must be written at a specific place
+                 ofile << Camera.getValue();
+             }
+         } else {
+             // get through the children and collect all the views
+-            ofile << "# declares FreeCAD objects" << endl
+-            << "# Generated by FreeCAD (http://www.freecadweb.org/)" << endl << endl;
++            ofile << "# declares FreeCAD objects" << std::endl
++            << "# Generated by FreeCAD (http://www.freecadweb.org/)" << std::endl << std::endl;
+             const std::vector<App::DocumentObject*> &Grp = Group.getValues();
+             for (std::vector<App::DocumentObject*>::const_iterator It= Grp.begin();It!=Grp.end();++It) {
+                 if ((*It)->getTypeId().isDerivedFrom(Raytracing::RaySegment::getClassTypeId())) {
+                     Raytracing::RaySegment *View = static_cast<Raytracing::RaySegment *>(*It);
+                     ofile << View->Result.getValue();
+-                    ofile << endl;
++                    ofile << std::endl;
+                 }
+             }
+-            ofile << "# End of FreeCAD objects" << endl;
++            ofile << "# End of FreeCAD objects" << std::endl;
+         }
+     }
+ 
+diff --git a/src/Mod/Raytracing/App/LuxTools.cpp b/src/Mod/Raytracing/App/LuxTools.cpp
+index 4227f82c1..f137f0544 100644
+--- a/src/Mod/Raytracing/App/LuxTools.cpp
++++ b/src/Mod/Raytracing/App/LuxTools.cpp
+@@ -53,15 +53,15 @@ using namespace std;
+ std::string LuxTools::getCamera(const CamDef& Cam)
+ {
+     std::stringstream out;
+-    out << "# declares position and view direction" << endl
+-        << "# Generated by FreeCAD (http://www.freecadweb.org/)" << endl
++    out << "# declares position and view direction" << std::endl
++        << "# Generated by FreeCAD (http://www.freecadweb.org/)" << std::endl
+ 
+         // writing Camera positions
+         << "LookAt " << Cam.CamPos.X() << " " << Cam.CamPos.Y() << " " << Cam.CamPos.Z() << " "
+         // writing lookat
+         << Cam.LookAt.X()  << " " << Cam.LookAt.Y() << " " << Cam.LookAt.Z() << " "
+         // writing the Up Vector
+-        << Cam.Up.X() << " " << Cam.Up.Y() << " " << Cam.Up.Z() << endl;
++        << Cam.Up.X() << " " << Cam.Up.Y() << " " << Cam.Up.Z() << std::endl;
+ 
+     return out.str();
+ }
+@@ -79,10 +79,10 @@ void LuxTools::writeShape(std::ostream &out, const char *PartName, const TopoDS_
+     Base::SequencerLauncher seq("Writing file", l);
+     
+     // write object
+-    out << "AttributeBegin #  \"" << PartName << "\"" << endl;
+-    out << "Transform [1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]" << endl;
+-    out << "NamedMaterial \"FreeCADMaterial_" << PartName << "\"" << endl;
+-    out << "Shape \"mesh\"" << endl;
++    out << "AttributeBegin #  \"" << PartName << "\"" << std::endl;
++    out << "Transform [1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]" << std::endl;
++    out << "NamedMaterial \"FreeCADMaterial_" << PartName << "\"" << std::endl;
++    out << "Shape \"mesh\"" << std::endl;
+     
+     // gather vertices, normals and face indices
+     std::stringstream triindices;
+@@ -130,10 +130,10 @@ void LuxTools::writeShape(std::ostream &out, const char *PartName, const TopoDS_
+     } // end of face loop
+ 
+     // write mesh data
+-    out << "    \"integer triindices\" [" << triindices.str() << "]" << endl;
+-    out << "    \"point P\" [" << P.str() << "]" << endl;
+-    out << "    \"normal N\" [" << N.str() << "]" << endl;
+-    out << "    \"bool generatetangents\" [\"false\"]" << endl;
+-    out << "    \"string name\" [\"" << PartName << "\"]" << endl;
+-    out << "AttributeEnd # \"\"" << endl;
++    out << "    \"integer triindices\" [" << triindices.str() << "]" << std::endl;
++    out << "    \"point P\" [" << P.str() << "]" << std::endl;
++    out << "    \"normal N\" [" << N.str() << "]" << std::endl;
++    out << "    \"bool generatetangents\" [\"false\"]" << std::endl;
++    out << "    \"string name\" [\"" << PartName << "\"]" << std::endl;
++    out << "AttributeEnd # \"\"" << std::endl;
+ }
+diff --git a/src/Mod/Raytracing/App/PovTools.cpp b/src/Mod/Raytracing/App/PovTools.cpp
+index 43fca88ed..e760ac209 100644
+--- a/src/Mod/Raytracing/App/PovTools.cpp
++++ b/src/Mod/Raytracing/App/PovTools.cpp
+@@ -60,28 +60,28 @@ using namespace std;
+ std::string PovTools::getCamera(const CamDef& Cam, int width, int height)
+ {
+     std::stringstream out;
+-    out << "// declares position and view direction\n" << endl
+-        << "// Generated by FreeCAD (http://www.freecadweb.org/)" << endl
++    out << "// declares position and view direction\n" << std::endl
++        << "// Generated by FreeCAD (http://www.freecadweb.org/)" << std::endl
+ 
+         // writing Camera positions
+-        << "#declare cam_location =  <" << Cam.CamPos.X() <<"," << Cam.CamPos.Z() <<"," << Cam.CamPos.Y()<<">;" << endl
++        << "#declare cam_location =  <" << Cam.CamPos.X() <<"," << Cam.CamPos.Z() <<"," << Cam.CamPos.Y()<<">;" << std::endl
+ 
+         // writing lookat
+-        << "#declare cam_look_at  = <" << Cam.LookAt.X()  <<"," << Cam.LookAt.Z()    <<"," << Cam.LookAt.Y()    <<">;"<< endl
++        << "#declare cam_look_at  = <" << Cam.LookAt.X()  <<"," << Cam.LookAt.Z()    <<"," << Cam.LookAt.Y()    <<">;"<< std::endl
+ 
+         // writing the Up Vector
+-        << "#declare cam_sky      = <" << Cam.Up.X()  <<"," << Cam.Up.Z()    <<"," << Cam.Up.Y()    <<">;"<< endl
++        << "#declare cam_sky      = <" << Cam.Up.X()  <<"," << Cam.Up.Z()    <<"," << Cam.Up.Y()    <<">;"<< std::endl
+ 
+         // array of zoom factors
+-        << "#declare cam_angle    = 45; " << endl
++        << "#declare cam_angle    = 45; " << std::endl
+         // instance of the camera
+-        << "camera {" << endl
+-        << "  location  cam_location" << endl
+-        << "  look_at   cam_look_at" << endl
+-        << "  sky       cam_sky" << endl
+-        << "  angle     cam_angle " << endl
+-        << "  right x*" << width << "/" << height << endl
+-        << "}"<< endl;
++        << "camera {" << std::endl
++        << "  location  cam_location" << std::endl
++        << "  look_at   cam_look_at" << std::endl
++        << "  sky       cam_sky" << std::endl
++        << "  angle     cam_angle " << std::endl
++        << "  right x*" << width << "/" << height << std::endl
++        << "}"<< std::endl;
+     return out.str();
+ }
+ 
+@@ -140,7 +140,7 @@ void PovTools::writeCameraVec(const char* FileName, const std::vector<CamDef>& C
+ 
+     // open the file and write
+     Base::ofstream fout(FileName);
+-    fout <<  out.str() << endl;
++    fout <<  out.str() << std::endl;
+     fout.close();
+ }
+ 
+@@ -150,7 +150,7 @@ void PovTools::writeData(const char *FileName, const char *PartName,
+     // open the file and write
+     Base::ofstream fout(FileName);
+     // write the file
+-    fout <<  "// Written by FreeCAD http://www.freecadweb.org/" << endl;
++    fout <<  "// Written by FreeCAD http://www.freecadweb.org/" << std::endl;
+ 
+     unsigned long count = data->countSubElements("Face");
+     for (unsigned long i=0; i<count; i++) {
+@@ -162,10 +162,10 @@ void PovTools::writeData(const char *FileName, const char *PartName,
+         delete segm;
+ 
+         // writing per face header
+-        fout << "// element number" << i << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl
+-             << "#declare " << PartName << i << " = mesh2{" << endl
+-             << "  vertex_vectors {" << endl
+-             << "    " << points.size() << "," << endl;
++        fout << "// element number" << i << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl
++             << "#declare " << PartName << i << " = mesh2{" << std::endl
++             << "  vertex_vectors {" << std::endl
++             << "    " << points.size() << "," << std::endl;
+ 
+         // writing vertices
+         for (std::vector<Base::Vector3d>::iterator it = points.begin(); it != points.end(); ++it) {
+@@ -173,41 +173,41 @@ void PovTools::writeData(const char *FileName, const char *PartName,
+                  << it->x << ","
+                  << it->y << ","
+                  << it->z << ">,"
+-                 << endl;
++                 << std::endl;
+         }
+ 
+         // writing per vertex normals
+-        fout << "  }" << endl
+-             << "  normal_vectors {" << endl
+-             << "    " << normals.size() << "," << endl;
++        fout << "  }" << std::endl
++             << "  normal_vectors {" << std::endl
++             << "    " << normals.size() << "," << std::endl;
+ 
+         for (std::vector<Base::Vector3d>::iterator it = normals.begin(); it != normals.end(); ++it) {
+             fout << "    <" 
+                  << it->x << ","
+                  << it->y << ","
+                  << it->z << ">,"
+-                 << endl;
++                 << std::endl;
+         }
+ 
+         // writing triangle indices
+-        fout << "  }" << endl
+-             << "  face_indices {" << endl
+-             << "    " << facets.size() << "," << endl;
++        fout << "  }" << std::endl
++             << "  face_indices {" << std::endl
++             << "    " << facets.size() << "," << std::endl;
+         for (std::vector<Data::ComplexGeoData::Facet>::iterator it = facets.begin(); it != facets.end(); ++it) {
+-            fout << "    <" << it->I1 << ","<< it->I3 << ","<< it->I2 << ">," << endl;
++            fout << "    <" << it->I1 << ","<< it->I3 << ","<< it->I2 << ">," << std::endl;
+         }
+ 
+         // end of face
+-        fout << "  }" << endl
+-             << "} // end of element" << i << endl << endl;
++        fout << "  }" << std::endl
++             << "} // end of element" << i << std::endl << std::endl;
+     }
+ 
+-    fout << endl << endl << "// Declare all together +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl
+-         << "#declare " << PartName << " = union {" << endl;
++    fout << std::endl << std::endl << "// Declare all together +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl
++         << "#declare " << PartName << " = union {" << std::endl;
+     for (unsigned long i=1; i < count; i++) {
+-        fout << "mesh2{ " << PartName << i << "}" << endl;
++        fout << "mesh2{ " << PartName << i << "}" << std::endl;
+     }
+-    fout << "}" << endl;
++    fout << "}" << std::endl;
+     fout.close();
+ }
+ 
+@@ -235,7 +235,7 @@ void PovTools::writeShape(std::ostream &out, const char *PartName,
+     Base::SequencerLauncher seq("Writing file", l);
+ 
+     // write the file
+-    out <<  "// Written by FreeCAD http://www.freecadweb.org/" << endl;
++    out <<  "// Written by FreeCAD http://www.freecadweb.org/" << std::endl;
+     l = 1;
+     for (ex.Init(Shape, TopAbs_FACE); ex.More(); ex.Next(),l++) {
+ 
+@@ -252,38 +252,38 @@ void PovTools::writeShape(std::ostream &out, const char *PartName,
+ 
+         if (!vertices) break;
+         // writing per face header
+-        out << "// face number" << l << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl
+-        << "#declare " << PartName << l << " = mesh2{" << endl
+-        << "  vertex_vectors {" << endl
+-        << "    " << nbNodesInFace << "," << endl;
++        out << "// face number" << l << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl
++        << "#declare " << PartName << l << " = mesh2{" << std::endl
++        << "  vertex_vectors {" << std::endl
++        << "    " << nbNodesInFace << "," << std::endl;
+         // writing vertices
+         for (int i=0; i < nbNodesInFace; i++) {
+             out << "    <" << vertices[i].X() << ","
+             << vertices[i].Z() << ","
+             << vertices[i].Y() << ">,"
+-            << endl;
++            << std::endl;
+         }
+-        out << "  }" << endl
++        out << "  }" << std::endl
+         // writing per vertex normals
+-        << "  normal_vectors {" << endl
+-        << "    " << nbNodesInFace << "," << endl;
++        << "  normal_vectors {" << std::endl
++        << "    " << nbNodesInFace << "," << std::endl;
+         for (int j=0; j < nbNodesInFace; j++) {
+             out << "    <" << vertexnormals[j].X() << ","
+             << vertexnormals[j].Z() << ","
+             << vertexnormals[j].Y() << ">,"
+-            << endl;
++            << std::endl;
+         }
+ 
+-        out << "  }" << endl
++        out << "  }" << std::endl
+         // writing triangle indices
+-        << "  face_indices {" << endl
+-        << "    " << nbTriInFace << "," << endl;
++        << "  face_indices {" << std::endl
++        << "    " << nbTriInFace << "," << std::endl;
+         for (int k=0; k < nbTriInFace; k++) {
+-            out << "    <" << cons[3*k] << ","<< cons[3*k+2] << ","<< cons[3*k+1] << ">," << endl;
++            out << "    <" << cons[3*k] << ","<< cons[3*k+2] << ","<< cons[3*k+1] << ">," << std::endl;
+         }
+         // end of face
+-        out << "  }" << endl
+-        << "} // end of Face"<< l << endl << endl;
++        out << "  }" << std::endl
++        << "} // end of Face"<< l << std::endl << std::endl;
+ 
+         delete [] vertexnormals;
+         delete [] vertices;
+@@ -294,12 +294,12 @@ void PovTools::writeShape(std::ostream &out, const char *PartName,
+     } // end of face loop
+ 
+ 
+-    out << endl << endl << "// Declare all together +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl
+-    << "#declare " << PartName << " = union {" << endl;
++    out << std::endl << std::endl << "// Declare all together +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl
++    << "#declare " << PartName << " = union {" << std::endl;
+     for (int i=1; i < l; i++) {
+-        out << "mesh2{ " << PartName << i << "}" << endl;
++        out << "mesh2{ " << PartName << i << "}" << std::endl;
+     }
+-    out << "}" << endl;
++    out << "}" << std::endl;
+ }
+ 
+ void PovTools::writeShapeCSV(const char *FileName,
+@@ -347,7 +347,7 @@ void PovTools::writeShapeCSV(const char *FileName,
+             << vertexnormals[i].X() * fLength <<cSeperator
+             << vertexnormals[i].Z() * fLength <<cSeperator
+             << vertexnormals[i].Y() * fLength <<cSeperator
+-            << endl;
++            << std::endl;
+         }
+ 
+         delete [] vertexnormals;
+diff --git a/src/Mod/Raytracing/App/RayFeature.cpp b/src/Mod/Raytracing/App/RayFeature.cpp
+index cdd2cb6dc..0da96449b 100644
+--- a/src/Mod/Raytracing/App/RayFeature.cpp
++++ b/src/Mod/Raytracing/App/RayFeature.cpp
+@@ -81,19 +81,19 @@ App::DocumentObjectExecReturn *RayFeature::execute(void)
+     // This must not be done in PovTools::writeShape!
+     long t = Transparency.getValue();
+     const App::Color& c = Color.getValue();
+-    result << "// instance to render" << endl
+-           << "object {" << Name << endl
+-           << " texture {" << endl;
++    result << "// instance to render" << std::endl
++           << "object {" << Name << std::endl
++           << " texture {" << std::endl;
+     if (t == 0) {
+-        result << "      pigment {color rgb <"<<c.r<<","<<c.g<<","<<c.b<<">}" << endl;
++        result << "      pigment {color rgb <"<<c.r<<","<<c.g<<","<<c.b<<">}" << std::endl;
+     }
+     else {
+         float trans = t/100.0f;
+-        result << "      pigment {color rgb <"<<c.r<<","<<c.g<<","<<c.b<<"> transmit "<<trans<<"}" << endl;
++        result << "      pigment {color rgb <"<<c.r<<","<<c.g<<","<<c.b<<"> transmit "<<trans<<"}" << std::endl;
+     }
+-    result << "      finish {StdFinish } //definition on top of the project" << endl
+-           << "  }" << endl
+-           << "}" << endl   ;
++    result << "      finish {StdFinish } //definition on top of the project" << std::endl
++           << "  }" << std::endl
++           << "}" << std::endl   ;
+ 
+     // Apply the resulting fragment
+     Result.setValue(result.str().c_str());
+diff --git a/src/Mod/Raytracing/App/RayProject.cpp b/src/Mod/Raytracing/App/RayProject.cpp
+index 7af2832c4..c72e4bfb3 100644
+--- a/src/Mod/Raytracing/App/RayProject.cpp
++++ b/src/Mod/Raytracing/App/RayProject.cpp
+@@ -90,7 +90,7 @@ App::DocumentObjectExecReturn *RayProject::execute(void)
+         // check if the marker in the template is found
+         if(line.find("//RaytracingContent") == string::npos)
+             // if not -  write through
+-            ofile << line << endl;
++            ofile << line << std::endl;
+         else {
+             ofile << Camera.getValue();
+         
+@@ -100,7 +100,7 @@ App::DocumentObjectExecReturn *RayProject::execute(void)
+                 if ((*It)->getTypeId().isDerivedFrom(Raytracing::RaySegment::getClassTypeId())) {
+                     Raytracing::RaySegment *View = static_cast<Raytracing::RaySegment *>(*It);
+                     ofile << View->Result.getValue();
+-                    ofile << endl << endl << endl;
++                    ofile << std::endl << std::endl << std::endl;
+                 }
+             }
+         }
