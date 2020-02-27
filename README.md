@@ -64,12 +64,12 @@ Usage:
 Script that installs HermesFlow/pyHermes-enabled FreeCad
 
 Options:
-    -o destination          directory which will contain the build files
-    -b build_destination    scpecify separate build directory, default: /build
-    -d hash                 specify docker image hash to pull, default: ee7e3ecee4ca
-    -f hash                 specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  /Users/jack/iscfdc/freecad/freecad_5a352ea63_git.diff
-    -h,-?                   print this help message
+-    -o destination          directory which will contain the build files
+-    -b build_destination    scpecify separate build directory, default: /build
+-    -d hash                 specify docker image hash to pull, default: ee7e3ecee4ca
+-    -f hash                 specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
+-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  /Users/jack/iscfdc/freecad/freecad_5a352ea63_git.diff
+-    -h,-?                   print this help message
 
         
 to produce a diff file from non-default source dir one should fixe the compilation problems and run:
