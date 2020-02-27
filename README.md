@@ -17,7 +17,7 @@ Since the workflow is focused on CFD/structural simulations the GUI is based on 
 
 ## Installation
 
-The provided *install.sh* script can be used to produce and environment to run/develop FreeCad with HermesFlow.
+The provided **install.sh** script can be used to produce and environment to run/develop FreeCad with HermesFlow.
 The scriptperforms the following:
 
 1. downloads and installs the docker image from:
@@ -58,8 +58,9 @@ The scriptperforms the following:
 Usage of install.sh, requires executable permissions of the script:
 
 Usage:
+```
     install.sh -d target_directory [-h git_hash] [-b build_destination]
-
+```
 Script that installs HermesFlow/pyHermes-enabled FreeCad
 
 Options:
