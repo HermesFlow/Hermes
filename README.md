@@ -84,7 +84,7 @@ Use docker.sh script inside the installation directory. Note: "xhost +"  is requ
 
 ### For developers. 
 
-Use docker_dev.sh script inside the installation directory. The script will launch the /mnt/source/build_script.sh wish was produced from the original build_script.sh, it has the following modification:
+Use docker_dev.sh script inside the installation directory. The script will launch the /mnt/source/build_script.sh which was produced from the original build_script.sh, it has the following modification:
 
     -D FREECAD_USE_QTWEBMODULE="Qt\ Webkit" 
 
