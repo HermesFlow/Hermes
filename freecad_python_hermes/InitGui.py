@@ -1,9 +1,9 @@
-# Test gui init module  
-# (c) 2003 Juergen Riegel
+# HermesFlow gui init module  
+# 
 #
 
 #***************************************************************************
-#*   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
+#*   Based on (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
 #*                                                                         *
 #*   This file is part of the FreeCAD CAx development system.              *
 #*                                                                         *
