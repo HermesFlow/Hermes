@@ -173,11 +173,8 @@ DESTINATION_FULL=
 DOCKER_DEV=
 DOCKER=
 DESTINATION_FULL=`get_abs_filename "$DESTINATION"`
-if [[ "x$DESTINATION" = x.* ]] || [[ ! "x$DESTINATION" = x~* ]] || [[ ! "x$DESTINATION" = x\/* ]]  ; then 
-    DESTINATION_FULL="$PWD/$DESTINATION"
-    fi
-mkdir -p "$DESTINATION"
-cd "$DESTINATION"
+mkdir -p "$DESTINATION_FULL"
+cd "$DESTINATION_FULL"
 
 DOCKER="$DESTINATION_FULL/docker.sh"
 DOCKER_DEV="$DESTINATION_FULL/docker_dev.sh"
