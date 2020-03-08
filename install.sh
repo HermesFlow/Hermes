@@ -12,7 +12,7 @@ Script that installs HermesFlow/pyHermes-enabled FreeCad
 Options:
     -o destination          directory which will contain the build files
     -b build_destination    scpecify separate build directory, default: $destination/build
-    -d hash                 specify docker image hash to pull, default: $DOCKER_IMAGE_HASH
+    -d hash                 specify docker image hash to pull, default: $DOCKER_IMAGE_ID
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
     -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  $FREECAD_SOURCE_PATCH
     -h,-?                   print this help message
@@ -71,19 +71,29 @@ check_docker() {
 #verify docker image exists, download if needed
 setup_docker() {
 #docker image inspect -f "{{.Id}}" 518df783c4d6
-    docker_inspect_cmd=$sudo' docker image inspect -f "{{.Id}}" registry.gitlab.com/daviddaish/freecad_docker_env'
-    echo $docker_inspect_cmd  "$docker_inspect_cmd" > docker_inspect_cmd
-    docker_inspect=`$docker_inspect_cmd`
-    echo $docker_inspect
+    docker_inspect_cmd='docker image inspect -f "{{.Id}}" registry.gitlab.com/daviddaish/freecad_docker_env'
+    docker_id=`$docker_inspect_cmd`
+    echo Docker image ID: $docker_id 
+
+    docker_inspect_cmd='docker image inspect -f "{{.RepoDigests}}" registry.gitlab.com/daviddaish/freecad_docker_env'
+    docker_digest=`$docker_inspect_cmd`
+    echo Docker image digest: $docker_digest
+
 #    if [[ "x$docker_inspect" = x*518df783c4d6* ]]; then 
-    if [[ "x$docker_inspect" = x*"$DOCKER_IMAGE_HASH"* ]]; then 
+    if [[ "x$docker_id" = x*"$DOCKER_IMAGE_ID"* ]]; then 
         echo "Docker image exists"
-        return 0
+        if [[ "x$docker_digest" = x*"$DOCKER_IMAGE_DIGEST"* ]]; then 
+            echo "Docker digest is correct"
+            return 0
+        else
+            echo "Docker digest is wrong"
         fi
+    fi
         
     res=0
-    echo "Docker image doesn't exist, will try to download"
-    docker pull registry.gitlab.com/daviddaish/freecad_docker_env:$DOCKER_IMAGE_HASH  || ( echo "Docker image pull failed"  ; res=1)
+    docker_image="registry.gitlab.com/daviddaish/freecad_docker_env@$DOCKER_IMAGE_DIGEST"
+    echo "Will try to pull docker image $docker_image"
+    docker pull $docker_image  || ( echo "Docker image pull failed"  ; res=1)
 
     return $res
     }
@@ -150,8 +160,8 @@ fi
 ##FREECAD_SOURCE_HASH="0.19_pre-813-g5a352ea63"
 FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
 FREECAD_SOURCE_PATCH=`get_abs_filename "freecad_5a352ea63_git.diff"`
-DOCKER_IMAGE_HASH=ee7e3ecee4ca
-
+DOCKER_IMAGE_ID=ee7e3ecee4ca
+DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
 # Process the options
 while getopts "o:b:d:f:p:h" opt
 do

@@ -6,7 +6,7 @@ get_abs_filename() {
   echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 }
 me=`get_abs_filename $0`
-wd=`dirname $0`
+wd=`dirname "$me"`
 
 fc_source="$wd/source"
 fc_examples="$wd/examples"
