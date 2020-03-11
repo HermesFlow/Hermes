@@ -140,7 +140,6 @@ setup_source() {
         (cd "$DESTINATION_FULL/source" && patch -p1 -N -r - < "$FREECAD_SOURCE_PATCH" )
         echo success
     fi 
-    exit
     return 0
 
     }
