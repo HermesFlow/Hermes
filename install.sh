@@ -131,8 +131,16 @@ setup_source() {
     fi
     cp -a "$DESTINATION_FULL/pyHermes/freecad_build_files/build_script.sh"  "$DESTINATION_FULL/source"
     if [[ ! "x$FREECAD_SOURCE_PATCH" = "x" ]]; then
-        (cd "$DESTINATION_FULL/source" && patch -p1 -N -r /dev/null < "$FREECAD_SOURCE_PATCH" )
-        fi 
+        echo "Trying to patch the source with \"$FREECAD_SOURCE_PATCH\"..."
+        if [[ ! -f "$FREECAD_SOURCE_PATCH" ]]; then 
+           echo "Hash  $FREECAD_SOURCE_PATCH doesn't exist"
+           return 1
+        fi
+
+        (cd "$DESTINATION_FULL/source" && patch -p1 -N -r - < "$FREECAD_SOURCE_PATCH" )
+        echo success
+    fi 
+    exit
     return 0
 
     }
