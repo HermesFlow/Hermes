@@ -15,7 +15,7 @@ Options:
     -i hash                 specify docker image id to use, default: $DOCKER_IMAGE_ID
     -d hash                 specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/$FREECAD_SOURCE_PATCH
+    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/pyHermes/$FREECAD_SOURCE_PATCH
     -v                      debug mode (implies "set -x")
     -h,-?                   print this help message
     
@@ -192,7 +192,7 @@ DESTINATION_FULL=
 DOCKER_DEV=
 DOCKER=
 DESTINATION_FULL=`get_abs_filename "$DESTINATION"`
-FREECAD_SOURCE_PATCH="$DESTINATION_FULL/freecad_5a352ea63_git.diff"
+FREECAD_SOURCE_PATCH="$DESTINATION_FULL/pyHermes/freecad_5a352ea63_git.diff"
 mkdir -p "$DESTINATION_FULL"
 cd "$DESTINATION_FULL"
 
@@ -209,6 +209,7 @@ check_docker || myexit
 setup_docker || myexit
 setup_docker_launch || myexit
 setup_source || myexit
+exit
 setup_python || myexit
 setup_examples || myexit
 
