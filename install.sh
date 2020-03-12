@@ -209,7 +209,6 @@ check_docker || myexit
 setup_docker || myexit
 setup_docker_launch || myexit
 setup_source || myexit
-exit
 setup_python || myexit
 setup_examples || myexit
 
