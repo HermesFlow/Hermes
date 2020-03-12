@@ -16,6 +16,7 @@ Options:
     -d hash                 specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
     -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  $FREECAD_SOURCE_PATCH
+    -v                      debug mode (implies "set -x")
     -h,-?                   print this help message
     
 Author: Yakov Mindelis
@@ -169,7 +170,7 @@ FREECAD_SOURCE_PATCH=`get_abs_filename "freecad_5a352ea63_git.diff"`
 DOCKER_IMAGE_ID=ee7e3ecee4ca
 DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
 # Process the options
-while getopts "o:b:d:f:p:i:h" opt
+while getopts "o:b:d:f:p:i:vh" opt
 do
     case $opt in
 #columns    
@@ -179,6 +180,7 @@ do
         i)      DOCKER_IMAGE_ID="$OPTARG";;
         f)      FREECAD_SOURCE_HASH="$OPTARG";; 
         p)      FREECAD_SOURCE_PATCH=`get_abs_filename "$OPTARG"`;; 
+        v)      set -x;;
         h|\?)   usage ;;
     esac
 done
