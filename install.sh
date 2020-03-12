@@ -15,7 +15,7 @@ Options:
     -i hash                 specify docker image id to use, default: $DOCKER_IMAGE_ID
     -d hash                 specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
     -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  $FREECAD_SOURCE_PATCH
+    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/$FREECAD_SOURCE_PATCH
     -v                      debug mode (implies "set -x")
     -h,-?                   print this help message
     
@@ -166,7 +166,7 @@ fi
 
 #defaults
 FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
-FREECAD_SOURCE_PATCH=`get_abs_filename "freecad_5a352ea63_git.diff"`
+FREECAD_SOURCE_PATCH="freecad_5a352ea63_git.diff"
 DOCKER_IMAGE_ID=ee7e3ecee4ca
 DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
 # Process the options
@@ -192,6 +192,7 @@ DESTINATION_FULL=
 DOCKER_DEV=
 DOCKER=
 DESTINATION_FULL=`get_abs_filename "$DESTINATION"`
+FREECAD_SOURCE_PATCH="$DESTINATION_FULL/freecad_5a352ea63_git.diff"
 mkdir -p "$DESTINATION_FULL"
 cd "$DESTINATION_FULL"
 
