@@ -5,16 +5,16 @@ usage() {
         cat <<EOF
 
 Usage:
-    $ME -d target_directory [-h git_hash] [-b build_destination]
+    $ME -d target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
 
 Script that installs HermesFlow/pyHermes-enabled FreeCad  
 
 Options:
     -o destination          directory which will contain the build files
     -b build_destination    scpecify separate build directory, default: $destination/build
-    -i hash                 specify docker image id to use, default: $DOCKER_IMAGE_ID
-    -d hash                 specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
-    -f hash                 specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
+    -i docker_id            specify docker image id to use, default: $DOCKER_IMAGE_ID
+    -d docker_digest        specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
+    -f freecad_hash         specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
     -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/pyHermes/$FREECAD_SOURCE_PATCH
     -v                      debug mode (implies "set -x")
     -h,-?                   print this help message

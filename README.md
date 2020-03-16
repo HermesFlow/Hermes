@@ -57,26 +57,30 @@ The script performs the following:
 
 Usage of install.sh, requires executable permissions of the script:
 
+
 Usage:
 ```
-    install.sh -d target_directory [-h git_hash] [-b build_destination]
+    install.sh -d target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
 ```
+
 Script that installs HermesFlow/pyHermes-enabled FreeCad
 
 Options:
 -    -o destination          directory which will contain the build files
 -    -b build_destination    scpecify separate build directory, default: /build
--    -d hash                 specify docker image hash to pull, default: ee7e3ecee4ca
--    -f hash                 specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
--    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  /Users/jack/iscfdc/freecad/freecad_5a352ea63_git.diff
+-    -i docker_id            specify docker image id to use, default: ee7e3ecee4ca
+-    -d docker_digest        specify docker image digest to pull, default: sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0
+-    -f freecad_hash         specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
+-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/pyHermes/freecad_5a352ea63_git.diff
+-    -v                      debug mode (implies "set -x")
 -    -h,-?                   print this help message
+
+Author: Yakov Mindelis
+ISCFDC - Israeli CFD Center LTD
 
         
 to produce a diff file from non-default source dir one should fixe the compilation problems and run:
     git diff > file.diff
-
-To start working default patch file (freecad_build_files/freecad_5a352ea63_git.diff) and install script only are requiered to be located in the same directory, example installation command:
-./install.sh -o output_directory
 
 ### For users 
 
