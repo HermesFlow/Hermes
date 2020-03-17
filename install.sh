@@ -146,6 +146,8 @@ setup_source() {
         (cd "$DESTINATION_FULL/source" && patch -p1 -N -r - < "$FREECAD_SOURCE_PATCH" )
         echo success
     fi 
+    echo Copying  "$DESTINATION_FULL/pyHermes/freecad_source_hermes/src" to  /mnt/source
+    cp -a   "$DESTINATION_FULL/pyHermes/freecad_source_hermes/src" /mnt/source || return 1
     return 0
 
     }
