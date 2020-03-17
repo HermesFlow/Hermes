@@ -18,7 +18,7 @@
 # alias mv='mv -i'
 
 build_script=/mnt/source/build_script.sh 
-echo "Expanding FreeCad .bashrc for building"
+echo "Expanding FreeCAD .bashrc for building"
 echo "Build command that runs qmake and make: $build_script"
 $build_script
 

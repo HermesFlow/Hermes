@@ -218,7 +218,7 @@ setup_source || myexit
 setup_python || myexit
 setup_examples || myexit
 
-"$DOCKER_DEV"
+"$DOCKER_DEV_COMPILE"
 
 
 
