@@ -108,6 +108,11 @@ setup_docker_launch() {
     cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev.sh" | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DOCKER_DEV"
     chmod +x "$DOCKER_DEV"
     echo "Docker launch script generation for developers"
+
+    cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev_compile.sh" | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DOCKER_DEV_COMPILE"
+    chmod +x "$DOCKER_DEV_COMPILE"
+    echo "Docker launch script generation for compilation"
+
     return 0
     }
 
@@ -198,6 +203,7 @@ cd "$DESTINATION_FULL"
 
 DOCKER="$DESTINATION_FULL/docker.sh"
 DOCKER_DEV="$DESTINATION_FULL/docker_dev.sh"
+DOCKER_DEV_COMPILE="$DESTINATION_FULL/docker_dev_compile.sh"
 
 
 repos="pyHermes JsonExample"
