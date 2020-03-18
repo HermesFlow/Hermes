@@ -5,7 +5,7 @@ usage() {
         cat <<EOF
 
 Usage:
-    $ME -d target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
+    $ME -o target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
 
 Script that installs HermesFlow/pyHermes-enabled FreeCad  
 
