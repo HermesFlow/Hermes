@@ -152,9 +152,76 @@ setup_source() {
 
     }
 
+setup_python_hermes() {
+    res=0
+
+    dirmod="$DESTINATION_FULL/build/Mod"
+    dirhermes="$dirmod/Hermes"
+    dirdatahermes="$DESTINATION_FULL/build/data/Mod/Hermes"
+    dirdataresources="$dirdatahermes/Resources"
+#if exists remove
+    dir="$dirhermes"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+
+#mkdir the build/Mod on demand
+    dir="$dirmod"
+    mkdir -p  "$dir" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo mkdir  \"$dir\" failed
+        return $res
+    fi
+
+ #copy the whole repository to buld/Mod/Hermes        
+    cp -a  "$DESTINATION_FULL/pyHermes"  "$dirhermes" || res=1
+    
+    if [ ! $res -eq 0 ]; then
+        echo Copying \"$DESTINATION_FULL/pyHermes\" to  \"$dirhermes\"  failed
+        return $res
+    fi
+    
+    (cd  "$DESTINATION_FULL/build/Mod/Hermes" ; git filter-branch --subdirectory-filter freecad_python_hermes --prune-empty -- --all) || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Setting up pyHermes/freecad_python_hermes as a standalone git dir \"$DESTINATION_FULL/build/Mod/Hermes\" failed
+        return $res
+    fi
+
+#if exists remove
+    dir="$dirdataresources"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+
+#mkdir the build/data/Mod/Hermes on demand
+    dir="$dirdatahermes"
+    mkdir -p  "$dir" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo mkdir  \"$dir\" failed
+        return $res
+    fi
+
+#copy the Resources
+    cp -a "$DESTINATION_FULL/pyHermes/Resources"  "$dirdatahermes" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Copying  \"$DESTINATION_FULL/pyHermes/Resources\"  to \"$dirdatahermes\" failed
+        return $res
+    fi
+
+    return $res
+}
+ 
 setup_python() {
-     ( cd "$DESTINATION_FULL" && tar xvf pyHermes/freecad_build_files/dot_local.tar.gz )
-    return 0
+    res=0
+
+    ( cd "$DESTINATION_FULL" && tar xvf pyHermes/freecad_build_files/dot_local.tar.gz ) || res=1
+    if [ ! $res -eq 0 ]; then
+        echo "Setting up the .local with python stuff  failed"
+    fi
+
+    return res
 
     }
 setup_examples() {
@@ -217,6 +284,7 @@ check_docker || myexit
 setup_docker || myexit
 setup_docker_launch || myexit
 setup_source || myexit
+setup_python_hermes || myexit
 setup_python || myexit
 setup_examples || myexit
 
