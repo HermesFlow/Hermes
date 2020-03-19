@@ -221,7 +221,7 @@ setup_python() {
         echo "Setting up the .local with python stuff  failed"
     fi
 
-    return res
+    return $res
 
     }
 setup_examples() {
