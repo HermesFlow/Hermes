@@ -1,5 +1,6 @@
 from .abstractExecuter import abstractExecuter
 
+import os, sys, stat
 
 class copyDir(abstractExecuter):
 
@@ -27,6 +28,22 @@ class copyDirectory(abstractExecuter):
         )
 
     def run(self, **inputs):
+        #import os
+
+        print("===========================")
+        print(" ---got to copyDirectory---")
+        print("===========================")
+
+        #for itemKey,itemVal in inputs.items():
+        #    print("inputs["+itemKey+"]="+itemVal)
+        
+        if (len(inputs["Source"])>0 and len(inputs["Target"])>0):
+            os.popen('cp -r ' + inputs["Source"] +' '+inputs["Target"])
+        else:
+            print("=============== empty ===============")
+        
+
+
         return dict(copyDirectory="copyDirectory")
 
 
@@ -56,7 +73,7 @@ class RunOsCommand(abstractExecuter):
         )
 
     def run(self, **inputs):
-        import os, sys, stat
+        #import os, sys, stat
 
         print("===========================")
         print(" ---got to RunOsCommand---")
@@ -67,7 +84,7 @@ class RunOsCommand(abstractExecuter):
             fullPath = inputs["batchFile"]
             #update 'pathFile' to full path- absolute
             fullPath=os.path.abspath(fullPath)
-            # give the file execute premission of the user
+            # give the file execute permission of the user
             os.chmod(fullPath, stat.S_IRWXU)
             # run the batch file
             os.system(fullPath)
