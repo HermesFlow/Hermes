@@ -1,0 +1,23 @@
+{
+
+        "type":"array",
+        "title":"geometry",
+        "items":{ 
+            "type": "object",
+            "properties":{ 
+                "nameSO":{    
+                    "type":"string",
+                    "title":"name",
+                    "description":"Define region name"
+                },
+                "geometry objects":{ 
+                    "importJsonfromfile":{
+                        "path":"searchableObjects.json"
+                     }
+                }
+            }
+        }
+       
+}
+
+

@@ -1,0 +1,26 @@
+{
+    "workflow":{
+        "root":null,
+        "Templates":{ 
+            "importJsonfromfile":{ 
+                "path":"../../hermes/Resources/nodeTemplates/templates.json"
+            }
+        },
+        "nodeList":[
+            "CopyDirectory",
+            "RunOsCommand"
+        ],
+        "nodes":{
+            "CopyDirectory":{
+                "Template":{ 
+                    "TypeFC":"general.CopyDirectory"
+                }
+            },
+            "RunOsCommand":{
+                "Template":{ 
+                    "TypeFC":"general.RunOsCommand"
+                }
+            }
+        }
+    }
+}

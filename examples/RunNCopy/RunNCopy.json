@@ -8,7 +8,7 @@
         "nodes":{
             "CopyDirectory":{
                 "typeExecution":"copyDirectory",
-                "TypeFC":"_WebGuiNode",
+                "TypeFC":"WebGuiNode",
                 "input_parameters":{  
                     "Source":"{Properties.Source.current_val}",
                     "Target":"{Properties.Target.current_val}"
@@ -36,7 +36,7 @@
             },
             "RunOsCommand":{
                 "typeExecution":"RunOsCommand",
-                "TypeFC":"_WebGuiNode",
+                "TypeFC":"WebGuiNode",
                 "input_parameters":{
                     "Method":"{Properties.ChooseMethod.current_val}",
                     "Commands":"{Properties.Commands.current_val}",

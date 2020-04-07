@@ -1,0 +1,18 @@
+{
+    "general":{
+        "importJsonfromfile":{ 
+            "path":"general/generalTemplates.json"
+        }
+    },
+    "openFOAM":{
+        "importJsonfromfile":{ 
+            "path":"openFOAM/openFOAMTemplate.json"
+
+        }
+    },
+    "BC":{
+        "importJsonfromfile":{ 
+            "path":"BC/BCTemplate.json"
+        }
+    }
+}
