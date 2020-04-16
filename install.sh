@@ -136,12 +136,12 @@ setup_source() {
     else
         echo "\"$DESTINATION_FULL/source\" appears to be a git tree, will try to checkout"
     fi
-
     fchash=`(cd "$DESTINATION_FULL/source";  git describe --tags --long 2>/dev/null)`
     if [ "x$fchash" = "x$FREECAD_SOURCE_HASH" ]; then
         echo "Hash  $FREECAD_SOURCE_HASH already cheked out"
     else
         (cd "$DESTINATION_FULL/source"; git reset --hard $FREECAD_SOURCE_HASH)
+        fchash=`(cd "$DESTINATION_FULL/source";  git describe --tags --long 2>/dev/null)`
     fi
     #verify
     if [ "x$fchash" != "x$FREECAD_SOURCE_HASH" ]; then
@@ -166,12 +166,17 @@ setup_source() {
     }
 
 setup_mod_hermes() {
+set -x
     res=0
 
     dirmod="$DESTINATION_FULL/build/Mod"
+    dirhermes="$DESTINATION_FULL/build/hermes"
     dirmodhermes="$dirmod/Hermes"
     dirdatamodhermes="$DESTINATION_FULL/build/data/Mod/Hermes"
-    dirdatamodhermesresources="$dirdatahermes/Resources"
+    dirdatamodhermesresources="$dirdatamodhermes/Resources"
+    direxamples="$DESTINATION_FULL/build/examples"
+
+#SETUP build/Mod/Hermes
 #if exists remove
     dir="$dirmodhermes"
     if [ -d  $dir ]; then 
@@ -187,21 +192,46 @@ setup_mod_hermes() {
         return $res
     fi
 
- #copy the whole repository to buld/Mod/Hermes        
-    cp -aH  "$DESTINATION_FULL/Hermes"  "$dirmodhermes" || res=1
+
+#SETUP build/hermes
+#if exists remove
+    dir="$dirhermes"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+
+ #copy the whole repository to buld/hermes        
+    cp -aH  "$DESTINATION_FULL/Hermes"  "$dirhermes" || res=1
     if [ ! $res -eq 0 ]; then
         echo Copying \"$DESTINATION_FULL/Hermes\" to  \"$dirhermes\"  failed
         return $res
     fi
-    
-    (cd  "$dirmodhermes" ; git filter-branch --subdirectory-filter freecad_python_hermes --prune-empty -- --all) || res=1
+    #make partial tree
+    (cd  "$dirhermes" ; git filter-branch --subdirectory-filter hermes --prune-empty -- --all) || res=1
     if [ ! $res -eq 0 ]; then
-        echo  Setting up Hermes/freecad_python_hermes as a standalone git dir \"$dirmodhermes\" failed
+        echo  Setting up Hermes/hermes as a standalone git dir \"$dirbuildhermes\" failed
+        return $res
+    fi
+    #setup link Mod/Hermes
+    dir="$dirmodhermes"
+
+    rm -f  "$dir" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo rm -f  \"$dir\" failed
         return $res
     fi
 
+    ln -s /mnt/workbench   "$dir" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo ln -s/mnt/workbench  \"$dir\" failed
+        return $res
+    fi
+
+
+
 #if exists remove
-    dir="$dirdatamodhermesresources"
+    dir="$dirdatamodhermes"
     if [ -d  $dir ]; then 
         echo Removing  "$dir" 
         rm  -rf  "$dir" 
@@ -216,14 +246,31 @@ setup_mod_hermes() {
     fi
 
 #copy the Resources
-    hermesResources="$DESTINATION_FULL/Hermes/hermes/Resources"
-    cp -a "$hermesResources"  "$dirdatamodhermes" || res=1
+    freecadResources="$DESTINATION_FULL/Hermes/freecad_Resources"
+    cp -a "$freecadResources"  "$dirdatamodhermesresources" || res=1
     if [ ! $res -eq 0 ]; then
-        echo  Copying  \"$hermesResources\"  to \"$dirdatamodhermes\" failed
+        echo  Copying  \"$freecadResources\"  to \"$dirdatamodhermesresources\" failed
+        return $res
+    fi
+    
+    return $res
+
+#SETUP examples
+#if exists remove
+    dir="$direxamples"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+#copy the examples
+    examples="$DESTINATION_FULL/examples"
+    cp -a "$examples"  "$direxamples" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Copying  \"$examples\"  to \"$direxamples\" failed
         return $res
     fi
 
-    return $res
+
 }
 setup_hermes() {
     res=0
