@@ -10,7 +10,7 @@ wd=`dirname "$me"`
 
 fc_examples="$wd/examples"    
 fc_build="$wd/build"
-fc_build_files="$wd/pyHermes/freecad_build_files/"
+fc_build_files="$wd/Hermes/freecad_build_files/"
 
 docker run -it --rm \
 -v "$fc_build":/mnt/build \
