@@ -37,8 +37,6 @@ import TestApp               #Test as Module name not possible
 import sys
 from PyQt5 import QtGui,QtCore
 
-import tkinter
-from tkinter import filedialog
 import os
 
 import json
