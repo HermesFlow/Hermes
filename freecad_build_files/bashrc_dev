@@ -20,6 +20,8 @@
 freecad=/mnt/build/bin/FreeCAD
 alias FreeCAD="$freecad"
 
+export HERMES_2_PATH=/mnt/build
+
 build_script=/mnt/source/build_script.sh 
 echo "Expanding FreeCAD .bashrc for building"
 echo "Build command that runs qmake and make: $build_script"
