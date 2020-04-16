@@ -11,10 +11,12 @@ wd=`dirname "$me"`
 fc_source="$wd/source"
 fc_build="$wd/build"
 fc_build_files="$wd/Hermes/freecad_build_files/"
+fc_workbench="$wd/Hermes/hermes/Resources/workbench"
 
 docker run -it --rm \
 -v "$fc_source":/mnt/source \
 -v "$fc_build":/mnt/build \
+-v "$fc_workbench":/mnt/workbench \
 -v "$fc_build_files/bashrc_dev":/root/.bashrc:ro \
 -v "$wd/dot_local":/root/.local:ro \
 -v "$other_files":/mnt/files \

@@ -10,9 +10,11 @@ wd=`dirname "$me"`
 
 fc_build="$wd/build"
 fc_build_files="$wd/Hermes/freecad_build_files/"
+fc_workbench="$wd/Hermes/hermes/Resources/workbench"
 
 docker run -it --rm \
 -v "$fc_build":/mnt/build \
+-v "$fc_workbench":/mnt/workbench \
 -v "$fc_build_files/bashrc":/root/.bashrc:ro \
 -v "$wd/dot_local":/root/.local:ro \
 -e "DISPLAY" -e "QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
