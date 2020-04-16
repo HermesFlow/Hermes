@@ -201,7 +201,7 @@ set -x
         rm  -rf  "$dir" 
     fi
 
- #copy the whole repository to buld/hermes        
+    #copy the whole repository to buld/hermes        
     cp -aH  "$DESTINATION_FULL/Hermes"  "$dirhermes" || res=1
     if [ ! $res -eq 0 ]; then
         echo Copying \"$DESTINATION_FULL/Hermes\" to  \"$dirhermes\"  failed
@@ -213,7 +213,8 @@ set -x
         echo  Setting up Hermes/hermes as a standalone git dir \"$dirbuildhermes\" failed
         return $res
     fi
-    #setup link Mod/Hermes
+    
+ #SETUP link Mod/Hermes
     dir="$dirmodhermes"
 
     rm -f  "$dir" || res=1
@@ -224,13 +225,12 @@ set -x
 
     ln -s /mnt/workbench   "$dir" || res=1
     if [ ! $res -eq 0 ]; then
-        echo ln -s/mnt/workbench  \"$dir\" failed
+        echo ln -s /mnt/workbench  \"$dir\" failed
         return $res
     fi
 
-
-
-#if exists remove
+#SETUP data/Mod/Hermes
+    #if exists remove
     dir="$dirdatamodhermes"
     if [ -d  $dir ]; then 
         echo Removing  "$dir" 
@@ -253,23 +253,23 @@ set -x
         return $res
     fi
     
-    return $res
 
 #SETUP examples
-#if exists remove
+    #if exists remove
     dir="$direxamples"
     if [ -d  $dir ]; then 
         echo Removing  "$dir" 
         rm  -rf  "$dir" 
     fi
-#copy the examples
+    #copy the examples
     examples="$DESTINATION_FULL/examples"
     cp -a "$examples"  "$direxamples" || res=1
     if [ ! $res -eq 0 ]; then
         echo  Copying  \"$examples\"  to \"$direxamples\" failed
         return $res
     fi
-
+    
+    return $res
 
 }
 setup_hermes() {
