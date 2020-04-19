@@ -27,7 +27,89 @@ class RunPythonScript(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(RunPythonScript="RunPythonScript")
+        print("===============================")
+        print("-----got to RunPythonScript----")
+        print("===============================")
+
+        ModulePath=inputs["ModulePath"]
+        MethodName=inputs["MethodName"]
+        Parameters=inputs["Parameters"]
+
+
+
+        
+        # #====== take care of the path ==============
+        # #update 'current_dir' to full path- absolute
+        # ModulePath=os.path.abspath(ModulePath)
+        #
+        # #insert the path to sys
+        # # insert at 1, 0 is the script path (or '' in REPL)
+        # sys.path.insert(1, ModulePath)
+        #
+        # #====== take care of the MethodName ==============
+        # # import the module by his name
+        #
+        # # split ModulePath
+        # splitModulePath = ModulePath.split('.')
+        #
+        # # check its length to find out a module or an inside class
+        # if len(splitModulePath)==1:
+        #     # imort module directly
+        #     import MethodName
+        # else:
+        #     # the method name is the last item in the split list
+        #     MethodName=splitModulePath[-1]
+        #
+        #     #remove MethodName from the list
+        #     splitModulePath.remove(MethodName)
+        #
+        #     # create the path from the rest
+        #     fromPath="."
+        #     fromPath=fromPath.join(splitModulePath)
+        #
+        #     #import module
+        #     from fromPath import MethodName
+        #
+        #
+        # import MethodName
+        #
+        # #====== take care of the parameters ==============
+        # # create a new dict contain all parameters
+        # NewParameters=[]
+        #
+        # # loop all parameters and cast them
+        # for param in Parameters:
+        #
+        #     # split between the type and the value
+        #     splitParam = param.split('.')
+        #
+        #     # cast each param
+        #     if splitParam[0] == "int":
+        #        splitParam[1] = int(splitParam[1])
+        #     elif splitParam[0] == "float":
+        #        splitParam[1] = float(splitParam[1])
+        #     elif splitParam[0] == "str":
+        #        splitParam[1] = str(splitParam[1])
+        #     elif splitParam[0] == "dict":
+        #        splitParam[1] = dict(splitParam[1])
+        #     elif splitParam[0] == "list":
+        #        splitParam[1] = list(splitParam[1])
+        #     elif splitParam[0] == "None":
+        #        splitParam[1] = None
+        #     elif splitParam[0] == "bool":
+        #        splitParam[1] = bool(splitParam[1])
+        #
+        # NewParameters.append(splitParam[1])
+        #
+        # print(str(NewParameters))
+        #
+        # MethodName(NewParameters)
+
+
+
+
+
+        return dict(RunPythonScript="ModulePath")
 
 
 class nogaExec(abstractExecuter):

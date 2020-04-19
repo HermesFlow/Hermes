@@ -938,7 +938,11 @@ class _HermesWorkflow:
 
         # get the path from environment variable
         HermesDirpath = os.getenv('HERMES_2_PATH')
-        #print("Runworkflow:HermesDirpath=" + str(HermesDirpath))
+
+        # add an Error message in case the environment variable does not exist
+        if (HermesDirpath == None):
+            FreeCAD.Console.PrintError('Error: HermesGui.py - line 940: The environment variable does not exist!\n')
+            return
         current_dir = HermesDirpath
 
         current_dir=HermesDirpath+'/hermes/'
