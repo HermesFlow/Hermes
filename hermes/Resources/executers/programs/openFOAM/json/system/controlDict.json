@@ -1,0 +1,9 @@
+{
+    "controlDict":{
+        "path":"hermes.Resources.executers.programs.openFOAM.system",
+        "values":{
+            "application":"simpleFoam",
+            "startFrom":"startTime"
+        }
+    }
+}
