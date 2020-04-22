@@ -1,0 +1,40 @@
+{
+    "typeExecution":"WebGuiNode",
+    "TypeFC":"WebGuiNode",
+    "input_parameters":{
+    },
+    "Properties":{
+        "generalProperty":{
+            "prop":"generalProperty",
+            "init_val":"ABC",
+            "type":"App::PropertyString",
+            "Heading":"general",
+            "tooltip":"example to create a property",
+            "current_val":"xyz"
+        }
+    },
+    "WebGui":{
+        "Schema":{
+            "title":"A WebGui Template",
+            "description":"A simple WebGui template example.",
+            "type":"object",
+            "properties":{
+                "property1": {
+                    "type": "string",
+                    "title": "property1"
+                },
+                "property2": {
+                    "type": "number",
+                    "title": "property2"
+                }
+            }
+        },
+        "uiSchema":{
+        },
+        "formData":{
+            "property1": "value1",
+            "property2": 42
+
+        }
+    }
+}

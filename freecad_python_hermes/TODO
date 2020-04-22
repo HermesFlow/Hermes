@@ -1,9 +1,0 @@
-File: HermesGui.py
-Class: _HermesWorkflow
-    - Implement readJson
-    - Copy and implement all the functions in CJsonWizardPanel in _HermesWorkflow
-        - Instead of 'Global' variables, use self.Var
-        - Create the nodes using addObject (example found in readJson function)
-
-
-

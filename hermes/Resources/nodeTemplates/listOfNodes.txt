@@ -1,0 +1,19 @@
+
+list of all nodes with template
+================================
+
+- generarl
+    - RunOsCommand
+    - CopyDirectory
+    - RunPythonScript
+    - WebGuiNode
+- BC
+- openFOAM
+    - SnappyHexMesh
+    - ControlDict
+    - fvSchemes
+    - fvSolution
+    - transportProperties
+    - RASProperties
+
+

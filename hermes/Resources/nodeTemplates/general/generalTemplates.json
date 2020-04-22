@@ -1,0 +1,22 @@
+{
+    "RunOsCommand":{
+        "importJsonfromfile":{
+            "path":"RunOsCommand.json"
+        }
+    },
+    "CopyDirectory":{
+        "importJsonfromfile":{
+            "path":"CopyDirectory.json"
+        }
+    },
+    "RunPythonScript":{
+        "importJsonfromfile":{
+            "path":"RunPythonScript.json"
+        }
+    },
+    "webGuiNode":{
+        "importJsonfromfile":{
+            "path":"WebGuiNode.json"
+        }
+    }      
+}

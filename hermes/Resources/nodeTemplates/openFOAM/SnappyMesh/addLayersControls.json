@@ -1,0 +1,96 @@
+{
+    "relativeSizes":{
+        "type":"boolean",
+        "title":"relativeSizes"
+    },
+    "expansionRatio":{
+        "type":"number",
+        "title":"expansionRatio",
+        "description":"expansion factor for layer mesh, increase in size from one layer to the next."
+    },
+    "finalLayerThickness":{
+        "type":"number",
+        "title":"finalLayerThickness",
+        "description":"thickness of layer furthest from the wall, usually in combination with relative sizes according to the relativeSizes entry."
+    },
+    "firstLayerThickness":{
+        "type":"number",
+        "title":"firstLayerThickness",
+        "description":"thickness of layer nearest the wall, usually in combination with absolute sizes according to the relativeSizes entry."
+    },
+    "thickness":{
+        "type":"number",
+        "title":"thickness",
+        "description":"total thickness of all layers of cells, usually in combination with absolute sizes according to the relativeSizes entry"
+    },
+    "minThickness":{    
+        "type":"number",
+        "title":"minThickness",
+        "description":"minimum thickness of cell layer, either relative or absolute"
+    },
+    "nGrow":{    
+        "type":"integer",
+        "title":"nGrow",
+        "description":"number of layers of connected faces that are not grown if points do not get extruded"
+    },
+    "featureAngle":{    
+        "type":"number",
+        "title":"featureAngle",
+        "description":"angle above which surface is not extruded"
+    },
+    "slipFeatureAngle":{    
+        "type":"number",
+        "title":"slipFeatureAngle",
+        "description":"At non-patched sides allow mesh to slip if extrusion direction makes angle larger than slipFeatureAngle"
+    },
+    "nRelaxIter":{    
+        "type":"integer",
+        "title":"nRelaxIter",
+        "description":"maximum number of snapping relaxation iterations"
+    },
+    "nSmoothSurfaceNormals":{    
+        "type":"integer",
+        "title":"nSmoothSurfaceNormals",
+        "description":"number of smoothing iterations of surface normals"
+    },
+    "nSmoothNormals":{    
+        "type":"integer",
+        "title":"nSmoothNormals",
+        "description":"number of smoothing iterations of interior mesh movement direction"
+    },
+    "nSmoothThickness":{    
+        "type":"integer",
+        "title":"nSmoothThickness",
+        "description":"smooth layer thickness over surface patches"
+    },
+    "maxFaceThicknessRatio":{    
+        "type":"number",
+        "title":"maxFaceThicknessRatio",
+        "description":"stop layer growth on highly warped cells"
+    },
+    "maxThicknessToMedialRatio":{    
+        "type":"number",
+        "title":"maxThicknessToMedialRatio",
+        "description":"reduce layer growth where ratio thickness to medial distance is large"
+    },
+    "minMedianAxisAngle":{    
+        "type":"number",
+        "title":"minMedianAxisAngle",
+        "description":"angle used to pick up medial axis points"
+    },
+    "nBufferCellsNoExtrude":{    
+        "type":"integer",
+        "title":"nBufferCellsNoExtrude",
+        "description":"create buffer region for new layer terminations"
+    },
+    "nLayerIter":{    
+        "type":"integer",
+        "title":"nLayerIter",
+        "description":"overall max number of layer addition iterations"
+    },
+    "nRelaxedIter":{    
+        "type":"integer",
+        "title":"nRelaxedIter",
+        "description":"max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+    }
+}

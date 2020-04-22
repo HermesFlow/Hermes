@@ -1,0 +1,28 @@
+ {
+    "casePath"  : "/home/blah/blah", 
+    "files" : {   
+        "controlDict" : { 
+            "name" : "system/controlDict", 
+            "values" : { 
+                "application" : "simpleFoam",
+                "startFrom" : "startTime",
+                "startTime" : 0,
+                "stopAt" : "endTime",
+                "endTime" : 1000,
+                "deltaT" : 1,
+                "writeControl" : "timeStep",
+                "writeInterval" : 100,
+                "purgeWrite" : 0,
+                "writeFormat" : "ascii",
+                "writePrecision" : 7,
+                "writeCompression" : "off",
+                "timeFormat" : "general",
+                "timePrecision" : 6,
+                "runTimeModifiable" : true,
+                "interpolate" : true,
+                "functions" : "file"
+  
+            }
+        }
+    }
+} 

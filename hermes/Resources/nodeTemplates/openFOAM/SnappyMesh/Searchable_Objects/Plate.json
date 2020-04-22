@@ -1,0 +1,19 @@
+{ 
+    "typePlate":{ 
+        "type":"string",
+        "title":"type",
+        "description":"A finite plate aligned with co-ordinate system. Plate could be used e.g. to create a baffle or measuring plane"
+    },
+    "originPlate":{ 
+        "type":"string",
+        "title":"point1",
+        "format":"vector",
+        "description":"Centre of plate"
+    },
+    "spanPlate":{ 
+        "type":"string",
+        "title":"point1",
+        "format":"vector",
+        "description":"Span in each direction - User must specify span in two directions, the third must be zero."
+    }
+}

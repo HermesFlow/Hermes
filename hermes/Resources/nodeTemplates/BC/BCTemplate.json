@@ -1,0 +1,36 @@
+{
+    "typeExecution":"executerPython",
+    "TypeFC":"BCFactory",
+    "input_parameters":{
+    },
+    "Properties":{
+        "Property1":{
+            "prop":"IntegerProperty",
+            "init_val":10,
+            "type":"App::PropertyInteger",
+            "Heading":"PropInteger",
+            "tooltip":"IntegerProperty",
+            "current_val":10
+        }
+    },
+    "BCTypes":{
+        "TypeList":["wall","sym"],
+        "TypeProperties":{
+            "importJsonfromfile":{
+                "path":"BCTypes/BCTypesListProperties.json"
+            }
+        }
+    },
+    "BCList":{
+        "BC1":{
+            "importJsonfromfile":{
+                "path":"BCList/BC1.json"
+            }
+        },
+        "BC2":{
+            "importJsonfromfile":{
+                "path":"BCList/BC2.json"
+            }
+        }
+    }
+}

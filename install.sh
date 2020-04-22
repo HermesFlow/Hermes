@@ -7,15 +7,15 @@ usage() {
 Usage:
     $ME -o target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
 
-Script that installs HermesFlow/pyHermes-enabled FreeCad  
+Script that installs HermesFlow/Hermes-enabled FreeCad  
 
 Options:
     -o destination          directory which will contain the build files
-    -b build_destination    scpecify separate build directory, default: $destination/build
+    -b hermes_branch        scpecify Hermes branch
     -i docker_id            specify docker image id to use, default: $DOCKER_IMAGE_ID
     -d docker_digest        specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
     -f freecad_hash         specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/pyHermes/$FREECAD_SOURCE_PATCH
+    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/Hermes/$FREECAD_SOURCE_PATCH
     -v                      debug mode (implies "set -x")
     -h,-?                   print this help message
     
@@ -40,7 +40,13 @@ get_abs_filename() {
  
 git_pull() {
     res=0
-    git_clone_output=`git clone "https://github.com/HermesFlow/$1.git" 2>&1`
+    branchopts=
+    if [ "x$HERMES_BRANCH" != "xmaster" ]; then 
+        branchopts="-b $HERMES_BRANCH"
+    fi
+
+
+    git_clone_output=`git clone $branchopts "https://github.com/HermesFlow/$1.git" 2>&1`
 
     echo "$git_clone_output"
     
@@ -100,22 +106,29 @@ setup_docker() {
     return $res
     }
 
+#Docker launch scripts
 setup_docker_launch() {
-    cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker.sh"   | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DOCKER"
-    chmod +x "$DOCKER"
-    echo "Docker launch script generation for users"
+    res=0
+    for dockerscript in docker.sh docker_dev.sh docker_dev_compile.sh; do
+        cat "$DESTINATION_FULL/Hermes/freecad_build_files/$dockerscript"   | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DESTINATION_FULL/$dockerscript" || res=1
+        if [ ! $res -eq 0 ]; then
+            echo "Docker launch script \"$dockerscript\" creation failed"
+            return $res
+        fi
 
-    cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev.sh" | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DOCKER_DEV"
-    chmod +x "$DOCKER_DEV"
-    echo "Docker launch script generation for developers"
+        chmod +x  "$DESTINATION_FULL/$dockerscript" || res=1
+        if [ ! $res -eq 0 ]; then
+            echo "Docker launch script \"$dockerscript\" permissions setup failed"
+            return $res
+        fi
 
-    cat "$DESTINATION_FULL/pyHermes/freecad_build_files/docker_dev_compile.sh" | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DOCKER_DEV_COMPILE"
-    chmod +x "$DOCKER_DEV_COMPILE"
-    echo "Docker launch script generation for compilation"
+        echo "Docker launch script \"$dockerscript\" generation"
+    done
 
-    return 0
+    return $res
     }
 
+#FC source + source additions
 setup_source() {
     if [ ! -d "$DESTINATION_FULL/source/.git" ]; then 
         git clone https://github.com/FreeCAD/FreeCAD.git "$DESTINATION_FULL/source"
@@ -123,19 +136,19 @@ setup_source() {
     else
         echo "\"$DESTINATION_FULL/source\" appears to be a git tree, will try to checkout"
     fi
-
     fchash=`(cd "$DESTINATION_FULL/source";  git describe --tags --long 2>/dev/null)`
     if [ "x$fchash" = "x$FREECAD_SOURCE_HASH" ]; then
         echo "Hash  $FREECAD_SOURCE_HASH already cheked out"
     else
         (cd "$DESTINATION_FULL/source"; git reset --hard $FREECAD_SOURCE_HASH)
+        fchash=`(cd "$DESTINATION_FULL/source";  git describe --tags --long 2>/dev/null)`
     fi
     #verify
     if [ "x$fchash" != "x$FREECAD_SOURCE_HASH" ]; then
         echo "Hash  $FREECAD_SOURCE_HASH wasn't cheked out"
         return 1
     fi
-    cp -a "$DESTINATION_FULL/pyHermes/freecad_build_files/build_script.sh"  "$DESTINATION_FULL/source"
+    cp -a "$DESTINATION_FULL/Hermes/freecad_build_files/build_script.sh"  "$DESTINATION_FULL/source"
     if [[ ! "x$FREECAD_SOURCE_PATCH" = "x" ]]; then
         echo "Trying to patch the source with \"$FREECAD_SOURCE_PATCH\"..."
         if [[ ! -f "$FREECAD_SOURCE_PATCH" ]]; then 
@@ -146,21 +159,26 @@ setup_source() {
         (cd "$DESTINATION_FULL/source" && patch -p1 -N -r - < "$FREECAD_SOURCE_PATCH" )
         echo success
     fi 
-    echo Copying  "$DESTINATION_FULL/pyHermes/freecad_source_hermes/src" to   "$DESTINATION_FULL/source"
-    cp -a   "$DESTINATION_FULL/pyHermes/freecad_source_hermes/src" "$DESTINATION_FULL/source" || return 1
+    echo Copying  "$DESTINATION_FULL/Hermes/freecad_source_hermes/src" to   "$DESTINATION_FULL/source"
+    cp -a   "$DESTINATION_FULL/Hermes/freecad_source_hermes/src" "$DESTINATION_FULL/source" || return 1
     return 0
 
     }
 
-setup_python_hermes() {
+setup_mod_hermes() {
+set -x
     res=0
 
     dirmod="$DESTINATION_FULL/build/Mod"
-    dirhermes="$dirmod/Hermes"
-    dirdatahermes="$DESTINATION_FULL/build/data/Mod/Hermes"
-    dirdataresources="$dirdatahermes/Resources"
+    dirhermes="$DESTINATION_FULL/build/hermes"
+    dirmodhermes="$dirmod/Hermes"
+    dirdatamodhermes="$DESTINATION_FULL/build/data/Mod/Hermes"
+    dirdatamodhermesresources="$dirdatamodhermes/Resources"
+    direxamples="$DESTINATION_FULL/build/examples"
+
+#SETUP build/Mod/Hermes
 #if exists remove
-    dir="$dirhermes"
+    dir="$dirmodhermes"
     if [ -d  $dir ]; then 
         echo Removing  "$dir" 
         rm  -rf  "$dir" 
@@ -174,29 +192,53 @@ setup_python_hermes() {
         return $res
     fi
 
- #copy the whole repository to buld/Mod/Hermes        
-    cp -a  "$DESTINATION_FULL/pyHermes"  "$dirhermes" || res=1
-    
+
+#SETUP build/hermes
+#if exists remove
+    dir="$dirhermes"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+
+    #copy the whole repository to buld/hermes        
+    cp -aH  "$DESTINATION_FULL/Hermes"  "$dirhermes" || res=1
     if [ ! $res -eq 0 ]; then
-        echo Copying \"$DESTINATION_FULL/pyHermes\" to  \"$dirhermes\"  failed
+        echo Copying \"$DESTINATION_FULL/Hermes\" to  \"$dirhermes\"  failed
+        return $res
+    fi
+    #make partial tree
+    (cd  "$dirhermes" ; git filter-branch --subdirectory-filter hermes --prune-empty -- --all) || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Setting up Hermes/hermes as a standalone git dir \"$dirbuildhermes\" failed
         return $res
     fi
     
-    (cd  "$DESTINATION_FULL/build/Mod/Hermes" ; git filter-branch --subdirectory-filter freecad_python_hermes --prune-empty -- --all) || res=1
+ #SETUP link Mod/Hermes
+    dir="$dirmodhermes"
+
+    rm -f  "$dir" || res=1
     if [ ! $res -eq 0 ]; then
-        echo  Setting up pyHermes/freecad_python_hermes as a standalone git dir \"$DESTINATION_FULL/build/Mod/Hermes\" failed
+        echo rm -f  \"$dir\" failed
         return $res
     fi
 
-#if exists remove
-    dir="$dirdataresources"
+    ln -s /mnt/workbench   "$dir" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo ln -s /mnt/workbench  \"$dir\" failed
+        return $res
+    fi
+
+#SETUP data/Mod/Hermes
+    #if exists remove
+    dir="$dirdatamodhermes"
     if [ -d  $dir ]; then 
         echo Removing  "$dir" 
         rm  -rf  "$dir" 
     fi
 
 #mkdir the build/data/Mod/Hermes on demand
-    dir="$dirdatahermes"
+    dir="$dirdatamodhermes"
     mkdir -p  "$dir" || res=1
     if [ ! $res -eq 0 ]; then
         echo mkdir  \"$dir\" failed
@@ -204,19 +246,57 @@ setup_python_hermes() {
     fi
 
 #copy the Resources
-    cp -a "$DESTINATION_FULL/pyHermes/Resources"  "$dirdatahermes" || res=1
+    freecadResources="$DESTINATION_FULL/Hermes/freecad_Resources"
+    cp -a "$freecadResources"  "$dirdatamodhermesresources" || res=1
     if [ ! $res -eq 0 ]; then
-        echo  Copying  \"$DESTINATION_FULL/pyHermes/Resources\"  to \"$dirdatahermes\" failed
+        echo  Copying  \"$freecadResources\"  to \"$dirdatamodhermesresources\" failed
+        return $res
+    fi
+    
+
+#SETUP examples
+    #if exists remove
+    dir="$direxamples"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+    #copy the examples
+    examples="$DESTINATION_FULL/examples"
+    cp -a "$examples"  "$direxamples" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Copying  \"$examples\"  to \"$direxamples\" failed
+        return $res
+    fi
+    
+    return $res
+
+}
+setup_hermes() {
+    res=0
+    dirbuildhermes="$DESTINATION_FULL/build/hermes"
+#if exists remove
+    dir="$dirbuildhermes"
+    if [ -d  $dir ]; then 
+        echo Removing  "$dir" 
+        rm  -rf  "$dir" 
+    fi
+
+    Hermeshermes="$DESTINATION_FULL/Hermes/hermes"
+    cp -aH "$Hermeshermes" "$dirbuildhermes" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo  Copying  \"$Hermeshermes\"  to \"$dirbuildhermes\" failed
         return $res
     fi
 
     return $res
 }
+
  
 setup_python() {
     res=0
 
-    ( cd "$DESTINATION_FULL" && tar xvf pyHermes/freecad_build_files/dot_local.tar.gz ) || res=1
+    ( cd "$DESTINATION_FULL" && tar xvf Hermes/freecad_build_files/dot_local.tar.gz ) || res=1
     if [ ! $res -eq 0 ]; then
         echo "Setting up the .local with python stuff  failed"
     fi
@@ -225,12 +305,15 @@ setup_python() {
 
     }
 setup_examples() {
+    res=0
     rm -rf  "$DESTINATION_FULL/examples"
-    mkdir -p  "$DESTINATION_FULL/examples"
-    for e in JsonExample; do
-        cp -a  "$DESTINATION_FULL/$e"  "$DESTINATION_FULL/examples"
-    done
-    return 0
+    cp -a  "$DESTINATION_FULL/Hermes/examples"  "$DESTINATION_FULL" || res=1
+    if [ ! $res -eq 0 ]; then
+        echo Copying \"$DESTINATION_FULL/Hermes/examples\" to \"$DESTINATION_FULL\" failed
+        return $res
+    fi
+
+    return $res
 
     }
 
@@ -243,13 +326,14 @@ FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
 FREECAD_SOURCE_PATCH="freecad_5a352ea63_git.diff"
 DOCKER_IMAGE_ID=ee7e3ecee4ca
 DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
+HERMES_BRANCH=master
 # Process the options
 while getopts "o:b:d:f:p:i:vh" opt
 do
     case $opt in
 #columns    
         o)      DESTINATION="$OPTARG";; 
-        b)      BUILD_DESTINATION="$OPTARG";; 
+        b)      HERMES_BRANCH="$OPTARG";; 
         d)      DOCKER_IMAGE_DIGEST="$OPTARG";;
         i)      DOCKER_IMAGE_ID="$OPTARG";;
         f)      FREECAD_SOURCE_HASH="$OPTARG";; 
@@ -266,7 +350,7 @@ DESTINATION_FULL=
 DOCKER_DEV=
 DOCKER=
 DESTINATION_FULL=`get_abs_filename "$DESTINATION"`
-FREECAD_SOURCE_PATCH="$DESTINATION_FULL/pyHermes/freecad_5a352ea63_git.diff"
+FREECAD_SOURCE_PATCH="$DESTINATION_FULL/Hermes/freecad_5a352ea63_git.diff"
 mkdir -p "$DESTINATION_FULL"
 cd "$DESTINATION_FULL"
 
@@ -275,16 +359,18 @@ DOCKER_DEV="$DESTINATION_FULL/docker_dev.sh"
 DOCKER_DEV_COMPILE="$DESTINATION_FULL/docker_dev_compile.sh"
 
 
-repos="pyHermes JsonExample"
+repos="Hermes"
 for repo in $repos; do
     git_pull "$repo" || myexit
 done
+
 
 check_docker || myexit
 setup_docker || myexit
 setup_docker_launch || myexit
 setup_source || myexit
-setup_python_hermes || myexit
+setup_mod_hermes || myexit
+setup_hermes || myexit
 setup_python || myexit
 setup_examples || myexit
 

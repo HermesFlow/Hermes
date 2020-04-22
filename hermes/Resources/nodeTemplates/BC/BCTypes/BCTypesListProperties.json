@@ -1,0 +1,12 @@
+{
+    "wall":{
+        "importJsonfromfile":{
+            "path":"BCwallTemplate.json"
+        }
+    },
+    "sym":{
+        "importJsonfromfile":{
+            "path":"BCsymTemplate.json"
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{ 
+    "typeTSM":{ 
+        "type":"string",
+        "title":"type"
+    },
+    "regionsTSM":{ 
+        "type":"array",
+        "title":"regions",
+        "items":{ 
+            "type":"array",
+            "title":"secondSolid",
+            "items":{ 
+                "type":"string",
+                "title":"name"
+            }
+        },
+        "description":"Per region the patch name"
+    },
+    "toleranceTSM":{ 
+        "type":"number",
+        "title":"tolerance",
+        "description":"Tolerance to use for intersection tests"
+    },
+    "scaleTSM":{ 
+        "type":"number",
+        "title":"scale",
+        "description":"Scale factor to apply to the points"
+    },
+    "nameTSM":{ 
+        "type":"string",
+        "title":"name",
+        "description":"Name to use to refer to this surface"
+    }
+}

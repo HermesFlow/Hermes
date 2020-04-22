@@ -1,0 +1,105 @@
+                {
+                    "type":"object",
+                    "title":"PISO",
+                    "description":"pressure-implicit split-operator",
+                    "properties":{
+                        "nCorrectorsPISO":{
+                            "type":"integer",
+                            "title":"nCorrectors",
+                            "description":"sets the number of times the algorithm solves the pressure equation and momentum corrector in each step",
+                            "default":2
+                        },
+                        "nNonOrthogonalCorrectorsPISO":{
+                            "type":"number",
+                            "title":"nNonOrthogonalCorrectors",
+                            "description":"pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction",
+                            "default":0
+                        },
+                        "momentumPredictorPISO":{
+                            "type":"boolean",
+                            "title":"momentumPredictor",
+                            "description":"switch that controls solving of the momentum predictor",
+                            "default":false
+                        },
+                        "pRefCellPISO":{
+                            "type":"number",
+                            "title":"pRefCell",
+                            "default":0
+                        },
+                        "pRefValuePISO":{
+                            "type":"number",
+                            "title":"pRefValue",
+                            "default":0
+                        }             
+                    }
+                },
+                {
+                    "type":"object",
+                    "title":"SIMPLE",
+                    "description":"semi-implicit method for pressure-linked equations",
+                    "properties":{
+                        "nNonOrthogonalCorrectorsSIMPLE":{
+                            "type":"number",
+                            "title":"nNonOrthogonalCorrectors",
+                            "description":"pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction",
+                            "default":0
+                        },
+                        "momentumPredictorSIMPLE":{
+                            "type":"boolean",
+                            "title":"momentumPredictor",
+                            "description":"switch that controls solving of the momentum predictor",
+                            "default":false
+                        },
+                        "pRefCellSIMPLE":{
+                            "type":"number",
+                            "title":"pRefCell",
+                            "default":0
+                        },
+                        "pRefValueSIMPLE":{
+                            "type":"number",
+                            "title":"pRefValue",
+                            "default":0
+                        }             
+                    }
+                },
+                {
+                    "type":"object",
+                    "title":"PIMPLE",
+                    "description":"combined - PISO+SIMPLE",
+                    "properties":{
+                        "nCorrectorsPIMPLE":{
+                            "type":"integer",
+                            "title":"nCorrectors",
+                            "description":"sets the number of times the algorithm solves the pressure equation and momentum corrector in each step",
+                            "default":2
+                        },
+                        "nNonOrthogonalCorrectorsPIMPLE":{
+                            "type":"number",
+                            "title":"nNonOrthogonalCorrectors",
+                            "description":"pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction",
+                            "default":0
+                        },
+                        "nOuterCorrectorsPIMPLE":{
+                            "type":"integer",
+                            "title":"nOuterCorrectors",
+                            "description":"it enables looping over the entire system of equations within on time step, representing the total number of times the system is solved",
+                            "default":1
+                        },
+                        "momentumPredictorPIMPLE":{
+                            "type":"boolean",
+                            "title":"momentumPredictor",
+                            "description":"switch that controls solving of the momentum predictor",
+                            "default":false
+                        },
+                        "pRefCellPIMPLE":{
+                            "type":"number",
+                            "title":"pRefCell",
+                            "default":0
+                        },
+                        "pRefValuePIMPLE":{
+                            "type":"number",
+                            "title":"pRefValue",
+                            "default":0
+                        }             
+                    }
+                }
