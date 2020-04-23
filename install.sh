@@ -166,7 +166,6 @@ setup_source() {
     }
 
 setup_mod_hermes() {
-set -x
     res=0
 
     dirmod="$DESTINATION_FULL/build/Mod"
@@ -262,7 +261,7 @@ set -x
         rm  -rf  "$dir" 
     fi
     #copy the examples
-    examples="$DESTINATION_FULL/examples"
+    examples="$DESTINATION_FULL/Hermes/examples"
     cp -a "$examples"  "$direxamples" || res=1
     if [ ! $res -eq 0 ]; then
         echo  Copying  \"$examples\"  to \"$direxamples\" failed
@@ -296,7 +295,7 @@ setup_hermes() {
 setup_python() {
     res=0
 
-    ( cd "$DESTINATION_FULL" && tar xvf Hermes/freecad_build_files/dot_local.tar.gz ) || res=1
+    ( cd "$DESTINATION_FULL" && tar xf Hermes/freecad_build_files/dot_local.tar.gz ) || res=1
     if [ ! $res -eq 0 ]; then
         echo "Setting up the .local with python stuff  failed"
     fi
