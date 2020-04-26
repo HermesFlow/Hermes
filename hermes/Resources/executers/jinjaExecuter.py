@@ -23,7 +23,9 @@ class jinjaExecuter(abstractExecuter):
     def run(self, inputs):
 
         # get the  name of the template
-        templateName = inputs['name']
+        templateName = inputs['template']
+        # templateName = os.path.abspath(templateName)
+
 
         # make sure the splits are with slash
         delimiters = ".", "/"
@@ -45,6 +47,6 @@ class jinjaExecuter(abstractExecuter):
         output = template.render(values=values)
 
         # save as dict item
-        D_item = {templateName : output}
+        D_item = {inputs['name'] : output}
 
         return D_item

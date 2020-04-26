@@ -1,8 +1,8 @@
  {
-    "casePath"  : "/home/blah/blah", 
+    "casePath"  : "simpleFoam",
     "files" : {   
-        "controlDict" : { 
-            "name" : "system/controlDict", 
+        "controlDict" : {
+            "name" : "system/controlDict",
             "values" : { 
                 "application" : "simpleFoam",
                 "startFrom" : "startTime",
@@ -23,6 +23,104 @@
                 "functions" : "file"
   
             }
+        },
+        "fvSchemes" : {
+            "name": "system/fvSchemes",
+            "values": {
+                "ddtSchemes": {
+                    "default": "steadyState"
+                },
+                "gradSchemes": {
+                    "default": "Gauss linear",
+                    "gradU": "cellLimited Gauss linear 1",
+                    "gradK": "cellLimited Gauss linear 1",
+                    "gradEpsilon": "cellLimited Gauss linear 1"
+                },
+                "divSchemes": {
+                    "moreDivSchemesProperties": {
+                        "divNuEff": "Gauss linear"
+                    },
+                    "default": "none",
+                    "divPhiU": "bounded Gauss upwind",
+                    "turbulence": "Gauss vanLeer",
+                    "divPhiK": "bounded Gauss upwind",
+                    "divPhiEpsilon": "bounded Gauss upwind",
+                    "divPhiOmega": "bounded Gauss upwind"
+                },
+                "laplacianSchemes": {
+                    "default": "Gauss linear corrected"
+                },
+                "interpolationSchemes": {
+                    "default": "linear"
+                },
+                "snGradSchemes": {
+                    "default": "corrected"
+                },
+                "wallDist": {
+                    "method": "meshWave"
+                }
+            }
+        },
+        "fvSolution": {
+            "name": "system/fvSolution",
+            "values": {
+                "solvers": [
+                    {
+                        "parameterProperties": {
+                            "GAMGproperties": [
+                                {
+                                    "cacheAgglomeration": true,
+                                    "agglomerator": "faceAreaPair",
+                                    "nCellsInCoarsestLevel": 10,
+                                    "mergeLevels": 1
+                                }
+                            ],
+                            "solver": "GAMG",
+                            "smoother": "GaussSeidel",
+                            "tolerance": 1e-06,
+                            "relTol": 0.1
+                        },
+                        "parameterName": "P"
+                    },
+                    {
+                        "parameterProperties": {
+                            "more properties": {},
+                            "solver": "smoothSolver",
+                            "smoother": "symGaussSeidel",
+                            "tolerance": 1e-06,
+                            "relTol": 0.1
+                        },
+                        "parameterName": "(U|k|omega|epsilon)"
+                    }
+                ],
+                "algorithms": [
+                    {
+                        "SIMPLEName": "SIMPLE",
+                        "SIMPLEproperties": {
+                            "residualControl": {
+                                "P": 1e-04,
+                                "U": 1e-04,
+                                "kOmegaEpsilon": 1e-04
+                            },
+                            "nNonOrthogonalCorrectorsSIMPLE": 5,
+                            "pRefCellSIMPLE": 0,
+                            "pRefValueSIMPLE": 0
+                        }
+                    }
+                ],
+                "potentialFlow": {
+                    "nNonOrthogonalCorrectors": 10
+                },
+                "relaxationFactors": {
+                    "fields": {
+                        "P": 0.3
+                    },
+                    "equations": {
+                        "U": 0.7,
+                        "kOmegaEpsilon": 0.7
+                    }
+                }
+            }
         }
     }
-} 
+}
