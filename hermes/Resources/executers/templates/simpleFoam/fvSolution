@@ -20,12 +20,9 @@ solvers
     {
         solver          {{values.solvers.0.parameterProperties.solver}};
         smoother        {{values.solvers.0.parameterProperties.smoother}};
-        {%- set CAbool=values.solvers.0.parameterProperties.GAMGproperties.0.cacheAgglomeration -%}
-        {%- if CAbool %}
-        cacheAgglomeration on;
-        {% else -%}
-        cacheAgglomeration off;
-        {% endif -%}
+        {%- set CAbool=values.solvers.0.parameterProperties.GAMGproperties.0.cacheAgglomeration %}
+        {{ 'cacheAgglomeration on;' if CAbool else 'cacheAgglomeration off;' }}
+
         agglomerator    {{values.solvers.0.parameterProperties.GAMGproperties.0.agglomerator}};
         nCellsInCoarsestLevel {{values.solvers.0.parameterProperties.GAMGproperties.0.nCellsInCoarsestLevel}};
         mergeLevels     {{values.solvers.0.parameterProperties.GAMGproperties.0.mergeLevels}};
