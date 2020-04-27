@@ -1,0 +1,11 @@
+{#-macro that will return lowercase for snappy-#}
+{%- macro macroSnappyGeo(string) -%}
+{%- set lowStr=namespace(x='x') -%}
+{%- set length = string|length -%}
+{%- for x in range(length) -%}
+{%- if string[0:x] is lower -%}
+{%- set lowStr.x = string[0:x] -%}
+{%- endif -%}
+{%- endfor -%}
+{{-lowStr.x-}}
+{% endmacro %}

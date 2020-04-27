@@ -1,5 +1,4 @@
 import os
-import string
 import re
 from jinja2 import FileSystemLoader, Environment
 from abstractExecuter import abstractExecuter
@@ -25,7 +24,6 @@ class jinjaExecuter(abstractExecuter):
         # get the  name of the template
         templateName = inputs['template']
         # templateName = os.path.abspath(templateName)
-
 
         # make sure the splits are with slash
         delimiters = ".", "/"
