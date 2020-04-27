@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          {{values.solvers.0.parameterProperties.solver}};
+        smoother        {{values.solvers.0.parameterProperties.smoother}};
+        {%- set CAbool=values.solvers.0.parameterProperties.GAMGproperties.0.cacheAgglomeration %}
+        {{ 'cacheAgglomeration on;' if CAbool else 'cacheAgglomeration off;' }}
+
+        agglomerator    {{values.solvers.0.parameterProperties.GAMGproperties.0.agglomerator}};
+        nCellsInCoarsestLevel {{values.solvers.0.parameterProperties.GAMGproperties.0.nCellsInCoarsestLevel}};
+        mergeLevels     {{values.solvers.0.parameterProperties.GAMGproperties.0.mergeLevels}};
+        tolerance       {{values.solvers.0.parameterProperties.tolerance}};
+        relTol          {{values.solvers.0.parameterProperties.relTol}};
+    }
+
+    "(U|k|omega|epsilon)"
+    {
+        solver          {{values.solvers.1.parameterProperties.solver}};
+        smoother        {{values.solvers.1.parameterProperties.smoother}};
+        tolerance       {{values.solvers.1.parameterProperties.tolerance}};
+        relTol          {{values.solvers.1.parameterProperties.relTol}};
+    }
+}
+
+SIMPLE
+{
+    residualControl
+    {
+        p               {{values.algorithms.0.SIMPLEproperties.residualControl.P}};
+        U               {{values.algorithms.0.SIMPLEproperties.residualControl.U}};
+        "(k|omega|epsilon)" {{values.algorithms.0.SIMPLEproperties.residualControl.kOmegaEpsilon}};
+    }
+    nNonOrthogonalCorrectors {{values.algorithms.0.SIMPLEproperties.nNonOrthogonalCorrectorsSIMPLE}}; //0 nir
+    pRefCell        {{values.algorithms.0.SIMPLEproperties.pRefCellSIMPLE}};
+    pRefValue       {{values.algorithms.0.SIMPLEproperties.pRefValueSIMPLE}};
+
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors {{values.potentialFlow.nNonOrthogonalCorrectors}};
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               {{values.relaxationFactors.fields.P}};
+    }
+    equations
+    {
+        U               {{values.relaxationFactors.equations.U}};
+        "(k|omega|epsilon).*" {{values.relaxationFactors.equations.kOmegaEpsilon}};
+    }
+}
+
+// ************************************************************************* //
