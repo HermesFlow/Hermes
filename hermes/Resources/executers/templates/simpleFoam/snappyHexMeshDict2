@@ -27,8 +27,8 @@ geometry
     {
         {%- for key, value in geometry.geometryObjects.items() %}
         {%- import "simpleFoam/MacroSnappyGeo.jinja" as snappy %}
-        {{snappy.macroSnappyGeo(key)}}   {{value-}}
-        {% endfor %}
+        {{snappy.macroSnappyGeo(key)}}   {{value-}};
+        {%- endfor %}
     };
     {% endfor %}
 };
@@ -39,44 +39,37 @@ castellatedMeshControls
     maxGlobalCells {{values.castellatedMeshControls.maxGlobalCells}};
     maxLocalCells {{values.castellatedMeshControls.maxLocalCells}};
 
+    {%- set length = values.castellatedMeshControls.features|length %}
+    {% for x in range(length) %}
     features
     (
-      { file  "{{values.castellatedMeshControls.features.0.file}}";
-        levels {{values.castellatedMeshControls.features.0.levels}}; }
+      { file  "{{values.castellatedMeshControls.features[x].file}}";
+        levels {{values.castellatedMeshControls.features[x].levels}}; }
 
     );
-
-    features
-    (
-      { file  "{{values.castellatedMeshControls.features.1.file}}";
-        levels {{values.castellatedMeshControls.features.1.levels}}; }
-
-
-    );
-
+    {% endfor %}
     refinementSurfaces
     {
-        {{values.castellatedMeshControls.refinementSurfaces.0.SurfaceName}}
+        {%- set length = values.castellatedMeshControls.refinementSurfaces|length %}
+        {%- for x in range(length) %}
+        {{values.castellatedMeshControls.refinementSurfaces[x].SurfaceName}}
         {
-            level {{values.castellatedMeshControls.refinementSurfaces.0.SurfaceProperties.level}};
-            patchInfo { type {{values.castellatedMeshControls.refinementSurfaces.0.SurfaceProperties.patchInfo.type}}; }
+            level {{values.castellatedMeshControls.refinementSurfaces[x].SurfaceProperties.level}};
+            patchInfo { type {{values.castellatedMeshControls.refinementSurfaces[x].SurfaceProperties.patchInfo.type}}; }
         };
-
-        {{values.castellatedMeshControls.refinementSurfaces.1.SurfaceName}}
-        {
-            level {{values.castellatedMeshControls.refinementSurfaces.1.SurfaceProperties.level}};
-            patchInfo { type {{values.castellatedMeshControls.refinementSurfaces.1.SurfaceProperties.patchInfo.type}}; }
-        };
-
+        {% endfor %}
     }
 
     refinementRegions
     {
-        {{values.castellatedMeshControls.refinementRegions.0.RegionName}}
+        {%- set length = values.castellatedMeshControls.refinementRegions|length %}
+        {%- for x in range(length) %}
+        {{values.castellatedMeshControls.refinementRegions[x].RegionName}}
         {
-            mode {{values.castellatedMeshControls.refinementRegions.0.RegionProperties.mode}};
-            levels {{values.castellatedMeshControls.refinementRegions.0.RegionProperties.levels}};
+            mode {{values.castellatedMeshControls.refinementRegions[x].RegionProperties.mode}};
+            levels {{values.castellatedMeshControls.refinementRegions[x].RegionProperties.levels}};
         }
+        {%- endfor %}
     }
 
     locationInMesh {{values.castellatedMeshControls.locationInMesh}};
@@ -91,10 +84,13 @@ snapControls
 
 layers
 {
-	{{values.layers.0.name}}
+    {%- set length = values.layers|length %}
+    {%- for x in range(length) %}
+	{{values.layers[x].name}}
 {
-nSurfaceLayers {{values.layers.0.layerProperties.nSurfaceLayers}};
+nSurfaceLayers {{values.layers[x].layerProperties.nSurfaceLayers}};
 }
+{%- endfor %}
 }
 
 
@@ -185,9 +181,9 @@ meshQualityControls
 
 writeFlags
 (
-    {{values.writeFlags.0}}
-    {{values.writeFlags.1}}
-    {{values.writeFlags.2}}
+    {%- for x in range(values.writeFlags|length) %}
+    {{values.writeFlags[x]}}
+    {%- endfor %}
 );
 
 mergeTolerance {{values.mergeTolerance}};
