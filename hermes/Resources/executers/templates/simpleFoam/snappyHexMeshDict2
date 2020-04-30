@@ -27,8 +27,7 @@ geometry
     {
         {%- for key, value in geometry.geometryObjects.items() %}
         {%- import "simpleFoam/MacroSnappyGeo.jinja" as snappy %}
-        {{snappy.macroSnappyGeo(key)}}   {{value-}};
-        {%- endfor %}
+        {{-snappy.macroSnappyGeo(key,value)}} {% endfor %}
     };
     {% endfor %}
 };
@@ -38,6 +37,10 @@ castellatedMeshControls
     nCellsBetweenLevels {{values.castellatedMeshControls.nCellsBetweenLevels}};
     maxGlobalCells {{values.castellatedMeshControls.maxGlobalCells}};
     maxLocalCells {{values.castellatedMeshControls.maxLocalCells}};
+
+    ==============================================================================================
+    # to do - understand how to take the values from geometry to features,refinementR/S and layers
+    ==============================================================================================
 
     {%- set length = values.castellatedMeshControls.features|length %}
     {% for x in range(length) %}

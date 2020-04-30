@@ -43,9 +43,9 @@ SIMPLE
 {
     residualControl
     {
-        p               {{values.algorithms.0.SIMPLEproperties.residualControl.P}};
-        U               {{values.algorithms.0.SIMPLEproperties.residualControl.U}};
-        "(k|omega|epsilon)" {{values.algorithms.0.SIMPLEproperties.residualControl.kOmegaEpsilon}};
+        {%- for key, value in values.algorithms.0.SIMPLEproperties.residualControl.items() %}
+        {{key}}    {{value}}
+        {%- endfor %}
     }
     nNonOrthogonalCorrectors {{values.algorithms.0.SIMPLEproperties.nNonOrthogonalCorrectorsSIMPLE}}; //0 nir
     pRefCell        {{values.algorithms.0.SIMPLEproperties.pRefCellSIMPLE}};
@@ -62,12 +62,15 @@ relaxationFactors
 {
     fields
     {
-        p               {{values.relaxationFactors.fields.P}};
+        {%- for key, value in values.relaxationFactors.fields.items() %}
+        {{key}}        {{value}}
+        {%- endfor %}
     }
     equations
     {
-        U               {{values.relaxationFactors.equations.U}};
-        "(k|omega|epsilon).*" {{values.relaxationFactors.equations.kOmegaEpsilon}};
+        {%- for key, value in values.relaxationFactors.equations.items() %}
+        {{key}}        {{value}}
+        {%- endfor %}
     }
 }
 

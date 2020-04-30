@@ -3,7 +3,7 @@ import os
 from jinjaExecuter import jinjaExecuter
 
 # load json file
-path= os.path.abspath("programs/openFOAM/openfoam.json")
+path= os.path.abspath("programs/openFOAM/openfoam2.json")
 with open(path) as json_file:
     openFOAMjson = json.load(json_file)
 
