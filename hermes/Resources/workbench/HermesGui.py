@@ -1,12 +1,9 @@
-﻿# FreeCAD Part module
-# (c) 2001 Juergen Riegel
+﻿# FreeCAD Hermes
+# (c) 2020
 #
-# Part design module
+# Hermes module
 
 #***************************************************************************
-#*   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
-#*                                                                         *
-#*   This file is part of the FreeCAD CAx development system.              *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -24,7 +21,6 @@
 #*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
 #*   USA                                                                   *
 #*                                                                         *
-#*   Juergen Riegel 2002                                                   *
 #***************************************************************************/
 
 # import FreeCAD modules
@@ -76,11 +72,12 @@ def makeHermesWorkflow(name):
 class _HermesWorkflow:
     """ The Hermes Workflow group """
     def __init__(self, obj):
+
         obj.Proxy = self
         self.Type = "HermesWorkflow"
         self.initProperties(obj)
         
-        self.JsonObject = []
+        self.JsonObject = None
         self.JsonObjectString=""
         self.JsonObjectfromFile = []
         self.Templates=[]
@@ -160,10 +157,16 @@ class _HermesWorkflow:
 
               
     def saveJson(self,obj,jsonSaveFilePath,FileSaveName):
+        """
+            Saves the current workflow to JSON.
 
-        
-      #^^^Export Json-file
-        
+        :param obj:
+        :param jsonSaveFilePath:
+        :param FileSaveName:
+        :return:
+        """
+
+        # ^^^Export Json-file
         #define the full path of the export file
         jsonSaveFileName=jsonSaveFilePath+'/'+FileSaveName+'.json'
          
@@ -175,9 +178,7 @@ class _HermesWorkflow:
             json.dump(dataSave, write_file, indent=4) #indent make it readable
             
       #^^^Export Part-files
-        
 
-        
         doc=obj.Document;
         
         #loop all the objects
@@ -204,10 +205,9 @@ class _HermesWorkflow:
         self.cwd=os.path.dirname(jsonFileName)
         
         #Open JsonFile , Read & parsed, assign to JsonObject
-        self.JsonObjectfromFile=self.loadJsonFromfile(jsonFileName)
-        
-#        tempJson = self.loadJsonFromfile("/home/noga/Noga/FreeCad/jsonFiles/json.json", "node1.Properties")
-            
+        with open(jsonFileName, 'r') as myfile:
+            self.JsonObjectfromFile = json.load(myfile)
+
         #create jsonObject varieble that contain all data, including imported data from files/templates
         self.createJsonObject()
         
@@ -240,12 +240,17 @@ class _HermesWorkflow:
         if "Templates" in self.JsonObjectfromFile["workflow"]:
             
             #Create the Template Json Object - import files if needed
-            self.Templates=self.getImportedJson(self.JsonObjectfromFile["workflow"]["Templates"])
+            # add the default template file.
+            FreeCAD.Console.PrintMessage("=================================================")
+            print(os.path.exists("../nodeTemplates/templates.json"))
+            FreeCAD.Console.PrintMessage("=================================================")
+            self.Templates= self.getImportedJson("../nodeTemplates/templates.json")
+
+            self.Templates.update(self.getImportedJson(self.JsonObjectfromFile["workflow"]["Templates"]))
             
             #FreeCAD.Console.PrintMessage("Templates="+str(self.Templates)+"\n")
             #FreeCAD.Console.PrintMessage("###################################\n")
 
-            
 
         #Create JsonObject will contain all the imported date from file/template
         self.JsonObject=self.JsonObjectfromFile
@@ -291,7 +296,7 @@ class _HermesWorkflow:
 
         
         #to know if it is the first iteration
-        i=0
+        firstIteration = True
        
         #loop all the keys,values
         for subStructKey,subtructVal in jsonObjStruct.items():
@@ -301,7 +306,7 @@ class _HermesWorkflow:
             openImportData={}
             
             #in case of import data from file
-            if subStructKey==self.importJsonfromfile:
+            if (subStructKey==self.importJsonfromfile) or (subStructKey==self.getFromTemplate):
                 
                 #check if there are list of files that need to be imported, or just 1:
                 # list- saved as a dictionary
@@ -312,71 +317,22 @@ class _HermesWorkflow:
                     for fileKey,fileVal in subtructVal.items():
                         #call the function that open data
                         openImportData=self.importJsonDataFromFile(fileVal)
-                        
+
 #                        FreeCAD.Console.PrintMessage("=====================================\n")
 #                        FreeCAD.Console.PrintMessage("openImportData="+str(openImportData)+"\n")
 #                        FreeCAD.Console.PrintMessage("=====================================\n")
-                        
-                        if i>0:
-                            #not the first iteration -> overide the data
-                            UpdatedJsonStruct=self.overidaDataFunc(openImportData,UpdatedJsonStruct)
-                        else:
-                            #first iteration -> define the UpdatedJsonStruct as the open data 
-                            UpdatedJsonStruct=openImportData.copy()
-                        
-                        i=i+1
+
+                        UpdatedJsonStruct=self.overidaDataFunc(openImportData,UpdatedJsonStruct) if firstIteration\
+                            else openImportData.copy()
+
                 else:
                 
                     #call the function that open data
 #                    openImportData=self.checkListOfFiles(subtructVal,'File')
                     openImportData=self.importJsonDataFromFile(subtructVal)
-                
-                
-                    if i>0:
-                        #not the first iteration -> overide the data
-                        UpdatedJsonStruct=self.overidaDataFunc(openImportData,UpdatedJsonStruct)
-                    
-                    else:                    
-                        #first iteration -> define the UpdatedJsonStruct as the open data 
-                        UpdatedJsonStruct=openImportData.copy()
 
-
-            #in case of import data from Template         
-            elif subStructKey==self.getFromTemplate:
-                
-                #check if there are list of files that need to be imported, or just 1:
-                # list- saved as a dictionary
-                # 1 file - saved as keys and values
-                # *if*- check if the first value is a dict
-                if type(list(subtructVal.values())[0]) is dict:
-
-                    for templateKey,templateVal in subtructVal.items():
-                        #call the function that open data
-                        openImportData=self.importJsonDataFromTemplate(templateVal)
-                        
-                        if i>0:
-                            #not the first iteration -> overide the data
-                            UpdatedJsonStruct=self.overidaDataFunc(openImportData,UpdatedJsonStruct)
-                        else:
-                            #first iteration -> define the UpdatedJsonStruct as the open data 
-                            UpdatedJsonStruct=openImportData.copy()
-                        
-                        i=i+1
-                else:
-                
-                    #call the function that open data
-#                    openImportData=self.checkListOfFiles(subtructVal,'Template') 
-                    openImportData=self.importJsonDataFromTemplate(subtructVal)
-                    
-                    
-                    if i>0:
-                        #not the first iteration -> overide the data
-                        UpdatedJsonStruct=self.overidaDataFunc(openImportData,UpdatedJsonStruct)
-                    else:
-                        #first iteration -> define the UpdatedJsonStruct as the open data 
-                        UpdatedJsonStruct=openImportData.copy()
-        
-            # No imported data from path or Template
+                    UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct) if firstIteration \
+                        else openImportData.copy()
             else:
                 
                 #check if the json substruct is list(in case its items are objects)
@@ -400,7 +356,6 @@ class _HermesWorkflow:
                     #update the list in the json structure
                     UpdatedJsonStruct[subStructKey]=UpdatedJsonList
 
-
                 #dont apply on values that are not dict - (str/int/doubke etc.) 
                 elif type(subtructVal) is dict:
                            
@@ -420,10 +375,9 @@ class _HermesWorkflow:
                 #   =no exist - add it to the structure
                 else:
                     UpdatedJsonStruct[subStructKey]=jsonObjStruct[subStructKey]
-                    
-            i=i+1
-            
-                        
+
+            firstIteration = False
+
         return UpdatedJsonStruct
     
     
@@ -613,11 +567,6 @@ class _HermesWorkflow:
 #        else:
 #            UpdatedJsonStruct=self.Templates[importTemplate["TypeFC"]]
 
-                
-                
-        
-
-        
         return UpdatedJsonStruct
     
     def importJsonDataFromFile(self,importFileData):        
@@ -631,12 +580,11 @@ class _HermesWorkflow:
         
 #        FreeCAD.Console.PrintMessage("cwd="+os.getcwd()+"\n") 
 
-        
-        #get the path of the file
-        pathFile=importFileData["path"]
-
         #update 'pathFile' to full path- absolute
-        pathFile=os.path.abspath(pathFile)
+        pathFile=os.path.abspath(importFileData["path"])
+
+        with open(importFileData["path"],'r') as myfile:
+            jsonFile = json.load(myfile)
 
                 
         #check if there is only a specific field that need to be imported from file
@@ -654,8 +602,13 @@ class _HermesWorkflow:
                 #       take the data, create dict struct="key:value", and inject it
                                                
                 #get the entry data from the file
-                entryData=self.loadJsonFromfile(pathFile,entry)
-                
+
+                entryData = jsonFile
+
+                # split the
+                for entry in entry.split("."):
+                    entryData = entryData[entry]
+
 #                FreeCAD.Console.PrintMessage("entryData="+str(entryData)+"\n")
 #                FreeCAD.Console.PrintMessage("UpdatedJsonStruct="+str(UpdatedJsonStruct)+"\n")
                         
@@ -679,8 +632,10 @@ class _HermesWorkflow:
         else:   
  
             #load and recieve the json object from file
-            UpdatedJsonStruct=self.loadJsonFromfile(pathFile) 
-            
+
+            with open(pathFile, 'r') as myfile:
+                UpdatedJsonStruct = json.load(myfile)
+
             #----Step 2 : Change CWD to pathFile Directory----
             
             #get the current full path of the directory's file
@@ -769,36 +724,7 @@ class _HermesWorkflow:
    
         #return the update Dst json structure
         return Dst
-                
-        
-    
-    def loadJsonFromfile(self,filePath, entryInFile = ""):
-        
-#            cwd = os.getcwd()
-#            FreeCAD.Console.PrintMessage("cwd="+cwd+"\n")
-            
-            
-            #Open JsonFile & Read
-            with open(filePath, 'r') as myfile:
-                data=myfile.read()
-                
 
-               
-    		#parse data and return it
-            dataParsed = json.loads(data)
-            
-            #No split the 'entryInFile' and get the data from that path
-            if (len(entryInFile) == 0):
-                return dataParsed
-            
-            #split the
-            splitEntryList = entryInFile.split(".")
-            for entry in splitEntryList:
-                dataParsed = dataParsed[entry]
-                        
-            return dataParsed
-            
-    
     def setJson(self, obj):
         #todo: is needed? why not calling directly to 'updateNodeList'
         self.updateNodeList(obj)
@@ -906,31 +832,31 @@ class _HermesWorkflow:
 
         
     def updateJsonBeforeExport(self,obj):
-        
-        nodes=self.JsonObject["workflow"]["nodes"]
-         # loop all children in HermesWorkflow
-        for child in obj.Group:
-            
-            #back child date
-            child.Proxy.backupNodeData(child)
-            
-            #back child properties
-            child.Proxy.UpdateNodePropertiesData(child)
-            
-            #get child updated nodeData 
-            nodaData=json.loads(child.NodeDataString)
-            
+        if self.JsonObject is not None:
 
-            nodename=child.Proxy.name
-            
-#            node = 'node' + child.NodeId
-            nodes[nodename]=nodaData
-            
-        # update the child nodeDate in the JsonObject
-        self.JsonObject["workflow"]["nodes"]=nodes
+            nodes=self.JsonObject["workflow"]["nodes"]
+             # loop all children in HermesWorkflow
+            for child in obj.Group:
 
-        return
-    
+                #back child date
+                child.Proxy.backupNodeData(child)
+
+                #back child properties
+                child.Proxy.UpdateNodePropertiesData(child)
+
+                #get child updated nodeData
+                nodaData=json.loads(child.NodeDataString)
+
+
+                nodename=child.Proxy.name
+
+    #            node = 'node' + child.NodeId
+                nodes[nodename]=nodaData
+
+            # update the child nodeDate in the JsonObject
+            self.JsonObject["workflow"]["nodes"]=nodes
+
+
     def RunworkflowCreation(self,obj):
        
         # save the current work directory before it changed
@@ -1010,31 +936,32 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         current_dir=os.path.abspath(current_dir)
 
         # change directory to the Working directory
-        os.chdir(self.WD_path)
+        if (self.WD_path != ''):
+            os.chdir(self.WD_path)
 
-        # remove the 'OpenFOAMfiles' in case exist
-        shutil.rmtree('OpenFOAMfiles', ignore_errors=True)
-               
-        # remove the output folder
-        shutil.rmtree(self.WD_path+'/outputs', ignore_errors=True)
+            # remove the 'OpenFOAMfiles' in case exist
+            shutil.rmtree('OpenFOAMfiles', ignore_errors=True)
 
-        # create a new directory for the LuigiRun output files
-        os.mkdir(self.WD_path+"/OpenFOAMfiles")
+            # remove the output folder
+            shutil.rmtree(self.WD_path+'/outputs', ignore_errors=True)
 
-        # for giving permission
-        import stat
+            # create a new directory for the LuigiRun output files
+            os.mkdir(self.WD_path+"/OpenFOAMfiles")
 
-        # get the path for the file which run the luigi
-        fullPath = self.WD_path + "/runLuigi.sh"
+            # for giving permission
+            import stat
 
-        # give the runLuigi permission of the user
-        os.chmod(fullPath, stat.S_IRWXU)
+            # get the path for the file which run the luigi
+            fullPath = self.WD_path + "/runLuigi.sh"
 
-        # run the Luigi batch file
-        os.system(fullPath)
-        
-        # return the working directory to what it was
-        os.chdir(currentDirFC)
+            # give the runLuigi permission of the user
+            os.chmod(fullPath, stat.S_IRWXU)
+
+            # run the Luigi batch file
+            os.system(fullPath)
+
+            # return the working directory to what it was
+            os.chdir(currentDirFC)
     
     def updateWorkingDirectory(self,path):
         self.WD_path=path
@@ -1109,11 +1036,24 @@ class _ViewProviderHermesWorkflow:
         
 
     def updateData(self, obj, prop):
-        #We get here when the object of HermesWorkflow changes
-        #For this moment, we consider only the JSONFile parameter
-        
-        #Check if the JSONFile parameter changed and its not empty path
-        if (str(prop) == 'ImportJSONFile' and len(str(obj.ImportJSONFile)) > 0):
+        """
+            We get here when the object of HermesWorkflow changes
+            For this moment, we consider only the JSONFile parameter
+
+        :param obj:
+
+        :param prop:
+
+        :return:
+        """
+
+        fname = "_handle_%s" % str(prop)
+
+        if hasattr(self,fname):
+            getattr(self,fname)(obj)
+
+    def _handle_ImportJSONFile(self,obj):
+        if len(str(obj.ImportJSONFile)) > 0:
             obj.Proxy.readJson(obj)
             # seperate file and dir, and define dir as workingDir
             Dirpath=os.path.dirname(obj.ImportJSONFile)
@@ -1122,25 +1062,25 @@ class _ViewProviderHermesWorkflow:
             # update workind directory to the hermes obj
             obj.WorkingDirectory=Dirpath
             obj.ImportJSONFile = ''
-        if (str(prop) == 'ExportJSONFile' and len(str(obj.ExportJSONFile)) > 0):
-            obj.Proxy.prepareJsonVar(obj,"null")
-            obj.Proxy.saveJson(obj,obj.ExportJSONFile,obj.Label)
+
+    def _handle_ExportJSONFile(self,obj):
+        if len(str(obj.ExportJSONFile)) > 0:
+            obj.Proxy.prepareJsonVar(obj, "null")
+            obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
             obj.ExportJSONFile = ''
-        if (str(prop) == 'RunWorkflow' and (obj.RunWorkflow)):
-            obj.Proxy.prepareJsonVar(obj,"null")
+
+    def _handle_RunWorkflow(self,obj):
+        if obj.Proxy.JsonObject is not None:
+            obj.Proxy.prepareJsonVar(obj, "null")
             obj.Proxy.RunworkflowCreation(obj)
-            
-        if (str(prop) == 'RunLuigi' and (obj.RunLuigi)):
-            obj.Proxy.RunLuigiScript()    
-            
-        if (str(prop) == 'WorkingDirectory' and len(str(obj.WorkingDirectory)) > 0):
+
+    def _handle_RunLuigi(self,obj):
+        obj.Proxy.RunLuigiScript()
+
+    def _handle_WorkingDirectory(self,obj):
+        if len(str(obj.WorkingDirectory)) > 0:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
-            
-            
-
-
-        
 
     def onChanged(self, vobj, prop):
         #self.makePartTransparent(vobj)
