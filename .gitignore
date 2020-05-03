@@ -3,3 +3,5 @@
 
 # ignore all .pyc files
 **/*.pyc
+
+.idea
