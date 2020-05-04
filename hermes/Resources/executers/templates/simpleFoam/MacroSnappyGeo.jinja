@@ -7,7 +7,7 @@
 {%- set lowStr.x = string[0:x] -%}
 {%- endif -%}
 {%- endfor -%}
-{%- if (lowStr.x != 'features') and (lowStr.x!='refinement') and (lowStr.x!='layers') %}
+{%- if (lowStr.x != 'features') and (lowStr.x!='refinement') and (lowStr.x!='layers')  %}
         {{lowStr.x}}   {{ value}};
 {%- endif %}
 {%- endmacro %}

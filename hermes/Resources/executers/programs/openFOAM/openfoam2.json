@@ -7,12 +7,11 @@
                 "castellatedMesh":true,
                 "snap":false,
                 "addLayers":true,
-                "geometry":[
+                "geometry": [
                     {
-                        "nameSO":"buildings.stl",
-                        "geometryObjects":{
-                            "typeTSM":"triSurfaceMesh",
-                            "nameTSM":"buildings",
+                        "triSurfaceMesh": {
+                            "typeTSM": "triSurfaceMesh",
+                            "nameTSM": "buildings",
                             "featuresTSM": {
                                 "file": "buildings.eMesh",
                                 "levels": "((3 2) (20 1))"
@@ -29,15 +28,14 @@
                         }
                     },
                     {
-                        "nameSO":"topo.stl",
-                        "geometryObjects":{
-                            "typeTSM":"triSurfaceMesh",
-                            "nameTSM":"topo",
+                        "triSurfaceMesh": {
+                            "layersTSM": {},
+                            "typeTSM": "triSurfaceMesh",
+                            "nameTSM": "topo",
                             "featuresTSM": {
                                 "file": "topo.eMesh",
                                 "levels": "((3 2) (20 1))"
                             },
-                            "refinementRegionsTSM": {},
                             "refinementSurfacesTSM": {
                                 "level": "(2 1)",
                                 "patchInfo": {
@@ -47,11 +45,13 @@
                         }
                     },
                     {
-                        "nameSO":"refinementBox",
-                        "geometryObjects":{
-                            "typeBox":"searchableBox",
-                            "minBox":"(-250 -250   0)",
-                            "maxBox":"(250 250  10)",
+                        "searchableObject": {
+                            "nameBOX": "refinementBox",
+                            "propertiesBOX": {
+                                "typeBox": "searchableBox",
+                                "minBox": "(-250 -250   0)",
+                                "maxBox": "(250 250  10)"
+                            },
                             "refinementRegionsBox": {
                                 "mode": "inside",
                                 "levels": "((1E15 1))"
