@@ -26,11 +26,11 @@
                 "description":"merge tolerance as fraction of bounding box of initial mesh"
             },
             "geometry":{ 
-                    "importJsonfromfile":{ 
-                        "path":"SnappyMesh/GeometryOF.json"
-                    }
+                "importJsonfromfile":{ 
+                    "path":"SnappyMesh/GeometryOF.json"
+                }
             },
-            "castellatedMeshControls":{ 
+            "castellatedMeshControls":{     
                 "type":"object",
                 "title":"castellatedMeshControls",
                 "properties":{ 
@@ -45,28 +45,6 @@
                 "properties":{ 
                     "importJsonfromfile":{ 
                         "path":"SnappyMesh/snapControls.json"
-                    }
-                }
-            },
-            "layers":{
-                "type":"array",
-                "title":"layers",
-                "items":{
-                    "type":"object",
-                    "properties":{
-                        "name":{
-                            "type":"string",
-                            "title":"Surface Name"
-                        },
-                        "layerProperties":{
-                            "type":"object",
-                            "properties":{
-                                "nSurfaceLayers":{
-                                    "type":"integer",
-                                    "title":"nSurfaceLayers" 
-                                }       
-                            }
-                        }
                     }
                 }
             },
@@ -103,87 +81,68 @@
         "castellatedMesh":true,
         "snap":false,
         "addLayers":true,
-        "geometry":[ 
-                { 
-                    "geometry objects":{ 
-                        "typeTSM":"triSurfaceMesh",
-                        "nameTSM":"buildings"
+        "geometry": [
+            {
+                "triSurfaceMesh":{
+                    "typeTSM": "triSurfaceMesh",
+                    "nameTSM": "buildings",
+                    "featuresTSM": {
+                        "file": "buildings.eMesh",
+                        "levels": "((3 2) (20 1))"
                     },
-                    "nameSO":"buildings.stl"
-                },
-                { 
-                    "geometry objects":{ 
-                        "typeTSM":"triSurfaceMesh",
-                        "nameTSM":"topo"
+                    "refinementSurfacesTSM": {
+                        "level": "(2 1)",
+                        "patchInfo": {
+                            "type": "wall"
+                        }
                     },
-                    "nameSO":"topo.stl"
-                },
-                { 
-                    "geometry objects":{ 
-                        "typeBox":"searchableBox",
-                        "minBox":"(-250 -250   0)",
-                        "maxBox":"(250 250  10)"
-                    },
-                    "nameSO":"refinementBox"
+                    "layersTSM": {
+                        "nSurfaceLayers": 1
+                    }
                 }
+            },
+            {
+                "triSurfaceMesh":{
+                    "layersTSM": {},
+                    "typeTSM": "triSurfaceMesh",
+                    "nameTSM": "topo",
+                    "featuresTSM": {
+                        "file": "topo.eMesh",
+                        "levels": "((3 2) (20 1))"
+                    },
+                    "refinementSurfacesTSM": {
+                        "level": "(2 1)",
+                        "patchInfo": {
+                            "type": "wall"
+                        }
+                    }
+                }
+             },
+             {
+                "searchableObject": {
+                    "nameBOX": "refinementBox",
+                    "propertiesBOX": {
+                        "typeBox": "searchableBox",
+                        "minBox": "(-250 -250   0)",
+                        "maxBox": "(250 250  10)"
+                    },
+                    "refinementRegionsBox": {
+                        "mode": "inside",
+                        "levels": "((1E15 1))"
+                    }
+                }
+             }
         ],
         "castellatedMeshControls":{ 
             "nCellsBetweenLevels":2,
             "maxLocalCells":200000000,
             "maxGlobalCells":200000000,
-            "features": [
-                {
-                    "file": "topo.eMesh",
-                    "levels": "((3 2) (20 1))"
-                },
-                {
-                    "file": "buildings.eMesh",
-                    "levels": "((3 2) (20 1))"
-                }
-            ],
-            "refinementSurfaces":[ 
-                { 
-                    "SurfaceName":"buildings",
-                    "SurfaceProperties":{
-                        "level":"(2 1)",
-                        "patchInfo":{
-                            "type":"wall"
-                        }
-                    }
-                },
-                { 
-                    "SurfaceName":"topo",
-                    "SurfaceProperties":{
-                        "level":"(2 1)",
-                        "patchInfo":{
-                            "type":"wall"
-                        }
-                    }
-                }
-            ],
-            "refinementRegions": [
-                {
-                    "RegionProperties": {
-                        "mode": "inside",
-                        "levels": "((1E15 1))"
-                    },
-                    "RegionName": "refinementBox"
-                }
-            ],
             "locationInMesh":"(207000 738000 635)"
         },
         "snapControls":{ 
             "explicitFeatureSnap":true,            
             "implicitFeatureSnap":false
         },
-        "layers":[
-            { 
-                "name":"buildings",
-                "layerProperties":{
-                    "nSurfaceLayers":1
-                }
-            }
-        ],
         "addLayersControls":{ 
             "relativeSizes":true,            
             "expansionRatio":1,

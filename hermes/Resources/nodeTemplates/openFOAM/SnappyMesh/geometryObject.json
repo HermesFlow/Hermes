@@ -3,91 +3,82 @@
    "anyOf":[ 
       { 
          "type":"object",
-         "title":"triSurfaceMesh",
+         "title":"Box",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/triSurfaceMesh.json"
+                "path":"objects/Box.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableBox",
+         "title":"Cone",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Box.json"
+                "path":"objects/Cone.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableCone",
+         "title":"Cylinder",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Cone.json"
+                "path":"objects/Cylinder.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableCylinder",
+         "title":"Disk",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Cylinder.json"
+                "path":"objects/Disk.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableDisk",
+         "title":"ExtrudedCircle",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Disk.json"
+                "path":"objects/ExtrudedCircle.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableExtrudedCircle",
+         "title":"Plane",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/ExtrudedCircle.json"
+                "path":"objects/Plane.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchablePlane",
+         "title":"Plate",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Plane.json"
+                "path":"objects/Plate.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchablePlate",
+         "title":"RotatedBox",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/Plate.json"
+                "path":"objects/RotatedBox.json"
             }
          }
       },
       { 
          "type":"object",
-         "title":"searchableRotatedBox",
+         "title":"Sphere",
          "properties":{ 
             "importJsonfromfile":{
-                "path":"Searchable_Objects/RotatedBox.json"
-            }
-         }
-      },
-      { 
-         "type":"object",
-         "title":"searchableSphere",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"Searchable_Objects/Sphere.json"
+                "path":"objects/Sphere.json"
             }
          }
       }
