@@ -1,7 +1,7 @@
  {
     "casePath"  : "simpleFoam",
     "files" : {
-        "snappyHexMeshDict2" : {
+        "snappyHexMeshDict" : {
             "name": "system/snappyHexMeshDict",
             "values": {
                 "castellatedMesh":true,
