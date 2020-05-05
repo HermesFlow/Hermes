@@ -242,22 +242,6 @@ setup_mod_hermes() {
         return $res
     fi
     
-
-#SETUP examples
-    #if exists remove
-    dir="$direxamples"
-    if [ -d  $dir ]; then 
-        echo Removing  "$dir" 
-        rm  -rf  "$dir" 
-    fi
-    #copy the examples
-    examples="$DESTINATION_FULL/Hermes_git/examples"
-    cp -a "$examples"  "$direxamples" || res=1
-    if [ ! $res -eq 0 ]; then
-        echo  Copying  \"$examples\"  to \"$direxamples\" failed
-        return $res
-    fi
-    
     return $res
 
 }
