@@ -5,13 +5,13 @@ usage() {
         cat <<EOF
 
 Usage:
-    $ME -o target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
+    $ME -o destination [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b hermes_branch]
 
-Script that installs $HERMESREPO-enabled FreeCad  
+Script that installs $HERMES_REPO-enabled FreeCad  
 
 Options:
     -o destination          directory which will contain the build files
-    -b hermes_branch        scpecify $HERMESREPO branch
+    -b hermes_branch        scpecify $HERMES_REPO branch
     -i docker_id            specify docker image id to use, default: $DOCKER_IMAGE_ID
     -d docker_digest        specify docker image digest to pull, default: $DOCKER_IMAGE_DIGEST
     -f freecad_hash         specify freecad source hash to pull, default: $FREECAD_SOURCE_HASH
@@ -46,7 +46,7 @@ git_pull() {
     fi
 
 
-    git_clone_output=`git clone $branchopts "https://github.com/$1.git" 2>&1`
+    git_clone_output=`git clone $branchopts "https://github.com/$1.git" $2 2>&1`
 
     echo "$git_clone_output"
     
@@ -56,7 +56,7 @@ git_pull() {
     elif [[ "x$git_clone_output" = x*fatal:* && "x$git_clone_output" = *"already exists and is not an empty directory"* ]]; then
         echo "Git tree $1 exist, trying to pull"
         
-        git_clone_output=`(cd "$1" && git pull )`
+        git_clone_output=`(cd "$2" && git pull )`
         echo "$git_clone_output"
 
     elif [[ "x$git_clone_output" = xfatal:* ||  "x$git_clone_output" = *error:* ]]; then
@@ -172,7 +172,7 @@ setup_mod_hermes() {
     dirmod="$DESTINATION_FULL/build/Mod"
     dirhermes="$DESTINATION_FULL/build/hermes"
     dirmodhermes="$dirmod/Hermes_git"
-    dirdatamodhermes="$DESTINATION_FULL/build/data/Mod/Hermes_git"
+    dirdatamodhermes="$DESTINATION_FULL/build/data/Mod/Hermes"
     dirdatamodhermesresources="$dirdatamodhermes/Resources"
     direxamples="$DESTINATION_FULL/build/examples"
 
@@ -196,21 +196,10 @@ setup_mod_hermes() {
 #SETUP build/hermes
 #if exists remove
     dir="$dirhermes"
-    if [ -d  $dir ]; then 
-        echo Removing  "$dir" 
-        rm  -rf  "$dir" 
-    fi
-
-    #copy the whole repository to buld/hermes        
-    cp -aH  "$DESTINATION_FULL/Hermes_git"  "$dirhermes" || res=1
-    if [ ! $res -eq 0 ]; then
-        echo Copying \"$DESTINATION_FULL/Hermes_git\" to  \"$dirhermes\"  failed
-        return $res
-    fi
-    #make partial tree
-    (cd  "$dirhermes" ; git filter-branch --subdirectory-filter hermes --prune-empty -- --all) || res=1
-    if [ ! $res -eq 0 ]; then
-        echo  Setting up Hermes_git/hermes as a standalone git dir \"$dirhermes\" failed
+    mkdir -p "$dir"
+    if ! find -- "$dir" -prune -type d -empty | grep -q . ; then 
+        res=1
+        echo Non-empty  "$dir" 
         return $res
     fi
     
@@ -272,28 +261,6 @@ setup_mod_hermes() {
     return $res
 
 }
-setup_hermes() {
-    res=0
-    dirbuildhermes="$DESTINATION_FULL/build/hermes"
-    mkdir -p  "$dirbuildhermes"
-    return $res
-#if exists remove
-    dir="$dirbuildhermes"
-    if [ -d  $dir ]; then 
-        echo Removing  "$dir" 
-        rm  -rf  "$dir" 
-    fi
-
-    Hermes_githermes="$DESTINATION_FULL/Hermes_git/hermes"
-    cp -aH "$Hermes_githermes" "$dirbuildhermes" || res=1
-    if [ ! $res -eq 0 ]; then
-        echo  Copying  \"$Hermes_githermes\"  to \"$dirbuildhermes\" failed
-        return $res
-    fi
-
-    return $res
-}
-
  
 setup_python() {
     res=0
@@ -306,22 +273,6 @@ setup_python() {
     return $res
 
     }
-setup_examples() {
-    res=0
-    rm -rf  "$DESTINATION_FULL/examples"
-    cp -a  "$DESTINATION_FULL/Hermes_git/examples"  "$DESTINATION_FULL" || res=1
-    if [ ! $res -eq 0 ]; then
-        echo Copying \"$DESTINATION_FULL/Hermes_git/examples\" to \"$DESTINATION_FULL\" failed
-        return $res
-    fi
-
-    return $res
-
-    }
-
-if [ "x$ARGS" = "x" ]; then
-    usage
-fi
 
 #defaults
 FREECAD_SOURCE_HASH="0.18-1194-g5a352ea63"
@@ -329,7 +280,12 @@ FREECAD_SOURCE_PATCH="freecad_5a352ea63_git.diff"
 DOCKER_IMAGE_ID=ee7e3ecee4ca
 DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
 HERMES_BRANCH=master
+HERMES_REPO="HermesFlow/Hermes"
 # Process the options
+if [ "x$ARGS" = "x" ]; then
+    usage
+fi
+
 while getopts "o:b:d:f:p:i:vh" opt
 do
     case $opt in
@@ -359,13 +315,8 @@ cd "$DESTINATION_FULL"
 DOCKER="$DESTINATION_FULL/docker.sh"
 DOCKER_DEV="$DESTINATION_FULL/docker_dev.sh"
 DOCKER_DEV_COMPILE="$DESTINATION_FULL/docker_dev_compile.sh"
-HERMESREPO=HermesFlow/Hermes
 
-repos="$HERMESREPO"
-for repo in $repos; do
-    git_pull "$repo" || myexit
-done
-mv Hermes Hermes_git || myexit
+git_pull "$HERMES_REPO" Hermes_git || myexit
 
 
 check_docker || myexit
@@ -373,9 +324,7 @@ setup_docker || myexit
 setup_docker_launch || myexit
 setup_source || myexit
 setup_mod_hermes || myexit
-#setup_hermes || myexit
 setup_python || myexit
-setup_examples || myexit
 
 "$DOCKER_DEV_COMPILE"
 
