@@ -9,11 +9,17 @@ me=`get_abs_filename $0`
 wd=`dirname "$me"`
 
 fc_build="$wd/build"
-fc_build_files="$wd/Hermes/freecad_build_files/"
-fc_workbench="$wd/Hermes/hermes/Resources/workbench"
+fc_build_files="$wd/Hermes_git/freecad_build_files/"
+hermes="$wd/Hermes_git/hermes"
+examples="$wd/Hermes_git/examples"
+projects="$wd/projects"
+fc_workbench="$wd/Hermes_git/hermes/Resources/workbench"
 
 docker run -it --rm \
 -v "$fc_build":/mnt/build \
+-v "$examples":/mnt/examples \
+-v "$hermes":/mnt/build/hermes \
+-v "$projects":/mnt/projects \
 -v "$fc_workbench":/mnt/workbench \
 -v "$fc_build_files/bashrc":/root/.bashrc:ro \
 -v "$wd/dot_local":/root/.local:ro \
