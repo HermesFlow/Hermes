@@ -60,18 +60,18 @@ Usage of install.sh, requires executable permissions of the script:
 
 Usage:
 ```
-    install.sh -d target_directory [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b build_destination]
+    install.sh -o destination [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b hermes_branch]
 ```
 
 Script that installs HermesFlow/pyHermes-enabled FreeCad
 
 Options:
 -    -o destination          directory which will contain the build files
--    -b build_destination    scpecify separate build directory, default: /build
+-    -b hermes_branch        scpecify HermesFlow/Hermes branch
 -    -i docker_id            specify docker image id to use, default: ee7e3ecee4ca
 -    -d docker_digest        specify docker image digest to pull, default: sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0
 -    -f freecad_hash         specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
--    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file:  destination/pyHermes/freecad_5a352ea63_git.diff
+-    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file: destination/Hermes_git/freecad_5a352ea63_git.diff
 -    -v                      debug mode (implies "set -x")
 -    -h,-?                   print this help message
 
