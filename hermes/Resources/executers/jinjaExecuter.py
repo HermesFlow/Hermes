@@ -19,7 +19,7 @@ class jinjaExecuter(abstractExecuter):
             parameters={}
         )
 
-    def run(self, inputs):
+    def run(self, **inputs):
 
         # get the  name of the template
         templateName = inputs['template']

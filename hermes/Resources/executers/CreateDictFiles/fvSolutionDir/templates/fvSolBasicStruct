@@ -1,7 +1,0 @@
-{% include 'OFstart' %}
-{% include 'fvSolInitData' %}
-{% import "MacrObj.jinja" as macros %}
-{{macros.macrObj(dict,0)}}
-// ************************************************************************* //
-
-
