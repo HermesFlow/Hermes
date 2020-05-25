@@ -1,12 +1,23 @@
 import os
 import re
+import sys
 from jinja2 import FileSystemLoader, Environment
-from abstractExecuter import abstractExecuter
+#from abstractExecuter import abstractExecuter
+from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
 
 class jinjaExecuter(abstractExecuter):
 
     def __init__(self):
+
+        # get the user working dir
+        self.u_wd = os.getcwd()
+
+        # define executer as the current working directory
+        HermesDirpath = os.getenv('HERMES_2_PATH')
+        cwd=HermesDirpath+"/hermes/Resources/executers"
+        os.chdir(cwd)
+
         # update 'pathFile' to full path- absolute
         self.templates = os.path.abspath("templates")
 
@@ -19,7 +30,7 @@ class jinjaExecuter(abstractExecuter):
             parameters={}
         )
 
-    def run(self, inputs):
+    def run(self, **inputs):
 
         # get the  name of the template
         templateName = inputs['template']
@@ -46,5 +57,8 @@ class jinjaExecuter(abstractExecuter):
 
         # save as dict item
         D_item = {inputs['name'] : output}
+
+        # return the user working directory
+        os.chdir(self.u_wd)
 
         return D_item

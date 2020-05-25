@@ -1,5 +1,0 @@
-{% include 'OFstart' %}
-{% include 'turbulencePropInitData' %}
-{% import "MacrObj.jinja" as macros %}
-{{macros.macrObj(dict,0)}}
-// ************************************************************************* //
