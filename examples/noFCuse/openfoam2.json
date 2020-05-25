@@ -1,118 +1,100 @@
  {
     "casePath"  : "simpleFoam",
     "files" : {
-        "snappyHexMeshDict2" : {
+        "snappyHexMeshDict" : {
             "name": "system/snappyHexMeshDict",
             "values": {
-                "castellatedMesh": true,
-                "snap": false,
-                "addLayers": true,
+                "castellatedMesh":true,
+                "snap":false,
+                "addLayers":true,
                 "geometry": [
                     {
-                        "geometryObjects": {
+                        "triSurfaceMesh": {
                             "typeTSM": "triSurfaceMesh",
-                            "nameTSM": "buildings"
-                        },
-                        "nameSO": "buildings.stl"
-                    },
-                    {
-                        "geometryObjects": {
-                            "typeTSM": "triSurfaceMesh",
-                            "nameTSM": "topo"
-                        },
-                        "nameSO": "topo.stl"
-                    },
-                    {
-                        "geometryObjects": {
-                            "typeBox": "searchableBox",
-                            "minBox": "(-250 -250   0)",
-                            "maxBox": "(250 250  10)"
-                        },
-                        "nameSO": "refinementBox"
-                    }
-                ],
-                "castellatedMeshControls": {
-                    "nCellsBetweenLevels": 2,
-                    "maxLocalCells": 200000000,
-                    "maxGlobalCells": 200000000,
-                    "features": [
-                        {
-                            "file": "topo.eMesh",
-                            "levels": "((3 2) (20 1))"
-                        },
-                        {
-                            "file": "buildings.eMesh",
-                            "levels": "((3 2) (20 1))"
-                        }
-                    ],
-                    "refinementSurfaces": [
-                        {
-                            "SurfaceName": "buildings",
-                            "SurfaceProperties": {
+                            "nameTSM": "buildings",
+                            "featuresTSM": {
+                                "file": "buildings.eMesh",
+                                "levels": "((3 2) (20 1))"
+                            },
+                            "refinementSurfacesTSM": {
                                 "level": "(2 1)",
                                 "patchInfo": {
                                     "type": "wall"
                                 }
+                            },
+                            "layersTSM": {
+                                "nSurfaceLayers": 1
                             }
-                        },
-                        {
-                            "SurfaceName": "topo",
-                            "SurfaceProperties": {
+                        }
+                    },
+                    {
+                        "triSurfaceMesh": {
+                            "layersTSM": {},
+                            "typeTSM": "triSurfaceMesh",
+                            "nameTSM": "topo",
+                            "featuresTSM": {
+                                "file": "topo.eMesh",
+                                "levels": "((3 2) (20 1))"
+                            },
+                            "refinementSurfacesTSM": {
                                 "level": "(2 1)",
                                 "patchInfo": {
                                     "type": "wall"
                                 }
                             }
                         }
-                    ],
-                    "refinementRegions": [
-                        {
-                            "RegionProperties": {
+                    },
+                    {
+                        "searchableObject": {
+                            "nameBOX": "refinementBox",
+                            "propertiesBOX": {
+                                "typeBox": "searchableBox",
+                                "minBox": "(-250 -250   0)",
+                                "maxBox": "(250 250  10)"
+                            },
+                            "refinementRegionsBox": {
                                 "mode": "inside",
                                 "levels": "((1E15 1))"
-                            },
-                            "RegionName": "refinementBox"
-                        }
-                    ],
-                    "locationInMesh": "(207000 738000 635)"
-                },
-                "snapControls": {
-                    "explicitFeatureSnap": true,
-                    "implicitFeatureSnap": false
-                },
-                "layers": [
-                    {
-                        "name": "buildings",
-                        "layerProperties": {
-                            "nSurfaceLayers": 1
+                            }
                         }
                     }
                 ],
-                "addLayersControls": {
-                    "relativeSizes": true,
-                    "expansionRatio": 1,
-                    "finalLayerThickness": 0.3,
-                    "minThickness": 0.1,
-                    "nGrow": 0,
-                    "featureAngle": 60,
-                    "slipFeatureAngle": 30,
-                    "nRelaxIter": 3,
-                    "nSmoothSurfaceNormals": 1,
-                    "nSmoothNormals": 3,
-                    "nSmoothThickness": 10,
-                    "maxFaceThicknessRatio": 0.5,
-                    "maxThicknessToMedialRatio": 0.3,
-                    "minMedianAxisAngle": 90,
-                    "nBufferCellsNoExtrude": 0,
-                    "nLayerIter": 50
+                "castellatedMeshControls":{
+                    "nCellsBetweenLevels":2,
+                    "maxLocalCells":200000000,
+                    "maxGlobalCells":200000000,
+                    "locationInMesh":"(207000 738000 635)"
                 },
-                "meshQualityControls": {},
-                "writeFlags": [
+                "snapControls":{
+                    "explicitFeatureSnap":true,
+                    "implicitFeatureSnap":false
+                },
+                "addLayersControls":{
+                    "relativeSizes":true,
+                    "expansionRatio":1,
+                    "finalLayerThickness":0.3,
+                    "minThickness":0.1,
+                    "nGrow":0,
+                    "featureAngle":60,
+                    "slipFeatureAngle":30,
+                    "nRelaxIter":3,
+                    "nSmoothSurfaceNormals":1,
+                    "nSmoothNormals":3,
+                    "nSmoothThickness":10,
+                    "maxFaceThicknessRatio":0.5,
+                    "maxThicknessToMedialRatio":0.3,
+                    "minMedianAxisAngle":90,
+                    "nBufferCellsNoExtrude":0,
+                    "nLayerIter":50
+                },
+                "meshQualityControls":{
+                },
+                "writeFlags":[
                     "scalarLevels",
                     "layerSets",
                     "layerFields"
                 ],
-                "mergeTolerance": 1e-06
+                "mergeTolerance":1e-06
             }
         },
         "controlDict" : {

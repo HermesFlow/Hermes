@@ -24,23 +24,22 @@ geometry
 {
     buildings.stl
     {
-        type   triSurfaceMesh
-        name   buildings
+        type   triSurfaceMesh;
+        name   buildings;
     };
-    
+        
     topo.stl
     {
-        type   triSurfaceMesh
-        name   topo
+        type   triSurfaceMesh;
+        name   topo;
     };
-    
+        
     refinementBox
     {
-        type   searchableBox
-        min   (-250 -250   0)
-        max   (250 250  10)
+        type   searchableBox;
+        min   (-250 -250   0);
+        max   (250 250  10);
     };
-    
 };
 
 castellatedMeshControls
@@ -48,36 +47,35 @@ castellatedMeshControls
     nCellsBetweenLevels 2;
     maxGlobalCells 200000000;
     maxLocalCells 200000000;
-
+        
     features
     (
-      { file  "topo.eMesh";
-        levels ((3 2) (20 1)); }
+        {file   "buildings.eMesh";
+        levels   ((3 2) (20 1)); }
 
     );
-
+        
     features
     (
-      { file  "buildings.eMesh";
-        levels ((3 2) (20 1)); }
-
+        {file   "topo.eMesh";
+        levels   ((3 2) (20 1)); }
 
     );
-
+        
     refinementSurfaces
     {
         buildings
         {
             level (2 1);
-            patchInfo { type wall; }
+            patchInfo { type wall;}
         };
-
+            
         topo
         {
             level (2 1);
-            patchInfo { type wall; }
+            patchInfo { type wall;}
         };
-
+            
     }
 
     refinementRegions
@@ -86,7 +84,7 @@ castellatedMeshControls
         {
             mode inside;
             levels ((1E15 1));
-        }
+        };
     }
 
     locationInMesh (207000 738000 635);
@@ -98,15 +96,13 @@ snapControls
     implicitFeatureSnap    False;
 }
 
-
 layers
 {
-	buildings
+    buildings
 {
 nSurfaceLayers 1;
 }
 }
-
 
 addLayersControls
 {

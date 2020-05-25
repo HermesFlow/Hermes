@@ -17,7 +17,7 @@ from hermes.Resources.executers.pythonExecuter import exportFiles
 
 
 # load json file
-path= os.path.abspath("openfoam.json")
+path= os.path.abspath("openfoam2.json")
 with open(path) as json_file:
     openFOAMjson = json.load(json_file)
 
