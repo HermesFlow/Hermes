@@ -1,4 +1,5 @@
-from abstractExecuter import abstractExecuter
+#from abstractExecuter import abstractExecuter
+from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
 
 class pythonExecuter(abstractExecuter):

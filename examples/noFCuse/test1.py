@@ -4,14 +4,16 @@ import sys
 
 # get the path 
 HermesDirpath = os.getenv('HERMES_2_PATH')
+print(HermesDirpath)
 
 # insert the path to sys
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, HermesDirpath)
 
+#import hermes
 
-from ...hermes.Resources.executers.jinjaExecuter import jinjaExecuter
-from ...hermes.Resources.executers.pythonExecuter import exportFiles
+from hermes.Resources.executers.jinjaExecuter import jinjaExecuter
+from hermes.Resources.executers.pythonExecuter import exportFiles
 
 
 # load json file
