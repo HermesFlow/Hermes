@@ -1,12 +1,8 @@
 {
-    "workflow":{
-        "root":null,
-        "Templates":{ 
-            "importJsonfromfile":{ 
-                "path":"../../hermes/Resources/nodeTemplates/templates.json"
-            }
-        },
-        "nodeList":[
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
             "CopyDirectory",
             "RunPythonScript",
             "RunOsCommand",
@@ -18,55 +14,53 @@
             "transportProperties",
             "RASProperties"
         ],
-        "nodes":{
-            "CopyDirectory":{
+        "nodes": {
+            "CopyDirectory": {
                 "Template": "general.CopyDirectory",
-                "input_parameters" : {
-                        "Target" : "{paramters.source}"
+                "input_parameters": {
+                    "Target": "{paramters.source}"
                 }
             },
-            "RunPythonScript":{
-                "Template":{ 
-                    "TypeFC":"general.RunPythonScript"
-                }
+            "RunPythonScript": {
+                "Template": "general.RunPythonScript"
             },
             "RunOsCommand":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"general.RunOsCommand"
                 }
             },
             "BC":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"BC"
                 }
             },
             "SnappyHexMesh":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.SnappyHexMesh",
+                "Template":{
+                    "TypeFC":"openFOAM.SnappyHexMesh"
                 }
             },
             "ControlDict":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"openFOAM.ControlDict"
                 }
             },
             "fvSchemes":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"openFOAM.fvSchemes"
                 }
             },
             "fvSolution":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"openFOAM.fvSolution"
                 }
             },
             "transportProperties":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"openFOAM.transportProperties"
                 }
             },
             "RASProperties":{
-                "Template":{ 
+                "Template":{
                     "TypeFC":"openFOAM.RASProperties"
                 }
             }
