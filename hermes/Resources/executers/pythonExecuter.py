@@ -1,6 +1,6 @@
 #from abstractExecuter import abstractExecuter
+import os
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
-
 
 class pythonExecuter(abstractExecuter):
 
@@ -54,9 +54,6 @@ class exportFiles(abstractExecuter):
         )
 
     def run(self, **inputs):
-
-        import os
-
         # get the working directory
         path = os.getcwd()
 
@@ -73,8 +70,8 @@ class exportFiles(abstractExecuter):
                 os.mkdir(dir_path)
 
             # export the file
-            f = open( file_path , "w+" )
-            f.write(Ival)
+            with open( file_path , "w+" ) as f:
+                f.write(Ival)
 
 
 

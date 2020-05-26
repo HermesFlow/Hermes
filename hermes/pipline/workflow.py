@@ -1,11 +1,11 @@
 from _io import TextIOWrapper
 import os
 import json
-from .taskwrapper import hermes_task_wrapper_home
-from .taskwrapper import hermesTaskWrapper
+from hermes.taskwrapper import hermes_task_wrapper_home
+from hermes.taskwrapper import hermesTaskWrapper
 from itertools import product
-from .engines import builders
-from .taskwrapper import hermesTaskWrapper
+from hermes.engines import builders
+from hermes.taskwrapper import hermesTaskWrapper
 
 class hermesWorkflow(dict):
     """

@@ -20,8 +20,9 @@
         ],
         "nodes":{
             "CopyDirectory":{
-                "Template":{ 
-                    "TypeFC":"general.CopyDirectory"
+                "Template": "general.CopyDirectory",
+                "input_parameters" : {
+                        "Target" : "{paramters.source}"
                 }
             },
             "RunPythonScript":{
@@ -41,7 +42,7 @@
             },
             "SnappyHexMesh":{
                 "Template":{ 
-                    "TypeFC":"openFOAM.SnappyHexMesh"
+                    "TypeFC":"openFOAM.SnappyHexMesh",
                 }
             },
             "ControlDict":{

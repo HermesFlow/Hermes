@@ -2,20 +2,6 @@ from .abstractExecuter import abstractExecuter
 
 import os, sys, stat
 
-class copyDir(abstractExecuter):
-
-    def _defaultParameters(self):
-        return dict(
-            output=["status"],
-            inputs=["source","target"],
-            webGUI=dict(JSONSchema="webGUI/copyDir_JSONchema.json",
-                        UISchema  = "webGUI/ccopyDir_UISchema.json"),
-            parameters={}
-        )
-
-    def run(self, **inputs):
-        return dict(copyDir="copyDir")
-
 class copyDirectory(abstractExecuter):
 
     def _defaultParameters(self):
