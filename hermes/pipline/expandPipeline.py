@@ -36,9 +36,13 @@ class expandPipeline():
 
         for node in pipeline["workflow"]["nodes"]:
             template = pipeline["workflow"]["nodes"][node]["Template"]
-            pipeline["workflow"]["nodes"][node]["Template"] = self._templateCenter.getTemplate(template)
+            parametersDict = None
             if "input_parameters" in pipeline["workflow"]["nodes"][node]:
-                pipeline = self.changeParameters(pipeline, node, pipeline["workflow"]["nodes"][node]["input_parameters"])
+                parametersDict = pipeline["workflow"]["nodes"][node]["input_parameters"]
+                del pipeline["workflow"]["nodes"][node]["input_parameters"]
+            pipeline["workflow"]["nodes"][node] = self._templateCenter.getTemplate(template)
+            if parametersDict is not None:
+                pipeline = self.changeParameters(pipeline, node, parametersDict)
             if parameters is not None:
                 pipeline = self.changeParameters(pipeline,node,parameters)
         return pipeline
@@ -55,6 +59,17 @@ class expandPipeline():
         """
 
         for parameter in parametersDict:
-            if parameter in pipeline["workflow"]["nodes"][node]["Template"]["input_parameters"]:
-                pipeline["workflow"]["nodes"][node]["Template"]["input_parameters"][parameter] = parametersDict[parameter]
+            if parameter in pipeline["workflow"]["nodes"][node]["input_parameters"]:
+                pipeline["workflow"]["nodes"][node]["input_parameters"][parameter] = parametersDict[parameter]
+            else:
+                addresses = parameter.split(".")
+                pipe=pipeline["workflow"]["nodes"][node]
+                for address in addresses[:-1]:
+                    if pipe is None:
+                        break
+                    else:
+                        pipe = pipe.get(address)
+
+                pipe[addresses[-1]] = parametersDict[parameter]
+
         return pipeline

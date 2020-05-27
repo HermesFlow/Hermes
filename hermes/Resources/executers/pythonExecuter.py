@@ -54,24 +54,31 @@ class exportFiles(abstractExecuter):
         )
 
     def run(self, **inputs):
-        # get the working directory
-        path = os.getcwd()
+        # # get the working directory
+        # path = os.getcwd()
+        #
+        # # export all data in the dict
+        # for Ikey,Ival in inputs.items():
+        #
+        #     # get the path to dir and file seperatly
+        #     key_list = Ikey.split('/')
+        #     dir_path= path + "/" + key_list[0]
+        #     file_path = path + "/" + Ikey
+        #
+        #     # if dir doesnt exsit, create one
+        #     if not(os.path.isdir(dir_path)):
+        #         os.mkdir(dir_path)
+        #
+        #     # export the file
+        #     with open( file_path , "w+" ) as f:
+        #         f.write(Ival)
+        path = inputs["casePath"]
+        files = inputs["files"]
 
-        # export all data in the dict
-        for Ikey,Ival in inputs.items():
-
-            # get the path to dir and file seperatly
-            key_list = Ikey.split('/')
-            dir_path= path + "/" + key_list[0]
-            file_path = path + "/" + Ikey
-
-            # if dir doesnt exsit, create one
-            if not(os.path.isdir(dir_path)):
-                os.mkdir(dir_path)
-
-            # export the file
-            with open( file_path , "w+" ) as f:
-                f.write(Ival)
+        for filename, file in files.items():
+            newPath = os.path.join(path, filename)
+            with open(newPath, "w") as newfile:
+                newfile.write(file)
 
 
 

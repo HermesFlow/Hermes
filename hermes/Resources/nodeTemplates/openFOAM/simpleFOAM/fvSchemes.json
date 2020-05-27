@@ -1,4 +1,8 @@
-{
+{    "typeExecution": "openFOAM.simpleFOAM.fvSchemes",
+    "TypeFC": "WebGuiNode",
+    "input_parameters": {
+        "values": "{formData}"
+    },
     "Schema":{
 		"type":"object",
 		"properties":{
