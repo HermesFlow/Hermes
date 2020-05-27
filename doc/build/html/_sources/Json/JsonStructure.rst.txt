@@ -19,6 +19,7 @@ A link for a `JSON Formatter & Validator   <https://jsonformatter.curiousconcept
 
 Also, the Hermes workflow uses the **react-jsonschema-form**.
 This allows a dynamic display, which based on the data been inserted into the JSON structure.
+:ref:`The react-jsonschema-form`
 
 
 The react-jsonschema-form
