@@ -1,0 +1,22 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "controlDict",
+            "fileWriter"
+        ],
+        "nodes": {
+            "controlDict": {
+                "Template": "openFOAM.simpleFOAM.ControlDict"
+            },
+            "fileWriter": {
+                "Template": "general.FilesWriter",
+                "input_parameters": {
+                    "casePath": "/home/ofir/Projects/2020/hermesExamples",
+                    "files.system/controlDict": "controlDict.outputs"
+                }
+            }
+        }
+    }
+}
