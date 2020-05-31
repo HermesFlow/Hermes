@@ -113,12 +113,11 @@ class hermesWorkflow(dict):
         """
 
         requiredNodeList = hermesTaskWrapper.getRequiredTasks(taskJSON)
-        # for requirednode in requiredNodeList:
-        #     if requirednode not in self._taskRepresentations:
-        #         self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
+        for requirednode in requiredNodeList:
+            if requirednode not in self._taskRepresentations:
+                self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
-
         ListOfRequiredTaskLists = [[(node,x) for x in self._taskRepresentations[node]] for node in requiredNodeList]
 
         nodeNetworkRepresentation = []
