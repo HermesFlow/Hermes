@@ -137,7 +137,6 @@ class expandJson():
                 else:
 
                     # call the function that open data
-                    #                    openImportData=self.checkListOfFiles(subtructVal,'File')
                     openImportData = self.importJsonDataFromFile(subtructVal)
 
                     if i > 0:
@@ -173,7 +172,6 @@ class expandJson():
                 else:
 
                     # call the function that open data
-                    #                    openImportData=self.checkListOfFiles(subtructVal,'Template')
                     openImportData = self.importJsonDataFromTemplate(subtructVal)
 
                     if i > 0:
@@ -322,36 +320,7 @@ class expandJson():
 
         return UpdatedJsonStruct
 
-    def checkListOfFiles(self, importData, importFrom):
-
-        # check if there are list of files that need to be imported, or just 1:
-        # list- saved as a dictionary
-        # 1 file - saved as keys and values
-        # *if*- check if the first value is a dict
-        if type(list(importData.values())[0]) is dict:
-
-            # intialized UpdatedJsonStruct
-            UpdatedJsonStruct = {}
-
-            # loop all files
-            for fileKey, fileVal in importData.items():
-
-                if importFrom == 'File':
-                    # update the imported files into UpdatedJsonStruct
-                    UpdatedJsonStruct.update(self.importJsonDataFromFile(fileVal))
-                else:
-                    UpdatedJsonStruct.update(self.importJsonDataFromTemplate(fileVal))
-
-
-        else:
-            if importFrom == 'File':
-                # update the 1 file data into UpdatedJsonStruct
-                UpdatedJsonStruct = self.importJsonDataFromFile(importData)
-            else:
-                UpdatedJsonStruct = self.importJsonDataFromTemplate(importData)
-
-        return UpdatedJsonStruct
-
+    
     def importJsonDataFromTemplate(self, importTemplate):
 
         # to do - get a path to exact place in Template

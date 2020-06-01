@@ -41,6 +41,8 @@ class expandPipeline():
                 pipeline = self.changeParameters(pipeline, node, pipeline["workflow"]["nodes"][node]["input_parameters"])
             if parameters is not None:
                 pipeline = self.changeParameters(pipeline,node,parameters)
+            # pipeline2 = pipeline.copy()
+            pipeline["workflow"]["nodes"][node]= pipeline["workflow"]["nodes"][node]["Template"]
         return pipeline
 
     def changeParameters(self, pipeline, node, parametersDict):
