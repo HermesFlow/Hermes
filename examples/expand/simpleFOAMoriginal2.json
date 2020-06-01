@@ -1,0 +1,29 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript",
+            "RunOsCommand",
+            "SnappyHexMesh"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory",
+                "input_parameters": {
+                    "Target": "{paramters.source}"
+                }
+            },
+            "RunPythonScript": {
+                "Template": "general.RunPythonScript"
+            },
+            "RunOsCommand":{
+                "Template": "general.RunOsCommand"
+            },
+            "SnappyHexMesh":{
+                "Template":"openFOAM.SnappyMesh"
+            }
+        }
+    }
+}

@@ -1,0 +1,75 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "typeExecution": "copyDirectory",
+                "TypeFC": "WebGuiNode",
+                "input_parameters": {
+                    "Source": "{Properties.Source.current_val}",
+                    "Target": "{paramters.source}"
+                },
+                "Properties": {
+                    "Source": {
+                        "prop": "Source",
+                        "init_val": "",
+                        "type": "App::PropertyPath",
+                        "Heading": "Parameters",
+                        "tooltip": "The source directory",
+                        "current_val": ""
+                    },
+                    "Target": {
+                        "prop": "Target",
+                        "init_val": "",
+                        "type": "App::PropertyPath",
+                        "Heading": "Parameters",
+                        "tooltip": "The target directory",
+                        "current_val": ""
+                    }
+                },
+                "WebGui": {}
+            },
+            "RunPythonScript": {
+                "typeExecution": "RunPythonScript",
+                "TypeFC": "WebGuiNode",
+                "input_parameters": {
+                    "ModulePath": "Properties.ModulePath.current_val",
+                    "MethodName": "Properties.MethodName.current_val",
+                    "Parameters": "Properties.Parameters.current_val"
+                },
+                "Properties": {
+                    "ModulePath": {
+                        "prop": "ModulePath",
+                        "init_val": "",
+                        "type": "App::PropertyPath",
+                        "Heading": "PythonNodule",
+                        "tooltip": "The path to the python module directory",
+                        "current_val": ""
+                    },
+                    "MethodName": {
+                        "prop": "MethodName",
+                        "init_val": "",
+                        "type": "App::PropertyString",
+                        "Heading": "PythonNodule",
+                        "tooltip": "The python module name",
+                        "current_val": ""
+                    },
+                    "Parameters": {
+                        "prop": "Parameters",
+                        "init_val": [],
+                        "type": "App::PropertyStringList",
+                        "Heading": "PythonNodule",
+                        "tooltip": "The python module input parameters",
+                        "current_val": []
+                    }
+                },
+                "WebGui": {}
+            }
+        }
+    }
+}

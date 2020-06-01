@@ -151,35 +151,35 @@ class expandJson():
             # in case of import data from Template
             elif subStructKey == self.getFromTemplate:
 
-                # check if there are list of files that need to be imported, or just 1:
-                # list- saved as a dictionary
-                # 1 file - saved as keys and values
-                # *if*- check if the first value is a dict
-                if type(list(subtructVal.values())[0]) is dict:
+                # # check if there are list of files that need to be imported, or just 1:
+                # # list- saved as a dictionary
+                # # 1 file - saved as keys and values
+                # # *if*- check if the first value is a dict
+                # if type(list(subtructVal.values())[0]) is dict:
+                #
+                #     for templateKey, templateVal in subtructVal.items():
+                #         # call the function that open data
+                #         openImportData = self.importJsonDataFromTemplate(templateVal)
+                #
+                #         if i > 0:
+                #             # not the first iteration -> overide the data
+                #             UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
+                #         else:
+                #             # first iteration -> define the UpdatedJsonStruct as the open data
+                #             UpdatedJsonStruct = openImportData.copy()
+                #
+                #         i = i + 1
+                # else:
 
-                    for templateKey, templateVal in subtructVal.items():
-                        # call the function that open data
-                        openImportData = self.importJsonDataFromTemplate(templateVal)
+                # call the function that open data
+                openImportData = self.importJsonDataFromTemplate(subtructVal)
 
-                        if i > 0:
-                            # not the first iteration -> overide the data
-                            UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-                        else:
-                            # first iteration -> define the UpdatedJsonStruct as the open data
-                            UpdatedJsonStruct = openImportData.copy()
-
-                        i = i + 1
+                if i > 0:
+                    # not the first iteration -> overide the data
+                    UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
                 else:
-
-                    # call the function that open data
-                    openImportData = self.importJsonDataFromTemplate(subtructVal)
-
-                    if i > 0:
-                        # not the first iteration -> overide the data
-                        UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-                    else:
-                        # first iteration -> define the UpdatedJsonStruct as the open data
-                        UpdatedJsonStruct = openImportData.copy()
+                    # first iteration -> define the UpdatedJsonStruct as the open data
+                    UpdatedJsonStruct = openImportData.copy()
 
             # No imported data from path or Template
             else:
@@ -320,54 +320,79 @@ class expandJson():
 
         return UpdatedJsonStruct
 
-    
+
     def importJsonDataFromTemplate(self, importTemplate):
 
         # to do - get a path to exact place in Template
 
+        # todo - undestand how to make the recursion work with
+        #        ofir template center script -
+        #  current problem - when getting inside recurtion
+        #  after using templateCenter, the working directory
+        #  is not being saved - > so decide what to use, and how
+        #  so recursion will work
+
         UpdatedJsonStruct = {}
 
-        # find the path from the template to wanted data
-        pathDst = importTemplate["TypeFC"]
+        # get the path
+        HermesDirpath = os.getenv('HERMES_2_PATH')
+        # print(HermesDirpath)
 
-        # create a split list of the path
-        splitPathlist = pathDst.split(".")
+        import sys
+        # insert the path to sys
+        # insert at 1, 0 is the script path (or '' in REPL)
+        sys.path.insert(1, HermesDirpath)
 
-        # if the length og the list is bigger than 1 -> use InjectJson
-        if len(splitPathlist) > 1:
-            UpdatedJsonStruct = self.InjectJson(UpdatedJsonStruct, self.Templates, pathDst)
-            # InjectJson(       Dst       ,     Src      ,pathDst):
-        else:
-            # load and recieve the json object directly from Template
-            UpdatedJsonStruct = self.Templates[importTemplate["TypeFC"]]
+        from hermes.Resources.nodeTemplates.templateCenter import templateCenter
+        paths = None
+        self._templateCenter = templateCenter(paths)
+        template = importTemplate
+        UpdatedJsonStruct = self._templateCenter.getTemplate(template)
 
-        # check if there is only a specific field that need to be imported from Template
-        if "field" in importTemplate:
+        # call 'getImportedJson' in case there are nested files that need to be imported
+        UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
 
-            # empty data structure - so only relevent data will be returned
-            UpdatedJsonStruct = {}
+        # # find the path from the template to wanted data
+        # pathDst = importTemplate["TypeFC"]
+        #
+        # # create a split list of the path
+        # splitPathlist = pathDst.split(".")
+        #
+        # # if the length og the list is bigger than 1 -> use InjectJson
+        # if len(splitPathlist) > 1:
+        #     UpdatedJsonStruct = self.InjectJson(UpdatedJsonStruct, self.Templates, pathDst)
+        #     # InjectJson(       Dst       ,     Src      ,pathDst):
+        # else:
+        #     # load and recieve the json object directly from Template
+        #     UpdatedJsonStruct = self.Templates[importTemplate["TypeFC"]]
 
-            # empty var
-            fieldData = self.Templates[importTemplate["TypeFC"]]
-
-            # loop all 'field' list
-            for entryPath in importTemplate["field"]:
-
-                if (len(entryPath) == 0):
-                    continue
-
-                # split the entry
-                splitEntryPath = entryPath.split(".")
-
-                # get the entry path wanted data
-                for entry in splitEntryPath:
-                    fieldData = fieldData[entry]
-
-                # add to the UpdatedJsonStruct
-                UpdatedJsonStruct.update(fieldData)
-
-        #        else:
-        #            UpdatedJsonStruct=self.Templates[importTemplate["TypeFC"]]
+        # # check if there is only a specific field that need to be imported from Template
+        # if "field" in importTemplate:
+        #
+        #     # empty data structure - so only relevent data will be returned
+        #     UpdatedJsonStruct = {}
+        #
+        #     # empty var
+        #     fieldData = self.Templates[importTemplate["TypeFC"]]
+        #
+        #     # loop all 'field' list
+        #     for entryPath in importTemplate["field"]:
+        #
+        #         if (len(entryPath) == 0):
+        #             continue
+        #
+        #         # split the entry
+        #         splitEntryPath = entryPath.split(".")
+        #
+        #         # get the entry path wanted data
+        #         for entry in splitEntryPath:
+        #             fieldData = fieldData[entry]
+        #
+        #         # add to the UpdatedJsonStruct
+        #         UpdatedJsonStruct.update(fieldData)
+        #
+        # #        else:
+        # #            UpdatedJsonStruct=self.Templates[importTemplate["TypeFC"]]
 
         return UpdatedJsonStruct
 
