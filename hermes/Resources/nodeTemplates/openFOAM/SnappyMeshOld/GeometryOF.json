@@ -10,8 +10,10 @@
                 "properties":{
                     "triSurfaceMesh":{
                         "type":"object",
-                        "properties":{
-                            "Template":"openFOAM.SnappyMesh.objects.triSurfaceMesh"
+                        "properties":{ 
+                            "importJsonfromfile":{
+                                "path":"objects/triSurfaceMesh.json"
+                            }
                         }
                     }
                 }
@@ -21,7 +23,9 @@
                 "title":"Region",
                 "properties":{ 
                     "searchableObject":{ 
-                        "Template":"openFOAM.SnappyMesh.geometryObject"
+                        "importJsonfromfile":{
+                            "path":"geometryObject.json"
+                         }
                     }
                 }
             }

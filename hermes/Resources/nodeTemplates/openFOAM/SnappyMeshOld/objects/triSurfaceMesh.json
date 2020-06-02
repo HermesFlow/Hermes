@@ -1,0 +1,76 @@
+{ 
+    "typeTSM":{ 
+        "type":"string",
+        "title":"type"
+    },
+    "toleranceTSM":{ 
+        "type":"number",
+        "title":"tolerance",
+        "description":"Tolerance to use for intersection tests"
+    },
+    "scaleTSM":{ 
+        "type":"number",
+        "title":"scale",
+        "description":"Scale factor to apply to the points"
+    },
+    "nameTSM":{ 
+        "type":"string",
+        "title":"name",
+        "description":"Name to use to refer to this surface"
+    },
+    "featuresTSM":{
+        "type":"object",
+        "title":"features",
+        "description":"features for refinement",
+        "properties":{
+            "file":{
+                "type":"string",
+                "title":"file"
+            },
+            "levels":{
+                "type":"string",
+                "title":"levels"
+            }
+        }
+    },
+    "refinementSurfacesTSM":{
+        "type":"object",
+        "title":"refinementSurfaces",
+        "properties":{
+            "level":{
+                "type":"string",
+                "title":"level"
+            },
+            "patchInfo":{ 
+                "type":"object",
+                "title":"patchInfo",
+                "properties":{
+                    "type":{
+                        "type":"string"
+                    }
+                }
+            }
+        }
+    },
+    "layersTSM":{
+        "type":"object",
+        "title":"layers",
+        "properties":{
+            "nSurfaceLayers":{
+                "type":"integer",
+                "title":"nSurfaceLayers" 
+            }
+        }
+    }    
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -3,11 +3,11 @@
 #
 # Part design module
 
-#***************************************************************************
-#*   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
-#*                                                                         *
-#*   This file is part of the FreeCAD CAx development system.              *
-#*                                                                         *
+# ***************************************************************************
+# *   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
+# *                                                                         *
+# *   This file is part of the FreeCAD CAx development system.              *
+# *                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
 #*   as published by the Free Software Foundation; either version 2 of     *

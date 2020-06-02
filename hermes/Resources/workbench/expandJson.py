@@ -336,8 +336,6 @@ class expandJson():
 
         # get the path
         HermesDirpath = os.getenv('HERMES_2_PATH')
-        # print(HermesDirpath)
-
         import sys
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)

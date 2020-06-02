@@ -42,6 +42,7 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
+        # print(jsonPath)
         try:
             with open(jsonPath) as json_file:
                 template = json.load(json_file)

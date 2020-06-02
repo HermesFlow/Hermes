@@ -68,7 +68,9 @@
                                     "items":{
                                         "type":"object",
                                         "properties":{
-                                            "Template": "openFOAM.fvSolution.GAMGproperties"
+                                            "importJsonfromfile":{
+                                                "path":"fvSolution/GAMGproperties.json"
+                                            }
                                         }
                                     }
                                 },
@@ -78,7 +80,9 @@
                                     "items":{
                                         "type":"object",
                                         "properties":{
-                                            "Template":"openFOAM.fvSolution.SmoothProperties"
+                                            "importJsonfromfile":{
+                                                "path":"fvSolution/SmoothProperties.json"
+                                            }
                                         }
                                     }
                                 },
@@ -101,13 +105,19 @@
                     "type":"object",
                     "anyOf":[
                         {
-                            "Template":"openFOAM.fvSolution.PISO"
+                            "importJsonfromfile":{
+                                "path":"fvSolution/PISO.json"
+                            }
                         },
                         {
-                            "Template":"openFOAM.fvSolution.SIMPLE"
+                            "importJsonfromfile":{
+                                "path":"fvSolution/SIMPLE.json"
+                            }
                         },
                         {
-                            "Template":"openFOAM.fvSolution.PIMPLE"
+                            "importJsonfromfile":{
+                                "path":"fvSolution/PIMPLE.json"
+                            }
                         }
                     ]
                 }
@@ -126,7 +136,9 @@
                 "type":"object",
                 "title":"relaxationFactors",
                 "properties":{
-                    "Template":"openFOAM.fvSolution.relaxationFactors"
+                    "importJsonfromfile":{
+                        "path":"fvSolution/relaxationFactors.json"
+                    }
                 }
             }
         }

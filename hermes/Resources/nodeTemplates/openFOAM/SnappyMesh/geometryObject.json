@@ -4,82 +4,64 @@
       { 
          "type":"object",
          "title":"Box",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Box.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Box"
          }
       },
       { 
          "type":"object",
          "title":"Cone",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Cone.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Cone"
          }
       },
       { 
          "type":"object",
          "title":"Cylinder",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Cylinder.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Cylinder"
          }
       },
       { 
          "type":"object",
          "title":"Disk",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Disk.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Disk"
          }
       },
       { 
          "type":"object",
          "title":"ExtrudedCircle",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/ExtrudedCircle.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.ExtrudedCircle"
          }
       },
       { 
          "type":"object",
          "title":"Plane",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Plane.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Plane"
          }
       },
       { 
          "type":"object",
          "title":"Plate",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Plate.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Plate"
          }
       },
       { 
          "type":"object",
          "title":"RotatedBox",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/RotatedBox.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.RotatedBox"
          }
       },
       { 
          "type":"object",
          "title":"Sphere",
-         "properties":{ 
-            "importJsonfromfile":{
-                "path":"objects/Sphere.json"
-            }
+         "properties":{
+            "Template":"openFOAM.SnappyMesh.objects.Sphere"
          }
       }
    ]

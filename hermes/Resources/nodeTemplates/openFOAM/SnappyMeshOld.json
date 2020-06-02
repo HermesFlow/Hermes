@@ -26,34 +26,44 @@
                 "description":"merge tolerance as fraction of bounding box of initial mesh"
             },
             "geometry":{ 
-                "Template":"openFOAM.SnappyMesh.GeometryOF"
+                "importJsonfromfile":{ 
+                    "path":"SnappyMesh/GeometryOF.json"
+                }
             },
             "castellatedMeshControls":{     
                 "type":"object",
                 "title":"castellatedMeshControls",
                 "properties":{ 
-                    "Template":"openFOAM.SnappyMesh.castellatedMeshControls"
+                    "importJsonfromfile":{ 
+                        "path":"SnappyMesh/castellatedMeshControls.json"
+                    }
                 }
             },
             "snapControls":{ 
                 "type":"object",
                 "title":"snapControls",
-                "properties":{
-                    "Template":"openFOAM.SnappyMesh.snapControls"
+                "properties":{ 
+                    "importJsonfromfile":{ 
+                        "path":"SnappyMesh/snapControls.json"
+                    }
                 }
             },
             "addLayersControls":{ 
                 "type":"object",
                 "title":"addLayersControls",
-                "properties":{
-                    "Template":"openFOAM.SnappyMesh.addLayersControls"
+                "properties":{ 
+                    "importJsonfromfile":{ 
+                        "path":"SnappyMesh/addLayersControls.json"
+                    }
                 }
             },
             "meshQualityControls":{ 
                 "type":"object",
                 "title":"meshQualityControls",
-                "properties":{
-                    "Template":"openFOAM.SnappyMesh.meshQualityControls"
+                "properties":{ 
+                    "importJsonfromfile":{ 
+                        "path":"SnappyMesh/meshQualityControls.json"
+                    }
                 }
             },
             "writeFlags":{ 

@@ -6,7 +6,12 @@
             "CopyDirectory",
             "RunPythonScript",
             "RunOsCommand",
-            "SnappyHexMesh"
+            "SnappyHexMesh",
+            "ControlDict",
+            "fvSchemes",
+            "fvSolution",
+            "transportProperties",
+            "RASProperties"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -22,7 +27,76 @@
                 "Template": "general.RunOsCommand"
             },
             "SnappyHexMesh":{
-                "Template":"openFOAM.SnappyMesh"
+                "typeExecution":"snappyHexMesh",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.SnappyMesh"
+                }
+            },
+            "ControlDict":{
+                "typeExecution":"controlDict",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.ControlDict"
+                }
+            },
+            "fvSchemes":{
+                "typeExecution":"fvSchemes",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.fvSchemes"
+                }
+            },
+            "fvSolution":{
+                "typeExecution":"fvSolution",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.fvSolution"
+                }
+            },
+            "transportProperties":{
+                "typeExecution":"transportProperties",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.TransportProperties"
+                }
+            },
+            "RASProperties":{
+                "typeExecution":"RASProperties",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.RASProperties"
+                }
             }
         }
     }
