@@ -16,15 +16,21 @@
     "BCTypes":{
         "TypeList":["wall","sym"],
         "TypeProperties":{
-            "Template":"BC.BCTypes.BCTypesListProperties"
+            "importJsonfromfile":{
+                "path":"BCTypes/BCTypesListProperties.json"
+            }
         }
     },
     "BCList":{
         "BC1":{
-            "Template":"BC.BCList.BC1"
+            "importJsonfromfile":{
+                "path":"BCList/BC1.json"
+            }
         },
         "BC2":{
-            "Template":"BC.BCList.BC2"
+            "importJsonfromfile":{
+                "path":"BCList/BC2.json"
+            }
         }
     }
 }

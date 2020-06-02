@@ -319,7 +319,7 @@ if FreeCAD.GuiUp:
 # 
 # 
 # def getPatchType(bcType, bcSubType):
-#     """ Get the boundary type based on selected BC condition """
+#     """ Get the boundary type based on selected BC_old condition """
 #     if bcType == 'wall':
 #         return 'wall'
 #     elif bcType == 'empty':

@@ -193,13 +193,6 @@ class _HermesWorkflow:
         # create jsonObject varieble that contain all data, including imported data from files/templates
         self.JsonObject = expandJson().createJsonObject(self.JsonObjectfromFile,jsonFileName)
 
-        # ======= check expand export/print ================
-        # save file to the selected place
-        with open("fvSolutionExp.json", "w") as write_file:
-            json.dump(self.JsonObject["workflow"]["nodes"]["fvSolution"], write_file, indent=4)  # indent make it readable
-        # print(self.JsonObject["workflow"]["nodes"]["fvSolution"])
-        # ====================================================
-
         # assign the data been import to the JSONString property after dumps
         obj.JSONString = json.dumps(self.JsonObject)
         # FreeCAD.Console.PrintMessage("obj.JSONString="+obj.JSONString+"\n")

@@ -83,7 +83,7 @@ class CBCDialogPanel:
                                                                     obj, True, False)
 
     def addBC(self, bcType):
-        # add  bcType to options at BC dialog
+        # add  bcType to options at BC_old dialog
         self.form.m_pBCTypeCB.addItem(bcType)
 
     def setCurrentBC(self, BCName):
@@ -100,13 +100,13 @@ class CBCDialogPanel:
 
     def accept(self):
         # Happen when Close Dialog
-        # get the curren BC type name from Dialog
+        # get the curren BC_old type name from Dialog
         BCtype = self.form.m_pBCTypeCB.currentText()
 
         # calling the nodeObj from name
         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
 
-        # calling the function that create the new BC Object
+        # calling the function that create the new BC_old Object
         callingObject.Proxy.bcDialogClosed(callingObject, BCtype)
 
         # close the Dialog in FreeCAD
@@ -128,25 +128,25 @@ class CBCDialogPanel:
 #
 # *****************************************************************************
 # -----------**************************************************----------------
-#                                   #BC module start
+#                                   #BC_old module start
 # -----------**************************************************----------------
 # *****************************************************************************
 
 def makeBCNode(name, TypeList, BCNodeData, Nodeobj):
-    """ Create a Hermes BC object """
+    """ Create a Hermes BC_old object """
 
     #    # Object with option to have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
 
     # Object can not have children
     obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
-    #print ("HermesBCNode make BC node\n")
+    #print ("HermesBCNode make BC_old node\n")
 
 
     # add BCNodeobj(obj) as child of Nodeobj
     Nodeobj.addObject(obj)
 
-    # initialize propeties and so at the new BC obj
+    # initialize propeties and so at the new BC_old obj
     _HermesBC(obj, TypeList, BCNodeData)
 
     if FreeCAD.GuiUp:
@@ -160,14 +160,14 @@ class _CommandHermesBcNodeSelection:
     def GetResources(self):
         icon_path = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/icons/BCNode2.png"
         return {'Pixmap': icon_path,
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Hermes BC Node"),
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Creates new Hermes BC Node")}
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Hermes BC_old Node"),
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Creates new Hermes BC_old Node")}
 
     def IsActive(self):
         return HermesTools.getActiveHermes() is not None
 
     def Activated(self):
-        FreeCAD.ActiveDocument.openTransaction("Choose appropriate BC Node")
+        FreeCAD.ActiveDocument.openTransaction("Choose appropriate BC_old Node")
         isPresent = False
         members = HermesTools.getActiveHermes().Group
         for i in members:
@@ -192,10 +192,10 @@ if FreeCAD.GuiUp:
 
 
 # =============================================================================
-# Hermes BC class
+# Hermes BC_old class
 # =============================================================================
 class _HermesBC:
-    """ The Hermes BC """
+    """ The Hermes BC_old """
 
     def __init__(self, obj, TypeList, BCNodeData):
 
@@ -209,7 +209,7 @@ class _HermesBC:
 
         # ^^^ Constant properties ^^^
 
-        # References property - keeping the faces and part data attached to the BC obj
+        # References property - keeping the faces and part data attached to the BC_old obj
         addObjectProperty(obj, 'References', [], "App::PropertyPythonObject", "", "Boundary faces")
 
         # link property - link to other object (beside parent)
@@ -218,11 +218,11 @@ class _HermesBC:
         # Active property- keep if obj has been activated (douuble clicked get active)
         addObjectProperty(obj, "IsActiveBC", False, "App::PropertyBool", "", "Active heraccept object in document")
 
-        # BCNodeDataString property - keep the json BC node data as a string
+        # BCNodeDataString property - keep the json BC_old node data as a string
         addObjectProperty(obj, "BCNodeDataString", "-1", "App::PropertyString", "BCNodeData", "Data of the node", 4)
 
-        # Type property - list of all BC types
-        addObjectProperty(obj, "Type", self.TypeList, "App::PropertyEnumeration", "BC Type",
+        # Type property - list of all BC_old types
+        addObjectProperty(obj, "Type", self.TypeList, "App::PropertyEnumeration", "BC_old Type",
                           "Type of Boundry Condition")
         obj.setEditorMode("Type", 1)  # Make read-only (2 = hidden)
 
@@ -233,7 +233,7 @@ class _HermesBC:
 
         #  ^^^^^ Properties from Json  ^^^
 
-        # get BC node List of properties from 'nodeData'
+        # get BC_old node List of properties from 'nodeData'
         ListProperties = self.BCNodeData["Properties"]
 
         # Create each property from the list
@@ -350,7 +350,7 @@ class _HermesBC:
 
             workflowObj.Proxy.ExportPart(obj, str(PartObj['Name']))
 
-        # Update faceList attach to the BC at the BCnodeData
+        # Update faceList attach to the BC_old at the BCnodeData
         self.BCNodeData["faceList"] = faceList
 
         # update Label in Json
@@ -362,7 +362,7 @@ class _HermesBC:
 
     def initFacesFromJson(self, obj):
 
-        # get faceList attach to the BC from BCnodeData
+        # get faceList attach to the BC_old from BCnodeData
         faceList = self.BCNodeData["faceList"]
 
         # create Hermesworkflow obj to allow caliing def "loadPart"
@@ -370,7 +370,7 @@ class _HermesBC:
         workflowObj = Nodeobj.getParentGroup()
 
         for x in faceList:
-            # get the partnum  from facelist (in case more then 1 part attach to the BC)
+            # get the partnum  from facelist (in case more then 1 part attach to the BC_old)
             # property'num' ; num =1,2,3 ...
             partnum = faceList[x]
 
@@ -397,7 +397,7 @@ class _HermesBC:
         return
 
     def setCurrentPropertyBC(self, obj, ListProperties):
-        # update the current value of all properties' BC object
+        # update the current value of all properties' BC_old object
         for x in ListProperties:
             # get property'num' object ; num =1,2,3 ...
             propertyNum = ListProperties[x]
@@ -426,18 +426,18 @@ class _HermesBC:
         # get NodeObj to get nodeData
         NodeObj = obj.getParentGroup()
 
-        # get BC type list from nodeDate - *in case not 'readonly'* have list of BCtypes
+        # get BC_old type list from nodeDate - *in case not 'readonly'* have list of BCtypes
         BCTypes = NodeObj.Proxy.nodeData["BCTypes"]
         TypeList = BCTypes["TypeList"]
 
-        # add the Bc types to options at BC dialog
+        # add the Bc types to options at BC_old dialog
         for types in TypeList:
             bcDialog.addBC(types)
 
         # update the first value to be showen in the comboBox
         bcDialog.setCurrentBC(obj.Type)
 
-        # set read only BC type
+        # set read only BC_old type
         bcDialog.readOnlytype()
 
         # add node Object name to the bcDialog name - used when "accept"
@@ -494,11 +494,11 @@ class _HermesBC:
 #      "_ViewProviderNode" class
 # =============================================================================
 class _ViewProviderBC:
-    """ A View Provider for the Hermes BC Node container object. """
+    """ A View Provider for the Hermes BC_old Node container object. """
 
     # =============================================================================
     #     General interface for all visual stuff in FreeCAD This class is used to
-    #     generate and handle all around visualizing and presenting BC objects from
+    #     generate and handle all around visualizing and presenting BC_old objects from
     #     the FreeCAD App layer to the user.
     # =============================================================================
 
@@ -516,7 +516,7 @@ class _ViewProviderBC:
         self.bubbles = None
 
     def updateData(self, obj, prop):
-        # We get here when the object of BC Node changes
+        # We get here when the object of BC_old Node changes
         return
 
     def onChanged(self, obj, prop):
@@ -534,7 +534,7 @@ class _ViewProviderBC:
 
 # *****************************************************************************
 # -----------**************************************************----------------
-#                                   #BC module end
+#                                   #BC_old module end
 # -----------**************************************************----------------
 # *****************************************************************************
 #

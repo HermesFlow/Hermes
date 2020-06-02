@@ -94,7 +94,7 @@ def makeNode(name, workflowObj, nodeId, nodeData):
         # =============================================================================
         #     if nodeData["TypeFC"]=="webGui":
         #         _WebGuiNode(obj, nodeId,nodeData,name)
-        #     elif nodeData["TypeFC"]=="BC":
+        #     elif nodeData["TypeFC"]=="BC_old":
         #         _BCFactory(obj, nodeId,nodeData,name)
         #     else:
         #         _HermesNode(obj, nodeId,nodeData,name)
@@ -203,7 +203,7 @@ class _HermesNode(_SlotHandler):
 
         # ^^^ Constant properties ^^^
 
-        # References property - keeping the faces and part data attached to the BC obj
+        # References property - keeping the faces and part data attached to the BC_old obj
         addObjectProperty(obj, 'References', [], "App::PropertyPythonObject", "", "Boundary faces")
 
         # Node Id
@@ -211,7 +211,7 @@ class _HermesNode(_SlotHandler):
         addObjectProperty(obj, "NodeId", "-1", "App::PropertyString", "Node Id", "Id of node",
                           4)  # the '4' hide the property
 
-        # Type of the Object - (web/BC)
+        # Type of the Object - (web/BC_old)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
         obj.setEditorMode("Type", 1)  # Make read-only (2 = hidden)
 
@@ -549,26 +549,26 @@ class _BCFactory(_HermesNode):
         # get the list of available Bc types from BCtypes section
         TypeList = BCTypes["TypeList"]
 
-        # get the list of BC that has been saved
+        # get the list of BC_old that has been saved
         BCList = self.nodeData["BCList"]
 
-        # Loop all the BC that has been saved
+        # Loop all the BC_old that has been saved
         for y in BCList:
-            # get BC'num' object ; num =1,2,3 ...
+            # get BC_old'num' object ; num =1,2,3 ...
             BCnum = BCList[y]
 
-            # get Name,Type and Properties of the BC
+            # get Name,Type and Properties of the BC_old
             BCName = BCnum["Name"]
             BCType = BCnum["Type"]
 
-            # Create the BC node
+            # Create the BC_old node
             BCNodeObj = HermesBcNode.makeBCNode('BCtemp', TypeList, BCnum, obj)
 
-            # get the BC properties, and update their current value
+            # get the BC_old properties, and update their current value
             BCProperties = BCnum["Properties"]
             BCNodeObj.Proxy.setCurrentPropertyBC(BCNodeObj, BCProperties)
 
-            # Update the faces attach to the BC (alsp create the parts)
+            # Update the faces attach to the BC_old (alsp create the parts)
             BCNodeObj.Proxy.initFacesFromJson(BCNodeObj)
 
             # get Bc Name and update his Label property
@@ -591,7 +591,7 @@ class _BCFactory(_HermesNode):
         # get the list of available Bc types from BCtypes section
         TypeList = BCTypes["TypeList"]
 
-        # add the Bc types to options at BC dialog
+        # add the Bc types to options at BC_old dialog
         for types in TypeList:
             bcDialog.addBC(types)
 
@@ -606,7 +606,7 @@ class _BCFactory(_HermesNode):
 
     def backupNodeData(self, obj):
         super().backupNodeData(obj)
-        # Update faceList in BCList section to each BC node
+        # Update faceList in BCList section to each BC_old node
         for child in obj.Group:
             child.Proxy.UpdateFacesInJson(child)
         pass
@@ -614,7 +614,7 @@ class _BCFactory(_HermesNode):
     def UpdateNodePropertiesData(self, obj):
         super().UpdateNodePropertiesData(obj)
 
-        # in case amount of BC has been changed
+        # in case amount of BC_old has been changed
         # Create basic structure of a BCList (string) in the length of Children's obj amount
         # structure example:
         # -- "BCList":{
@@ -627,7 +627,7 @@ class _BCFactory(_HermesNode):
         for child in obj.Group:
             if (x > 1):
                 BCListStr += ','
-            childStr = '"BC' + str(x) + '":{}'
+            childStr = '"BC_old' + str(x) + '":{}'
             BCListStr += childStr
             x = x + 1
         BCListStr += "}"
@@ -635,19 +635,19 @@ class _BCFactory(_HermesNode):
         # convert structure from string to json
         BCList = json.loads(BCListStr)
 
-        # loop all BC objects in Nodeobj
+        # loop all BC_old objects in Nodeobj
         x = 1
         for child in obj.Group:
-            # update current properties value of the BC-child
+            # update current properties value of the BC_old-child
             child.Proxy.UpdateBCNodePropertiesData(child)
 
-            # get BC-child nodeDate from BCNodeDataString property
+            # get BC_old-child nodeDate from BCNodeDataString property
             BCnodeData = json.loads(child.BCNodeDataString)
 
-            # get BC'node' object ; node =1,2,3 ...
-            BCnode = 'BC' + str(x)
+            # get BC_old'node' object ; node =1,2,3 ...
+            BCnode = 'BC_old' + str(x)
 
-            # update the BC-child nodeDate in the BCList section
+            # update the BC_old-child nodeDate in the BCList section
             BCList[BCnode] = BCnodeData
 
             x = x + 1
@@ -663,7 +663,7 @@ class _BCFactory(_HermesNode):
         return
 
     def bcDialogClosed(self, obj, BCtype):
-        # call when created new BC node
+        # call when created new BC_old node
 
         # Create basic structure of a BCNodeData
         BCNodeData = {
@@ -672,7 +672,7 @@ class _BCFactory(_HermesNode):
             "Properties": {}
         }
 
-        # get the BC Type available from Json, and their list of properties
+        # get the BC_old Type available from Json, and their list of properties
         BCTypes = self.nodeData["BCTypes"]
         TypeList = BCTypes["TypeList"]
         TypeProperties = BCTypes["TypeProperties"]
@@ -689,7 +689,7 @@ class _BCFactory(_HermesNode):
         # Create the BCObject
         BCNodeObj = HermesBcNode.makeBCNode('BCtemp', TypeList, BCNodeData, obj)
 
-        # get the References from the parent node to the the new BC child
+        # get the References from the parent node to the the new BC_old child
         BCNodeObj.References = obj.References
 
         # Empty the parent node References for further use

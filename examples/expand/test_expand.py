@@ -16,7 +16,7 @@ from hermes.pipline import expandPipeline
 
 
 # load json file
-path= os.path.abspath("simpleFOAMoriginal2.json")
+path= os.path.abspath("simpleFOAMexpandFC.json")
 with open(path) as json_file:
     expandjson = json.load(json_file)
 

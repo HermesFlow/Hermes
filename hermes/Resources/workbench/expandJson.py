@@ -44,10 +44,10 @@ class expandJson():
         self.cwd = ""
         self.WD_path = ""
 
-    def createJsonObject(self,JsonObjectfromFile,jsonFileName):
+    def createJsonObject(self,JsonObjectfromFile,jsonFilePath):
 
         # define the current working directory - where the json file has been uploaded
-        self.cwd = os.path.dirname(jsonFileName)
+        self.cwd = os.path.dirname(jsonFilePath)
 
         # check if there is a reference to templates file in JsonObjectfromFile
         if "Templates" in JsonObjectfromFile["workflow"]:
@@ -122,10 +122,6 @@ class expandJson():
                         # call the function that open data
                         openImportData = self.importJsonDataFromFile(fileVal)
 
-                        #                        FreeCAD.Console.PrintMessage("=====================================\n")
-                        #                        FreeCAD.Console.PrintMessage("openImportData="+str(openImportData)+"\n")
-                        #                        FreeCAD.Console.PrintMessage("=====================================\n")
-
                         if i > 0:
                             # not the first iteration -> overide the data
                             UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
@@ -150,11 +146,12 @@ class expandJson():
 
             # in case of import data from Template
             elif subStructKey == self.getFromTemplate:
-
+                #
                 # # check if there are list of files that need to be imported, or just 1:
                 # # list- saved as a dictionary
                 # # 1 file - saved as keys and values
                 # # *if*- check if the first value is a dict
+                # print("subtructVal = " + str(subtructVal))
                 # if type(list(subtructVal.values())[0]) is dict:
                 #
                 #     for templateKey, templateVal in subtructVal.items():
@@ -323,33 +320,27 @@ class expandJson():
 
     def importJsonDataFromTemplate(self, importTemplate):
 
-        # to do - get a path to exact place in Template
-
-        # todo - undestand how to make the recursion work with
-        #        ofir template center script -
-        #  current problem - when getting inside recurtion
-        #  after using templateCenter, the working directory
-        #  is not being saved - > so decide what to use, and how
-        #  so recursion will work
-
         UpdatedJsonStruct = {}
 
-        # get the path
+        # get the Hermes path
         HermesDirpath = os.getenv('HERMES_2_PATH')
         import sys
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)
         sys.path.insert(1, HermesDirpath)
 
+        # get and initial class _templateCenter
         from hermes.Resources.nodeTemplates.templateCenter import templateCenter
         paths = None
         self._templateCenter = templateCenter(paths)
-        template = importTemplate
-        UpdatedJsonStruct = self._templateCenter.getTemplate(template)
+
+        # get template data
+        UpdatedJsonStruct = self._templateCenter.getTemplate(importTemplate)
 
         # call 'getImportedJson' in case there are nested files that need to be imported
         UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
 
+        # # ------------ inject template from dict of Templates ------
         # # find the path from the template to wanted data
         # pathDst = importTemplate["TypeFC"]
         #
@@ -364,6 +355,7 @@ class expandJson():
         #     # load and recieve the json object directly from Template
         #     UpdatedJsonStruct = self.Templates[importTemplate["TypeFC"]]
 
+        # # -----------------allow take part of a template ----------------
         # # check if there is only a specific field that need to be imported from Template
         # if "field" in importTemplate:
         #
@@ -419,16 +411,12 @@ class expandJson():
 
             # loop all 'field' list
             for entry in importFileData["field"]:
-                #                FreeCAD.Console.PrintMessage("importFileData="+str(importFileData)+"\n")
                 # todo - till now only field been taken were dictionaries ,
                 #       check possbility of taking ecnries that are not dict-
                 #       take the data, create dict struct="key:value", and inject it
 
                 # get the entry data from the file
                 entryData = self.loadJsonFromfile(pathFile, entry)
-
-                #                FreeCAD.Console.PrintMessage("entryData="+str(entryData)+"\n")
-                #                FreeCAD.Console.PrintMessage("UpdatedJsonStruct="+str(UpdatedJsonStruct)+"\n")
 
                 # add to the UpdatedJsonStruct
                 UpdatedJsonStruct.update(entryData)
@@ -475,7 +463,7 @@ class expandJson():
 
     #
 
-    # to-do:make list of al possible uload files
+    # to-do:make list of al possible upload files
 
     # done: load files from differenet hirarchy in json - also possible load only a field/list of fields from file
     def InjectJson(self, Dst, Src, pathDst):
@@ -493,7 +481,7 @@ class expandJson():
             splitPathlist.reverse()
 
             # Intialize the "data" var with the "Src" data
-            data = Src.copy()
+            data = Src.copy() if Src is dict else Src
 
             # loop all the path list
             for x in range(len(splitPathlist) - 1):
@@ -532,9 +520,6 @@ class expandJson():
         return Dst
 
     def loadJsonFromfile(self, filePath, entryInFile=""):
-
-        #            cwd = os.getcwd()
-        #            FreeCAD.Console.PrintMessage("cwd="+cwd+"\n")
 
         # Open JsonFile & Read
         with open(filePath, 'r') as myfile:

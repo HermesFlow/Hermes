@@ -6,6 +6,7 @@
             "CopyDirectory",
             "RunPythonScript",
             "RunOsCommand",
+            "BC",
             "SnappyHexMesh",
             "ControlDict",
             "fvSchemes",
@@ -18,6 +19,11 @@
                 "Template": "general.CopyDirectory",
                 "input_parameters": {
                     "Target": "{paramters.source}"
+                },
+                "Properties": {
+                    "Source": {
+                        "current_val": "abc"
+                    }
                 }
             },
             "RunPythonScript": {
@@ -25,6 +31,9 @@
             },
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"
+            },
+            "BC":{
+                "Template": "BC.BCTemplate"
             },
             "SnappyHexMesh":{
                 "typeExecution":"snappyHexMesh",
