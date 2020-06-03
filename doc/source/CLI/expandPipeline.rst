@@ -20,7 +20,8 @@ For example, let's use the file simpleFOAM.json from the examples:
                 "CopyDirectory": {
                     "Template": "general.CopyDirectory",
                     "input_parameters": {
-                        "Target": "I'm from the pipeline"
+                        "Target": "I'm from the pipeline",
+                        "Properties.Source.prop": "I'm from the pipeline too!"
                     }
                 },
                 "RunPythonScript": {
@@ -33,6 +34,7 @@ For example, let's use the file simpleFOAM.json from the examples:
 We would like to expand it.
 This pipeline uses the default parameters for all nodes except for the parameter "Target"
 of "CopyDirectory", which is "I'm from the pipeline".
+In addition, it sets the value of Properties.Source.prop to "I'm from the pipeline too!".
 We can expand it using the hermes-Pipeline command line.
 
 .. code-block:: python
@@ -86,7 +88,7 @@ and the parameter "Source" is "I'm from the parameters json".
               },
               "Properties": {
                 "Source": {
-                  "prop": "Source",
+                  "prop": "I'm from the pipeline too!",
                   "init_val": "",
                   "type": "App::PropertyPath",
                   "Heading": "Parameters",
@@ -103,9 +105,6 @@ and the parameter "Source" is "I'm from the parameters json".
                 }
               },
               "WebGui": {}
-            },
-            "input_parameters": {
-              "Target": "I'm from the pipeline"
             }
           },
           "RunPythonScript": {

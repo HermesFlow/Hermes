@@ -18,7 +18,7 @@ class hermesWorkflow(dict):
                     root : "node3",
 
                     nodes: {
-                            "baseParameters" : {
+                        "baseParameters" : {
                             "typeExecution" : "parameters",
                             "WebGUI" : {
 
@@ -113,13 +113,11 @@ class hermesWorkflow(dict):
         """
 
         requiredNodeList = hermesTaskWrapper.getRequiredTasks(taskJSON)
-
         for requirednode in requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
-
         ListOfRequiredTaskLists = [[(node,x) for x in self._taskRepresentations[node]] for node in requiredNodeList]
 
         nodeNetworkRepresentation = []
@@ -177,7 +175,7 @@ class hermesWorkflow(dict):
         finalNodeName = "finalnode_xx"
 
         finalnode = dict(name=finalNodeName ,
-                         typeExecution="parameters",
+                         typeExecution="generalExecuter.parameterExecuter",
                          requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
                          #requires=[x for x in self._workflowJSON["nodes"]],
                          input_parameters={})

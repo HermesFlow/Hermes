@@ -1,4 +1,8 @@
-{ 
+{    "typeExecution": "openFOAM.simpleFOAM.snappyHexMeshDict",
+    "TypeFC": "WebGuiNode",
+    "input_parameters": {
+        "values": "{value.formData}"
+    },
     "Schema":{ 
         "title":"",
         "description":"",

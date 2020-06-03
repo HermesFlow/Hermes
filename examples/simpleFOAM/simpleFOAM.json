@@ -1,0 +1,48 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "controlDict",
+            "fileWriter",
+            "fvSchemes",
+            "transport",
+            "turbulence",
+            "snappy"
+        ],
+        "nodes": {
+            "controlDict": {
+                "Template": "openFOAM.simpleFOAM.ControlDict"
+            },
+            "fvSchemes": {
+                "Template": "openFOAM.simpleFOAM.fvSchemes"
+            },
+            "fvSolution": {
+                "Template": "openFOAM.simpleFOAM.fvSolution"
+            },
+            "transport": {
+                "Template": "openFOAM.simpleFOAM.transportProperties"
+            },
+            "turbulence": {
+                "Template": "openFOAM.simpleFOAM.turbulenceProperties"
+            },
+            "snappy": {
+                "Template": "openFOAM.simpleFOAM.snappyHexMeshDict"
+            },
+            "fileWriter": {
+                "Template": "general.FilesWriter",
+                "input_parameters": {
+                    "casePath": "/home/ofir/Projects/2020/hermesExamples",
+                    "Files": {
+                        "system/controlDict": "{controlDict.output.file}",
+                        "system/fvSchemes": "{fvSchemes.output.file}",
+                        "system/fvSolution": "{fvSolution.output.file}",
+                        "system/snappyHexMeshDict": "{snappy.output.file}",
+                        "constant/transportProperties": "{transport.output.file}",
+                        "constant/turbulenceProperties": "{turbulence.output.file}"
+                    }
+                }
+            }
+        }
+    }
+}

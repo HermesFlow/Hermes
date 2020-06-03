@@ -1,5 +1,10 @@
 {
-	"Schema":{  
+    "typeExecution": "openFOAM.simpleFOAM.controlDict",
+    "TypeFC": "WebGuiNode",
+    "input_parameters": {
+        "values": "{value.formData}"
+    },
+	"Schema":{
 		"title":"",
 		"description":"",
 		"type":"object",
