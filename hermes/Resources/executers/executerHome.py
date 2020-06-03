@@ -10,14 +10,20 @@ class executerHome(object):
         convert it to JSON in future versions.
     """
 
-    # _executers_mapping = None
-    #
+    _thirdPartyExcuters = None
+
+    def __init__(self):
+        self._thirdPartyExcuters = {}
+
     def __getitem__(self, item):
-        return self.findExecuter(item)
+        if item not in self._thirdPartyExcuters:
+            return f"hermes.Resources.executers.{item}"
+        else:
+            return self._thirdPartyExcuters[item]
 
-    def findExecuter(self, executer):
-
-        exec = pydoc.locate("hermes.Resources.executers.%s" % executer)
+    def loadExecuter(self, executer):
+        fullpath = self[executer]
+        exec = pydoc.locate(fullpath)
         if exec is None:
             raise KeyError("Executer %s Not Found" % executer)
         return exec

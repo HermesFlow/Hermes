@@ -1,6 +1,8 @@
 #from abstractExecuter import abstractExecuter
 import os
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
+import errno
+import json
 
 class pythonExecuter(abstractExecuter):
 
@@ -41,7 +43,7 @@ class RunPythonScript(abstractExecuter):
 
 class exportFiles(abstractExecuter):
 
-    def __init__(self):
+    def __init__(self, tskJSON):
         pass
 
     def _defaultParameters(self):
@@ -72,14 +74,22 @@ class exportFiles(abstractExecuter):
         #     # export the file
         #     with open( file_path , "w+" ) as f:
         #         f.write(Ival)
+
         path = inputs["casePath"]
-        files = inputs["files"]
+        files = inputs["Files"]
 
         for filename, file in files.items():
+
             newPath = os.path.join(path, filename)
+
+            if not os.path.exists(os.path.dirname(newPath)):
+                try:
+                    os.makedirs(os.path.dirname(newPath))
+                except OSError as exc:  # Guard against race condition
+                    if exc.errno != errno.EEXIST:
+                        raise
             with open(newPath, "w") as newfile:
                 newfile.write(file)
-
 
 
 

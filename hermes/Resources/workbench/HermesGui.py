@@ -1016,7 +1016,7 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         shutil.rmtree('OpenFOAMfiles', ignore_errors=True)
                
         # remove the output folder
-        shutil.rmtree(self.WD_path+'/outputs', ignore_errors=True)
+        shutil.rmtree(self.WD_path+'/outputsOriginal', ignore_errors=True)
 
         # create a new directory for the LuigiRun output files
         os.mkdir(self.WD_path+"/OpenFOAMfiles")

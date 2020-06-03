@@ -2,7 +2,7 @@
     "typeExecution": "openFOAM.simpleFOAM.controlDict",
     "TypeFC": "WebGuiNode",
     "input_parameters": {
-        "values": "{formData}"
+        "values": "{value.formData}"
     },
 	"Schema":{
 		"title":"",

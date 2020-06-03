@@ -1,6 +1,8 @@
 import pydoc
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
 from hermes.Resources.executers.jinjaExecuter import jinjaExecuter
+import pathlib
+import os
 
 class CopenFOAM():
     '''
@@ -42,29 +44,30 @@ class CopenFOAM():
 class controlDict(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/controlDict",**inputs)
+
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/controlDict",**inputs)}
 
 class fvSchemes(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/fvSchemes",**inputs)
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/fvSchemes",**inputs)}
 
 class fvSolution(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/fvSolution",**inputs)
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/fvSolution",**inputs)}
 
 class snappyHexMeshDict(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/snappyHexMeshDict",**inputs)
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/snappyHexMeshDict",**inputs)}
 
 class transportProperties(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/transportProperties",**inputs)
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/transportProperties",**inputs)}
 
 class turbulenceProperties(abstractExecuter):
 
     def run(self, **inputs):
-        return jinjaExecuter("").run(template= "/hermes/Resources/templates/openFOAM/simpleFOAM/turbulenceProperties",**inputs)
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/turbulenceProperties",**inputs)}

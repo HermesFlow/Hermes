@@ -1,7 +1,7 @@
 {    "typeExecution": "openFOAM.simpleFOAM.fvSchemes",
     "TypeFC": "WebGuiNode",
     "input_parameters": {
-        "values": "{formData}"
+        "values": "{value.formData}"
     },
     "Schema":{
 		"type":"object",
@@ -160,7 +160,7 @@
             "grad(epsilon)": "cellLimited Gauss linear 1"
          },
          "divSchemes": {
-            "more divSchemes properties": {
+            "moreDivSchemesProperties": {
                "div((nuEff*dev2(T(grad(U)))))": "Gauss linear"
             },
             "default": "none",

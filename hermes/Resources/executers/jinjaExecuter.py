@@ -49,6 +49,7 @@ class jinjaExecuter(abstractExecuter):
 #        file_loader = FileSystemLoader(self.templates)
         file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
         env = Environment(loader=file_loader)
+        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
 
         # Define the template to use
         template = env.get_template(templateName)

@@ -37,7 +37,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         self._workflowJSON = {{taskwrapper.task_workflowJSON}}['workflow']
 
     def output(self):
-        return luigi.LocalTarget("outputs/{{taskwrapper.taskfullname}}.json")
+        return luigi.LocalTarget("outputsOriginal/{{taskwrapper.taskfullname}}.json")
 
     def requires(self):
         return dict({% for (i,(rtaskname,rtask)) in enumerate(taskwrapper.requiredTasks.items()): %}
@@ -52,10 +52,15 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         
         parameters_from_required = self.get_all_required_outputs()        
         params = dict(parameters_from_required)
+        params['formData']   = {{taskwrapper.formData}}
+        params['files']      = {{taskwrapper.files}}
+        params['Schema']     = {{taskwrapper.Schema}}
+        params['uiSchema']   = {{taskwrapper.uiSchema}}
         params['parameters'] = {{taskwrapper.task_parameters}}
         params['WebGUI']     = {{taskwrapper.task_webGUI}}
         params['Properties'] = {{taskwrapper.task_Properties}}
         params['WebGui']     = {{taskwrapper.task_webGui}}
+
         
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='{{WD_path}}'
@@ -145,7 +150,6 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         :return:
             A string of the Luigi Task.
         """
-
         rtemplate = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(self._basicLuigiTemplate)
         return rtemplate.render(taskwrapper=taskWrapper,enumerate=enumerate,len=len,WD_path=WD_path,)
 

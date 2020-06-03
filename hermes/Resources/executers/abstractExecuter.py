@@ -11,7 +11,7 @@ The interface defines the:
                    [ The interface can expose simple interface to read a file and return it as its GUI].
 
         - inputs  - The inputs to the executer (will be used in the mapping).
-        - outputs - The outputs of the executer.
+        - outputsOriginal - The outputsOriginal of the executer.
 
     The JSON file that is used to initiate the executioner can override this definitions.
 
@@ -49,7 +49,7 @@ class abstractExecuter(object):
 
         - Load webGUI from a file (in a relative webGUI directory).
         - List all inputs.
-        - List all outputs.
+        - List all outputsOriginal.
 
     """
 
@@ -73,7 +73,7 @@ class abstractExecuter(object):
             Used in the initialization of the class
 
             must define the default:
-                outputs
+                outputsOriginal
                 inputs
                 webGUI file (if exists)
                 other parameters.
@@ -98,7 +98,7 @@ class abstractExecuter(object):
                 The inputs needed for the execution.
 
         :return:
-                a dict with the outputs->values.
+                a dict with the outputsOriginal->values.
         """
         pass
 
@@ -115,7 +115,7 @@ class abstractExecuter(object):
     @property
     def outputs(self):
         """
-            Returns a list of outputs of this executer
+            Returns a list of outputsOriginal of this executer
 
         :return:
             A list of output names

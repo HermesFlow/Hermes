@@ -1,7 +1,7 @@
 {    "typeExecution": "openFOAM.simpleFOAM.transportProperties",
     "TypeFC": "WebGuiNode",
     "input_parameters": {
-        "values": "{formData}"
+        "values": "{value.formData}"
     },
 	"Schema":{
 		"type":"object",

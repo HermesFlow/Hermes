@@ -175,7 +175,7 @@ class hermesWorkflow(dict):
         finalNodeName = "finalnode_xx"
 
         finalnode = dict(name=finalNodeName ,
-                         typeExecution="parameters",
+                         typeExecution="generalExecuter.parameterExecuter",
                          requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
                          #requires=[x for x in self._workflowJSON["nodes"]],
                          input_parameters={})

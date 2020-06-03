@@ -26,7 +26,6 @@ class expandPipeline():
         Returns:
             The expanded pipeline as a dict.
         """
-
         with open(pipelinePath) as json_file:
             pipeline = json.load(json_file)
         if parametersPath is not None:

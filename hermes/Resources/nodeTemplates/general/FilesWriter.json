@@ -3,9 +3,6 @@
     "TypeFC":"WebGuiNode",
     "input_parameters":{
         "casePath":"",
-        "Files":"{files}"
-    },
-    "files": {},
-    "WebGui":{
+        "Files":{}
     }
 }
