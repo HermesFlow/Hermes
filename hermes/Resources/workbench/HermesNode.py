@@ -627,7 +627,7 @@ class _BCFactory(_HermesNode):
         for child in obj.Group:
             if (x > 1):
                 BCListStr += ','
-            childStr = '"BC_old' + str(x) + '":{}'
+            childStr = '"BC' + str(x) + '":{}'
             BCListStr += childStr
             x = x + 1
         BCListStr += "}"
@@ -645,7 +645,7 @@ class _BCFactory(_HermesNode):
             BCnodeData = json.loads(child.BCNodeDataString)
 
             # get BC_old'node' object ; node =1,2,3 ...
-            BCnode = 'BC_old' + str(x)
+            BCnode = 'BC' + str(x)
 
             # update the BC_old-child nodeDate in the BCList section
             BCList[BCnode] = BCnodeData

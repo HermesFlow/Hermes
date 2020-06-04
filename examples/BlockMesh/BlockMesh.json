@@ -1,0 +1,27 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "BC"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "typeExecution":"BlockMesh",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.SnappyMesh"
+                }
+            },
+            "BC":{
+                "Template": "BC.BCTemplate"
+            }
+        }
+    }
+}

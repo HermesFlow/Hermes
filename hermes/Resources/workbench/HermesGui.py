@@ -41,6 +41,7 @@ import Part
 
 import HermesNode
 from expandJson import expandJson
+import HermesPart
 
 
 # =============================================================================
@@ -84,6 +85,7 @@ class _HermesWorkflow:
         #        self.partPathExportList=[]
         self.partNameExportList = []
         #        self.ExportPartList=[]
+        self.partList = {}
 
         self.importJsonfromfile = "importJsonfromfile"
         self.getFromTemplate = "Template"
@@ -252,6 +254,17 @@ class _HermesWorkflow:
 
         # Get new object amount
         newObjectAmount = len(newObjectList)
+
+        for i in range(newObjectAmount):
+            if newObjectList[i].Module == 'Part':
+                partName = newObjectList[i].Name
+                print('part')
+                self.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
+
+        print("===========================")
+        print(self.partList)
+        print("===========================")
+
 
         # Check if new part has been loaded by checking amount of Objects
         if (newObjectAmount == currObjectAmount + 1):
