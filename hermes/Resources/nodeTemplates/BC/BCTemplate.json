@@ -14,7 +14,7 @@
         }
     },
     "BCTypes":{
-        "TypeList":["wall","sym"],
+        "TypeList":["wall","sym","patch","boundarylayer"],
         "TypeProperties":{
             "Template":"BC.BCTypes.BCTypesListProperties"
         }

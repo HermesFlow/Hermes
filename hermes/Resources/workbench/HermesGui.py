@@ -258,12 +258,11 @@ class _HermesWorkflow:
         for i in range(newObjectAmount):
             if newObjectList[i].Module == 'Part':
                 partName = newObjectList[i].Name
-                print('part')
                 self.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
 
-        print("===========================")
-        print(self.partList)
-        print("===========================")
+        # print("===========================")
+        # print(self.partList)
+        # print("===========================")
 
 
         # Check if new part has been loaded by checking amount of Objects

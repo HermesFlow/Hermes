@@ -269,7 +269,7 @@ class _HermesBC:
 
         # create list the will contain all part Objects
         # add tmp part obj to ListPartObj
-        ListPartObj = [];
+        ListPartObj = []
 
         # Loop all the References in the object
         for Ref in obj.References:
@@ -291,7 +291,8 @@ class _HermesBC:
                     break
                 nIndex = nIndex + 1
 
-            # if Part not exists in ListPartObj - create a new part obj and add it to the ListPartObj
+            # if Part not exists in ListPartObj -
+            # create a new part obj and add it to the ListPartObj
             if (nPartIndex == -1):
 
                 # update Part_strc Name

@@ -16,7 +16,7 @@
                 "Properties":{
                 },
                 "WebGui":{
-                    "Template":"openFOAM.SnappyMesh"
+                    "Template":"openFOAM.BlockMesh"
                 }
             },
             "BC":{

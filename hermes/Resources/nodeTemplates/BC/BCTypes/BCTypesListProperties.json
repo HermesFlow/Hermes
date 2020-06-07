@@ -2,7 +2,13 @@
     "wall":{
         "Template":"BC.BCTypes.BCwallTemplate"
     },
-    "sym":{
+    "symmetry":{
         "Template":"BC.BCTypes.BCsymTemplate"
+    },
+    "patch": {
+        "Template":"BC.BCTypes.BCpatchTemplate"
+    },
+    "boundarylayer":{
+        "Template":"BC.BCTypes.BCboundarylayerTemplate"
     }
 }
