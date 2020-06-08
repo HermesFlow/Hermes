@@ -1,0 +1,41 @@
+{
+	"Schema":{
+		"type":"object",
+		"properties":{
+            "partName": {
+                "type": "string",
+                "title": "PartName"
+            },
+            "convertToMeters":{
+                "type":"number",
+                "title":"convertToMeters"
+            },
+            "blocks": {
+                "type": "object",
+                "title": "Blocks",
+                "properties": {
+                    "numOfCells": {
+                        "type": "string",
+                        "title": "Number of cells",
+                        "description": "numbers of cells in each direction"
+                    },
+                    "simpleGrading": {
+                        "type": "string",
+                        "title": "simpleGrading",
+                        "description": "cell expansion ratios"
+                    }
+                }
+            }
+        }
+    },
+	"uiSchema":{ 
+    },
+    "formData":{
+        "partName": "Cube",
+        "convertToMeters":1,
+        "blocks": {
+            "numOfCells": "1 1 1",
+            "simpleGrading": "1 2 3"
+        }
+    }
+}

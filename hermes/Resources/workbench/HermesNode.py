@@ -51,7 +51,7 @@ import copy
 import HermesGui
 import HermesBcNode
 
-
+from HermesBlockMesh import HermesBlockMesh
 # from HermesGui import makeBCNode
 
 
@@ -505,7 +505,8 @@ class _WebGuiNode(_HermesNode):
         return
 
     def process(self, data):
-        UpdateWebGUI = data;
+
+        UpdateWebGUI = data
         #        FreeCAD.Console.PrintMessage("WebGUI Process Data\n" + str(data))
 
         if (0 == len(UpdateWebGUI)):
@@ -609,7 +610,11 @@ class _BCFactory(_HermesNode):
         # Update faceList in BCList section to each BC_old node
         for child in obj.Group:
             child.Proxy.UpdateFacesInJson(child)
-        pass
+
+
+        # update the node data in the BlockMesh node
+        HermesBlockMesh().updateJson(obj)
+
 
     def UpdateNodePropertiesData(self, obj):
         super().UpdateNodePropertiesData(obj)
@@ -691,6 +696,7 @@ class _BCFactory(_HermesNode):
 
         # get the References from the parent node to the the new BC_old child
         BCNodeObj.References = obj.References
+        print(BCNodeObj.References)
 
         # Empty the parent node References for further use
         obj.References = []

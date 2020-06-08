@@ -11,12 +11,13 @@
                 "typeExecution":"BlockMesh",
                 "TypeFC":"WebGuiNode",
                 "input_parameters":{
-                    "formData":"{WebGui.formData}"
+                    "formData":"{WebGui.formData}",
+                    "BC": "{BC.BCList}"
                 },
                 "Properties":{
                 },
                 "WebGui":{
-                    "Template":"openFOAM.BlockMesh"
+                    "Template":"openFOAM.BlockMesh2"
                 }
             },
             "BC":{

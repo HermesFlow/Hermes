@@ -103,9 +103,12 @@ class CBCDialogPanel:
         # get the curren BC_old type name from Dialog
         BCtype = self.form.m_pBCTypeCB.currentText()
 
+        print("got to accept")
+
         # calling the nodeObj from name
         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
 
+        print(self.callingObjName)
         # calling the function that create the new BC_old Object
         callingObject.Proxy.bcDialogClosed(callingObject, BCtype)
 
