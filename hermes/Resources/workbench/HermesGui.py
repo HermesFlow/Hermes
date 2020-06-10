@@ -326,7 +326,6 @@ class _HermesWorkflow:
 
     def updateJsonBeforeExport(self, obj):
 
-        nodes = self.JsonObject["workflow"]["nodes"]
         # loop all children in HermesWorkflow
         for child in obj.Group:
             # back child date
@@ -340,11 +339,10 @@ class _HermesWorkflow:
 
             nodename = child.Proxy.name
 
-            #            node = 'node' + child.NodeId
-            nodes[nodename] = nodaData
+            # update the child nodeDate in the JsonObject
+            if nodename != 'BlockMesh':
+                self.JsonObject["workflow"]["nodes"][nodename]=nodaData
 
-        # update the child nodeDate in the JsonObject
-        self.JsonObject["workflow"]["nodes"] = nodes
 
         return
 

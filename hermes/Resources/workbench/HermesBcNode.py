@@ -51,6 +51,8 @@ import copy
 import HermesGui
 import HermesNode
 import CfdFaceSelectWidget
+import HermesPart
+
 
 
 # -----------------------------------------------------------------------#
@@ -103,12 +105,10 @@ class CBCDialogPanel:
         # get the curren BC_old type name from Dialog
         BCtype = self.form.m_pBCTypeCB.currentText()
 
-        print("got to accept")
 
         # calling the nodeObj from name
         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
 
-        print(self.callingObjName)
         # calling the function that create the new BC_old Object
         callingObject.Proxy.bcDialogClosed(callingObject, BCtype)
 
@@ -273,6 +273,7 @@ class _HermesBC:
         # create list the will contain all part Objects
         # add tmp part obj to ListPartObj
         ListPartObj = []
+        workflowObj.Proxy.partList = {}
 
         # Loop all the References in the object
         for Ref in obj.References:
@@ -298,6 +299,7 @@ class _HermesBC:
             # create a new part obj and add it to the ListPartObj
             if (nPartIndex == -1):
 
+
                 # update Part_strc Name
                 Part_strc['Name'] = PartName
 
@@ -310,6 +312,12 @@ class _HermesBC:
                 # add part obj to ListPartObj
                 mydata = copy.deepcopy(Part_strc)
                 ListPartObj.append(mydata)
+
+                # update the part dictionary(faces/vertices) in the list
+                # use here the label and not the name
+                if FreeCAD.ActiveDocument.getObject(PartName) is not None:
+                    partLabel = FreeCAD.ActiveDocument.getObject(PartName).Label
+                    workflowObj.Proxy.partList[partLabel] = HermesPart.HermesPart(PartName).getpartDict()
 
             # update face list of the part
             else:

@@ -1,6 +1,6 @@
 {
     "Name":"symmetry",
-    "Type":"sym",
+    "Type":"symmetry",
     "Properties":{
         "Property01":{
             "prop":"P0",

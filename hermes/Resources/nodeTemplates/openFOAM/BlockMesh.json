@@ -10,10 +10,53 @@
                 "type":"number",
                 "title":"convertToMeters"
             },
+            "vertices": {
+                "title": "Vertices",
+                "type": "array",
+                "items": [
+                    {
+                        "title": "Vertex 0",
+                        "type": "string"
+                    },
+                    {
+                        "title": "Vertex 1",
+                        "type": "string"
+                    },
+                                        {
+                        "title": "Vertex 2",
+                        "type": "string"
+                    },
+                                        {
+                        "title": "Vertex 3",
+                        "type": "string"
+                    },
+                                        {
+                        "title": "Vertex 4",
+                        "type": "string"
+                    },
+                                        {
+                        "title": "Vertex 5",
+                        "type": "string"
+                    },
+                    {
+                        "title": "Vertex 6",
+                        "type": "string"
+                    },
+                    {
+                        "title": "Vertex 7",
+                        "type": "string"
+                    }
+                ]
+            },
             "blocks": {
                 "type": "object",
                 "title": "Blocks",
                 "properties": {
+                    "hex":{
+                        "type": "string",
+                        "title": "hex",
+                        "description": "vertex numbers"
+                    },
                     "numOfCells": {
                         "type": "string",
                         "title": "Number of cells",
@@ -25,17 +68,56 @@
                         "description": "cell expansion ratios"
                     }
                 }
+            },
+            "boundary": {
+                "title": "boundary",
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name":{
+                            "type": "string",
+                            "title": "Boundry Name"
+
+                        },
+                        "type": {
+                            "type": "string",
+                            "title": "Boundry Type"
+                        },
+                        "faces": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+
+                }
             }
         }
     },
-	"uiSchema":{ 
+	"uiSchema":{
+        "vertices": {
+            "ui:widget": "hidden"
+        },
+        "blocks": {
+            "hex":{
+                "ui:widget": "hidden"
+            }
+        },
+        "boundary": {
+            "ui:widget": "hidden"
+        }
     },
     "formData":{
         "partName": "Cube",
         "convertToMeters":1,
+        "vertices": [],
         "blocks": {
             "numOfCells": "1 1 1",
+            "hex": "0 1 2 3 4 5 6 7",
             "simpleGrading": "1 2 3"
-        }
+        },
+        "boundary": []
     }
 }

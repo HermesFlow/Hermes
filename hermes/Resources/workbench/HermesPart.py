@@ -42,10 +42,15 @@ class HermesPart:
         self.partObj = self.getFreeCADpart()
 
         maxmin={'min': 1e6 , 'max': -1e6}
-        self.extrema = {'x': maxmin, 'y': maxmin, 'z': maxmin}
+        self.extrema = {'x': maxmin.copy(), 'y': maxmin.copy(), 'z': maxmin.copy()}
 
     def getFreeCADpart(self):
-        return self.doc.getObjectsByLabel(self.partName)[0]
+        part = self.doc.getObject(self.partName)
+        if part is None:
+            part = self.doc.getObjectsByLabel(self.partName)[0]
+
+        return part
+
 
     def getpartDict(self):
 
@@ -220,14 +225,16 @@ class HermesPart:
             pos['z'] = listOfShapeVertices[i].Z
 
             # get max/min values for x,y,z
-            for oKey, oVal in self.extrema.items():
-                if oVal['min'] > pos[oKey]:
-                    self.extrema[oKey]['min'] = pos[oKey]
-                if oVal['max'] < pos[oKey]:
-                    self.extrema[oKey]['max'] = pos[oKey]
+            for pkey, pval in pos.items():
+                if pval < self.extrema[pkey]['min']:
+                    self.extrema[pkey]['min'] = pval
+                if pval > self.extrema[pkey]['max']:
+                    self.extrema[pkey]['max'] = pval
 
-                        # add the coordinates to the current vertex
+
+            # add the coordinates to the current vertex
             partVertices[name]["coordinates"] = pos.copy()
+
 
         return partVertices
 
@@ -244,7 +251,7 @@ class HermesPart:
                     newOrder[str(index)] = {'coordinates': {'x': self.extrema['x']['max'], 'y': jv, 'z': kv}}
                     newOrder[str(index + 1)] = {'coordinates': {'x': self.extrema['x']['min'], 'y': jv, 'z': kv}}
                 index += 2
-        # print(newOrder)
+
         return newOrder
 
 
@@ -258,7 +265,6 @@ class HermesPart:
         # compare the coordinates of the vertex and the partVertices items
         # in case all coordinates fit, return the vertex name
         for itemKey, itemVal in partVertices.items():
-            # print(itemKey + ":" + itemVal)
             if (itemVal['coordinates']['x'] == x) and (itemVal['coordinates']['y'] == y) and (itemVal['coordinates']['z'] == z):
                 return itemKey
 
@@ -274,7 +280,6 @@ class HermesPart:
         # compare the coordinates of the vertex and the partVertices items
         # in case all coordinates fit, return the vertex name
         for itemKey, itemVal in partVertices.items():
-            # print(itemKey + ":" + itemVal)
             if (itemVal['coordinates']['x'] == x) and (itemVal['coordinates']['y'] == y) and (itemVal['coordinates']['z'] == z):
                 return itemKey
 

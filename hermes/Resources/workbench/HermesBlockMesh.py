@@ -49,16 +49,24 @@ class HermesBlockMesh:
         # get the partList dict
         workflowObj = blockMeshObj.getParentGroup()
         partList = workflowObj.Proxy.partList
+        if len(partList) == 0:
+            return
 
         # get BC updated json nodeData
         BCnodaData = json.loads(BCnode.NodeDataString)
         # get BC name
         BCList = BCnodaData["BCList"]
 
-        # get the part dict from the list
-        partName = formData["partName"]
-        partDict = partList[partName]
-        # print(partDict)
+
+        # get the part dict from the list(saved as FC part Label)
+        partLabel = formData["partName"]
+        if partLabel in partList:
+            partName = FreeCAD.ActiveDocument.getObjectsByLabel(partLabel)[0].Name
+            partDict = partList[partLabel]
+        else:
+            print("Error blockMesh: the part " +partLabel+ " has bo boundary condition")
+            return
+
 
         # get the list of the vertices and faces
         vertices = partDict["Vertices"]["openFoam"]
@@ -76,7 +84,7 @@ class HermesBlockMesh:
         formData['vertices'] = stringVertices
 
         # -------update boundry--------
-        formData['boundry'] = []
+        formData['boundary'] = []
         # update boundry
         for BCkey,BCval in BCList.items():
             BlkMshBC = {}
@@ -99,15 +107,14 @@ class HermesBlockMesh:
                 verticesString = ' '.join(verticesList)
                 BlkMshBC['faces'].append(verticesString)
 
-
-            formData['boundry'].append(BlkMshBC)
-        # print(formData['boundry'])
+            formData['boundary'].append(BlkMshBC)
 
         # update the data back in the node
         nodeData["WebGui"]["formData"] = formData
         blockMeshObj.NodeDataString = json.dumps(nodeData)
         workflowObj.Proxy.JsonObject["workflow"]["nodes"]["BlockMesh"] = nodeData
         # print(blockMeshObj.NodeDataString)
+
 
 
     def createVerticesString(self, ver):

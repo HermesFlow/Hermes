@@ -1,8 +1,9 @@
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('FreeCAD Model'),'2;1');
-FILE_NAME('/home/noga/Noga/FreeCad/faceFiles/Cube.stp',
-  '2019-08-21T16:09:50',('FreeCAD'),('FreeCAD'),
+FILE_NAME(
+'/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/
+Box.stp','2020-06-10T09:32:02',('FreeCAD'),('FreeCAD'),
   'Open CASCADE STEP processor 7.3','FreeCAD','Unknown');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
@@ -15,8 +16,8 @@ DATA;
 #4 = PRODUCT_DEFINITION_SHAPE('','',#5);
 #5 = PRODUCT_DEFINITION('design','',#6,#9);
 #6 = PRODUCT_DEFINITION_FORMATION('','',#7);
-#7 = PRODUCT('Open CASCADE STEP translator 7.3 1',
-  'Open CASCADE STEP translator 7.3 1','',(#8));
+#7 = PRODUCT('Open CASCADE STEP translator 7.3 2',
+  'Open CASCADE STEP translator 7.3 2','',(#8));
 #8 = PRODUCT_CONTEXT('',#2,'mechanical');
 #9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
 #10 = ADVANCED_BREP_SHAPE_REPRESENTATION('',(#11,#15),#345);

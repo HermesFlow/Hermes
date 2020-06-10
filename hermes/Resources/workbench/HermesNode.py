@@ -611,11 +611,6 @@ class _BCFactory(_HermesNode):
         for child in obj.Group:
             child.Proxy.UpdateFacesInJson(child)
 
-
-        # update the node data in the BlockMesh node
-        HermesBlockMesh().updateJson(obj)
-
-
     def UpdateNodePropertiesData(self, obj):
         super().UpdateNodePropertiesData(obj)
 
@@ -665,6 +660,9 @@ class _BCFactory(_HermesNode):
 
         # update properties of the current node(before updated only the children)
         super().UpdateNodePropertiesData(obj)
+
+        # update block mesh with its vertices and boundry
+        HermesBlockMesh().updateJson(obj)
         return
 
     def bcDialogClosed(self, obj, BCtype):
@@ -696,7 +694,7 @@ class _BCFactory(_HermesNode):
 
         # get the References from the parent node to the the new BC_old child
         BCNodeObj.References = obj.References
-        print(BCNodeObj.References)
+        # print(BCNodeObj.References)
 
         # Empty the parent node References for further use
         obj.References = []
