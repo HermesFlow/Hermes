@@ -6,7 +6,7 @@
             "CopyDirectory",
             "RunPythonScript",
             "RunOsCommand",
-            "BC",
+            "GeometryDefiner",
             "SnappyHexMesh",
             "ControlDict",
             "fvSchemes",
@@ -32,8 +32,8 @@
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"
             },
-            "BC":{
-                "Template": "BC.BCTemplate"
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
             },
             "SnappyHexMesh":{
                 "typeExecution":"snappyHexMesh",

@@ -1,11 +1,7 @@
 {
     "workflow":{
         "root":null,
-        "Templates":{ 
-            "importJsonfromfile":{ 
-                "path":"../../hermes/Resources/nodeTemplates/templates.json"
-            }
-        },
+        "Templates":{},
         "nodeList":[
             "SnappyHexMesh",
             "ControlDict",
@@ -16,33 +12,75 @@
         ],
         "nodes":{
             "SnappyHexMesh":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.SnappyHexMesh"
+                "typeExecution":"snappyHexMesh",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.SnappyMesh"
                 }
             },
             "ControlDict":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.ControlDict"
+                "typeExecution":"controlDict",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.ControlDict"
                 }
             },
             "fvSchemes":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.fvSchemes"
+                "typeExecution":"fvSchemes",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.fvSchemes"
                 }
             },
             "fvSolution":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.fvSolution"
+                "typeExecution":"fvSolution",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.fvSolution"
                 }
             },
             "transportProperties":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.transportProperties"
+                "typeExecution":"transportProperties",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.TransportProperties"
                 }
             },
             "RASProperties":{
-                "Template":{ 
-                    "TypeFC":"openFOAM.RASProperties"
+                "typeExecution":"RASProperties",
+                "TypeFC":"WebGuiNode",
+                "input_parameters":{
+                    "formData":"{WebGui.formData}"
+                },
+                "Properties":{
+                },
+                "WebGui":{
+                    "Template":"openFOAM.RASProperties"
                 }
             }
         }

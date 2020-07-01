@@ -4,15 +4,14 @@
         "Templates": [],
         "nodeList": [
             "BlockMesh",
-            "BC"
+            "GeometryDefiner"
         ],
         "nodes": {
             "BlockMesh":{
                 "typeExecution":"BlockMesh",
                 "TypeFC":"WebGuiNode",
                 "input_parameters":{
-                    "formData":"{WebGui.formData}",
-                    "BC": "{BC.BCList}"
+                    "formData":"{WebGui.formData}"
                 },
                 "Properties":{
                 },
@@ -20,8 +19,8 @@
                     "Template":"openFOAM.BlockMesh"
                 }
             },
-            "BC":{
-                "Template": "BC.BCTemplate"
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
             }
         }
     }

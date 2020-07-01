@@ -621,7 +621,7 @@ class _GeometryDefinerNode(_HermesNode):
         for child in obj.Group:
             if (x > 1):
                 GEListStr += ','
-            childStr = '"GeometryDefiner' + str(x) + '":{}'
+            childStr = '"GE' + str(x) + '":{}'
             GEListStr += childStr
             x = x + 1
         GEListStr += "}"
@@ -642,7 +642,7 @@ class _GeometryDefinerNode(_HermesNode):
             GEnode = 'GE' + str(x)
 
             # update the GE-child nodeDate in the Geometry Entity List section
-            GeometryEntityList[BGEnode] = GEnodeData
+            GeometryEntityList[GEnode] = GEnodeData
 
             x = x + 1
 
@@ -655,8 +655,10 @@ class _GeometryDefinerNode(_HermesNode):
         # update properties of the current node(before updated only the children)
         super().UpdateNodePropertiesData(obj)
 
-        # update block mesh with its vertices and boundry
-        HermesBlockMesh().updateJson(obj)
+        workflowObj = obj.getParentGroup()
+        if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
+            # update block mesh with its vertices and boundry
+            HermesBlockMesh().updateJson(obj)
 
 
     def geDialogClosed(self, obj, GEtype):

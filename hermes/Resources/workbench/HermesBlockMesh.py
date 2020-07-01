@@ -39,7 +39,7 @@ class HermesBlockMesh:
     def __init__(self):
         pass
 
-    def updateJson(self, BCnode):
+    def updateJson(self, GEnode):
 
         # get the blockMesh formData
         blockMeshObj = FreeCAD.ActiveDocument.getObject('BlockMesh')
@@ -53,9 +53,9 @@ class HermesBlockMesh:
             return
 
         # get GeometryDefiner updated json nodeData
-        BCnodaData = json.loads(BCnode.NodeDataString)
+        GEnodaData = json.loads(GEnode.NodeDataString)
         # get GeometryDefiner name
-        BCList = BCnodaData["GeometryEntityList"]
+        GEList = GEnodaData["GeometryEntityList"]
 
 
         # get the part dict from the list(saved as FC part Label)
@@ -86,28 +86,28 @@ class HermesBlockMesh:
         # -------update boundry--------
         formData['boundary'] = []
         # update boundry
-        for BCkey,BCval in BCList.items():
-            BlkMshBC = {}
+        for GEkey,GEval in GEList.items():
+            BlkMshGE = {}
             # update Name and Type
-            BlkMshBC['name'] = BCval['Name']
-            BlkMshBC['type'] = BCval['Type']
+            BlkMshGE['name'] = GEval['Name']
+            BlkMshGE['type'] = GEval['Type']
 
             # update faces coordinates in Blockmesh node
-            BCfaces = []
+            GEfaces = []
             # get the list of the GeometryDefiner faces
-            for p in BCval['faceList']:
-                if BCval['faceList'][p]['Name'] == partName:
-                    BCfaces = BCval['faceList'][p]['faces']
+            for p in GEval['faceList']:
+                if GEval['faceList'][p]['Name'] == partName:
+                    GEfaces = GEval['faceList'][p]['faces']
 
             # translate faceName into string of coordinates - for each face
-            BlkMshBC['faces'] = []
-            for i in range(len(BCfaces)):
-                faceName = BCfaces[i]
+            BlkMshGE['faces'] = []
+            for i in range(len(GEfaces)):
+                faceName = GEfaces[i]
                 verticesList = faces[faceName]['vertices']
                 verticesString = ' '.join(verticesList)
-                BlkMshBC['faces'].append(verticesString)
+                BlkMshGE['faces'].append(verticesString)
 
-            formData['boundary'].append(BlkMshBC)
+            formData['boundary'].append(BlkMshGE)
 
         # update the data back in the node
         nodeData["WebGui"]["formData"] = formData
