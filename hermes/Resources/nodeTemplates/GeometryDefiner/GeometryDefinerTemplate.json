@@ -1,6 +1,6 @@
 {
     "typeExecution":"executerPython",
-    "TypeFC":"BCFactory",
+    "TypeFC":"GeometryDefinerNode",
     "input_parameters":{
     },
     "Properties":{
@@ -13,18 +13,18 @@
             "current_val":10
         }
     },
-    "BCTypes":{
+    "GeometryFaceTypes":{
         "TypeList":["wall","symmetry","patch","boundarylayer"],
         "TypeProperties":{
-            "Template":"BC.BCTypes.BCTypesListProperties"
+            "Template":"GeometryDefiner.GeometryFaceTypes.GFTypesListProperties"
         }
     },
-    "BCList":{
-        "BC1":{
-            "Template":"BC.BCList.BC1"
+    "GeometryEntityList":{
+        "GE1":{
+            "Template":"GeometryDefiner.GeometryEntityList.GE1"
         },
-        "BC2":{
-            "Template":"BC.BCList.BC2"
+        "GE2":{
+            "Template":"GeometryDefiner.GeometryEntityList.GE2"
         }
     }
 }

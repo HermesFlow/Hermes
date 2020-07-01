@@ -1,4 +1,6 @@
 {
+    "Name":"symmetry",
+    "Type":"symmetry",
     "Properties":{
         "Property01":{
             "prop":"P0",
@@ -8,5 +10,12 @@
             "tooltip":"Total Pressure ",
             "current_val":"10 Pa"
         }
+    },
+    "faceList":{
+        "part1":{
+            "Name":"Cube",
+            "Path":"hermes/Resources/nodeTemplates/GeometryDefiner/GeometryEntityList/",
+            "faces":["Face3","Face4"]
+         }
     }
 }

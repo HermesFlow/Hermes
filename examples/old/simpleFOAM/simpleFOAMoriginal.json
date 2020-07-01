@@ -29,7 +29,7 @@
                     "TypeFC":"general.RunOsCommand"
                 }
             },
-            "BC":{
+            "GeometryDefiner":{
                 "Template":{
                     "TypeFC":"BC"
                 }

@@ -32,9 +32,9 @@ import json
 
 class HermesBlockMesh:
     '''
-    This class will translate the date from the BC node into the
+    This class will translate the date from the GeometryDefiner node into the
     BlockMesh nodes as JSON
-    This will be dynamic mode - will update at any change of the BC node.
+    This will be dynamic mode - will update at any change of the GeometryDefiner node.
     '''
     def __init__(self):
         pass
@@ -52,10 +52,10 @@ class HermesBlockMesh:
         if len(partList) == 0:
             return
 
-        # get BC updated json nodeData
+        # get GeometryDefiner updated json nodeData
         BCnodaData = json.loads(BCnode.NodeDataString)
-        # get BC name
-        BCList = BCnodaData["BCList"]
+        # get GeometryDefiner name
+        BCList = BCnodaData["GeometryEntityList"]
 
 
         # get the part dict from the list(saved as FC part Label)
@@ -94,7 +94,7 @@ class HermesBlockMesh:
 
             # update faces coordinates in Blockmesh node
             BCfaces = []
-            # get the list of the BC faces
+            # get the list of the GeometryDefiner faces
             for p in BCval['faceList']:
                 if BCval['faceList'][p]['Name'] == partName:
                     BCfaces = BCval['faceList'][p]['faces']

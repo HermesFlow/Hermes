@@ -31,24 +31,17 @@
 import FreeCAD,FreeCADGui, WebGui
 import HermesTools
 from HermesTools import addObjectProperty
-# import the App Test module
-import TestApp               #Test as Module name not possible
-import sys
-from PyQt5 import QtGui,QtCore
 
-import os
-import os.path
+from PyQt5 import QtGui,QtCore
 
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
 import json
-import string
-import pydoc
+
 import copy
 
-import HermesGui
 import HermesNode
 import CfdFaceSelectWidget
 import HermesPart
@@ -61,36 +54,37 @@ import HermesPart
 
 # *****************************************************************************
 # -----------**************************************************----------------
-#                          #CBCDialogPanel start
+#                          #CGEDialogPanel start
 # -----------**************************************************----------------
 # *****************************************************************************
 
 # Path To bc UI
-path_to_bc_ui = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/ui/bcdialog.ui"
+ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+path_to_ge_ui = ResourceDir + "Mod/Hermes/Resources/ui/bcdialog.ui"
 
 
-class CBCDialogPanel:
+class CGEDialogPanel:
 
     def __init__(self, obj):
         # Create widget from ui file
-        self.form = FreeCADGui.PySideUic.loadUi(path_to_bc_ui)
+        self.form = FreeCADGui.PySideUic.loadUi(path_to_ge_ui)
 
         # Connect Widgets' Buttons
         # self.form.m_pOpenB.clicked.connect(self.browseJsonFile)
 
-        #        self.BCObjName=obj.Name
+        #        self.GEObjName=obj.Name
 
         # Face list selection panel - modifies obj.References passed to it
         self.faceSelector = CfdFaceSelectWidget.CfdFaceSelectWidget(self.form.m_pFaceSelectWidget,
                                                                     obj, True, False)
 
-    def addBC(self, bcType):
-        # add  bcType to options at BC_old dialog
-        self.form.m_pBCTypeCB.addItem(bcType)
+    def addGE(self, geType):
+        # add  geType to options at GE dialog
+        self.form.m_pBCTypeCB.addItem(geType)
 
-    def setCurrentBC(self, BCName):
+    def setCurrentGE(self, GEName):
         # update the current value in the comboBox
-        self.form.m_pBCTypeCB.setCurrentText(BCName)
+        self.form.m_pBCTypeCB.setCurrentText(GEName)
 
     def setCallingObject(self, callingObjName):
         # get obj Name, so in def 'accept' can call the obj
@@ -102,15 +96,15 @@ class CBCDialogPanel:
 
     def accept(self):
         # Happen when Close Dialog
-        # get the curren BC_old type name from Dialog
-        BCtype = self.form.m_pBCTypeCB.currentText()
+        # get the current GE type name from Dialog
+        GEtype = self.form.m_pBCTypeCB.currentText()
 
 
         # calling the nodeObj from name
         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
 
-        # calling the function that create the new BC_old Object
-        callingObject.Proxy.bcDialogClosed(callingObject, BCtype)
+        # calling the function that create the new GE Object
+        callingObject.Proxy.geDialogClosed(callingObject, GEtype)
 
         # close the Dialog in FreeCAD
         FreeCADGui.Control.closeDialog()
@@ -121,56 +115,49 @@ class CBCDialogPanel:
         return True
 
 
-# *****************************************************************************
-# -----------**************************************************----------------
-#                          #CBCDialogPanel end
-# -----------**************************************************----------------
-# *****************************************************************************
-
-
 #
 # *****************************************************************************
 # -----------**************************************************----------------
-#                                   #BC_old module start
+#                                   # GE module start
 # -----------**************************************************----------------
 # *****************************************************************************
 
-def makeBCNode(name, TypeList, BCNodeData, Nodeobj):
-    """ Create a Hermes BC_old object """
+def makeGENode(name, TypeList, GENodeData, Nodeobj):
+    """ Create a Hermes Geometry Entity object """
 
     #    # Object with option to have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
 
     # Object can not have children
     obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
-    #print ("HermesBCNode make BC_old node\n")
 
 
-    # add BCNodeobj(obj) as child of Nodeobj
+    # add GENodeobj(obj) as child of Nodeobj
     Nodeobj.addObject(obj)
 
-    # initialize propeties and so at the new BC_old obj
-    _HermesBC(obj, TypeList, BCNodeData)
+    # initialize propeties and so at the new GE obj
+    _HermesGE(obj, TypeList, GENodeData)
 
     if FreeCAD.GuiUp:
-        _ViewProviderBC(obj.ViewObject)
+        _ViewProviderGE(obj.ViewObject)
     return obj
 
 # ======================================================================
-class _CommandHermesBcNodeSelection:
+class _CommandHermesGeNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
-        icon_path = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/icons/BCNode2.png"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GENode.png"
         return {'Pixmap': icon_path,
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Hermes BC_old Node"),
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_BC_Node", "Creates new Hermes BC_old Node")}
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_GE_Node", "Hermes Geometry Entities Node"),
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_GE_Node", "Creates new Hermes Geometry Entities Node")}
 
     def IsActive(self):
         return HermesTools.getActiveHermes() is not None
 
     def Activated(self):
-        FreeCAD.ActiveDocument.openTransaction("Choose appropriate BC_old Node")
+        FreeCAD.ActiveDocument.openTransaction("Choose appropriate Geometry Entities Node")
         isPresent = False
         members = HermesTools.getActiveHermes().Group
         for i in members:
@@ -181,63 +168,63 @@ class _CommandHermesBcNodeSelection:
         # Allow to re-create if deleted
         if not isPresent:
             FreeCADGui.doCommand("")
-            FreeCADGui.addModule("HermesBcNode")
+            FreeCADGui.addModule("HermesGeNode")
             FreeCADGui.addModule("HermesTools")
             FreeCADGui.doCommand(
-                "HermesTools.getActiveHermes().addObject(HermesBcNode.makeBCNode())")
+                "HermesTools.getActiveHermes().addObject(HermesGeNode.makeGENode())")
             FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
 
 
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Hermes_BcNode', _CommandHermesBcNodeSelection())
+    FreeCADGui.addCommand('Hermes_GeNode', _CommandHermesGeNodeSelection())
 
 # ======================================================================
 
 
 # =============================================================================
-# Hermes BC_old class
+# Hermes GE class
 # =============================================================================
-class _HermesBC:
-    """ The Hermes BC_old """
+class _HermesGE:
+    """ The Hermes GE (Geometry Entity) """
 
-    def __init__(self, obj, TypeList, BCNodeData):
+    def __init__(self, obj, TypeList, GENodeData):
 
         obj.Proxy = self
 
         self.TypeList = TypeList
-        self.BCNodeData = BCNodeData
+        self.GENodeData = GENodeData
         self.initProperties(obj)
 
     def initProperties(self, obj):
 
         # ^^^ Constant properties ^^^
 
-        # References property - keeping the faces and part data attached to the BC_old obj
+        # References property - keeping the faces and part data attached to the GE obj
         addObjectProperty(obj, 'References', [], "App::PropertyPythonObject", "", "Boundary faces")
 
         # link property - link to other object (beside parent)
         addObjectProperty(obj, "OtherParents", None, "App::PropertyLinkGlobal", "Links", "Link to")
 
         # Active property- keep if obj has been activated (douuble clicked get active)
-        addObjectProperty(obj, "IsActiveBC", False, "App::PropertyBool", "", "Active heraccept object in document")
+        addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
 
-        # BCNodeDataString property - keep the json BC_old node data as a string
-        addObjectProperty(obj, "BCNodeDataString", "-1", "App::PropertyString", "BCNodeData", "Data of the node", 4)
+        # GENodeDataString property - keep the json GE node data as a string
+        addObjectProperty(obj, "GENodeDataString", "-1", "App::PropertyString", "GENodeData", "Data of the node", 4)
 
-        # Type property - list of all BC_old types
-        addObjectProperty(obj, "Type", self.TypeList, "App::PropertyEnumeration", "BC_old Type",
+        # Type property - list of all GE types
+        addObjectProperty(obj, "Type", self.TypeList, "App::PropertyEnumeration", "GE Type",
                           "Type of Boundry Condition")
         obj.setEditorMode("Type", 1)  # Make read-only (2 = hidden)
 
-        # Update Values at the properties from BCNodeData
-        obj.Type = self.BCNodeData["Type"]
-        obj.Label = self.BCNodeData["Name"]  # automatically created with object.
-        obj.BCNodeDataString = json.dumps(self.BCNodeData)  # convert from json to string
+        # Update Values at the properties from GENodeData
+        obj.Type = self.GENodeData["Type"]
+        obj.Label = self.GENodeData["Name"]  # automatically created with object.
+        obj.GENodeDataString = json.dumps(self.GENodeData)  # convert from json to string
 
         #  ^^^^^ Properties from Json  ^^^
 
-        # get BC_old node List of properties from 'nodeData'
-        ListProperties = self.BCNodeData["Properties"]
+        # get GE node List of properties from 'nodeData'
+        ListProperties = self.GENodeData["Properties"]
 
         # Create each property from the list
         for x in ListProperties:
@@ -362,27 +349,27 @@ class _HermesBC:
 
             workflowObj.Proxy.ExportPart(obj, str(PartObj['Name']))
 
-        # Update faceList attach to the BC_old at the BCnodeData
-        self.BCNodeData["faceList"] = faceList
+        # Update faceList attach to the GE at the GEnodeData
+        self.GENodeData["faceList"] = faceList
 
         # update Label in Json
-        self.BCNodeData["Name"] = obj.Label
+        self.GENodeData["Name"] = obj.Label
 
-        # Update BCnodeData  at the BCNodeDataString by converting from json to string
-        self.BCNodeDataString = json.dumps(self.BCNodeData)
+        # Update GEnodeData  at the GENodeDataString by converting from json to string
+        self.GENodeDataString = json.dumps(self.GENodeData)
         return
 
     def initFacesFromJson(self, obj):
 
-        # get faceList attach to the BC_old from BCnodeData
-        faceList = self.BCNodeData["faceList"]
+        # get faceList attach to the GE from GEnodeData
+        faceList = self.GENodeData["faceList"]
 
         # create Hermesworkflow obj to allow caliing def "loadPart"
         Nodeobj = obj.getParentGroup()
         workflowObj = Nodeobj.getParentGroup()
 
         for x in faceList:
-            # get the partnum  from facelist (in case more then 1 part attach to the BC_old)
+            # get the partnum  from facelist (in case more then 1 part attach to the GE)
             # property'num' ; num =1,2,3 ...
             partnum = faceList[x]
 
@@ -401,15 +388,15 @@ class _HermesBC:
             if len(givenPartName) == 0:
                 continue
 
-            # update the Reference(faces) list attach to the the BCObj -
+            # update the Reference(faces) list attach to the the GEObj -
             for face in PartFaces:
                 tmp = (givenPartName, face)  # Reference structure
                 obj.References.append(tmp)
 
         return
 
-    def setCurrentPropertyBC(self, obj, ListProperties):
-        # update the current value of all properties' BC_old object
+    def setCurrentPropertyGE(self, obj, ListProperties):
+        # update the current value of all properties' GE object
         for x in ListProperties:
             # get property'num' object ; num =1,2,3 ...
             propertyNum = ListProperties[x]
@@ -428,48 +415,48 @@ class _HermesBC:
         self.initProperties(obj)
 
         if FreeCAD.GuiUp:
-            _ViewProviderBC(obj.ViewObject)
+            _ViewProviderGE(obj.ViewObject)
 
-    def doubleClickedBCNode(self, obj):
+    def doubleClickedGENode(self, obj):
 
-        # create CBCDialogPanel Object
-        bcDialog = CBCDialogPanel(obj)
+        # create CGEDialogPanel Object
+        geDialog = CGEDialogPanel(obj)
 
         # get NodeObj to get nodeData
         NodeObj = obj.getParentGroup()
 
-        # get BC_old type list from nodeDate - *in case not 'readonly'* have list of BCtypes
-        BCTypes = NodeObj.Proxy.nodeData["BCTypes"]
-        TypeList = BCTypes["TypeList"]
+        # get GE type list from nodeDate - *in case not 'readonly'* have list of GEtypes
+        GETypes = NodeObj.Proxy.nodeData["GeometryFaceTypes"]
+        TypeList = GETypes["TypeList"]
 
-        # add the Bc types to options at BC_old dialog
+        # add the GE types to options at GE dialog
         for types in TypeList:
-            bcDialog.addBC(types)
+            geDialog.addGE(types)
 
         # update the first value to be showen in the comboBox
-        bcDialog.setCurrentBC(obj.Type)
+        geDialog.setCurrentGE(obj.Type)
 
-        # set read only BC_old type
-        bcDialog.readOnlytype()
+        # set read only GE type
+        geDialog.readOnlytype()
 
-        # add node Object name to the bcDialog name - used when "accept"
-        bcDialog.setCallingObject(obj.Name)
+        # add node Object name to the geDialog name - used when "accept"
+        geDialog.setCallingObject(obj.Name)
 
         # show the Dialog in FreeCAD
-        FreeCADGui.Control.showDialog(bcDialog)
+        FreeCADGui.Control.showDialog(geDialog)
 
         return
 
-    def bcDialogClosed(self, callingObject, BCtype):
+    def geDialogClosed(self, callingObject, GEtype):
         # todo: is needed?
         pass
 
-    def UpdateBCNodePropertiesData(self, obj):
-        # update the properties in the "BCnodeData"
+    def UpdateGENodePropertiesData(self, obj):
+        # update the properties in the "GEnodeData"
         # use this func before exporting Json
 
         # get node List of properties
-        ListProperties = self.BCNodeData["Properties"]
+        ListProperties = self.GENodeData["Properties"]
 
         for y in ListProperties:
 
@@ -494,10 +481,10 @@ class _HermesBC:
             ListProperties[y] = propertyNum
 
         # update ListProperties in nodeData
-        self.BCNodeData["Properties"] = ListProperties
+        self.GENodeData["Properties"] = ListProperties
 
-        # Update BCnodeData  at the BCNodeDataString by converting from json to string
-        obj.BCNodeDataString = json.dumps(self.BCNodeData)
+        # Update GEnodeData  at the GENodeDataString by converting from json to string
+        obj.GENodeDataString = json.dumps(self.GENodeData)
 
         return
 
@@ -505,21 +492,22 @@ class _HermesBC:
 # =============================================================================
 #      "_ViewProviderNode" class
 # =============================================================================
-class _ViewProviderBC:
-    """ A View Provider for the Hermes BC_old Node container object. """
+class _ViewProviderGE:
+    """ A View Provider for the Hermes GE Node container object. """
 
     # =============================================================================
     #     General interface for all visual stuff in FreeCAD This class is used to
-    #     generate and handle all around visualizing and presenting BC_old objects from
+    #     generate and handle all around visualizing and presenting GE objects from
     #     the FreeCAD App layer to the user.
     # =============================================================================
 
     def __init__(self, vobj):
         vobj.Proxy = self
-        self.BCNodeType = vobj.Object.Type
+        self.GENodeType = vobj.Object.Type
 
     def getIcon(self):
-        icon_path = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/icons/BCNode2.png"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GENode.png"
 
         return icon_path
 
@@ -528,14 +516,14 @@ class _ViewProviderBC:
         self.bubbles = None
 
     def updateData(self, obj, prop):
-        # We get here when the object of BC_old Node changes
+        # We get here when the object of GE Node changes
         return
 
     def onChanged(self, obj, prop):
         return
 
     def doubleClicked(self, vobj):
-        vobj.Object.Proxy.doubleClickedBCNode(vobj.Object)
+        vobj.Object.Proxy.doubleClickedGENode(vobj.Object)
         return
 
     def __getstate__(self):
@@ -546,7 +534,7 @@ class _ViewProviderBC:
 
 # *****************************************************************************
 # -----------**************************************************----------------
-#                                   #BC_old module end
+#                                   #GE module end
 # -----------**************************************************----------------
 # *****************************************************************************
 #

@@ -1,0 +1,14 @@
+{
+    "wall":{
+        "Template":"GeometryDefiner.GeometryFaceTypes.GFwallTemplate"
+    },
+    "symmetry":{
+        "Template":"GeometryDefiner.GeometryFaceTypes.GFsymTemplate"
+    },
+    "patch": {
+        "Template":"GeometryDefiner.GeometryFaceTypes.GFpatchTemplate"
+    },
+    "boundarylayer":{
+        "Template":"GeometryDefiner.GeometryFaceTypes.GFboundarylayerTemplate"
+    }
+}

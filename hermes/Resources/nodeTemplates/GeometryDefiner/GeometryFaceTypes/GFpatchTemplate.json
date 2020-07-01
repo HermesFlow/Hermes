@@ -6,7 +6,7 @@
             "type":"App::PropertyPressure",
             "Heading":"Pressure",
             "tooltip":"Total Pressure ",
-            "current_val":"10 Pa"
+            "current_val":"12 Pa"
         }
     }
 }

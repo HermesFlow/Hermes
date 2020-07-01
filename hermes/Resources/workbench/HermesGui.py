@@ -230,7 +230,15 @@ class _HermesWorkflow:
         partIndex = -1
 
         # update 'pathFile' to full path- absolute
-        partPath = os.path.abspath(partPath)
+        # partPath = os.path.abspath(partPath)
+
+        # get the path from environment variable
+        HermesDirpath = os.getenv('HERMES_2_PATH')
+
+        # update partPath in relative to HermesDirpath
+        partPath = HermesDirpath+ '/' + partPath
+
+
 
         # check if part has already been created using his path
         if partPath in self.partPathListFromJson:
@@ -463,7 +471,8 @@ class _CommandCreateHermesWorkflow:
         pass
 
     def GetResources(self):
-        icon_path = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/icons/hermes.png"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/hermes.png"
         return {'Pixmap': icon_path,
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_Workflow", "Hermes Workflow"),
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_Workflow", "Creates new Hermes Workflow")}
@@ -486,8 +495,8 @@ class _CommandCreateHermesWorkflow:
         FreeCADGui.addModule("HermesNode")
         # FreeCADGui.doCommand("hermes.addObject(HermesNode.makeNode())")
 
-        # Add HermesBcNode object when HermesGui container is created
-        FreeCADGui.addModule("HermesBcNode")
+        # Add HermesGENode object when HermesGui container is created
+        FreeCADGui.addModule("HermesGeometryDefinerNode")
 
         # Add fluid properties object when CfdAnalysis container is created
         # FreeCADGui.addModule("CfdFluidMaterial")
@@ -511,7 +520,8 @@ class _ViewProviderHermesWorkflow:
         self.workflowObjName = vobj.Object.Name
 
     def getIcon(self):
-        icon_path = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/icons/hermes.png"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/hermes.png"
         return icon_path
 
     def attach(self, vobj):

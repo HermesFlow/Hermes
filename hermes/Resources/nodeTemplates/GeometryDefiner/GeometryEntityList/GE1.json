@@ -22,7 +22,7 @@
     "faceList":{
         "part1":{
             "Name":"Cube",
-            "Path":"/home/noga/Noga/FreeCad/templates/BC/BCList/",
+            "Path":"hermes/Resources/nodeTemplates/GeometryDefiner/GeometryEntityList/",
             "faces":["Face1","Face2"]
          }
     }
