@@ -136,7 +136,11 @@ def makeGENode(name, TypeList, GENodeData, Nodeobj):
     Nodeobj.addObject(obj)
 
     # initialize propeties and so at the new GE obj
-    _HermesGE(obj, TypeList, GENodeData)
+    # seperate between BlockMesh case to other geometry entities
+    if Nodeobj.name == 'BlockMesh':
+        _HermesBME(obj, TypeList, GENodeData)
+    else:
+        _HermesGE(obj, TypeList, GENodeData)
 
     if FreeCAD.GuiUp:
         _ViewProviderGE(obj.ViewObject)
@@ -202,8 +206,14 @@ class _HermesGE:
         # References property - keeping the faces and part data attached to the GE obj
         addObjectProperty(obj, 'References', [], "App::PropertyPythonObject", "", "Boundary faces")
 
-        # link property - link to other object (beside parent)
-        addObjectProperty(obj, "OtherParents", None, "App::PropertyLinkGlobal", "Links", "Link to")
+        # Nodeobj = obj.getParentGroup()
+        # if Nodeobj.name == "BlockMesh":
+        #     # link part - link to 1 part - Inherite from parent BM
+        #     addObjectProperty(obj, "partLink", getattr(Nodeobj, "partLink"), "App::PropertyLink", "part", "Link GE to part")
+        #     obj.setEditorMode("partLink", 1)
+
+        # Active property- keep if obj has been activated (douuble clicked get active)
+        addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
 
         # Active property- keep if obj has been activated (douuble clicked get active)
         addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
@@ -532,9 +542,52 @@ class _ViewProviderGE:
     def __setstate__(self, state):
         return None
 
-# *****************************************************************************
-# -----------**************************************************----------------
-#                                   #GE module end
-# -----------**************************************************----------------
-# *****************************************************************************
-#
+
+
+# =============================================================================
+# Hermes BlockMesh Entity class
+# =============================================================================
+class _HermesBME(_HermesGE):
+    '''
+        the  class inherited from _HermesGE -
+            - use same functionality
+            - update differnt structure of json
+    '''
+    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
+    #    and add current class functionalites
+
+    def __init__(self, obj, TypeList, GENodeData):
+        super().__init__(obj, TypeList, GENodeData)
+
+    def initProperties(self, obj):
+        super().initProperties(obj)
+
+        Nodeobj = obj.getParentGroup()
+        if Nodeobj.name == "BlockMesh":
+            # link part - link to 1 part - Inherite from parent BM
+            addObjectProperty(obj, "partLink", getattr(Nodeobj, "partLink"), "App::PropertyLink", "part", "Link GE to part")
+            obj.setEditorMode("partLink", 1)
+
+
+
+    def UpdateFacesInJson(self,obj):
+        pass
+    # todo update def to the blockMesh json Structure
+
+    def initFacesFromJson(self, obj):
+        # get faceList attach to the GE from GEnodeData
+        faceList = self.GENodeData["faces"]
+
+        # # create Hermesworkflow obj to allow caliing def "loadPart"
+        # Nodeobj = obj.getParentGroup()
+        # workflowObj = Nodeobj.getParentGroup()
+
+        givenPartName = getattr(obj, "partName")
+
+        # update the Reference(faces) list attach to the the BMEObj -
+        for face in faceList:
+            tmp = (givenPartName, face)  # Reference structure
+            obj.References.append(tmp)
+
+
+    # todo update def to the blockMesh json Structure

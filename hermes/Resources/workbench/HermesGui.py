@@ -229,15 +229,17 @@ class _HermesWorkflow:
 
         partIndex = -1
 
+        # check if relative path to Hermes folder
+        if partPath.startswith("hermes"):
+
+            # get the path from environment variable
+            HermesDirpath = os.getenv('HERMES_2_PATH')
+
+            # update partPath in relative to HermesDirpath
+            partPath = HermesDirpath + '/' + partPath
+
         # update 'pathFile' to full path- absolute
-        # partPath = os.path.abspath(partPath)
-
-        # get the path from environment variable
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-
-        # update partPath in relative to HermesDirpath
-        partPath = HermesDirpath+ '/' + partPath
-
+        partPath = os.path.abspath(partPath)
 
 
         # check if part has already been created using his path
@@ -263,14 +265,12 @@ class _HermesWorkflow:
         # Get new object amount
         newObjectAmount = len(newObjectList)
 
+        # add part face and vertices data
         for i in range(newObjectAmount):
             if newObjectList[i].Module == 'Part':
                 partName = newObjectList[i].Name
-                self.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
-
-        # print("===========================")
-        # print(self.partList)
-        # print("===========================")
+                if partName not in self.partList:
+                    self.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
 
 
         # Check if new part has been loaded by checking amount of Objects

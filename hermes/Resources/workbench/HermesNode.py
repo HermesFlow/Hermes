@@ -174,6 +174,17 @@ class _HermesNode(_SlotHandler):
             # get the prop current_val
             current_val = propertyNum["current_val"]
 
+            # get the Type
+            Type = propertyNum["type"]
+
+            # in case of link obj, if not None, check if exist
+            if (Type == "App::PropertyLink") and (current_val is not None):
+                checkObj = FreeCAD.ActiveDocument.getObject(current_val)
+                if checkObj is None:
+                    # link remain none cause not exist
+                    current_val = None
+                    FreeCAD.Console.PrintWarning("The obj to link is not exist")
+
             # get the current_val at the prop
             setattr(obj, prop, current_val)
 
@@ -189,6 +200,45 @@ class _HermesNode(_SlotHandler):
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
 
+        # # additional properties BlockMesh node
+        # if self.name == "BlockMesh":
+        #
+        #     # get the choosen methon
+        #     partPath = getattr(obj, "partPath")
+        #     partName = getattr(obj, "partName")
+        #
+        #     if len(partPath) != 0 and len(partName) != 0:
+        #
+        #         # Create full path of the part for Import
+        #         pathPartStr = partPath + partName + ".stp" if list(partPath)[-1] == '/' else partPath + "/" + partName + ".stp"
+        #
+        #         # get workflow obj
+        #         workflowObj = obj.getParentGroup()
+        #
+        #         # create the part
+        #         partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+        #
+        #         if len(partName != 0):
+        #
+        #             # get part by its name in FC
+        #             partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
+        #
+        #             # update the part Name at the BlockMesh node properties
+        #             setattr(obj, "partName", partNameFC)
+        #
+        #             # link the part to thr BlockMesh node
+        #             setattr(obj, "partLink", partObj)
+        #
+        #             # link the part to its children
+        #             for child in obj.Group:
+        #                 # set the BlockMesh partlink  at each child
+        #                 setattr(child, "partLink", partObj)
+        #         else:
+        #             FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part')
+        #     else:
+        #         FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing')
+
+
     def initProperties(self, obj):
 
         # ^^^ Constant properties ^^^
@@ -200,6 +250,10 @@ class _HermesNode(_SlotHandler):
         # Todo- is necessary?
         addObjectProperty(obj, "NodeId", "-1", "App::PropertyString", "Node Id", "Id of node",
                           4)  # the '4' hide the property
+
+        if obj.name == "BlockMesh":
+            # link part - link to 1 part - Inherite from parent BM
+            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "part", "Link blockMesh node to part")
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -250,7 +304,14 @@ class _HermesNode(_SlotHandler):
             Heading = propertyNum["Heading"]
             tooltip = propertyNum["tooltip"]
 
-            # add Object's Property
+            # in case of link obj, if not None, check if exist
+            if (Type == "App::PropertyLink") and (init_val is not None):
+                checkObj = FreeCAD.ActiveDocument.getObject(init_val)
+                if checkObj is None:
+                    # create the property, without the link
+                    init_val = None
+
+                # add Object's Property
             addObjectProperty(obj, prop, init_val, Type, Heading, tooltip)
 
     def onDocumentRestored(self, obj):
@@ -418,10 +479,22 @@ class _ViewProviderNode:
 
     #    def onChanged(self,obj, vobj, prop):
     def onChanged(self, obj, prop):
-        # not it use, just an example
+        # not in use, just an example
         if (str(prop) == 'Label' and len(str(obj.Label)) > 0):
             obj.Proxy.changeLabel()
             return
+
+        if obj.name == 'BlockMesh':
+            if prop == "partLink":
+                #get the part object using prop
+                partobj = getattr(obj, prop)
+
+                for child in obj.Group:
+                    # set the BlockMesh partlink  at each child
+                    setattr(child, prop, partobj)
+
+                # also update part name in peoperties
+                setattr(obj, "partName", partobj.Name)
 
     def doubleClicked(self, vobj):
         vobj.Object.Proxy.doubleClickedNode(vobj.Object)
@@ -696,6 +769,119 @@ class _GeometryDefinerNode(_HermesNode):
         obj.References = []
 
         return
+
+# =============================================================================
+# #_BlockMeshNode
+# =============================================================================
+class _BlockMeshNode(_GeometryDefinerNode):
+    '''
+        the  class inherited from _GeometryDefinerNode -
+            - use same functionality
+            - update differnt structure of json
+    '''
+
+
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
+
+
+
+    def initializeFromJson(self, obj):
+        _HermesNode.initializeFromJson(self, obj)
+
+        # get Geometry Face types section from json
+        GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
+
+        # get the list of available Geometry Face types
+        TypeList = GeometryFaceTypes["TypeList"]
+
+        # get the list of Geometry Entities that has been saved
+        boundaryList = self.nodeData["boundary"]
+
+        # todo - check if json nedd to be updated, and correct this script
+        # # Loop all the Geometry Entities that has been saved (GE = GeometryEntity )
+        # for y in boundaryList:
+        #     # get GE'num' object ; num =1,2,3 ...
+        #     GEnum = GeometryEntityList[y]
+        #
+        #     # get Name,Type and Properties of the GE
+        #     GEName = GEnum["Name"]
+        #     GEType = GEnum["Type"]
+        #
+        #     # Create the GE node
+        #     GENodeObj = HermesGeometryDefinerNode.makeGENode('GEtemp', TypeList, GEnum, obj)
+        #
+        #     # get the GE properties, and update their current value
+        #     GEProperties = GEnum["Properties"]
+        #     GENodeObj.Proxy.setCurrentPropertyGE(GENodeObj, GEProperties)
+        #
+        #     # Update the faces attach to the GE (also create the parts)
+        #     GENodeObj.Proxy.initFacesFromJson(GENodeObj)
+        #
+        #     # get GE Name and update his Label property
+        #     GEName = GEnum["Name"]
+        #     GENodeObj.Label = GEName
+        #
+        #     # get GE type and update his Type property
+        #     GEType = GEnum["Type"]
+        #     GENodeObj.Type = GEType
+
+        # additional initialization BlockMesh node
+        self.linkPartToBM(obj)
+
+    def linkPartToBM(self, obj):
+
+        # get the choosen methon
+        partPath = getattr(obj, "partPath")
+        partName = getattr(obj, "partName")
+
+        if len(partPath) != 0 and len(partName) != 0:
+
+            # Create full path of the part for Import
+            pathPartStr = partPath + partName + ".stp" if list(partPath)[-1] == '/' else partPath + "/" + partName + ".stp"
+
+            # get workflow obj
+            workflowObj = obj.getParentGroup()
+
+            # create the part
+            partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+
+            # make sure part imported
+            if len(partNameFC != 0):
+
+                # get part by its name in FC
+                partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
+
+                # update the part Name at the BlockMesh node properties
+                setattr(obj, "partName", partNameFC)
+
+                # link the part to thr BlockMesh node
+                setattr(obj, "partLink", partObj)
+
+                # link the part to its children
+                for child in obj.Group:
+                    # set the BlockMesh partlink  at each child
+                    setattr(child, "partLink", partObj)
+            else:
+                FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part')
+        else:
+            FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing')
+
+
+    def backupNodeData(self, obj):
+        pass
+        # ToDO check if need to rewrite the update backupNodeData
+        #       use the _HermesBME def instead of _HermesGE
+        # super().backupNodeData(obj)
+        # # Update faceList in GeometryEntityList section to each Geometry Entity node
+        # for child in obj.Group:
+        #     child.Proxy.UpdateFacesInJson(child)
+
+    def UpdateNodePropertiesData(self, obj):
+        pass
+        # ToDO check if need to rewrite the UpdateNodePropertiesData
+        #       use the _HermesBME def instead of _HermesGE
+        # super().UpdateNodePropertiesData(obj)
 
 
 
