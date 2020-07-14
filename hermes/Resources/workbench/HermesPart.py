@@ -53,6 +53,40 @@ class HermesPart:
 
 
     def getpartDict(self):
+        '''
+        the sample of part dict structure is:
+            "part":{
+                "Vertices":{
+                    "FreeCAD":{
+                        "0":{
+                            "coordinates":{
+                                "x": 0,
+                                "y": 0,
+                                "z": 0
+                            }
+                        },
+                        "1":{
+                            ...
+                        },
+                        .
+                        .
+                        .
+                    },
+                    "openFoam":{
+                        --- same struct as the "FreeCAD" section ---
+                        --- different order of the vertices ---
+                    }
+                },
+                "Faces":{
+                    "face1":{
+                        "vertices":[0 1 2 3]
+                    },
+                    .
+                    .
+                    .
+                }
+            }
+        '''
 
         part = {}
         vertices = {}

@@ -161,35 +161,9 @@ class CfdFaceSelectWidget:
         """ Add currently selected objects to reference list. """
         for sel in FreeCADGui.Selection.getSelectionEx():
             if sel.HasSubObjects:
-                # update Ref list only if : part is link to the
-                #                           part name equal to ref name part
-                #                     else: move to next selection
-
-                # in case its being called from blockMesh
-                if (self.obj.Name == "BlockMesh"):
-                    partLinkobj = getattr(self.obj, "partLink")
-                    # check link exist
-                    if partLinkobj is None:
-                        continue
-                    # check equal parts selected
-                    if partLinkobj.Name != sel.ObjectName:
-                        continue
-
-                # in case its being called from BlockMesh children
-                # get parent obj
-                parentObj = self.obj.getParentGroup()
-                if (parentObj.Name == "BlockMesh"):
-                    partLinkobj = getattr(self.obj, "partLink")
-                    # check link exist
-                    if partLinkobj is None:
-                        continue
-                    # check equal parts selected
-                    if partLinkobj.Name != sel.ObjectName:
-                        continue
-
                 # update reference selection
                 for sub in sel.SubElementNames:
-                    print("{} {}".format(sel.ObjectName, sub))
+                    # print("{} {}".format(sel.ObjectName, sub))
                     self.addSelection(sel.DocumentName, sel.ObjectName, sub)
 
         self.scheduleRecompute()
@@ -247,10 +221,47 @@ class CfdFaceSelectWidget:
             print_message = ""
         self.form.labelHelpText.setText(print_message)
 
+    def checkBlockMeshLink(self,obj_name):
+        # update Ref list only if : part is link to the
+        #                           part name equal to ref name part
+        #                     else: move to next selection
+
+        # in case its being called from blockMesh
+        if (self.obj.Name == "BlockMesh"):
+            partLinkobj = getattr(self.obj, "partLink")
+            # check link exist
+            if partLinkobj is None:
+                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                return False
+            # check equal parts selected
+            if partLinkobj.Name != obj_name:
+                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                return False
+
+        # in case its being called from BlockMesh children
+        # get parent obj
+        parentObj = self.obj.getParentGroup()
+        if (parentObj.Label == "BlockMesh"):
+            partLinkobj = getattr(self.obj, "partLink")
+            # check link exist
+            if partLinkobj is None:
+                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                return False
+            # check equal parts selected
+            if partLinkobj.Name != obj_name:
+                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                return False
+
+        return True
+
+
     def addSelection(self, doc_name, obj_name, sub, selected_point=None, as_is=False):
         """ Add the selected sub-element (face) of the part to the Reference list. Prevent selection in other
         document.
         """
+        if not self.checkBlockMeshLink(obj_name):
+            return
+
         if FreeCADGui.activeDocument().Document.Name != self.doc_name:
             return
         selected_object = FreeCAD.getDocument(doc_name).getObject(obj_name)

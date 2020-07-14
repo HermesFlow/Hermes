@@ -284,7 +284,7 @@ class _HermesWorkflow:
         else:
             return ""
 
-    def ExportPart(self, obj, partObjName):
+    def ExportPart(self, partObjName):
 
         if partObjName in self.partNameExportList:
             return

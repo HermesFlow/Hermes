@@ -9,7 +9,7 @@
         "nodes": {
             "BlockMesh":{
                 "typeExecution":"BlockMesh",
-                "TypeFC":"WebGuiNode",
+                "TypeFC":"BlockMeshNode",
                 "input_parameters":{
                     "Properties":"{Properties}",
                     "boundary":"{boundary}",
@@ -84,15 +84,6 @@
                     }
                 },
                 "boundary":[
-                    {
-                        "name": "abc",
-                        "type": "wall",
-                        "faces": {
-                            "face1": {
-                                "vertices": "0 1 2 3"
-                            }
-                        }
-                    }
                 ],
                 "vertices": []
             },

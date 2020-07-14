@@ -137,7 +137,7 @@ def makeGENode(name, TypeList, GENodeData, Nodeobj):
 
     # initialize propeties and so at the new GE obj
     # seperate between BlockMesh case to other geometry entities
-    if Nodeobj.name == 'BlockMesh':
+    if Nodeobj.Name == 'BlockMesh':
         _HermesBME(obj, TypeList, GENodeData)
     else:
         _HermesGE(obj, TypeList, GENodeData)
@@ -232,6 +232,8 @@ class _HermesGE:
         obj.GENodeDataString = json.dumps(self.GENodeData)  # convert from json to string
 
         #  ^^^^^ Properties from Json  ^^^
+        if "Properties" not in self.GENodeData:
+            return
 
         # get GE node List of properties from 'nodeData'
         ListProperties = self.GENodeData["Properties"]
@@ -274,10 +276,10 @@ class _HermesGE:
 
         # Loop all the References in the object
         for Ref in obj.References:
-            # example Refernces structure : obj.References=[('Cube','Face1'),('Cube','Face2')]
+            # example References structure : obj.References=[('Cube','Face1'),('Cube','Face2')]
             # example Ref structure :Ref=('Cube','Face1')
 
-            # get Name and face from Corrent Reference
+            # get Name and face from Current Reference
             PartName = Ref[0]  # givenPartName
             PartFace = Ref[1]  # face
 
@@ -339,9 +341,9 @@ class _HermesGE:
             x = x + 1
         faceListStr += "}"
 
-        # create Hermesworkflow obj to allow caliing def "ExportPart"
-        Nodeobj = obj.getParentGroup()
-        workflowObj = Nodeobj.getParentGroup()
+        # # create Hermesworkflow obj to allow caliing def "ExportPart"
+        # Nodeobj = obj.getParentGroup()
+        # workflowObj = Nodeobj.getParentGroup()
 
         # convert structure from string to json
         faceList = json.loads(faceListStr)
@@ -357,7 +359,7 @@ class _HermesGE:
             # update the PartObj data at the current PartNode in faceList
             faceList[PartNode] = PartObj
 
-            workflowObj.Proxy.ExportPart(obj, str(PartObj['Name']))
+            workflowObj.Proxy.ExportPart(str(PartObj['Name']))
 
         # Update faceList attach to the GE at the GEnodeData
         self.GENodeData["faceList"] = faceList
@@ -563,7 +565,7 @@ class _HermesBME(_HermesGE):
         super().initProperties(obj)
 
         Nodeobj = obj.getParentGroup()
-        if Nodeobj.name == "BlockMesh":
+        if Nodeobj.Name == "BlockMesh":
             # link part - link to 1 part - Inherite from parent BM
             addObjectProperty(obj, "partLink", getattr(Nodeobj, "partLink"), "App::PropertyLink", "part", "Link GE to part")
             obj.setEditorMode("partLink", 1)
@@ -571,16 +573,58 @@ class _HermesBME(_HermesGE):
 
 
     def UpdateFacesInJson(self,obj):
-        pass
-    # todo update def to the blockMesh json Structure
+
+        # create struct of face
+        faceStruct = {"vertices": ""}
+
+        # create basic structure of a boundary
+        boundary_strc = {
+            "name": obj.Label,
+            "type": obj.Type,
+            "faces": {}
+        }
+
+        # get workflowObj
+        Nodeobj = obj.getParentGroup()
+        workflowObj = Nodeobj.getParentGroup()
+
+        # get the part dictionary with faces and vertices data
+        partObj = getattr(obj, "partLink")
+        if partObj is None:
+            return
+
+        # get the part dictionary with faces and vertices data
+        partName = partObj.Name
+        partDict = workflowObj.Proxy.partList[partName]
+
+
+        # Loop all the References in the object
+        for Ref in obj.References:
+            # example Refernces structure : obj.References=[('Cube','Face1'),('Cube','Face2')]
+            # example Ref structure :Ref=('Cube','Face1')
+
+            # get Name of the face from Current Reference
+            FaceName = Ref[1]  # face
+
+            # get the vertices of the face and sav as a string
+            verticesList = partDict["Faces"][FaceName]['vertices']
+            verticesString = ' '.join(verticesList)
+
+            # add the vrtices to the current face struct
+            faceStruct["vertices"] = verticesString
+
+            # add the current face struct to the boundry struct
+            boundary_strc["faces"][FaceName] = faceStruct.copy()
+
+
+        # update the date in the NodeData
+        self.GENodeData = boundary_strc.copy()
+
+
 
     def initFacesFromJson(self, obj):
         # get faceList attach to the GE from GEnodeData
         faceList = self.GENodeData["faces"]
-
-        # # create Hermesworkflow obj to allow caliing def "loadPart"
-        # Nodeobj = obj.getParentGroup()
-        # workflowObj = Nodeobj.getParentGroup()
 
         givenPartName = getattr(obj, "partName")
 
@@ -590,4 +634,3 @@ class _HermesBME(_HermesGE):
             obj.References.append(tmp)
 
 
-    # todo update def to the blockMesh json Structure

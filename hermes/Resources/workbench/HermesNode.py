@@ -183,7 +183,7 @@ class _HermesNode(_SlotHandler):
                 if checkObj is None:
                     # link remain none cause not exist
                     current_val = None
-                    FreeCAD.Console.PrintWarning("The obj to link is not exist")
+                    FreeCAD.Console.PrintWarning("The obj to link is not exist\n")
 
             # get the current_val at the prop
             setattr(obj, prop, current_val)
@@ -251,9 +251,9 @@ class _HermesNode(_SlotHandler):
         addObjectProperty(obj, "NodeId", "-1", "App::PropertyString", "Node Id", "Id of node",
                           4)  # the '4' hide the property
 
-        if obj.name == "BlockMesh":
+        if self.name == "BlockMesh":
             # link part - link to 1 part - Inherite from parent BM
-            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "part", "Link blockMesh node to part")
+            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link blockMesh node to part")
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -477,24 +477,32 @@ class _ViewProviderNode:
                 obj.setEditorMode("Commands", 1)  # Make read-only
                 obj.setEditorMode("batchFile", 0)  # read/write
 
-    #    def onChanged(self,obj, vobj, prop):
-    def onChanged(self, obj, prop):
-        # not in use, just an example
-        if (str(prop) == 'Label' and len(str(obj.Label)) > 0):
-            obj.Proxy.changeLabel()
-            return
+                # ----------------------------------------------------------------------------------
 
-        if obj.name == 'BlockMesh':
+        if obj.Label == 'BlockMesh':
             if prop == "partLink":
                 #get the part object using prop
                 partobj = getattr(obj, prop)
 
+                # set the BlockMesh partlink  at each child
                 for child in obj.Group:
-                    # set the BlockMesh partlink  at each child
                     setattr(child, prop, partobj)
 
                 # also update part name in peoperties
-                setattr(obj, "partName", partobj.Name)
+                if partobj is None:
+                    setattr(obj, "partName", "")
+                    for child in obj.Group:
+                        setattr(child, "References", [])
+
+                else:
+                    setattr(obj, "partName", partobj.Name)
+
+    #    def onChanged(self,obj, vobj, prop):
+    def onChanged(self, vobj, prop):
+        # not in use, just an example
+        if (str(prop) == 'Label' and len(str(vobj.Label)) > 0):
+            vobj.Proxy.changeLabel()
+            return
 
     def doubleClicked(self, vobj):
         vobj.Object.Proxy.doubleClickedNode(vobj.Object)
@@ -728,10 +736,10 @@ class _GeometryDefinerNode(_HermesNode):
         # update properties of the current node(before updated only the children)
         super().UpdateNodePropertiesData(obj)
 
-        workflowObj = obj.getParentGroup()
-        if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
-            # update block mesh with its vertices and boundry
-            HermesBlockMesh().updateJson(obj)
+        # workflowObj = obj.getParentGroup()
+        # if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
+        #     # update block mesh with its vertices and boundry
+        #     HermesBlockMesh().updateJson(obj)
 
 
     def geDialogClosed(self, obj, GEtype):
@@ -798,40 +806,33 @@ class _BlockMeshNode(_GeometryDefinerNode):
         # get the list of Geometry Entities that has been saved
         boundaryList = self.nodeData["boundary"]
 
-        # todo - check if json nedd to be updated, and correct this script
-        # # Loop all the Geometry Entities that has been saved (GE = GeometryEntity )
-        # for y in boundaryList:
-        #     # get GE'num' object ; num =1,2,3 ...
-        #     GEnum = GeometryEntityList[y]
-        #
-        #     # get Name,Type and Properties of the GE
-        #     GEName = GEnum["Name"]
-        #     GEType = GEnum["Type"]
-        #
-        #     # Create the GE node
-        #     GENodeObj = HermesGeometryDefinerNode.makeGENode('GEtemp', TypeList, GEnum, obj)
-        #
-        #     # get the GE properties, and update their current value
-        #     GEProperties = GEnum["Properties"]
-        #     GENodeObj.Proxy.setCurrentPropertyGE(GENodeObj, GEProperties)
-        #
-        #     # Update the faces attach to the GE (also create the parts)
-        #     GENodeObj.Proxy.initFacesFromJson(GENodeObj)
-        #
-        #     # get GE Name and update his Label property
-        #     GEName = GEnum["Name"]
-        #     GENodeObj.Label = GEName
-        #
-        #     # get GE type and update his Type property
-        #     GEType = GEnum["Type"]
-        #     GENodeObj.Type = GEType
+        # Loop all the Geometry Entities that has been saved (BME = BlockMeshEntity )
+        for boundary in boundaryList:
+
+            # Create the BME node
+            BMENodeObj = HermesGeometryDefinerNode.makeGENode('BME', TypeList, boundary, obj)
+
+            # get the GE properties, and update their current value
+            # GEProperties = boundary["Properties"]
+            # BMENodeObj.Proxy.setCurrentPropertyGE(BMENodeObj, GEProperties)
+
+            # Update the faces attach to the BME (also create the parts)
+            BMENodeObj.Proxy.initFacesFromJson(BMENodeObj)
+
+            # get BME Name and update his Label property
+            BMEName = boundary["Name"]
+            BMENodeObj.Label = BMEName
+
+            # get BME type and update his Type property
+            BMEType = boundary["Type"]
+            BMENodeObj.Type = BMEType
 
         # additional initialization BlockMesh node
         self.linkPartToBM(obj)
 
     def linkPartToBM(self, obj):
 
-        # get the choosen methon
+        # get the part name and path
         partPath = getattr(obj, "partPath")
         partName = getattr(obj, "partName")
 
@@ -858,30 +859,61 @@ class _BlockMeshNode(_GeometryDefinerNode):
                 # link the part to thr BlockMesh node
                 setattr(obj, "partLink", partObj)
 
-                # link the part to its children
+                # link the part to BM children
                 for child in obj.Group:
                     # set the BlockMesh partlink  at each child
                     setattr(child, "partLink", partObj)
             else:
-                FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part')
+                FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part\n')
         else:
-            FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing')
+            FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
 
 
     def backupNodeData(self, obj):
-        pass
-        # ToDO check if need to rewrite the update backupNodeData
-        #       use the _HermesBME def instead of _HermesGE
-        # super().backupNodeData(obj)
-        # # Update faceList in GeometryEntityList section to each Geometry Entity node
-        # for child in obj.Group:
-        #     child.Proxy.UpdateFacesInJson(child)
+        super().backupNodeData(obj)
+
+        # get workflow object
+        workflowObj = obj.getParentGroup()
+
+        # get part object
+        partObj = getattr(obj, "partLink")
+        if partObj is None:
+            return
+        # get the part dictionary with and vertices data
+        partName = partObj.Name
+        partDict = workflowObj.Proxy.partList[partName]
+        vertices = partDict["Vertices"]["openFoam"]
+
+        # export BM part
+        workflowObj.Proxy.ExportPart(partName)
+
+        # update vertices in nodedata
+        self.updateVertices(vertices)
+
+    def updateVertices(self, vertices):
+
+        # create a list of string vertices
+        stringVertices = []
+        for ver in vertices:
+            string = self.createVerticesString(vertices[ver])
+            stringVertices.append(string)
+
+        # push the list to the form data
+        self.nodeData['vertices'] = stringVertices
+
+    def createVerticesString(self, ver):
+        string =""
+        for cor in ver['coordinates']:
+            string += str(ver['coordinates'][cor]) + " "
+
+        return string
+
 
     def UpdateNodePropertiesData(self, obj):
-        pass
-        # ToDO check if need to rewrite the UpdateNodePropertiesData
-        #       use the _HermesBME def instead of _HermesGE
-        # super().UpdateNodePropertiesData(obj)
+        _HermesNode.UpdateNodePropertiesData(self, obj)
+
+    # def initializeFromJson(self, obj):
+    #     _HermesNode.initializeFromJson(self, obj)
 
 
 
