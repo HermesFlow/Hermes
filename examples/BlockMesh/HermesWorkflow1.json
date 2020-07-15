@@ -22,7 +22,7 @@
                         "type": "App::PropertyString",
                         "Heading": "BasicData",
                         "tooltip": "Name of tha part of the blockMesh node ",
-                        "current_val": "Cube"
+                        "current_val": "Box"
                     },
                     "Property02": {
                         "prop": "partPath",
@@ -46,7 +46,7 @@
                         "type": "App::PropertyString",
                         "Heading": "Block",
                         "tooltip": "Numbers of cells in each direction ",
-                        "current_val": "1 1 1"
+                        "current_val": "1 2 3"
                     },
                     "Property05": {
                         "prop": "simpleGradingX",
@@ -147,7 +147,7 @@
                                     "type": "App::PropertyPressure",
                                     "Heading": "Pressure",
                                     "tooltip": "Total Pressure ",
-                                    "current_val": "0.01 kg/(mm*s^2)"
+                                    "current_val": "13 Pa"
                                 }
                             }
                         }
@@ -164,7 +164,7 @@
                                 "type": "App::PropertySpeed",
                                 "Heading": "Velocity",
                                 "tooltip": "Velocity in x direction ",
-                                "current_val": "1000 mm/s"
+                                "current_val": "0 mm/s"
                             },
                             "Property02": {
                                 "prop": "Uy",
@@ -172,53 +172,25 @@
                                 "type": "App::PropertySpeed",
                                 "Heading": "Velocity",
                                 "tooltip": "Velocity in y direction",
-                                "current_val": "3000 mm/s"
+                                "current_val": "0 mm/s"
                             }
                         },
                         "faces": {
-                            "Face5": {
-                                "vertices": "0 3 2 1"
-                            },
-                            "Face1": {
-                                "vertices": "0 4 7 3"
-                            },
-                            "Face2": {
-                                "vertices": "1 2 6 5"
-                            }
-                        }
-                    },
-                    {
-                        "Name": "boundarylayer",
-                        "Type": "boundarylayer",
-                        "Properties": {
-                            "Property01": {
-                                "prop": "P0",
-                                "init_val": "10 Pa",
-                                "type": "App::PropertyPressure",
-                                "Heading": "Pressure",
-                                "tooltip": "Total Pressure ",
-                                "current_val": "0.011 kg/(mm*s^2)"
-                            }
-                        },
-                        "faces": {
-                            "Face2": {
-                                "vertices": "1 2 6 5"
-                            },
-                            "Face4": {
-                                "vertices": "3 7 6 2"
+                            "Face6": {
+                                "vertices": "4 5 6 7"
                             }
                         }
                     }
                 ],
                 "vertices": [
                     "0.0 0.0 0.0 ",
-                    "10.0 0.0 0.0 ",
-                    "10.0 10.0 0.0 ",
-                    "0.0 10.0 0.0 ",
-                    "0.0 0.0 10.0 ",
-                    "10.0 0.0 10.0 ",
-                    "10.0 10.0 10.0 ",
-                    "0.0 10.0 10.0 "
+                    "12.0 0.0 0.0 ",
+                    "12.0 11.0 0.0 ",
+                    "0.0 11.0 0.0 ",
+                    "0.0 0.0 9.0 ",
+                    "12.0 0.0 9.0 ",
+                    "12.0 11.0 9.0 ",
+                    "0.0 11.0 9.0 "
                 ]
             },
             "GeometryDefiner": {
@@ -323,16 +295,7 @@
                                 "current_val": "0 mm/s"
                             }
                         },
-                        "faceList": {
-                            "Part1": {
-                                "Name": "Cube",
-                                "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/",
-                                "faces": [
-                                    "Face1",
-                                    "Face2"
-                                ]
-                            }
-                        }
+                        "faceList": {}
                     },
                     "GE2": {
                         "Name": "symmetry",
@@ -347,16 +310,7 @@
                                 "current_val": "0.01 kg/(mm*s^2)"
                             }
                         },
-                        "faceList": {
-                            "Part1": {
-                                "Name": "Cube",
-                                "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/",
-                                "faces": [
-                                    "Face3",
-                                    "Face4"
-                                ]
-                            }
-                        }
+                        "faceList": {}
                     }
                 }
             }

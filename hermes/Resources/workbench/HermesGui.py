@@ -207,7 +207,9 @@ class _HermesWorkflow:
         # clear the part Object from json
         if len(self.partPathListFromJson) != 0:
             for x in self.partNameListFromJson:
-                obj.Document.removeObject(x)
+                partObj = FreeCAD.ActiveDocument.getObject(x)
+                if partObj is not None:
+                    obj.Document.removeObject(x)
 
                 # clear the part lists
                 self.partPathListFromJson = []

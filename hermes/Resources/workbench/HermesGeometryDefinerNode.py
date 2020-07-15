@@ -48,6 +48,7 @@ import HermesPart
 
 
 
+
 # -----------------------------------------------------------------------#
 # This enables us to open a dialog on the left with a click of a button #
 # -----------------------------------------------------------------------#
@@ -112,6 +113,7 @@ class CGEDialogPanel:
 
     def reject(self):
         self.faceSelector.closing()
+        # check if it reset choices
         return True
 
 
@@ -599,6 +601,8 @@ class _HermesBME(_HermesGE):
 
             # get the part dictionary with faces and vertices data
             partName = partObj.Name
+            if partName not in workflowObj.Proxy.partList:
+                workflowObj.Proxy.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
             partDict = workflowObj.Proxy.partList[partName]
 
 
@@ -632,8 +636,10 @@ class _HermesBME(_HermesGE):
     def initFacesFromJson(self, obj):
         # get faceList attach to the GE from GEnodeData
         faceList = self.EntityNodeData["faces"]
-
+        print(faceList)
         PartObj = getattr(obj, "partLink")
+        print(PartObj)
+
         if PartObj is None:
             return
 

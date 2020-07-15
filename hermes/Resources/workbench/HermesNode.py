@@ -481,21 +481,28 @@ class _ViewProviderNode:
 
         if obj.Label == 'BlockMesh':
             if prop == "partLink":
+
+                # in case its initialized from Json stage, avoid overide data
+                #
+                if obj.Proxy.initBMflag and (not obj.Proxy.BMcount):
+                    return
+
+                print("viewProvider, updateData")
                 #get the part object using prop
                 partobj = getattr(obj, prop)
 
                 # set the BlockMesh partlink  at each child
                 for child in obj.Group:
                     setattr(child, prop, partobj)
+                    setattr(child, "References", [])
 
                 # also update part name in peoperties
                 if partobj is None:
                     setattr(obj, "partName", "")
-                    for child in obj.Group:
-                        setattr(child, "References", [])
-
                 else:
                     setattr(obj, "partName", partobj.Name)
+
+                obj.Proxy.BMcount += 1
 
     #    def onChanged(self,obj, vobj, prop):
     def onChanged(self, vobj, prop):
@@ -791,6 +798,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
+        self.initBMflag = False
+        self.BMcount = 0
 
 
 
@@ -830,6 +839,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
             BMEType = boundary["Type"]
             BMENodeObj.Type = BMEType
 
+
+
     def linkPartToBM(self, obj):
 
         # get the part name and path
@@ -859,6 +870,9 @@ class _BlockMeshNode(_GeometryDefinerNode):
                 # link the part to thr BlockMesh node
                 setattr(obj, "partLink", partObj)
 
+                # flag for linking from json
+                self.initBMflag = True
+
                 # link the part to BM children
                 for child in obj.Group:
                     # set the BlockMesh partlink  at each child
@@ -867,9 +881,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
                 FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part\n')
         else:
             FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
-
-    # todo - chedk why export doesnt work:
-    #     - property of chldren?
 
     def backupNodeData(self, obj):
         # super().backupNodeData(obj)

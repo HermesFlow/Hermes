@@ -231,11 +231,11 @@ class CfdFaceSelectWidget:
             partLinkobj = getattr(self.obj, "partLink")
             # check link exist
             if partLinkobj is None:
-                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                FreeCAD.Console.PrintWarning("The link between the BlockMesh node to a part does not exist\n")
                 return False
             # check equal parts selected
             if partLinkobj.Name != obj_name:
-                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                FreeCAD.Console.PrintWarning("The BlockMesh node link to a different part\n")
                 return False
 
         # in case its being called from BlockMesh children
@@ -245,11 +245,11 @@ class CfdFaceSelectWidget:
             partLinkobj = getattr(self.obj, "partLink")
             # check link exist
             if partLinkobj is None:
-                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                FreeCAD.Console.PrintWarning("The link between the BlockMesh node to a part does not exist\n")
                 return False
             # check equal parts selected
             if partLinkobj.Name != obj_name:
-                FreeCAD.Console.PrintWarning("Link part to BlockMesh node before adding faces\n")
+                FreeCAD.Console.PrintWarning("The BlockMesh node link to a different part\n")
                 return False
 
         return True
