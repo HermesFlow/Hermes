@@ -122,7 +122,7 @@ class CGEDialogPanel:
 # -----------**************************************************----------------
 # *****************************************************************************
 
-def makeGENode(name, TypeList, GENodeData, Nodeobj):
+def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     """ Create a Hermes Geometry Entity object """
 
     #    # Object with option to have children
@@ -138,9 +138,9 @@ def makeGENode(name, TypeList, GENodeData, Nodeobj):
     # initialize propeties and so at the new GE obj
     # seperate between BlockMesh case to other geometry entities
     if Nodeobj.Name == 'BlockMesh':
-        _HermesBME(obj, TypeList, GENodeData)
+        _HermesBME(obj, TypeList, EntityNodeData)
     else:
-        _HermesGE(obj, TypeList, GENodeData)
+        _HermesGE(obj, TypeList, EntityNodeData)
 
     if FreeCAD.GuiUp:
         _ViewProviderGE(obj.ViewObject)
@@ -191,12 +191,12 @@ if FreeCAD.GuiUp:
 class _HermesGE:
     """ The Hermes GE (Geometry Entity) """
 
-    def __init__(self, obj, TypeList, GENodeData):
+    def __init__(self, obj, TypeList, EntityNodeData):
 
         obj.Proxy = self
 
         self.TypeList = TypeList
-        self.GENodeData = GENodeData
+        self.EntityNodeData = EntityNodeData
         self.initProperties(obj)
 
     def initProperties(self, obj):
@@ -218,25 +218,25 @@ class _HermesGE:
         # Active property- keep if obj has been activated (douuble clicked get active)
         addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
 
-        # GENodeDataString property - keep the json GE node data as a string
-        addObjectProperty(obj, "GENodeDataString", "-1", "App::PropertyString", "GENodeData", "Data of the node", 4)
+        # EntityNodeDataString property - keep the json GE node data as a string
+        addObjectProperty(obj, "EntityNodeDataString", "-1", "App::PropertyString", "EntityNodeData", "Data of the node", 4)
 
         # Type property - list of all GE types
         addObjectProperty(obj, "Type", self.TypeList, "App::PropertyEnumeration", "GE Type",
                           "Type of Boundry Condition")
         obj.setEditorMode("Type", 1)  # Make read-only (2 = hidden)
 
-        # Update Values at the properties from GENodeData
-        obj.Type = self.GENodeData["Type"]
-        obj.Label = self.GENodeData["Name"]  # automatically created with object.
-        obj.GENodeDataString = json.dumps(self.GENodeData)  # convert from json to string
+        # Update Values at the properties from EntityNodeData
+        obj.Type = self.EntityNodeData["Type"]
+        obj.Label = self.EntityNodeData["Name"]  # automatically created with object.
+        obj.EntityNodeDataString = json.dumps(self.EntityNodeData)  # convert from json to string
 
         #  ^^^^^ Properties from Json  ^^^
-        if "Properties" not in self.GENodeData:
+        if "Properties" not in self.EntityNodeData:
             return
 
         # get GE node List of properties from 'nodeData'
-        ListProperties = self.GENodeData["Properties"]
+        ListProperties = self.EntityNodeData["Properties"]
 
         # Create each property from the list
         for x in ListProperties:
@@ -362,19 +362,19 @@ class _HermesGE:
             workflowObj.Proxy.ExportPart(str(PartObj['Name']))
 
         # Update faceList attach to the GE at the GEnodeData
-        self.GENodeData["faceList"] = faceList
+        self.EntityNodeData["faceList"] = faceList
 
         # update Label in Json
-        self.GENodeData["Name"] = obj.Label
+        self.EntityNodeData["Name"] = obj.Label
 
-        # Update GEnodeData  at the GENodeDataString by converting from json to string
-        self.GENodeDataString = json.dumps(self.GENodeData)
-        return
+        # Update GEnodeData  at the EntityNodeDataString by converting from json to string
+        obj.EntityNodeDataString = json.dumps(self.EntityNodeData)
+
 
     def initFacesFromJson(self, obj):
 
         # get faceList attach to the GE from GEnodeData
-        faceList = self.GENodeData["faceList"]
+        faceList = self.EntityNodeData["faceList"]
 
         # create Hermesworkflow obj to allow caliing def "loadPart"
         Nodeobj = obj.getParentGroup()
@@ -468,7 +468,7 @@ class _HermesGE:
         # use this func before exporting Json
 
         # get node List of properties
-        ListProperties = self.GENodeData["Properties"]
+        ListProperties = self.EntityNodeData["Properties"]
 
         for y in ListProperties:
 
@@ -493,10 +493,10 @@ class _HermesGE:
             ListProperties[y] = propertyNum
 
         # update ListProperties in nodeData
-        self.GENodeData["Properties"] = ListProperties
+        self.EntityNodeData["Properties"] = ListProperties
 
-        # Update GEnodeData  at the GENodeDataString by converting from json to string
-        obj.GENodeDataString = json.dumps(self.GENodeData)
+        # Update GEnodeData  at the EntityNodeDataString by converting from json to string
+        obj.EntityNodeDataString = json.dumps(self.EntityNodeData)
 
         return
 
@@ -558,8 +558,9 @@ class _HermesBME(_HermesGE):
     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
     #    and add current class functionalites
 
-    def __init__(self, obj, TypeList, GENodeData):
-        super().__init__(obj, TypeList, GENodeData)
+    def __init__(self, obj, TypeList, EntityNodeData):
+        super().__init__(obj, TypeList, EntityNodeData)
+        self.Properties = self.EntityNodeData["Properties"]
 
     def initProperties(self, obj):
         super().initProperties(obj)
@@ -577,10 +578,14 @@ class _HermesBME(_HermesGE):
         # create struct of face
         faceStruct = {"vertices": ""}
 
+        # update properties
+        self.UpdateBMENodePropertiesData(obj)
+
         # create basic structure of a boundary
         boundary_strc = {
-            "name": obj.Label,
-            "type": obj.Type,
+            "Name": obj.Label,
+            "Type": obj.Type,
+            "Properties": self.Properties,
             "faces": {}
         }
 
@@ -590,47 +595,62 @@ class _HermesBME(_HermesGE):
 
         # get the part dictionary with faces and vertices data
         partObj = getattr(obj, "partLink")
-        if partObj is None:
-            return
+        if partObj is not None:
 
-        # get the part dictionary with faces and vertices data
-        partName = partObj.Name
-        partDict = workflowObj.Proxy.partList[partName]
+            # get the part dictionary with faces and vertices data
+            partName = partObj.Name
+            partDict = workflowObj.Proxy.partList[partName]
 
 
-        # Loop all the References in the object
-        for Ref in obj.References:
-            # example Refernces structure : obj.References=[('Cube','Face1'),('Cube','Face2')]
-            # example Ref structure :Ref=('Cube','Face1')
+            # Loop all the References in the object
+            for Ref in obj.References:
+                # example Refernces structure : obj.References=[('Cube','Face1'),('Cube','Face2')]
+                # example Ref structure :Ref=('Cube','Face1')
 
-            # get Name of the face from Current Reference
-            FaceName = Ref[1]  # face
+                # get Name of the face from Current Reference
+                FaceName = Ref[1]  # face
 
-            # get the vertices of the face and sav as a string
-            verticesList = partDict["Faces"][FaceName]['vertices']
-            verticesString = ' '.join(verticesList)
+                # get the vertices of the face and sav as a string
+                verticesList = partDict["Faces"][FaceName]['vertices']
+                verticesString = ' '.join(verticesList)
 
-            # add the vrtices to the current face struct
-            faceStruct["vertices"] = verticesString
+                # add the vrtices to the current face struct
+                faceStruct["vertices"] = verticesString
 
-            # add the current face struct to the boundry struct
-            boundary_strc["faces"][FaceName] = faceStruct.copy()
+                # add the current face struct to the boundry struct
+                boundary_strc["faces"][FaceName] = faceStruct.copy()
 
 
         # update the date in the NodeData
-        self.GENodeData = boundary_strc.copy()
+        self.EntityNodeData = boundary_strc.copy()
+
+        # Update GEnodeData  at the EntityNodeDataString by converting from json to string
+        obj.EntityNodeDataString = json.dumps(self.EntityNodeData)
 
 
 
     def initFacesFromJson(self, obj):
         # get faceList attach to the GE from GEnodeData
-        faceList = self.GENodeData["faces"]
+        faceList = self.EntityNodeData["faces"]
 
-        givenPartName = getattr(obj, "partName")
+        PartObj = getattr(obj, "partLink")
+        if PartObj is None:
+            return
+
+        givenPartName = PartObj.Name
 
         # update the Reference(faces) list attach to the the BMEObj -
         for face in faceList:
             tmp = (givenPartName, face)  # Reference structure
             obj.References.append(tmp)
+
+    def UpdateBMENodePropertiesData(self, obj):
+        # use the part function to update the values of property
+        super().UpdateGENodePropertiesData(obj)
+
+        # update the self var of proporties
+        self.Properties = self.EntityNodeData["Properties"]
+
+
 
 

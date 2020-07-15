@@ -347,9 +347,8 @@ class _HermesWorkflow:
 
             nodename = child.Proxy.name
 
-            # update the child nodeDate in the JsonObject
-            if nodename != 'BlockMesh':
-                self.JsonObject["workflow"]["nodes"][nodename]=nodaData
+            # # update the child nodeDate in the JsonObject
+            self.JsonObject["workflow"]["nodes"][nodename] = nodaData
 
 
         return

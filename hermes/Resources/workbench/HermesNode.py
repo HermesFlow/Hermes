@@ -638,7 +638,7 @@ class _GeometryDefinerNode(_HermesNode):
             GEType = GEnum["Type"]
 
             # Create the GE node
-            GENodeObj = HermesGeometryDefinerNode.makeGENode('GEtemp', TypeList, GEnum, obj)
+            GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GEnum, obj)
 
             # get the GE properties, and update their current value
             GEProperties = GEnum["Properties"]
@@ -716,8 +716,8 @@ class _GeometryDefinerNode(_HermesNode):
             # update current properties value of the GE-child
             child.Proxy.UpdateGENodePropertiesData(child)
 
-            # get GE-child nodeDate from GENodeDataString property
-            GEnodeData = json.loads(child.GENodeDataString)
+            # get GE-child nodeDate from EntityNodeDataString property
+            GEnodeData = json.loads(child.EntityNodeDataString)
 
             # get GE'node' object ; node =1,2,3 ...
             GEnode = 'GE' + str(x)
@@ -733,8 +733,8 @@ class _GeometryDefinerNode(_HermesNode):
         # Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-        # update properties of the current node(before updated only the children)
-        super().UpdateNodePropertiesData(obj)
+        # # update properties of the current node(before updated only the children)
+        # super().UpdateNodePropertiesData(obj)
 
         # workflowObj = obj.getParentGroup()
         # if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
@@ -767,7 +767,7 @@ class _GeometryDefinerNode(_HermesNode):
         GENodeData["Properties"] = GEProperties
 
         # Create the GEObject
-        GENodeObj = HermesGeometryDefinerNode.makeGENode('GEtemp', TypeList, GENodeData, obj)
+        GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GENodeData, obj)
 
         # get the References from the parent node to the the new GE child
         GENodeObj.References = obj.References
@@ -797,6 +797,9 @@ class _BlockMeshNode(_GeometryDefinerNode):
     def initializeFromJson(self, obj):
         _HermesNode.initializeFromJson(self, obj)
 
+        # additional initialization BlockMesh node
+        self.linkPartToBM(obj)
+
         # get Geometry Face types section from json
         GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
 
@@ -810,11 +813,11 @@ class _BlockMeshNode(_GeometryDefinerNode):
         for boundary in boundaryList:
 
             # Create the BME node
-            BMENodeObj = HermesGeometryDefinerNode.makeGENode('BME', TypeList, boundary, obj)
+            BMENodeObj = HermesGeometryDefinerNode.makeEntityNode('BME', TypeList, boundary, obj)
 
             # get the GE properties, and update their current value
-            # GEProperties = boundary["Properties"]
-            # BMENodeObj.Proxy.setCurrentPropertyGE(BMENodeObj, GEProperties)
+            GEProperties = boundary["Properties"]
+            BMENodeObj.Proxy.setCurrentPropertyGE(BMENodeObj, GEProperties)
 
             # Update the faces attach to the BME (also create the parts)
             BMENodeObj.Proxy.initFacesFromJson(BMENodeObj)
@@ -826,9 +829,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
             # get BME type and update his Type property
             BMEType = boundary["Type"]
             BMENodeObj.Type = BMEType
-
-        # additional initialization BlockMesh node
-        self.linkPartToBM(obj)
 
     def linkPartToBM(self, obj):
 
@@ -848,7 +848,7 @@ class _BlockMeshNode(_GeometryDefinerNode):
             partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
 
             # make sure part imported
-            if len(partNameFC != 0):
+            if len(partNameFC) != 0:
 
                 # get part by its name in FC
                 partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
@@ -868,27 +868,53 @@ class _BlockMeshNode(_GeometryDefinerNode):
         else:
             FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
 
+    # todo - chedk why export doesnt work:
+    #     - property of chldren?
 
     def backupNodeData(self, obj):
-        super().backupNodeData(obj)
+        # super().backupNodeData(obj)
+        for child in obj.Group:
+            child.Proxy.UpdateFacesInJson(child)
 
         # get workflow object
         workflowObj = obj.getParentGroup()
 
         # get part object
         partObj = getattr(obj, "partLink")
-        if partObj is None:
-            return
-        # get the part dictionary with and vertices data
-        partName = partObj.Name
-        partDict = workflowObj.Proxy.partList[partName]
-        vertices = partDict["Vertices"]["openFoam"]
+        if partObj is not None:
+            # get the part dictionary with and vertices data
+            partName = partObj.Name
+            partDict = workflowObj.Proxy.partList[partName]
+            vertices = partDict["Vertices"]["openFoam"]
 
-        # export BM part
-        workflowObj.Proxy.ExportPart(partName)
+            # export BM part
+            workflowObj.Proxy.ExportPart(partName)
 
-        # update vertices in nodedata
-        self.updateVertices(vertices)
+            # update vertices in nodedata
+            self.updateVertices(vertices)
+
+        # update boundry in nodedata
+        self.updateBoundry(obj)
+
+        # Update nodeData  at the NodeDataString by converting from json to string
+        obj.NodeDataString = json.dumps(self.nodeData)
+
+    def updateBoundry(self, obj):
+        # initialize boundry list
+        boundryList = []
+
+        # loop all objects in Nodeobj
+        for child in obj.Group:
+
+            # get GE-child nodeDate from EntityNodeDataString property
+            BMEnodeData = json.loads(child.EntityNodeDataString)
+
+            # update the GE-child nodeDate in the Geometry Entity List section
+            boundryList.append(BMEnodeData)
+
+        # update the Geometry Entity List section data in nodeData
+        self.nodeData['boundary'] = boundryList
+
 
     def updateVertices(self, vertices):
 
@@ -910,10 +936,22 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
 
     def UpdateNodePropertiesData(self, obj):
+
+        # get workflow object
+        workflowObj = obj.getParentGroup()
+
+        # update part path
+        setattr(obj, "partPath", workflowObj.ExportJSONFile)
+
+        # update properties as parent
         _HermesNode.UpdateNodePropertiesData(self, obj)
 
-    # def initializeFromJson(self, obj):
-    #     _HermesNode.initializeFromJson(self, obj)
+        # update children propeties
+        for child in obj.Group:
+            # update current properties value of the GE-child
+            child.Proxy.UpdateGENodePropertiesData(child)
+
+
 
 
 
