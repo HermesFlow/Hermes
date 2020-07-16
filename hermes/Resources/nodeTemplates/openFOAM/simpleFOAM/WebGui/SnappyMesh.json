@@ -26,44 +26,34 @@
                 "description":"merge tolerance as fraction of bounding box of initial mesh"
             },
             "geometry":{ 
-                "importJsonfromfile":{ 
-                    "path":"SnappyMesh/GeometryOF.json"
-                }
+                "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.GeometryOF"
             },
             "castellatedMeshControls":{     
                 "type":"object",
                 "title":"castellatedMeshControls",
                 "properties":{ 
-                    "importJsonfromfile":{ 
-                        "path":"SnappyMesh/castellatedMeshControls.json"
-                    }
+                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.castellatedMeshControls"
                 }
             },
             "snapControls":{ 
                 "type":"object",
                 "title":"snapControls",
-                "properties":{ 
-                    "importJsonfromfile":{ 
-                        "path":"SnappyMesh/snapControls.json"
-                    }
+                "properties":{
+                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.snapControls"
                 }
             },
             "addLayersControls":{ 
                 "type":"object",
                 "title":"addLayersControls",
-                "properties":{ 
-                    "importJsonfromfile":{ 
-                        "path":"SnappyMesh/addLayersControls.json"
-                    }
+                "properties":{
+                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.addLayersControls"
                 }
             },
             "meshQualityControls":{ 
                 "type":"object",
                 "title":"meshQualityControls",
-                "properties":{ 
-                    "importJsonfromfile":{ 
-                        "path":"SnappyMesh/meshQualityControls.json"
-                    }
+                "properties":{
+                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.meshQualityControls"
                 }
             },
             "writeFlags":{ 

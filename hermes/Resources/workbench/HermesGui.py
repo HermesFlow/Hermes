@@ -299,11 +299,11 @@ class _HermesWorkflow:
 
     def updateNodeList(self, obj):
 
-        x = 1;
+        x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
         for y in nodes:
             # get Node data
-            nodeData = nodes[y]
+            nodeData = nodes[y]["GUI"]
 
             # get node name
             nodename = y
@@ -350,7 +350,7 @@ class _HermesWorkflow:
             nodename = child.Proxy.name
 
             # # update the child nodeDate in the JsonObject
-            self.JsonObject["workflow"]["nodes"][nodename] = nodaData
+            self.JsonObject["workflow"]["nodes"][nodename]["GUI"] = nodaData
 
 
         return

@@ -59,9 +59,9 @@ import HermesPart
 # -----------**************************************************----------------
 # *****************************************************************************
 
-# Path To bc UI
+# Path To GE UI
 ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-path_to_ge_ui = ResourceDir + "Mod/Hermes/Resources/ui/bcdialog.ui"
+path_to_ge_ui = ResourceDir + "Mod/Hermes/Resources/ui/gedialog.ui"
 
 
 class CGEDialogPanel:
@@ -81,11 +81,14 @@ class CGEDialogPanel:
 
     def addGE(self, geType):
         # add  geType to options at GE dialog
-        self.form.m_pBCTypeCB.addItem(geType)
+        self.form.m_pGETypeCB.addItem(geType)
 
-    def setCurrentGE(self, GEName):
+    def setCurrentGE(self,GEType, GEName=""):
         # update the current value in the comboBox
-        self.form.m_pBCTypeCB.setCurrentText(GEName)
+        self.form.m_pGETypeCB.setCurrentText(GEType)
+
+        # update the current value in the Name
+        self.form.m_pGENameE.setText(GEName)
 
     def setCallingObject(self, callingObjName):
         # get obj Name, so in def 'accept' can call the obj
@@ -93,19 +96,22 @@ class CGEDialogPanel:
 
     def readOnlytype(self):
         # update the 'type' list to 'read only' - unChangeable
-        self.form.m_pBCTypeCB.setEnabled(0)
+        self.form.m_pGETypeCB.setEnabled(0)
 
     def accept(self):
         # Happen when Close Dialog
         # get the current GE type name from Dialog
-        GEtype = self.form.m_pBCTypeCB.currentText()
+        GEtype = self.form.m_pGETypeCB.currentText()
+
+        # get the current GE Name from Dialog
+        GEname = self.form.m_pGENameE.text()
 
 
         # calling the nodeObj from name
         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
 
         # calling the function that create the new GE Object
-        callingObject.Proxy.geDialogClosed(callingObject, GEtype)
+        callingObject.Proxy.geDialogClosed(callingObject, GEtype, GEname)
 
         # close the Dialog in FreeCAD
         FreeCADGui.Control.closeDialog()
@@ -448,7 +454,7 @@ class _HermesGE:
             geDialog.addGE(types)
 
         # update the first value to be showen in the comboBox
-        geDialog.setCurrentGE(obj.Type)
+        geDialog.setCurrentGE(obj.Type, obj.Label)
 
         # set read only GE type
         geDialog.readOnlytype()
@@ -461,7 +467,7 @@ class _HermesGE:
 
         return
 
-    def geDialogClosed(self, callingObject, GEtype):
+    def geDialogClosed(self, callingObject, GEtype, GEName):
         # todo: is needed?
         pass
 

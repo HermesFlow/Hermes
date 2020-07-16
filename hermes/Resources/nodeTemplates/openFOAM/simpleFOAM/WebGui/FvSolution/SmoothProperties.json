@@ -1,0 +1,37 @@
+{
+    "nPreSweeps":{
+        "type":"integer",
+        "title":"nPreSweeps",
+        "description":"number of sweeps as the algorithm is coarsening"
+    },
+    "preSweepsLevelMultiplier":{
+        "type":"integer",
+        "title":"preSweepsLevelMultiplier",
+        "description":"multiplier for the the number of sweeps between each coarsening level"
+    },
+    "maxPreSweeps":{
+        "type":"integer",
+        "title":"maxPreSweeps",
+        "description":"maximum number of sweeps as the algorithm is coarsening"
+    },
+    "nPostSweeps":{
+        "type":"integer",
+        "title":"nPostSweeps",
+        "description":"number of sweeps as the algorithm is refining"
+    },
+    "postSweepsLevelMultiplier":{
+        "type":"integer",
+        "title":"postSweepsLevelMultiplier",
+        "description":"multiplier for the the number of sweeps between each refinement level"
+    },
+    "maxPostSweeps":{
+        "type":"integer",
+        "title":"maxPostSweeps",
+        "description":"maximum number of sweeps as the algorithm is refining"
+    },
+    "nFinestSweeps":{
+        "type":"integer",
+        "title":"nFinestSweeps",
+        "description":"number of sweeps at finest level"
+    }
+}

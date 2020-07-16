@@ -749,7 +749,7 @@ class _GeometryDefinerNode(_HermesNode):
         #     HermesBlockMesh().updateJson(obj)
 
 
-    def geDialogClosed(self, obj, GEtype):
+    def geDialogClosed(self, obj, GEtype, GEname):
         # call when created new GE node
 
         # Create basic structure of a GENodeData
@@ -769,7 +769,7 @@ class _GeometryDefinerNode(_HermesNode):
         GEProperties = GEJsonType["Properties"]
 
         # update values in GENodeData structure
-        GENodeData["Name"] = GEtype  # meaningful name is thr type
+        GENodeData["Name"] = GEname  # meaningful name is thr type
         GENodeData["Type"] = GEtype
         GENodeData["Properties"] = GEProperties
 
