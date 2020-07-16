@@ -1,0 +1,48 @@
+{ 
+   "type":"object",
+   "anyOf":[ 
+      { 
+         "type":"object",
+         "title":"triSurfaceMesh",
+         "properties":{ 
+            "typeTSM":{ 
+               "type":"string",
+               "title":"type",
+               "default":"triSurfaceMesh"
+            },
+            "regionsTSM":{ 
+               "type":"array",
+               "title":"regions",
+               "items":{ 
+                  "type":"array",
+                  "title":"secondSolid",
+                  "items":{ 
+                     "type":"string",
+                     "title":"name",
+                     "default":"mySecondPatch"
+                  }
+               },
+               "description":"Per region the patch name"
+            },
+            "toleranceTSM":{ 
+               "type":"number",
+               "title":"tolerance",
+               "default":1e-5,
+               "description":"Tolerance to use for intersection tests"
+            },
+            "scaleTSM":{ 
+               "type":"number",
+               "title":"scale",
+               "default":0.001,
+               "description":"Scale factor to apply to the points"
+            },
+            "nameTSM":{ 
+               "type":"string",
+               "title":"name",
+               "default":"surface1",
+               "description":"Name to use to refer to this surface"
+            }
+         }
+      }
+   ]
+}

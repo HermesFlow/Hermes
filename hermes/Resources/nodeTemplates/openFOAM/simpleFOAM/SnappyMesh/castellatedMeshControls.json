@@ -1,0 +1,35 @@
+{
+    "locationInMesh":{
+        "type":"string",
+        "title":"locationInMesh",
+        "format":"vector",
+        "description":"location vector inside the region to be meshed; vector must not coincide with a cell face either before or during refinement"
+    },
+    "maxLocalCells":{
+        "type":"number",
+        "title":"maxLocalCells",
+        "description":"max number of cells per processor during refinement."
+    },
+    "maxGlobalCells":{
+        "type":"number",
+        "title":"maxGlobalCells",
+        "description":"overall cell limit during refinement"
+    },
+    "minRefinementCells":{
+        "type":"number",
+        "title":"minRefinementCells",
+        "description":"if minRefinementCells bigger/equal than number of cells to be refined, surface refinement stops"
+    },
+    "nCellsBetweenLevels":{
+        "type":"number",
+        "title":"nCellsBetweenLevels",
+        "description":"number of buffer layers of cells between successive levels of refinement"
+    },
+    "resolveFeatureAngle":{
+        "type":"number",
+        "title":"resolveFeatureAngle",
+        "description":"applies maximum level of refinement to cells that can see intersections whose angle exceeds resolveFeatureAngle"
+    }
+}
+
+

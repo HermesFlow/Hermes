@@ -1,0 +1,14 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "GeometryDefiner"
+        ],
+        "nodes": {
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            }
+        }
+    }
+}

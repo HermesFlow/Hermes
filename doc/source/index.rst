@@ -14,6 +14,7 @@ Welcome to Hermes's documentation!
    FreeCAD/FreeCAD.rst
    simpleWorkflow/intro.rst
    Json/JsonStructure.rst
+   CLI/CLI.rst
 
 
 Indices and tables

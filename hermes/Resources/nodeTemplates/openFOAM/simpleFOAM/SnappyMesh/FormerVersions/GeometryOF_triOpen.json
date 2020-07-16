@@ -1,0 +1,85 @@
+{ 
+   "type":"array",
+   "items":{ 
+      "type":"object",
+      "anyOf":[ 
+         { 
+            "properties":{ 
+                "name":{    
+                    "type":"string",
+                    "title":"name",
+                    "description":"Define region name"
+                },
+               "triangulated Surfaces":{ 
+                  "type":"object",
+                  "anyOf":[ 
+                     { 
+                        "title":"distributedTriSurfaceMesh",
+                        "properties":{ 
+                           "distributedTriSurfaceMesh":{ 
+                              "type":"string"
+                           }
+                        }
+                     },
+                     { 
+                        "title":"triSurfaceMesh",
+                        "properties":{ 
+                           "type":{ 
+                              "type":"string",
+                              "title":"type",
+                              "default":"triSurfaceMesh"
+                           },
+                           "regions":{
+                              "type":"array",
+                              "title":"regions",
+                              "items":{
+                                    "type":"array",
+                                    "title":"secondSolid",
+                                    "items":{
+                                        "type":"string",
+                                        "title":"name",
+                                        "default":"mySecondPatch"
+                                    }
+                              },
+                              "description":"Per region the patch name"
+                           },
+                           "tolerance":{
+                              "type":"number",
+                              "title":"tolerance",
+                              "default":1e-5,
+                              "description":"Tolerance to use for intersection tests"
+                           },
+                           "scale":{
+                              "type":"number",
+                              "title":"scale",
+                              "default":0.001,
+                              "description":"Scale factor to apply to the points"
+                           },
+                           "name":{
+                              "type":"string",
+                              "title":"name",
+                              "default":"surface1",
+                              "description":"Name to use to refer to this surface"
+                           }
+                        }
+                     }
+                  ]
+               }
+            }
+         },
+         { 
+            "properties":{ 
+               "firstName":{ 
+                  "type":"string",
+                  "title":"First name",
+                  "default":"Chuck"
+               },
+               "lastName":{ 
+                  "type":"string",
+                  "title":"Last name"
+               }
+            }
+         }
+      ]
+   }
+}

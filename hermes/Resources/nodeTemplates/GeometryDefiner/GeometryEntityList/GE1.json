@@ -1,0 +1,29 @@
+{
+    "Name":"wall",
+    "Type":"wall",
+    "Properties":{
+        "Property01":{
+            "prop":"Ux",
+            "init_val":"0 m/s",
+            "type":"App::PropertySpeed",
+            "Heading":"Velocity",
+            "tooltip":"Velocity in x direction ",
+            "current_val":"0 m/s"
+        },
+        "Property02":{
+            "prop":"Uy",
+            "init_val":"0 m/s",
+            "type":"App::PropertySpeed",
+            "Heading":"Velocity",
+            "tooltip":"Velocity in y direction",
+            "current_val":"0 m/s"
+        }
+    },
+    "faceList":{
+        "part1":{
+            "Name":"Cube",
+            "Path":"hermes/Resources/nodeTemplates/GeometryDefiner/GeometryEntityList/",
+            "faces":["Face1","Face2"]
+         }
+    }
+}

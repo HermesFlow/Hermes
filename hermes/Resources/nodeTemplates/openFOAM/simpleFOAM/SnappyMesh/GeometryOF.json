@@ -1,0 +1,33 @@
+{
+    "type":"array",
+    "title":"geometry",
+    "items":{ 
+        "type": "object",
+        "anyOf":[
+            {
+                "type":"object",
+                "title":"Surface",
+                "properties":{
+                    "triSurfaceMesh":{
+                        "type":"object",
+                        "properties":{
+                            "Template":"openFOAM.SnappyMesh.objects.triSurfaceMesh"
+                        }
+                    }
+                }
+            },
+            {
+                "type":"object",
+                "title":"Region",
+                "properties":{ 
+                    "searchableObject":{ 
+                        "Template":"openFOAM.SnappyMesh.geometryObject"
+                    }
+                }
+            }
+        ]
+    }
+       
+}
+
+

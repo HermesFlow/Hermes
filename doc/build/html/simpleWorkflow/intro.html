@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Simple Workflow &#8212; Hermes 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -21,6 +19,7 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
@@ -29,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="simple-workflow">
@@ -38,46 +39,44 @@
 <p>A simple workflow will include the steps to create all the needed files for an openFOAM run, using the FreeCAD and its Hermes module.</p>
 <blockquote>
 <div><ol class="arabic">
-<li><p class="first">Open FreeCAD and create a new document.</p>
-</li>
-<li><p class="first">Choose the Hermes module, and create a new HermesWorkflow object by pressing its symbol</p>
-</li>
-<li><dl class="first docutils">
-<dt>Import the basic JSON file of the workflow</dt>
-<dd><ul class="first last simple">
-<li>Press the HermesWorkflow object, a properties panel will appear below.</li>
-<li>In the IO section choose the “Import JsonFile” value, click on the 3 point button and choose the wanted file.</li>
-<li>All the nodes that have been defined in the JSON file should be load automatically under the HermesWorkflow object</li>
+<li><p>Open FreeCAD and create a new document.</p></li>
+<li><p>Choose the Hermes module, and create a new HermesWorkflow object by pressing its symbol</p></li>
+<li><dl class="simple">
+<dt>Import the basic JSON file of the workflow</dt><dd><ul class="simple">
+<li><p>Press the HermesWorkflow object, a properties panel will appear below.</p></li>
+<li><p>In the IO section choose the “Import JsonFile” value, click on the 3 point button and choose the wanted file.</p></li>
+<li><p>All the nodes that have been defined in the JSON file should be load automatically under the HermesWorkflow object</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>Update the data in each node, if needed</dt>
-<dd><ul class="first last simple">
-<li>one click on the node - will show the properties panel of the node</li>
-<li>double click on the node :</li>
-<li>WebGui node - will display the browser of the node</li>
-<li>BC, Boundry condition node - will allow you to add a new boundary condition to the case.</li>
-<li>Other nodes, for now, have no functionality.</li>
+<li><dl class="simple">
+<dt>Update the data in each node, if needed</dt><dd><ul class="simple">
+<li><p>one click on the node - will show the properties panel of the node</p></li>
+<li><p>double click on the node :</p></li>
+<li><p>WebGui node - will display the browser of the node</p></li>
+<li><p>BC, Boundry condition node - will allow you to add a new boundary condition to the case.</p></li>
+<li><p>Other nodes, for now, have no functionality.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><p class="first">Export an updated JSON File</p>
+<li><p>Export an updated JSON File</p>
 <p>there are two options to export the updated JSON file-</p>
 <blockquote>
 <div><ol class="upperalpha simple">
-<li>Whole workflow:<ul>
-<li>click the HermesWorkflow object, a properties panel will appear below.</li>
-<li>In the IO section choose the “Export JsonFile” value, click on the 3 point button and choose the wanted directory the file will be export to.</li>
-<li>the JSON file will be export to the directory with the name of the HermesWorkflow name. In addition, the root value at the JSON will be “null”</li>
+<li><p>Whole workflow:</p>
+<ul class="simple">
+<li><p>click the HermesWorkflow object, a properties panel will appear below.</p></li>
+<li><p>In the IO section choose the “Export JsonFile” value, click on the 3 point button and choose the wanted directory the file will be export to.</p></li>
+<li><p>the JSON file will be export to the directory with the name of the HermesWorkflow name. In addition, the root value at the JSON will be “null”</p></li>
 </ul>
 </li>
-<li>Specific node:<ul>
-<li>click any node, a properties panel will appear below.</li>
-<li>In the IO section choose the “Export JsonFile” value, click on the 3 point button and choose the wanted directory the file will be export to.</li>
-<li>the JSON file will be export to the directory with the name of the node name. In addition, the root value at the JSON will also be the node name</li>
+<li><p>Specific node:</p>
+<ul class="simple">
+<li><p>click any node, a properties panel will appear below.</p></li>
+<li><p>In the IO section choose the “Export JsonFile” value, click on the 3 point button and choose the wanted directory the file will be export to.</p></li>
+<li><p>the JSON file will be export to the directory with the name of the node name. In addition, the root value at the JSON will also be the node name</p></li>
 </ul>
 </li>
 </ol>
@@ -91,9 +90,9 @@
 <p>In the simple workflow, there are different types of nodes-</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>WebGui nodes</li>
-<li>Boundry Condition nodes</li>
-<li>System operation nodes</li>
+<li><p>WebGui nodes</p></li>
+<li><p>Boundry Condition nodes</p></li>
+<li><p>System operation nodes</p></li>
 </ol>
 </div></blockquote>
 <div class="section" id="webgui-nodes">
@@ -101,12 +100,12 @@
 <p>The nodes included:</p>
 <blockquote>
 <div><ul class="simple">
-<li>snappyHexMesh</li>
-<li>controlDict</li>
-<li>fvSchemes</li>
-<li>fvSolution</li>
-<li>transportProperties</li>
-<li>turbulence</li>
+<li><p>snappyHexMesh</p></li>
+<li><p>controlDict</p></li>
+<li><p>fvSchemes</p></li>
+<li><p>fvSolution</p></li>
+<li><p>transportProperties</p></li>
+<li><p>turbulence</p></li>
 </ul>
 </div></blockquote>
 <p>At each node from the list, there are parameters that need to be defined to use the openFOAM method.
@@ -122,9 +121,9 @@ The last step will create an openFOAM dictionary from the data been saved at the
 <p>The nodes included:</p>
 <blockquote>
 <div><ul class="simple">
-<li>copyDirectory</li>
-<li>RunPythonScript</li>
-<li>RunOsCommand</li>
+<li><p>copyDirectory</p></li>
+<li><p>RunPythonScript</p></li>
+<li><p>RunOsCommand</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -133,6 +132,7 @@ The last step will create an openFOAM dictionary from the data been saved at the
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -157,6 +157,7 @@ The last step will create an openFOAM dictionary from the data been saved at the
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Json/JsonStructure.html">The JSON Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI/expandPipeline.html">Expand Pipeline</a></li>
 </ul>
 
 <div class="relations">
@@ -169,17 +170,23 @@ The last step will create an openFOAM dictionary from the data been saved at the
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -188,8 +195,8 @@ The last step will create an openFOAM dictionary from the data been saved at the
       &copy;2019, Noga.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="../_sources/simpleWorkflow/intro.rst.txt"

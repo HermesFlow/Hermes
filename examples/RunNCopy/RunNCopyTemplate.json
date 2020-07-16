@@ -1,24 +1,19 @@
 {
     "workflow":{
         "root":null,
-        "Templates":{ 
-            "importJsonfromfile":{ 
-                "path":"../../hermes/Resources/nodeTemplates/templates.json"
-            }
-        },
+        "Templates":{},
         "nodeList":[
             "CopyDirectory",
             "RunOsCommand"
         ],
         "nodes":{
             "CopyDirectory":{
-                "Template":{ 
-                    "TypeFC":"general.CopyDirectory"
-                }
+                "Template":"general.CopyDirectory"
             },
             "RunOsCommand":{
-                "Template":{ 
-                    "TypeFC":"general.RunOsCommand"
+                "Template":"general.RunOsCommand",
+                "input_parameters": {
+                    "OS": "blockmesh -c {CopyDirectory.output.directory}"
                 }
             }
         }

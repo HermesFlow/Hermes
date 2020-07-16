@@ -8,7 +8,7 @@ class utils(object):
     def get_all_required_outputs(self):
         ret = {}
         for nodename, taskTarget in self.input().items():
-            #print("Load %s" % taskTarget.fn)
+            print("Load %s" % taskTarget.fn)
             try:
                 with open(taskTarget.fn) as jsoninput:
                     output = json.load(jsoninput)
@@ -54,53 +54,71 @@ class utils(object):
             The value of the parameter, str
         """
         path_tokens = parampath.split(".")
-
-        func_name = path_tokens[0] if path_tokens[0] in ["WebGUI","parameters","workflow","input_parameters","output","Properties","WebGui"] else "node"
+        func_name = path_tokens[0] if path_tokens[0] in ["WebGUI","parameters","workflow","input_parameters","output","Properties","WebGui","value"] else "node"
         func = getattr(self, "_handle_%s" % func_name)
 
         if len(path_tokens[1:]) == 0:
             raise ValueError("Some error with path: %s " % parampath)
-
-        retval = func(".".join(path_tokens[1:]), params.get(path_tokens[0],{}))
+        #retval = func(".".join(path_tokens[1:]), params.get(path_tokens[0],{}))
+        retval = func(path_tokens, params)
         print("%s-->%s == %s" % (func_name, path_tokens[1:],retval))
         return retval
 
     def _handle_WebGUI(self, parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_parameters(self, parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_node(self, parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
+
         return self._evaluate_path(parameterPath,params)
 
     def _handle_workflow(self, parameterPath, params):
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, self.workflowJSON)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_input_parameters(self, parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_output(self,parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_Properties(self,parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_WebGui(self,parameterPath, params):
+        params = params.get(parameterPath[0],{})
+        parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
+
+    def _handle_value(self,parameterPath, params):
+        return params.get(".".join(parameterPath[1:]),{})
+
 
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
         for paramname, parampath in task_executer_mapping.items():
-
             if isinstance(parampath, str):
                 #value = []
                 value=""
@@ -117,10 +135,13 @@ class utils(object):
 
             elif isinstance(parampath, dict):
                 param_ret = {}
-                for dict_paramname, dict_parampath in parampath.item():
-                    param_ret[dict_paramname] = self.build_executer_parameters(dict_parampath, params)
-
+                # for dict_paramname, dict_parampath in parampath.items():
+                #     print("parampath", dict_parampath)
+                #     param_ret[dict_paramname] = self.build_executer_parameters(dict_parampath, params)
+                for dict_paramname, dict_parampath in parampath.items():
+                    param_ret[dict_paramname] = self.build_executer_parameters({dict_paramname:dict_parampath}, params)[dict_paramname]
                 ret[paramname] = param_ret
+
             elif isinstance(parampath, Iterable):
                 param_ret = []
                 for dict_parampath in parampath:

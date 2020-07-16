@@ -1,11 +1,7 @@
 {
     "workflow": {
         "root": null,
-        "Templates": {
-            "importJsonfromfile": {
-                "path": "/home/noga/Noga/FreeCad/templates/templates.json"
-            }
-        },
+        "Templates": {},
         "nodeList": [
             "SnappyHexMesh",
             "ControlDict",
@@ -54,35 +50,17 @@
                                 "title": "geometry",
                                 "items": {
                                     "type": "object",
-                                    "properties": {
-                                        "nameSO": {
-                                            "type": "string",
-                                            "title": "name",
-                                            "description": "Define region name"
-                                        },
-                                        "geometry objects": {
+                                    "anyOf": [
+                                        {
                                             "type": "object",
-                                            "anyOf": [
-                                                {
+                                            "title": "Surface",
+                                            "properties": {
+                                                "triSurfaceMesh": {
                                                     "type": "object",
-                                                    "title": "triSurfaceMesh",
                                                     "properties": {
                                                         "typeTSM": {
                                                             "type": "string",
                                                             "title": "type"
-                                                        },
-                                                        "regionsTSM": {
-                                                            "type": "array",
-                                                            "title": "regions",
-                                                            "items": {
-                                                                "type": "array",
-                                                                "title": "secondSolid",
-                                                                "items": {
-                                                                    "type": "string",
-                                                                    "title": "name"
-                                                                }
-                                                            },
-                                                            "description": "Per region the patch name"
                                                         },
                                                         "toleranceTSM": {
                                                             "type": "number",
@@ -98,338 +76,418 @@
                                                             "type": "string",
                                                             "title": "name",
                                                             "description": "Name to use to refer to this surface"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableBox",
-                                                    "properties": {
-                                                        "typeBox": {
-                                                            "type": "string",
-                                                            "title": "type"
                                                         },
-                                                        "minBox": {
-                                                            "type": "string",
-                                                            "title": "min",
-                                                            "format": "vector",
-                                                            "description": "Box minimum point"
-                                                        },
-                                                        "maxBox": {
-                                                            "type": "string",
-                                                            "title": "max",
-                                                            "format": "vector",
-                                                            "description": "Box maximum point"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableCone",
-                                                    "properties": {
-                                                        "typeCone": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "point1Cone": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Axis point at the start"
-                                                        },
-                                                        "radius1Cone": {
-                                                            "title": "radius1",
-                                                            "type": "number",
-                                                            "description": "Outer radius at the start"
-                                                        },
-                                                        "innerRadius1Cone": {
-                                                            "title": "innerRadius1",
-                                                            "type": "number",
-                                                            "description": "Inner radius at the start"
-                                                        },
-                                                        "point2Cone": {
-                                                            "type": "string",
-                                                            "title": "point2",
-                                                            "format": "vector",
-                                                            "description": "Axis point at the start"
-                                                        },
-                                                        "radius2Cone": {
-                                                            "title": "radius2",
-                                                            "type": "number",
-                                                            "description": "Outer radius at the start"
-                                                        },
-                                                        "innerRadius2Cone": {
-                                                            "title": "innerRadius2",
-                                                            "type": "number",
-                                                            "description": "Inner radius at the start"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableCylinder",
-                                                    "properties": {
-                                                        "typeCylinder": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "point1Cylinder": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Axis point at the start"
-                                                        },
-                                                        "point2Cylinder": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Axis point at the end"
-                                                        },
-                                                        "radiusCylinder": {
-                                                            "title": "radius",
-                                                            "type": "number",
-                                                            "description": "Cylinder radius"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableDisk",
-                                                    "properties": {
-                                                        "typeDisk": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "originDisk": {
-                                                            "type": "string",
-                                                            "title": "origin",
-                                                            "format": "vector",
-                                                            "description": "Disk origin"
-                                                        },
-                                                        "normalDisk": {
-                                                            "type": "string",
-                                                            "title": "normal",
-                                                            "format": "vector",
-                                                            "description": "Normal direction"
-                                                        },
-                                                        "radiusDisk": {
-                                                            "title": "radius",
-                                                            "type": "number",
-                                                            "description": "Disk radius"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableExtrudedCircle",
-                                                    "properties": {
-                                                        "typeExtrudedCircle": {
-                                                            "type": "string",
-                                                            "title": "type",
-                                                            "description": "A shape defined by inflating a segmented line into a tube with constant radius. Note that only near queries are implemented, i.e. no testing for intersections or inside/outside."
-                                                        },
-                                                        "fileExtrudedCircle": {
-                                                            "type": "string",
-                                                            "title": "file Name",
-                                                            "description": "example: curve2.vtk "
-                                                        },
-                                                        "radiusExtrudedCircle": {
-                                                            "title": "radius",
-                                                            "type": "number",
-                                                            "description": "Constant radius"
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchablePlane",
-                                                    "properties": {
-                                                        "typePlane": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "planeType": {
+                                                        "featuresTSM": {
                                                             "type": "object",
-                                                            "anyOf": [
-                                                                {
-                                                                    "title": "pointAndNormal",
-                                                                    "description": "Plane defined by point and a normal vector",
-                                                                    "properties": {
-                                                                        "basePointPAN": {
-                                                                            "type": "string",
-                                                                            "title": "basePoint",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "normalPAN": {
-                                                                            "type": "string",
-                                                                            "title": "normal",
-                                                                            "format": "vector"
-                                                                        }
-                                                                    }
+                                                            "title": "features",
+                                                            "description": "features for refinement",
+                                                            "properties": {
+                                                                "file": {
+                                                                    "type": "string",
+                                                                    "title": "file"
                                                                 },
-                                                                {
-                                                                    "title": "embeddedPoints",
-                                                                    "description": "Plane defined by 3 points on the plane",
-                                                                    "properties": {
-                                                                        "point1EP": {
-                                                                            "type": "string",
-                                                                            "title": "point1",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "point2EP": {
-                                                                            "type": "string",
-                                                                            "title": "point2",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "point3EP": {
-                                                                            "type": "string",
-                                                                            "title": "point3",
-                                                                            "format": "vector"
-                                                                        }
-                                                                    }
+                                                                "levels": {
+                                                                    "type": "string",
+                                                                    "title": "levels"
+                                                                }
+                                                            }
+                                                        },
+                                                        "refinementSurfacesTSM": {
+                                                            "type": "object",
+                                                            "title": "refinementSurfaces",
+                                                            "properties": {
+                                                                "level": {
+                                                                    "type": "string",
+                                                                    "title": "level"
                                                                 },
-                                                                {
-                                                                    "title": "planeEquation",
-                                                                    "description": "Plane defined by plane equation:",
+                                                                "patchInfo": {
+                                                                    "type": "object",
+                                                                    "title": "patchInfo",
                                                                     "properties": {
-                                                                        "aPE": {
-                                                                            "type": "integer",
-                                                                            "title": "a"
-                                                                        },
-                                                                        "bPE": {
-                                                                            "type": "integer",
-                                                                            "title": "b"
-                                                                        },
-                                                                        "cPE": {
-                                                                            "type": "integer",
-                                                                            "title": "c"
-                                                                        },
-                                                                        "dPE": {
-                                                                            "type": "integer",
-                                                                            "title": "d"
+                                                                        "type": {
+                                                                            "type": "string"
                                                                         }
                                                                     }
                                                                 }
-                                                            ]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchablePlate",
-                                                    "properties": {
-                                                        "typePlate": {
-                                                            "type": "string",
-                                                            "title": "type",
-                                                            "description": "A finite plate aligned with co-ordinate system. Plate could be used e.g. to create a baffle or measuring plane"
+                                                            }
                                                         },
-                                                        "originPlate": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Centre of plate"
-                                                        },
-                                                        "spanPlate": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Span in each direction - User must specify span in two directions, the third must be zero."
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableRotatedBox",
-                                                    "properties": {
-                                                        "typeRotatedBox": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "spanRB": {
-                                                            "type": "string",
-                                                            "title": "span"
-                                                        },
-                                                        "originRB": {
-                                                            "type": "string",
-                                                            "title": "origin"
-                                                        },
-                                                        "ei-vectors": {
+                                                        "layersTSM": {
                                                             "type": "object",
-                                                            "description": "The rotation is defined by a combination of vectors (e1/e2),(e2/e3) or (e3/e1)",
-                                                            "anyOf": [
-                                                                {
-                                                                    "title": "Option1-e1,e2",
-                                                                    "properties": {
-                                                                        "e1OP1": {
-                                                                            "type": "string",
-                                                                            "title": "e1",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "e2OP1": {
-                                                                            "type": "string",
-                                                                            "title": "e2",
-                                                                            "format": "vector"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "title": "Option2-e1,e3",
-                                                                    "properties": {
-                                                                        "e1OP2": {
-                                                                            "type": "string",
-                                                                            "title": "e1",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "e3OP2": {
-                                                                            "type": "string",
-                                                                            "title": "e3",
-                                                                            "format": "vector"
-                                                                        }
-                                                                    }
-                                                                },
-                                                                {
-                                                                    "title": "Option3-e2,e3",
-                                                                    "properties": {
-                                                                        "e2OP3": {
-                                                                            "type": "string",
-                                                                            "title": "e2",
-                                                                            "format": "vector"
-                                                                        },
-                                                                        "e3OP3": {
-                                                                            "type": "string",
-                                                                            "title": "e3",
-                                                                            "format": "vector"
-                                                                        }
-                                                                    }
+                                                            "title": "layers",
+                                                            "properties": {
+                                                                "nSurfaceLayers": {
+                                                                    "type": "integer",
+                                                                    "title": "nSurfaceLayers"
                                                                 }
-                                                            ]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "title": "searchableSphere",
-                                                    "properties": {
-                                                        "typeSphere": {
-                                                            "type": "string",
-                                                            "title": "type"
-                                                        },
-                                                        "centerSphere": {
-                                                            "type": "string",
-                                                            "title": "point1",
-                                                            "format": "vector",
-                                                            "description": "Centre of sphere"
-                                                        },
-                                                        "radiusSphere": {
-                                                            "title": "radius",
-                                                            "type": "number",
-                                                            "description": "Radius of sphere"
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            ]
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "title": "Region",
+                                            "properties": {
+                                                "searchableObject": {
+                                                    "type": "object",
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Box",
+                                                            "properties": {
+                                                                "nameBOX": {
+                                                                    "type": "string",
+                                                                    "title": "name",
+                                                                    "description": "Name to use to refer to this Region"
+                                                                },
+                                                                "propertiesBOX": {
+                                                                    "type": "object",
+                                                                    "title": "properties",
+                                                                    "properties": {
+                                                                        "typeBox": {
+                                                                            "type": "string",
+                                                                            "title": "type"
+                                                                        },
+                                                                        "minBox": {
+                                                                            "type": "string",
+                                                                            "title": "min",
+                                                                            "format": "vector",
+                                                                            "description": "Box minimum point"
+                                                                        },
+                                                                        "maxBox": {
+                                                                            "type": "string",
+                                                                            "title": "max",
+                                                                            "format": "vector",
+                                                                            "description": "Box maximum point"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "refinementRegionsBox": {
+                                                                    "type": "object",
+                                                                    "title": "refinementRegions",
+                                                                    "properties": {
+                                                                        "mode": {
+                                                                            "type": "string",
+                                                                            "title": "mode"
+                                                                        },
+                                                                        "levels": {
+                                                                            "type": "string",
+                                                                            "title": "levels"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Cone",
+                                                            "properties": {
+                                                                "typeCone": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "point1Cone": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Axis point at the start"
+                                                                },
+                                                                "radius1Cone": {
+                                                                    "title": "radius1",
+                                                                    "type": "number",
+                                                                    "description": "Outer radius at the start"
+                                                                },
+                                                                "innerRadius1Cone": {
+                                                                    "title": "innerRadius1",
+                                                                    "type": "number",
+                                                                    "description": "Inner radius at the start"
+                                                                },
+                                                                "point2Cone": {
+                                                                    "type": "string",
+                                                                    "title": "point2",
+                                                                    "format": "vector",
+                                                                    "description": "Axis point at the start"
+                                                                },
+                                                                "radius2Cone": {
+                                                                    "title": "radius2",
+                                                                    "type": "number",
+                                                                    "description": "Outer radius at the start"
+                                                                },
+                                                                "innerRadius2Cone": {
+                                                                    "title": "innerRadius2",
+                                                                    "type": "number",
+                                                                    "description": "Inner radius at the start"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Cylinder",
+                                                            "properties": {
+                                                                "typeCylinder": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "point1Cylinder": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Axis point at the start"
+                                                                },
+                                                                "point2Cylinder": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Axis point at the end"
+                                                                },
+                                                                "radiusCylinder": {
+                                                                    "title": "radius",
+                                                                    "type": "number",
+                                                                    "description": "Cylinder radius"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Disk",
+                                                            "properties": {
+                                                                "typeDisk": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "originDisk": {
+                                                                    "type": "string",
+                                                                    "title": "origin",
+                                                                    "format": "vector",
+                                                                    "description": "Disk origin"
+                                                                },
+                                                                "normalDisk": {
+                                                                    "type": "string",
+                                                                    "title": "normal",
+                                                                    "format": "vector",
+                                                                    "description": "Normal direction"
+                                                                },
+                                                                "radiusDisk": {
+                                                                    "title": "radius",
+                                                                    "type": "number",
+                                                                    "description": "Disk radius"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "ExtrudedCircle",
+                                                            "properties": {
+                                                                "typeExtrudedCircle": {
+                                                                    "type": "string",
+                                                                    "title": "type",
+                                                                    "description": "A shape defined by inflating a segmented line into a tube with constant radius. Note that only near queries are implemented, i.e. no testing for intersections or inside/outside."
+                                                                },
+                                                                "fileExtrudedCircle": {
+                                                                    "type": "string",
+                                                                    "title": "file Name",
+                                                                    "description": "example: curve2.vtk "
+                                                                },
+                                                                "radiusExtrudedCircle": {
+                                                                    "title": "radius",
+                                                                    "type": "number",
+                                                                    "description": "Constant radius"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Plane",
+                                                            "properties": {
+                                                                "typePlane": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "planeType": {
+                                                                    "type": "object",
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "title": "pointAndNormal",
+                                                                            "description": "Plane defined by point and a normal vector",
+                                                                            "properties": {
+                                                                                "basePointPAN": {
+                                                                                    "type": "string",
+                                                                                    "title": "basePoint",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "normalPAN": {
+                                                                                    "type": "string",
+                                                                                    "title": "normal",
+                                                                                    "format": "vector"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "title": "embeddedPoints",
+                                                                            "description": "Plane defined by 3 points on the plane",
+                                                                            "properties": {
+                                                                                "point1EP": {
+                                                                                    "type": "string",
+                                                                                    "title": "point1",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "point2EP": {
+                                                                                    "type": "string",
+                                                                                    "title": "point2",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "point3EP": {
+                                                                                    "type": "string",
+                                                                                    "title": "point3",
+                                                                                    "format": "vector"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "title": "planeEquation",
+                                                                            "description": "Plane defined by plane equation:",
+                                                                            "properties": {
+                                                                                "aPE": {
+                                                                                    "type": "integer",
+                                                                                    "title": "a"
+                                                                                },
+                                                                                "bPE": {
+                                                                                    "type": "integer",
+                                                                                    "title": "b"
+                                                                                },
+                                                                                "cPE": {
+                                                                                    "type": "integer",
+                                                                                    "title": "c"
+                                                                                },
+                                                                                "dPE": {
+                                                                                    "type": "integer",
+                                                                                    "title": "d"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Plate",
+                                                            "properties": {
+                                                                "typePlate": {
+                                                                    "type": "string",
+                                                                    "title": "type",
+                                                                    "description": "A finite plate aligned with co-ordinate system. Plate could be used e.g. to create a baffle or measuring plane"
+                                                                },
+                                                                "originPlate": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Centre of plate"
+                                                                },
+                                                                "spanPlate": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Span in each direction - User must specify span in two directions, the third must be zero."
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "RotatedBox",
+                                                            "properties": {
+                                                                "typeRotatedBox": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "spanRB": {
+                                                                    "type": "string",
+                                                                    "title": "span"
+                                                                },
+                                                                "originRB": {
+                                                                    "type": "string",
+                                                                    "title": "origin"
+                                                                },
+                                                                "ei-vectors": {
+                                                                    "type": "object",
+                                                                    "description": "The rotation is defined by a combination of vectors (e1/e2),(e2/e3) or (e3/e1)",
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "title": "Option1-e1,e2",
+                                                                            "properties": {
+                                                                                "e1OP1": {
+                                                                                    "type": "string",
+                                                                                    "title": "e1",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "e2OP1": {
+                                                                                    "type": "string",
+                                                                                    "title": "e2",
+                                                                                    "format": "vector"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "title": "Option2-e1,e3",
+                                                                            "properties": {
+                                                                                "e1OP2": {
+                                                                                    "type": "string",
+                                                                                    "title": "e1",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "e3OP2": {
+                                                                                    "type": "string",
+                                                                                    "title": "e3",
+                                                                                    "format": "vector"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "title": "Option3-e2,e3",
+                                                                            "properties": {
+                                                                                "e2OP3": {
+                                                                                    "type": "string",
+                                                                                    "title": "e2",
+                                                                                    "format": "vector"
+                                                                                },
+                                                                                "e3OP3": {
+                                                                                    "type": "string",
+                                                                                    "title": "e3",
+                                                                                    "format": "vector"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "title": "Sphere",
+                                                            "properties": {
+                                                                "typeSphere": {
+                                                                    "type": "string",
+                                                                    "title": "type"
+                                                                },
+                                                                "centerSphere": {
+                                                                    "type": "string",
+                                                                    "title": "point1",
+                                                                    "format": "vector",
+                                                                    "description": "Centre of sphere"
+                                                                },
+                                                                "radiusSphere": {
+                                                                    "title": "radius",
+                                                                    "type": "number",
+                                                                    "description": "Radius of sphere"
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
                                         }
-                                    }
+                                    ]
                                 }
                             },
                             "castellatedMeshControls": {
@@ -466,98 +524,6 @@
                                         "type": "number",
                                         "title": "resolveFeatureAngle",
                                         "description": "applies maximum level of refinement to cells that can see intersections whose angle exceeds resolveFeatureAngle"
-                                    },
-                                    "features": {
-                                        "type": "array",
-                                        "titles": "features",
-                                        "items": {
-                                            "type": "object",
-                                            "description": "list of features for refinement",
-                                            "properties": {
-                                                "file": {
-                                                    "type": "string",
-                                                    "title": "file"
-                                                },
-                                                "levels": {
-                                                    "type": "string",
-                                                    "title": "levels"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "refinementSurfaces": {
-                                        "type": "array",
-                                        "title": "refinementSurfaces",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "SurfaceName": {
-                                                    "type": "string",
-                                                    "title": "Name of Surface"
-                                                },
-                                                "SurfaceProperties": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "level": {
-                                                            "type": "string",
-                                                            "title": "level"
-                                                        },
-                                                        "patchInfo": {
-                                                            "type": "object",
-                                                            "title": "patchInfo",
-                                                            "properties": {
-                                                                "type": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        },
-                                                        "regions": {
-                                                            "type": "array",
-                                                            "title": "regions",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "regionName": {
-                                                                        "type": "string",
-                                                                        "title": "Name of region"
-                                                                    },
-                                                                    "levels": {
-                                                                        "type": "string",
-                                                                        "title": "levels"
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "refinementRegions": {
-                                        "type": "array",
-                                        "title": "refinementRegions",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "RegionName": {
-                                                    "type": "string",
-                                                    "title": "Name of Region"
-                                                },
-                                                "RegionProperties": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "mode": {
-                                                            "type": "string",
-                                                            "title": "mode"
-                                                        },
-                                                        "levels": {
-                                                            "type": "string",
-                                                            "title": "levels"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
                                     }
                                 }
                             },
@@ -609,28 +575,6 @@
                                         "type": "boolean",
                                         "title": "multiRegionFeatureSnap",
                                         "description": "When using explicitFeatureSnap and this switch is on, features between multiple surfaces will be captured. This is useful for multi-region meshing where the internal mesh must conform the region geometrical boundaries"
-                                    }
-                                }
-                            },
-                            "layers": {
-                                "type": "array",
-                                "title": "layers",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string",
-                                            "title": "Surface Name"
-                                        },
-                                        "layerProperties": {
-                                            "type": "object",
-                                            "properties": {
-                                                "nSurfaceLayers": {
-                                                    "type": "integer",
-                                                    "title": "nSurfaceLayers"
-                                                }
-                                            }
-                                        }
                                     }
                                 }
                             },
@@ -831,90 +775,71 @@
                     },
                     "uiSchema": {},
                     "formData": {
-                        "castellatedMesh": true,
-                        "snap": false,
-                        "addLayers": true,
+                        "castellatedMesh": false,
+                        "snap": true,
+                        "addLayers": false,
                         "geometry": [
                             {
-                                "geometry objects": {
+                                "triSurfaceMesh": {
                                     "typeTSM": "triSurfaceMesh",
-                                    "nameTSM": "buildings"
-                                },
-                                "nameSO": "buildings.stl"
+                                    "nameTSM": "buildings",
+                                    "featuresTSM": {
+                                        "file": "buildings.eMesh",
+                                        "levels": "((3 2) (20 1))"
+                                    },
+                                    "refinementSurfacesTSM": {
+                                        "level": "(2 1)",
+                                        "patchInfo": {
+                                            "type": "wall"
+                                        }
+                                    },
+                                    "layersTSM": {
+                                        "nSurfaceLayers": 1
+                                    }
+                                }
                             },
                             {
-                                "geometry objects": {
+                                "triSurfaceMesh": {
+                                    "layersTSM": {},
                                     "typeTSM": "triSurfaceMesh",
-                                    "nameTSM": "topo"
-                                },
-                                "nameSO": "topo.stl"
+                                    "nameTSM": "topo",
+                                    "featuresTSM": {
+                                        "file": "topo.eMesh",
+                                        "levels": "((3 2) (20 1))"
+                                    },
+                                    "refinementSurfacesTSM": {
+                                        "level": "(2 1)",
+                                        "patchInfo": {
+                                            "type": "wall"
+                                        }
+                                    }
+                                }
                             },
                             {
-                                "geometry objects": {
-                                    "typeBox": "searchableBox",
-                                    "minBox": "(-250 -250   0)",
-                                    "maxBox": "(250 250  10)"
-                                },
-                                "nameSO": "refinementBox"
+                                "searchableObject": {
+                                    "nameBOX": "refinementBox",
+                                    "propertiesBOX": {
+                                        "typeBox": "searchableBox",
+                                        "minBox": "(-250 -250   0)",
+                                        "maxBox": "(250 250  10)"
+                                    },
+                                    "refinementRegionsBox": {
+                                        "mode": "inside",
+                                        "levels": "((1E15 1))"
+                                    }
+                                }
                             }
                         ],
                         "castellatedMeshControls": {
                             "nCellsBetweenLevels": 2,
                             "maxLocalCells": 200000000,
                             "maxGlobalCells": 200000000,
-                            "features": [
-                                {
-                                    "file": "topo.eMesh",
-                                    "levels": "((3 2) (20 1))"
-                                },
-                                {
-                                    "file": "buildings.eMesh",
-                                    "levels": "((3 2) (20 1))"
-                                }
-                            ],
-                            "refinementSurfaces": [
-                                {
-                                    "SurfaceName": "buildings",
-                                    "SurfaceProperties": {
-                                        "level": "(2 1)",
-                                        "patchInfo": {
-                                            "type": "wall"
-                                        }
-                                    }
-                                },
-                                {
-                                    "SurfaceName": "topo",
-                                    "SurfaceProperties": {
-                                        "level": "(2 1)",
-                                        "patchInfo": {
-                                            "type": "wall"
-                                        }
-                                    }
-                                }
-                            ],
-                            "refinementRegions": [
-                                {
-                                    "RegionProperties": {
-                                        "mode": "inside",
-                                        "levels": "((1E15 1))"
-                                    },
-                                    "RegionName": "refinementBox"
-                                }
-                            ],
                             "locationInMesh": "(207000 738000 635)"
                         },
                         "snapControls": {
                             "explicitFeatureSnap": true,
                             "implicitFeatureSnap": false
                         },
-                        "layers": [
-                            {
-                                "name": "buildings",
-                                "layerProperties": {
-                                    "nSurfaceLayers": 1
-                                }
-                            }
-                        ],
                         "addLayersControls": {
                             "relativeSizes": true,
                             "expansionRatio": 1,
@@ -933,7 +858,10 @@
                             "nBufferCellsNoExtrude": 0,
                             "nLayerIter": 50
                         },
-                        "meshQualityControls": {},
+                        "meshQualityControls": {
+                            "minArea": -1,
+                            "relaxed": {}
+                        },
                         "writeFlags": [
                             "scalarLevels",
                             "layerSets",
@@ -1110,7 +1038,7 @@
                     "formData": {
                         "application": "simpleFoam",
                         "startFrom": "startTime",
-                        "startTime": 0,
+                        "startTime": 13,
                         "stopAt": "endTime",
                         "endTime": 1000,
                         "deltaT": 1,
