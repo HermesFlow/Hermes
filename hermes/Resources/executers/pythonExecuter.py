@@ -1,6 +1,8 @@
 #from abstractExecuter import abstractExecuter
 import os
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
+import errno
+import json
 
 class pythonExecuter(abstractExecuter):
 
@@ -41,7 +43,7 @@ class RunPythonScript(abstractExecuter):
 
 class exportFiles(abstractExecuter):
 
-    def __init__(self):
+    def __init__(self, tskJSON):
         pass
 
     def _defaultParameters(self):
@@ -54,25 +56,40 @@ class exportFiles(abstractExecuter):
         )
 
     def run(self, **inputs):
-        # get the working directory
-        path = os.getcwd()
+        # # get the working directory
+        # path = os.getcwd()
+        #
+        # # export all data in the dict
+        # for Ikey,Ival in inputs.items():
+        #
+        #     # get the path to dir and file seperatly
+        #     key_list = Ikey.split('/')
+        #     dir_path= path + "/" + key_list[0]
+        #     file_path = path + "/" + Ikey
+        #
+        #     # if dir doesnt exsit, create one
+        #     if not(os.path.isdir(dir_path)):
+        #         os.mkdir(dir_path)
+        #
+        #     # export the file
+        #     with open( file_path , "w+" ) as f:
+        #         f.write(Ival)
 
-        # export all data in the dict
-        for Ikey,Ival in inputs.items():
+        path = inputs["casePath"]
+        files = inputs["Files"]
 
-            # get the path to dir and file seperatly
-            key_list = Ikey.split('/')
-            dir_path= path + "/" + key_list[0]
-            file_path = path + "/" + Ikey
+        for filename, file in files.items():
 
-            # if dir doesnt exsit, create one
-            if not(os.path.isdir(dir_path)):
-                os.mkdir(dir_path)
+            newPath = os.path.join(path, filename)
 
-            # export the file
-            with open( file_path , "w+" ) as f:
-                f.write(Ival)
-
+            if not os.path.exists(os.path.dirname(newPath)):
+                try:
+                    os.makedirs(os.path.dirname(newPath))
+                except OSError as exc:  # Guard against race condition
+                    if exc.errno != errno.EEXIST:
+                        raise
+            with open(newPath, "w") as newfile:
+                newfile.write(file)
 
 
 

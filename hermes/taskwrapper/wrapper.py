@@ -62,7 +62,11 @@ class hermesTaskWrapper(object):
 
         typesList = []
         for param_path in taskJSON['input_parameters'].values():
-             typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
+            if type(param_path)==dict:
+                for param_p in param_path.values():
+                    typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
+            else:
+                typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
 
 
         # append nodes list in the 'dependent_tasks'
@@ -157,6 +161,21 @@ class hermesTaskWrapper(object):
     def input_parameters(self):
         return self._taskJSON.get("input_parameters", {})
 
+    @property
+    def formData(self):
+        return self._taskJSON.get("formData", {})
+
+    @property
+    def Schema(self):
+        return self._taskJSON.get("Schema", {})
+
+    @property
+    def files(self):
+        return self._taskJSON.get("files", {})
+
+    @property
+    def uiSchema(self):
+        return self._taskJSON.get("uiSchema", {})
 
     @property
     def task_Properties(self):

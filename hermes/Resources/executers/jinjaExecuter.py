@@ -1,6 +1,6 @@
 import os
 import re
-import sys
+import pathlib
 from jinja2 import FileSystemLoader, Environment
 #from abstractExecuter import abstractExecuter
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
@@ -8,18 +8,18 @@ from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
 class jinjaExecuter(abstractExecuter):
 
-    def __init__(self):
-
-        # get the user working dir
-        self.u_wd = os.getcwd()
-
-        # define executer as the current working directory
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-        cwd=HermesDirpath+"/hermes/Resources/executers"
-        os.chdir(cwd)
-
-        # update 'pathFile' to full path- absolute
-        self.templates = os.path.abspath("templates")
+    # def __init__(self):
+    #
+    #     # get the user working dir
+    #     self.u_wd = os.getcwd()
+    #
+    #     # define executer as the current working directory
+    #     HermesDirpath = os.getenv('HERMES_2_PATH')
+    #     cwd=HermesDirpath+"/hermes/Resources/executers"
+    #     os.chdir(cwd)
+    #
+    #     # update 'pathFile' to full path- absolute
+    #     self.templates = os.path.abspath("templates")
 
     def _defaultParameters(self):
         return dict(
@@ -46,8 +46,10 @@ class jinjaExecuter(abstractExecuter):
         values = inputs['values']
 
         # define the environment - in this case : templates directory
-        file_loader = FileSystemLoader(self.templates)
+#        file_loader = FileSystemLoader(self.templates)
+        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
         env = Environment(loader=file_loader)
+        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
 
         # Define the template to use
         template = env.get_template(templateName)
@@ -55,10 +57,11 @@ class jinjaExecuter(abstractExecuter):
         # render jinja for the choosen template
         output = template.render(values=values)
 
-        # save as dict item
-        D_item = {inputs['name'] : output}
+        # # save as dict item
+        # D_item = {inputs['name'] : output}
+        #
+        # # return the user working directory
+        # os.chdir(self.u_wd)
 
-        # return the user working directory
-        os.chdir(self.u_wd)
-
-        return D_item
+        # return D_item
+        return output
