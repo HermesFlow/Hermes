@@ -92,6 +92,15 @@ class _HermesWorkflow:
 
         self.WD_path = ""
 
+        # get the path from environment variable
+        self.HermesDirpath = os.getenv('HERMES_2_PATH')
+
+        # add an Error message in case the environment variable does not exist
+        if (self.HermesDirpath == None):
+            FreeCAD.Console.PrintError('Error: HermesGui.py - The Hermes environment variable does not exist!\n')
+            return
+
+
     def initProperties(self, obj):
 
         # ImportJSONFile propert- get the file path of the wanted json file
@@ -234,11 +243,8 @@ class _HermesWorkflow:
         # check if relative path to Hermes folder
         if partPath.startswith("hermes"):
 
-            # get the path from environment variable
-            HermesDirpath = os.getenv('HERMES_2_PATH')
-
-            # update partPath in relative to HermesDirpath
-            partPath = HermesDirpath + '/' + partPath
+            # update partPath in relative to Hermes Dirpath
+            partPath = self.HermesDirpath + '/' + partPath
 
         # update 'pathFile' to full path- absolute
         partPath = os.path.abspath(partPath)
@@ -360,21 +366,12 @@ class _HermesWorkflow:
         # save the current work directory before it changed
         currentDirFC = os.getcwd()
 
-        # get the path from environment variable
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-
-        # add an Error message in case the environment variable does not exist
-        if (HermesDirpath == None):
-            FreeCAD.Console.PrintError('Error: HermesGui.py - line 940: The environment variable does not exist!\n')
-            return
-        current_dir = HermesDirpath
-
-        current_dir = HermesDirpath + '/hermes/'
+        current_dir = self.HermesDirpath + '/hermes/'
 
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)
         sys.path.insert(1, current_dir)
-        sys.path.insert(1, HermesDirpath)
+        sys.path.insert(1, self.HermesDirpath)
 
         # update 'current_dir' to full path- absolute
         current_dir = os.path.abspath(current_dir)
@@ -386,7 +383,7 @@ class _HermesWorkflow:
         from hermes import hermesWorkflow
 
         # call hermes workflow and keep its result in var
-        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, HermesDirpath)
+        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
 
         print(wf)
         print("===================================")
@@ -418,10 +415,8 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         # save the current work directory before it changed
         currentDirFC = os.getcwd()
 
-        # get the path from environment variable
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-        # print("RunLuigi:HermesDirpath=" + str(HermesDirpath))
-        current_dir = HermesDirpath
+        # define current dir
+        current_dir = self.HermesDirpath
 
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)
