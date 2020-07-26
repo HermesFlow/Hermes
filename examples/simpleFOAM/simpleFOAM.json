@@ -12,7 +12,8 @@
         ],
         "nodes": {
             "controlDict": {
-                "Template": "openFOAM.simpleFOAM.ControlDict"
+                "Template": "openFOAM.simpleFOAM.ControlDict",
+                "formData": {}
             },
             "fvSchemes": {
                 "Template": "openFOAM.simpleFOAM.fvSchemes"

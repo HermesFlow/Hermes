@@ -26,10 +26,10 @@ For example, let's use the file simpleFOAM.json from the examples:
                 },
                 "RunPythonScript": {
                     "Template": "general.RunPythonScript"
-                    }
                 }
             }
         }
+    }
 
 We would like to expand it.
 This pipeline uses the default parameters for all nodes except for the parameter "Target"
@@ -58,7 +58,7 @@ In order to use it, we add its path to the command:
 
 .. code-block:: python
 
-    hermes-Pipelineexpand "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAM.json"
+    hermes-Pipeline expand "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAM.json"
                           "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
                           "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/parameters.json"
 
@@ -147,4 +147,4 @@ and the parameter "Source" is "I'm from the parameters json".
           }
         }
       }
-}
+    }

@@ -4,5 +4,6 @@
     "input_parameters":{
         "casePath":"",
         "Files":{}
-    }
+    },
+    "formData": {}
 }
