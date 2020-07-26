@@ -175,7 +175,7 @@
         "writeCompression":"off",
         "timeFormat": "general",
         "timePrecision": 6,
-        "runTimeModifiable": true,
+        "runTimeModifiable": "true",
         "interpolate": true,
         "adjustTimeStep" :"yes",
         "maxCo"	:	0.5,
