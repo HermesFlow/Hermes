@@ -1,0 +1,42 @@
+{
+    "workflow":{
+        "root":null,
+        "Templates":{},
+        "nodeList":[
+            "ControlDict",
+            "FvSchemes"
+        ],
+        "nodes":{
+            "ControlDict":{
+                "Execution": {
+                    "typeExecution": "jinjaExecuter",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI":{
+                    "TypeFC":"WebGuiNode",
+                    "Properties":{},
+                    "WebGui":{
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
+                    }
+                }
+            },
+            "FvSchemes":{
+                "Execution": {
+                    "typeExecution": "jinjaExecuter",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                    }
+                }
+            }
+        }
+    }
+}

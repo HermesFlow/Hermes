@@ -778,9 +778,9 @@
                         },
                         "uiSchema": {},
                         "formData": {
-                            "castellatedMesh": false,
+                            "castellatedMesh": true,
                             "snap": false,
-                            "addLayers": false,
+                            "addLayers": true,
                             "geometry": [
                                 {
                                     "triSurfaceMesh": {
@@ -861,16 +861,13 @@
                                 "nBufferCellsNoExtrude": 0,
                                 "nLayerIter": 50
                             },
-                            "meshQualityControls": {
-                                "minArea": -1,
-                                "relaxed": {}
-                            },
+                            "meshQualityControls": {},
                             "writeFlags": [
                                 "scalarLevels",
                                 "layerSets",
                                 "layerFields"
                             ],
-                            "mergeTolerance": 1.000001
+                            "mergeTolerance": 1e-06
                         }
                     }
                 }

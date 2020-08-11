@@ -118,6 +118,13 @@ class utils(object):
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
+        # print("task_executer_mapping")
+        # print(task_executer_mapping)
+        # print("2222222222222222222222")
+        # print("params")
+        # print(params)
+        # print("33333333333333333333333")
+
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 #value = []

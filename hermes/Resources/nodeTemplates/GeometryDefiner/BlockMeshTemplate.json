@@ -1,0 +1,22 @@
+{
+    "Execution": {
+        "typeExecution": "executerPython",
+        "input_parameters": {
+        }
+    },
+    "GUI": {
+        "TypeFC":"BlockMeshNode",
+        "Properties":{
+                "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
+
+        },
+        "GeometryFaceTypes":{
+            "TypeList":["wall","symmetry","patch","boundarylayer"],
+            "TypeProperties":{
+                "Template":"GeometryDefiner.GeometryFaceTypes.GFTypesListProperties"
+            }
+        },
+        "boundary": [],
+        "vertices": []
+    }
+}

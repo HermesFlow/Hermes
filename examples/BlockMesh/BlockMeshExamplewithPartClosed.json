@@ -1,0 +1,59 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "GeometryDefiner"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate",
+                "GUI": {
+                    "Properties": {
+                        "Property01": {
+                            "prop": "partName",
+                            "init_val": "",
+                            "type": "App::PropertyString",
+                            "Heading": "BasicData",
+                            "tooltip": "Name of tha part of the blockMesh node ",
+                            "current_val": "Cube"
+                        },
+                        "Property02": {
+                            "prop": "partPath",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "BasicData",
+                            "tooltip": "Path to tha part of the blockMesh node ",
+                            "current_val": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh"
+                        }
+                    },
+                    "boundary": [
+                        {
+                            "Name": "Inlet",
+                            "Type": "patch",
+                            "Properties": {
+                                "Property01": {
+                                    "prop": "P0",
+                                    "init_val": "10 Pa",
+                                    "type": "App::PropertyPressure",
+                                    "Heading": "Pressure",
+                                    "tooltip": "Total Pressure ",
+                                    "current_val": "0.01 kg/(mm*s^2)"
+                                }
+                            },
+                            "faces": {
+                                "Face5": {
+                                    "vertices": "0 3 2 1"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            }
+        }
+    }
+}

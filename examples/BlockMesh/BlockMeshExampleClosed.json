@@ -1,0 +1,19 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "GeometryDefiner"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            }
+        }
+    }
+}

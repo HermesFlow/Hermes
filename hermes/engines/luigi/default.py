@@ -56,8 +56,6 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         params['files']      = {{taskwrapper.files}}
         params['Schema']     = {{taskwrapper.Schema}}
         params['uiSchema']   = {{taskwrapper.uiSchema}}
-        params['parameters'] = {{taskwrapper.task_parameters}}
-        params['WebGUI']     = {{taskwrapper.task_webGUI}}
         params['Properties'] = {{taskwrapper.task_Properties}}
         params['WebGui']     = {{taskwrapper.task_webGui}}
 

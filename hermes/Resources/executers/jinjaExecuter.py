@@ -42,6 +42,8 @@ class jinjaExecuter(abstractExecuter):
         spltList = re.split(regexPattern, templateName)
         templateName = '/'.join(spltList)
 
+        print(inputs)
+        print("*************************")
         # get the values to update in the template
         values = inputs['values']
 

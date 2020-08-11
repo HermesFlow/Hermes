@@ -141,6 +141,8 @@ class hermesWorkflow(dict):
         self._taskRepresentations = {}
         root_task_name = self.getRootTaskName()
         root_task = self._getTaskJSON(root_task_name)
+        # print(root_task)
+        # print("--------------------------")
 
         self._buildNetworkRepresentations(root_task_name, root_task)
 
@@ -159,7 +161,6 @@ class hermesWorkflow(dict):
 
     def _getTaskJSON(self, nodeName):
         return self._workflowJSON["workflow"]["nodes"][nodeName]
-        #return self._workflowJSON["nodes"][nodeName]
 
 
     def _createFinalNode(self):
@@ -173,12 +174,19 @@ class hermesWorkflow(dict):
         """
 
         finalNodeName = "finalnode_xx"
+        #
+        # finalnode = dict(name=finalNodeName ,
+        #                  typeExecution="generalExecuter.parameterExecuter",
+        #                  requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
+        #                  #requires=[x for x in self._workflowJSON["nodes"]],
+        #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         typeExecution="generalExecuter.parameterExecuter",
+                         Execution=dict(typeExecution="generalExecuter.parameterExecuter",
+                                        input_parameters={}),
                          requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
-                         #requires=[x for x in self._workflowJSON["nodes"]],
-                         input_parameters={})
+                         GUI=dict(TypeFC={}, Properties={}, WebGui={}))
+
 
 
         self._workflowJSON["workflow"]["nodes"]["finalnode_xx"] =finalnode

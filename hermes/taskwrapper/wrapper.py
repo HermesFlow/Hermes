@@ -28,11 +28,11 @@ class hermesTaskWrapper(object):
                     <parameter name> :  "string1 {[Exp path]|<node name>.[Node path]} string2 ..."
 
 
-                    [Exp path]  = <workflow|input|output|input_parameters|parameters|WebGUI>.[Exp path]
+                    [Exp path]  = <workflow|input|output|input_parameters|WebGui>.[Exp path]
                     [Node Path] = <node name>.[Exp path|node path]
 
-            - parameters:
-                          a list of constant parameters.
+            - Properties:
+                          a list of constant Properties.
 
             - requires : a list of required nodes (that not necessarily pass their output to the node).
 
@@ -58,21 +58,30 @@ class hermesTaskWrapper(object):
             :return:
                     A list of nodes that this nodes depends on.
         """
-        notNodeTypes = ["workflowJSON","parameters","WebGUI","value","output","Properties","WebGui"]
+        notNodeTypes = ["workflowJSON","value","output","Properties","WebGui"]
 
         typesList = []
-        for param_path in taskJSON['input_parameters'].values():
+        # print(taskJSON)
+        # print("==============")
+        # print(taskJSON['Execution']['input_parameters'])
+        for param_path in taskJSON['Execution']['input_parameters'].values():
             if type(param_path)==dict:
                 for param_p in param_path.values():
                     typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
             else:
                 typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
 
+        # print(typesList)
+        # print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
         # append nodes list in the 'dependent_tasks'
         typesList.append(numpy.atleast_1d(taskJSON.get('requires',[])))
 
+        # print(typesList)
+        # print("2^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         typesList = [*set([x for x in chain(*typesList)])]
+        # print(typesList)
+        # print("3^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         return [x for x in typesList if x not in notNodeTypes]
 
 
@@ -150,7 +159,7 @@ class hermesTaskWrapper(object):
 
     @property
     def taskType(self):
-        return self._taskJSON['typeExecution']
+        return self._taskJSON['Execution']['typeExecution']
 
 
     @property
@@ -159,7 +168,8 @@ class hermesTaskWrapper(object):
 
     @property
     def input_parameters(self):
-        return self._taskJSON.get("input_parameters", {})
+        return self._taskJSON['Execution']['input_parameters']
+        # return self._taskJSON.get("input_parameters", {})
 
     @property
     def formData(self):
@@ -179,19 +189,13 @@ class hermesTaskWrapper(object):
 
     @property
     def task_Properties(self):
-        return self._taskJSON.get("Properties", {})
-
-    @property
-    def task_parameters(self):
-        return self._taskJSON.get("parameters", {})
-
-    @property
-    def task_webGUI(self):
-        return self._taskJSON.get("WebGUI", {})
+        return self._taskJSON["GUI"]["Properties"]
+        # return self._taskJSON.get("Properties", {})
 
     @property
     def task_webGui(self):
-        return self._taskJSON.get("WebGui", {})
+        return self._taskJSON['GUI']['WebGui']
+        # return self._taskJSON.get("GUI.WebGui", {})
 
     @property
     def task_workflowJSON(self):
@@ -235,6 +239,7 @@ class hermesTaskWrapper(object):
         return ".".join(executerhome[self.taskType].split(".")[:-1])
 
     def getExecuterClass(self):
+        # print(executerhome[self.taskType])
         return executerhome[self.taskType].split(".")[-1]
 
     def getNetworkTasks(self):

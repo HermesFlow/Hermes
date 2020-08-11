@@ -40,7 +40,7 @@ class hermesTaskWrapperHome(object):
                 An instace of the taskwrapper.
             """
 
-        hermesTaskWrapperObj = self._wrappers.get(taskJSON['typeExecution'],hermesTaskWrapper)
+        hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['typeExecution'],hermesTaskWrapper)
 
         return hermesTaskWrapperObj(taskname=taskname,
                                     taskJSON=taskJSON,
