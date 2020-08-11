@@ -20,22 +20,24 @@ convertToMeters 1;
 
 vertices
 (
-    (0 0 0)
-    (1 0 0)
-    (1 1 0)
-    (0 1 0)
+    {%- for x in range(vertices|length) %}
+    ({{vertices[x]}})
+    {%- endfor %}
 
-    (0 0 1)
-    (1 0 1)
-    (1 1 1)
-    (0 1 1)
 );
+
+{%- import "openFOAM/simpleFOAM/MacroSBlockMeshGrading.jinja" as Grading %}
 
 blocks
 (
     hex (0 1 2 3 4 5 6 7)
-    (1 1 1)
-    simpleGrading (1 1 1)
+    {{Properties.Property04.current_val}}
+    simpleGrading
+    (
+        {{Grading.macroBlockMeshGrading(Properties.Property05.current_val)}}
+        {{Grading.macroBlockMeshGrading(Properties.Property06.current_val)}}
+        {{Grading.macroBlockMeshGrading(Properties.Property07.current_val)}}
+    )
 );
 
 edges
@@ -44,56 +46,19 @@ edges
 
 boundary
 (
-    inlet
+    {%- for x in range(boundary|length) -%}
+    {%- set tmpBoundary=boundary[x] %}
+    {{tmpBoundary.Name }}
     {
-        type patch;
+        type {{tmpBoundary.Type}};
         faces
         (
-           (0 3 7 4)
-           (3 2 6 7)
+            {%- for key,value in tmpBoundary.faces.items() %}
+            ({{value.vertices}})
+            {%- endfor %}
         );
     }
-
-    outlet
-    {
-        type patch;
-        faces
-        (
-           (1 5 6 2)
-           (0 4 5 1)
-        );
-    }
-
-    ground
-    {
-        type wall;
-        faces
-        (
-            (0 1 2 3)
-        );
-    }
-
-    top //Nir
-    {
-        type boundarylayer;
-        faces
-        (
-            (4 7 6 5)
-        );
-    }
-
-
-
-    frontAndBack
-    {
-        type symmetry;
-        faces
-        (
-//            (0 4 5 1) //angle
-//            (3 2 6 7)
-//            (4 7 6 5)
-        );
-    }
+    {%- endfor %}
 
 );
 

@@ -8,8 +8,8 @@ from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
 class jinjaExecuter(abstractExecuter):
 
-    # def __init__(self):
-    #
+    def __init__(self):
+        pass
     #     # get the user working dir
     #     self.u_wd = os.getcwd()
     #
@@ -58,6 +58,63 @@ class jinjaExecuter(abstractExecuter):
 
         # render jinja for the choosen template
         output = template.render(values=values)
+
+        # # save as dict item
+        # D_item = {inputs['name'] : output}
+        #
+        # # return the user working directory
+        # os.chdir(self.u_wd)
+
+        # return D_item
+        return output
+
+class BlockMeshExecuter(abstractExecuter):
+
+    def __init__(self):
+        pass
+
+    def _defaultParameters(self):
+        return dict(
+            output=["status"],
+            inputs=["classpath", "function"],
+            webGUI=dict(JSONSchema="webGUI/BlockMeshExecuter_JSONchema.json",
+                        UISchema="webGUI/BlockMeshExecuter_UISchema.json"),
+            parameters={}
+        )
+
+    def run(self, **inputs):
+
+        # get the  name of the template
+        templateName = inputs['template']
+        # templateName = os.path.abspath(templateName)
+
+        # make sure the splits are with slash
+        delimiters = ".", "/"
+        regexPattern = '|'.join(map(re.escape, delimiters))
+        spltList = re.split(regexPattern, templateName)
+        templateName = '/'.join(spltList)
+
+        print(inputs)
+        print("*************************")
+        # get the values to update in the template
+        # values = inputs['values']
+        Properties = inputs['Properties']
+        boundary = inputs['boundary']
+        vertices = inputs['vertices']
+
+
+
+        # define the environment - in this case : templates directory
+#        file_loader = FileSystemLoader(self.templates)
+        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+        env = Environment(loader=file_loader)
+        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+
+        # Define the template to use
+        template = env.get_template(templateName)
+
+        # render jinja for the choosen template
+        output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
 
         # # save as dict item
         # D_item = {inputs['name'] : output}
