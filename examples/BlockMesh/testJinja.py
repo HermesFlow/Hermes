@@ -13,7 +13,7 @@ sys.path.insert(1, HermesDirpath)
 #import hermes
 
 from hermes.Resources.executers.jinjaExecuter import BlockMeshExecuter
-from hermes.Resources.executers.pythonExecuter import exportFiles
+# from hermes.Resources.executers.pythonExecuter import exportFiles
 
 
 # load json file
@@ -22,24 +22,22 @@ with open(path) as json_file:
     BlockMeshjson = json.load(json_file)
 
 # define dict vars
-inputs={}
+inputs = {}
 
-# for nodeKey,nodeValue in openFOAMjson["workflow"][""][""].items():
 BlockMeshNode = BlockMeshjson["workflow"]["nodes"]["BlockMesh"]["GUI"]
 templateType= "openFOAM"
 casePath = "simpleFOAM"
 nodeName = "blockMesh"
 
-    # defined 3 argument: template path, values , where to save(name)
+# defined 3 argument: template path, values , where to save(name)
 inputs["name"] = "system/BlockMesh"
 inputs["Properties"] = BlockMeshNode["Properties"]
 inputs["boundary"] = BlockMeshNode["boundary"]
 inputs["vertices"] = BlockMeshNode["vertices"]
-inputs["template"] = "/".join([templateType,casePath, nodeName])
+inputs["template"] = "/".join([templateType, casePath, nodeName])
 # print(inputs)
 
 # inject input args to jinja executer,
-# save the rendered data into J
 output = BlockMeshExecuter().run(**inputs)
 
 # print values for debug

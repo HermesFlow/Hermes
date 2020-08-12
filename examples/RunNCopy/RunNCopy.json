@@ -7,68 +7,84 @@
         ],
         "nodes":{
             "CopyDirectory":{
-                "typeExecution":"copyDirectory",
-                "TypeFC":"WebGuiNode",
-                "input_parameters":{  
-                    "Source":"{Properties.Source.current_val}",
-                    "Target":"{Properties.Target.current_val}"
-                },
-                "Properties":{
-                    "Source":{
-                        "prop":"Source",
-                        "init_val":"",
-                        "type":"App::PropertyPath",
-                        "Heading":"Parameters",
-                        "tooltip":"The source directory",
-                        "current_val":""
-                    },
-                    "Target":{
-                        "prop":"Target",
-                        "init_val":"",
-                        "type":"App::PropertyPath",
-                        "Heading":"Parameters",
-                        "tooltip":"The target directory",
-                        "current_val":""
+                "Execution": {
+                    "typeExecution": "copyDirectory",
+                    "input_parameters": {
+                        "Source": "{Properties.Source.current_val}",
+                        "Target": "{Properties.Target.current_val}"
                     }
-                },              
-                "WebGui":{
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                        "Source": {
+                            "prop": "Source",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "Parameters",
+                            "tooltip": "The source directory",
+                            "current_val": ""
+                        },
+                        "Target": {
+                            "prop": "Target",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "Parameters",
+                            "tooltip": "The target directory",
+                            "current_val": ""
+                        }
+                    },
+                    "WebGui": {
+                    }
                 }
             },
             "RunOsCommand":{
-                "typeExecution":"RunOsCommand",
-                "TypeFC":"WebGuiNode",
-                "input_parameters":{
-                    "Method":"{Properties.ChooseMethod.current_val}",
-                    "Commands":"{Properties.Commands.current_val}",
-                    "batchFile":"{Properties.batchFile.current_val}"
-                },
-                "Properties":{
-                    "ChooseMethod":{
-                        "prop":"ChooseMethod",
-                        "init_val":["Commands list","batchFile"],
-                        "type":"App::PropertyEnumeration",
-                        "Heading":"Parameters",
-                        "tooltip":"True-commands, False-file",
-                        "current_val":"batchFile"
-                    },
-                    "Commands":{
-                        "prop":"Commands",
-                        "init_val":[],
-                        "type":"App::PropertyStringList",
-                        "Heading":"Parameters",
-                        "tooltip":"The OS commands to execute",
-                        "current_val":["echo 'Here is an example of a shell script'","echo '1a. File listing'","ls","echo ''"]
-                    },
-                    "batchFile":{
-                        "prop":"batchFile",
-                        "init_val":"Text",
-                        "type":"App::PropertyFile",
-                        "Heading":"Parameters",
-                        "tooltip":"File containing all the OS commands to execute",
-                        "current_val":"Batch/CreateDir.sh"
+                "Execution": {
+                    "typeExecution": "RunOsCommand",
+                    "input_parameters": {
+                        "Method": "{Properties.ChooseMethod.current_val}",
+                        "Commands": "{Properties.Commands.current_val}",
+                        "batchFile": "{Properties.batchFile.current_val}"
                     }
-                },  
-                "WebGui":{
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                        "ChooseMethod": {
+                            "prop": "ChooseMethod",
+                            "init_val": [
+                                "Commands list",
+                                "batchFile"
+                            ],
+                            "type": "App::PropertyEnumeration",
+                            "Heading": "Parameters",
+                            "tooltip": "True-commands, False-file",
+                            "current_val": "batchFile"
+                        },
+                        "Commands": {
+                            "prop": "Commands",
+                            "init_val": [],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Parameters",
+                            "tooltip": "The OS commands to execute",
+                            "current_val": [
+                                "echo 'Here is an example of a shell script'",
+                                "echo '1a. File listing'",
+                                "ls",
+                                "echo ''"
+                            ]
+                        },
+                        "batchFile": {
+                            "prop": "batchFile",
+                            "init_val": "Text",
+                            "type": "App::PropertyFile",
+                            "Heading": "Parameters",
+                            "tooltip": "File containing all the OS commands to execute",
+                            "current_val": "Batch/CreateDir.sh"
+                        }
+                    },
+                    "WebGui": {
+                    }
                 }
             }
         }

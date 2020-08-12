@@ -1,8 +1,8 @@
  {
-    "casePath"  : "simpleFoam",
+    "casePath"  : "openFOAM/simpleFOAM",
     "files" : {
-        "snappyHexMeshDict" : {
-            "name": "system/snappyHexMeshDict",
+        "SnappyHexMeshDict" : {
+            "name": "system/SnappyHexMeshDict",
             "values": {
                 "castellatedMesh":true,
                 "snap":false,
@@ -97,8 +97,8 @@
                 "mergeTolerance":1e-06
             }
         },
-        "controlDict" : {
-            "name" : "system/controlDict",
+        "ControlDict" : {
+            "name" : "system/ControlDict",
             "values" : { 
                 "application" : "simpleFoam",
                 "startFrom" : "startTime",
@@ -120,8 +120,8 @@
   
             }
         },
-        "fvSchemes" : {
-            "name": "system/fvSchemes",
+        "FvSchemes" : {
+            "name": "system/FvSchemes",
             "values": {
                 "ddtSchemes": {
                     "default": "steadyState"
@@ -157,8 +157,8 @@
                 }
             }
         },
-        "fvSolution": {
-            "name": "system/fvSolution",
+        "FvSolution": {
+            "name": "system/FvSolution",
             "values": {
                 "solvers": [
                     {
@@ -218,15 +218,15 @@
                 }
             }
         },
-        "transportProperties": {
-            "name": "constant/transportProperties",
+        "TransportProperties": {
+            "name": "constant/TransportProperties",
             "values": {
                 "transportModel": "Newtonian",
                 "nu": "[0 2 -1 0 0 0 0] 1.5e-05"
             }
         },
-        "turbulenceProperties": {
-            "name": "constant/turbulenceProperties",
+        "TurbulenceProperties": {
+            "name": "constant/TurbulenceProperties",
             "values": {
                 "simulationType": "RAS",
                 "RAS": {

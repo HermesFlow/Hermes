@@ -16,7 +16,7 @@ FoamFile
 
 
 
-convertToMeters 1;
+convertToMeters {{Properties.Property03.current_val}};
 
 vertices
 (

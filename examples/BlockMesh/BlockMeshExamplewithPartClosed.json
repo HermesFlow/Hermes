@@ -12,19 +12,9 @@
                 "GUI": {
                     "Properties": {
                         "Property01": {
-                            "prop": "partName",
-                            "init_val": "",
-                            "type": "App::PropertyString",
-                            "Heading": "BasicData",
-                            "tooltip": "Name of tha part of the blockMesh node ",
                             "current_val": "Cube"
                         },
                         "Property02": {
-                            "prop": "partPath",
-                            "init_val": "",
-                            "type": "App::PropertyPath",
-                            "Heading": "BasicData",
-                            "tooltip": "Path to tha part of the blockMesh node ",
                             "current_val": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh"
                         }
                     },

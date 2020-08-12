@@ -252,24 +252,30 @@ class expandJson():
                         # take all the data in dataVal and insert to 'dataKey' place in the structure
                         UpdatedJsonStruct[dataKey] = dataVal
 
-                    # compare the dataVal and structure in dataKey, and update only necessary fields
                     else:
+                        # recursion of override on the dict
+                        UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
 
-                        # get list of all the intersections of dataVal & UpdatedJsonStruct[dataKey]
-                        duptList = UpdatedJsonStruct[dataKey].keys() & dataVal.keys()
+                        # ================================================================================
+                        # # compare the dataVal and structure in dataKey, and update only necessary fields
+                        #
+                        # # get list of all the intersections of dataVal & UpdatedJsonStruct[dataKey]
+                        # duptList = UpdatedJsonStruct[dataKey].keys() & dataVal.keys()
+                        #
+                        # diffList = dataVal.keys() - UpdatedJsonStruct[dataKey].keys()
+                        #
+                        # # update the UpdatedJsonStruct where there are intersection
+                        # for dupt in duptList:
+                        #     pathDst = str(dataKey) + '.' + str(dupt)
+                        #     self.InjectJson(UpdatedJsonStruct, dataVal[dupt], pathDst)
+                        #     # InjectJson(       Dst       ,     Src     ,pathDst):
+                        #
+                        # for diff in diffList:
+                        #     pathDst = str(dataKey) + '.' + str(diff)
+                        #     self.InjectJson(UpdatedJsonStruct, dataVal[diff], pathDst)
+                        #     # InjectJson(       Dst       ,     Src     ,pathDst):
+                        # ================================================================================
 
-                        diffList = dataVal.keys() - UpdatedJsonStruct[dataKey].keys()
-
-                        # update the UpdatedJsonStruct where there are intersection
-                        for dupt in duptList:
-                            pathDst = str(dataKey) + '.' + str(dupt)
-                            self.InjectJson(UpdatedJsonStruct, dataVal[dupt], pathDst)
-                            # InjectJson(       Dst       ,     Src     ,pathDst):
-
-                        for diff in diffList:
-                            pathDst = str(dataKey) + '.' + str(diff)
-                            self.InjectJson(UpdatedJsonStruct, dataVal[diff], pathDst)
-                            # InjectJson(       Dst       ,     Src     ,pathDst):
 
                 #                            UpdatedJsonStruct[diff]=dataVal[diff]
 

@@ -12,8 +12,10 @@
             },
             "RunOsCommand":{
                 "Template":"general.RunOsCommand",
-                "input_parameters": {
-                    "OS": "blockmesh -c {CopyDirectory.output.directory}"
+                "Execution": {
+                    "input_parameters": {
+                        "OS": "blockmesh -c {CopyDirectory.output.directory}"
+                    }
                 }
             }
         }

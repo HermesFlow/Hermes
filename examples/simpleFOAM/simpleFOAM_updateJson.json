@@ -6,6 +6,7 @@
             "CopyDirectory",
             "RunPythonScript",
             "RunOsCommand",
+            "BlockMesh",
             "GeometryDefiner",
             "SnappyHexMesh",
             "ControlDict",
@@ -16,25 +17,16 @@
         ],
         "nodes": {
             "CopyDirectory": {
-                "Template": "general.CopyDirectory",
-                "Execution": {
-                    "input_parameters": {
-                        "Target": "{paramters.source}"
-                    }
-                },
-                "GUI": {
-                    "Properties": {
-                        "Source": {
-                            "current_val": "abc"
-                        }
-                    }
-                }
+                "Template": "general.CopyDirectory"
             },
             "RunPythonScript": {
                 "Template": "general.RunPythonScript"
             },
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"
+            },
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
             },
             "GeometryDefiner":{
                 "Template": "GeometryDefiner.GeometryDefinerTemplate"

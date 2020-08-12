@@ -94,21 +94,16 @@ class BlockMeshExecuter(abstractExecuter):
         spltList = re.split(regexPattern, templateName)
         templateName = '/'.join(spltList)
 
-        print(inputs)
-        print("*************************")
         # get the values to update in the template
-        # values = inputs['values']
         Properties = inputs['Properties']
         boundary = inputs['boundary']
         vertices = inputs['vertices']
-
-
 
         # define the environment - in this case : templates directory
 #        file_loader = FileSystemLoader(self.templates)
         file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
         env = Environment(loader=file_loader)
-        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+        # print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
 
         # Define the template to use
         template = env.get_template(templateName)
@@ -116,11 +111,4 @@ class BlockMeshExecuter(abstractExecuter):
         # render jinja for the choosen template
         output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
 
-        # # save as dict item
-        # D_item = {inputs['name'] : output}
-        #
-        # # return the user working directory
-        # os.chdir(self.u_wd)
-
-        # return D_item
         return output

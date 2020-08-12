@@ -9,7 +9,6 @@
         "nodes": {
             "BlockMesh":{
                 "Template": "GeometryDefiner.BlockMeshTemplate"
-
             },
             "GeometryDefiner":{
                 "Template": "GeometryDefiner.GeometryDefinerTemplate"
