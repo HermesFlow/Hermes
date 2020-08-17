@@ -34,6 +34,8 @@ class expandPipeline():
         parameters = None if parametersPath is None else parameters
 
         for node in pipeline["workflow"]["nodes"]:
+            import pdb
+            pdb.set_trace()
             template = pipeline["workflow"]["nodes"][node]["Template"]
             parametersDict = None
             if "input_parameters" in pipeline["workflow"]["nodes"][node]:
@@ -44,8 +46,8 @@ class expandPipeline():
                 pipeline = self.changeParameters(pipeline, node, parametersDict)
             if parameters is not None:
                 pipeline = self.changeParameters(pipeline,node,parameters)
-            # pipeline2 = pipeline.copy()
-            pipeline["workflow"]["nodes"][node]= pipeline["workflow"]["nodes"][node]["Template"]
+                # pipeline2 = pipeline.copy()
+                pipeline["workflow"]["nodes"][node]= pipeline["workflow"]["nodes"][node]["Template"]
         return pipeline
 
     def changeParameters(self, pipeline, node, parametersDict):

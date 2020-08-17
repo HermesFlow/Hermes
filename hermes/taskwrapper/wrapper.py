@@ -194,7 +194,7 @@ class hermesTaskWrapper(object):
 
     @property
     def task_webGui(self):
-        return self._taskJSON['GUI']['WebGui']
+        return self._taskJSON['GUI'].get('WebGui',{})
         # return self._taskJSON.get("GUI.WebGui", {})
 
     @property

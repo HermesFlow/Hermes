@@ -11,8 +11,8 @@ __version__=(0,0,1)
 """
 
 
-from hermes.pipline.workflow import hermesWorkflow
+from .pipeline.workflow import hermesWorkflow
 from .taskwrapper import hermesTaskWrapper
 from .Resources.nodeTemplates.templateCenter import templateCenter
-from .pipline.expandPipeline import expandPipeline
+from .pipeline.expandPipeline import expandPipeline
 from .Resources.executers.executerHome import executerHome
