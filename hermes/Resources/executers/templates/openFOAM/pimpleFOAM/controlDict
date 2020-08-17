@@ -43,7 +43,7 @@ timeFormat      {{values.timeFormat}};
 
 timePrecision   {{values.timePrecision}};
 
-runTimeModifiable {{values.runTimeModifiable}};
+runTimeModifiable {{ 'runTimeModifiable true;' if runTimeModifiable else 'runTimeModifiable false;' }}
 
 adjustTimeStep   {{values.adjustTimeStep}};
 

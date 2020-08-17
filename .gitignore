@@ -3,3 +3,6 @@
 
 # ignore all .pyc files
 **/*.pyc
+
+doc/build
+doc/source/.idea/
