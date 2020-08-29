@@ -159,7 +159,7 @@ class hermesTaskWrapper(object):
 
     @property
     def taskType(self):
-        return self._taskJSON['Execution']['typeExecution']
+        return self._taskJSON['Execution']['type']
 
 
     @property
@@ -190,12 +190,10 @@ class hermesTaskWrapper(object):
     @property
     def task_Properties(self):
         return self._taskJSON["GUI"]["Properties"]
-        # return self._taskJSON.get("Properties", {})
 
     @property
     def task_webGui(self):
         return self._taskJSON['GUI'].get('WebGui',{})
-        # return self._taskJSON.get("GUI.WebGui", {})
 
     @property
     def task_workflowJSON(self):

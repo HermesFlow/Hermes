@@ -18,7 +18,7 @@ class hermesTaskWrapperHome(object):
                 TODO: Extend to load wrappers from other locations as well.
             """
 
-        self._wrappers = dict(spanParameters="Hermes.taskwrappers.specializedwrapper.spanParameters")
+        self._wrappers = {}
 
     def getTaskWrapper(self, taskid, taskname, taskJSON, workflowJSON, requiredTasks=None):
         """
@@ -39,8 +39,7 @@ class hermesTaskWrapperHome(object):
             :return:
                 An instace of the taskwrapper.
             """
-
-        hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['typeExecution'],hermesTaskWrapper)
+        hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'],hermesTaskWrapper)
 
         return hermesTaskWrapperObj(taskname=taskname,
                                     taskJSON=taskJSON,

@@ -1,6 +1,6 @@
 import pydoc
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
-from hermes.Resources.executers.jinjaExecuter import jinjaExecuter
+from hermes.Resources.executers.jinjaExecuters import jinjaExecuter
 import pathlib
 import os
 

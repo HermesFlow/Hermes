@@ -15,7 +15,7 @@ class parameterExecuter(abstractExecuter):
         return dict(parameterExecuter="parameterExecuter")
 
 
-class transformTemplate(abstractExecuter):
+class transformTemplateExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(

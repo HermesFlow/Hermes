@@ -12,8 +12,8 @@ sys.path.insert(1, HermesDirpath)
 
 #import hermes
 
-from hermes.Resources.executers.jinjaExecuter import jinjaExecuter
-from hermes.Resources.executers.pythonExecuter import exportFiles
+from hermes.Resources.executers.jinjaExecuters import jinjaExecuter
+from hermes.Resources.executers.pythonExecuters import exportFiles
 
 
 # load json file

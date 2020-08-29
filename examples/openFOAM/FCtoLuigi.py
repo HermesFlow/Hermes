@@ -54,8 +54,8 @@ class FvSchemes_0(luigi.Task,hermesutils):
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/openFOAM'
                     
-        from hermes.Resources.executers import jinjaExecuter  
-        output =  jinjaExecuter(self._taskJSON).run(**executer_parameters)
+        from hermes.Resources.executers import jinjaExecuters
+        output =  jinjaExecuters(self._taskJSON).run(**executer_parameters)
         
         params['input_parameters'] = executer_parameters 
         params['output'] = output        
@@ -109,8 +109,8 @@ class ControlDict_0(luigi.Task,hermesutils):
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/openFOAM'
                     
-        from hermes.Resources.executers import jinjaExecuter  
-        output =  jinjaExecuter(self._taskJSON).run(**executer_parameters)
+        from hermes.Resources.executers import jinjaExecuters
+        output =  jinjaExecuters(self._taskJSON).run(**executer_parameters)
         
         params['input_parameters'] = executer_parameters 
         params['output'] = output        
@@ -166,7 +166,7 @@ class finalnode_xx_0(luigi.Task,hermesutils):
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/openFOAM'
                     
-        from hermes.Resources.executers.generalExecuter import parameterExecuter  
+        from hermes.Resources.executers.generalExecuters import parameterExecuter
         output =  parameterExecuter(self._taskJSON).run(**executer_parameters)
         
         params['input_parameters'] = executer_parameters 

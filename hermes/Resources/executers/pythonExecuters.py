@@ -18,7 +18,7 @@ class pythonExecuter(abstractExecuter):
     def run(self, **inputs):
         return dict(pythonExecuter="pythonExecuter")
 
-class RunPythonScript(abstractExecuter):
+class RunPythonScriptExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(

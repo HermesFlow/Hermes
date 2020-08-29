@@ -118,12 +118,6 @@ class utils(object):
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
-        # print("task_executer_mapping")
-        # print(task_executer_mapping)
-        # print("2222222222222222222222")
-        # print("params")
-        # print(params)
-        # print("33333333333333333333333")
 
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
@@ -132,8 +126,17 @@ class utils(object):
                 tokenList = hermes.hermesTaskWrapper.parsePath(parampath)
                 for token,ispath in tokenList:
                     if ispath:
-                        #value.append(self._evaluate_path(token, params))
-                        value=self._evaluate_path(token, params)
+                        try:
+                            value=self._evaluate_path(token, params)
+                        except IndexError:
+                            errMsg =f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                            print(errMsg)
+                            raise KeyError(errMsg)
+
+                        except KeyError:
+                            errMsg =f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                            print(errMsg)
+                            raise KeyError(errMsg)
                     else:
                         #value.append(token)
                         value=token

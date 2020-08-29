@@ -1,37 +1,10 @@
-﻿# FreeCAD Part module
-# (c) 2001 Juergen Riegel
-#
-# Part design module
-
-# ***************************************************************************
-# *   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
-# *                                                                         *
-# *   This file is part of the FreeCAD CAx development system.              *
-# *                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   FreeCAD is distributed in the hope that it will be useful,            *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with FreeCAD; if not, write to the Free Software        *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#*   Juergen Riegel 2002                                                   *
-#***************************************************************************/
-
+﻿
 # import FreeCAD modules
 import FreeCAD,FreeCADGui, WebGui
 import HermesTools
 from HermesTools import addObjectProperty
 from PyQt5 import QtGui,QtCore
+import os
 
 if FreeCAD.GuiUp:
     import FreeCADGui
@@ -67,27 +40,12 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
 
     # find the class of the node from the its type
-    #nodecls = pydoc.locate("HermesGui." + nodeData["TypeFC"])
-    nodecls = pydoc.locate("HermesNode." +'_'+ nodeData["TypeFC"])
+    nodecls = pydoc.locate(f"HermesNode._{nodeData['type']}")
 
-
-    #    # if the class is not exist, create a new class
-    #    if nodecls is None:
-    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["TypeFC"])
 
     # call to the class
     if nodecls is not None:
         nodecls(obj, nodeId, nodeData, name)
-
-        # ----------------static find class------------------
-        # =============================================================================
-        #     if nodeData["TypeFC"]=="webGui":
-        #         _WebGuiNode(obj, nodeId,nodeData,name)
-        #     elif nodeData["TypeFC"]=="GE":
-        #         _GeometryDefinerNode(obj, nodeId,nodeData,name)
-        #     else:
-        #         _HermesNode(obj, nodeId,nodeData,name)
-        # =============================================================================
 
         obj.Proxy.initializeFromJson(obj)
 
@@ -100,8 +58,9 @@ class _CommandHermesNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
+
+        icon_path = os.path.join(FreeCAD.getResourceDir(),"Mod","Hermes","Resources","icons","NewNode.png")
+
         return {'Pixmap': icon_path,
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_Node", "Hermes Node"),
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_Node", "Creates new Hermes Node")}
@@ -281,7 +240,7 @@ class _HermesNode(_SlotHandler):
 
         # Update Values at the properties from nodeData
         obj.NodeId = self.nodeId
-        nodeType = self.nodeData["TypeFC"]
+        nodeType = self.nodeData["type"]
         obj.Type = nodeType
         obj.Label = self.name  # automatically created with object.
         obj.setEditorMode("Label", 1)  # Make read-only

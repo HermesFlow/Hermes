@@ -12,7 +12,7 @@ sys.path.insert(1, HermesDirpath)
 
 #import hermes
 
-from hermes.Resources.executers.jinjaExecuter import BlockMeshExecuter
+from hermes.Resources.executers.jinjaExecuters import BlockMeshExecuter
 # from hermes.Resources.executers.pythonExecuter import exportFiles
 
 

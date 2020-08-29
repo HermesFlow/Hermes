@@ -182,7 +182,7 @@ class hermesWorkflow(dict):
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(typeExecution="generalExecuter.parameterExecuter",
+                         Execution=dict(type="generalExecuters.parameter",
                                         input_parameters={}),
                          requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
                          GUI=dict(TypeFC={}, Properties={}, WebGui={}))

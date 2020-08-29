@@ -1,13 +1,13 @@
 {
     "Execution": {
-        "typeExecution":"copyDirectory",
+        "type":"fileSystemExecuters.copyDirectory",
         "input_parameters": {
             "Source": "{Properties.Source.current_val}",
             "Target": "{Properties.Target.current_val}"
         }
     },
     "GUI": {
-        "TypeFC": "WebGuiNode",
+        "type": "WebGuiNode",
         "Properties": {
             "Source": {
                 "prop": "Source",
