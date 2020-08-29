@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import argparse
 from hermes import expandPipeline
 from hermes import hermesWorkflow
@@ -43,5 +45,11 @@ def executeLuigi_handler(arguments):
     os.chdir(moduleParent)
     os.system(f"python3 -m luigi --module {os.path.basename(pythonPath)} finalnode_xx_0 --local-scheduler")
     os.chdir(cwd)
+
+def runAll_handler(arguments):
+
+    expand_handler()
+    buildPython_handler()
+    executeLuigi_handler()
 
 globals()['%s_handler' % args.command[0]](args.args)

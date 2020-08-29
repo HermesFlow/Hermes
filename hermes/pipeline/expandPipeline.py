@@ -28,27 +28,21 @@ class expandPipeline():
         """
         with open(pipelinePath) as json_file:
             pipeline = json.load(json_file)
-        if parametersPath is not None:
-            with open(parametersPath) as json_file:
-                parameters = json.load(json_file)
-        parameters = None if parametersPath is None else parameters
 
+        ret = dict(pipeline)
         for node in pipeline["workflow"]["nodes"]:
-            import pdb
-            pdb.set_trace()
+            print(node)
             template = pipeline["workflow"]["nodes"][node]["Template"]
-            parametersDict = None
-            if "input_parameters" in pipeline["workflow"]["nodes"][node]:
-                parametersDict = pipeline["workflow"]["nodes"][node]["input_parameters"]
-                del pipeline["workflow"]["nodes"][node]["input_parameters"]
-            pipeline["workflow"]["nodes"][node] = self._templateCenter.getTemplate(template)
-            if parametersDict is not None:
-                pipeline = self.changeParameters(pipeline, node, parametersDict)
-            if parameters is not None:
-                pipeline = self.changeParameters(pipeline,node,parameters)
-                # pipeline2 = pipeline.copy()
-                pipeline["workflow"]["nodes"][node]= pipeline["workflow"]["nodes"][node]["Template"]
-        return pipeline
+
+            newTemplate = self._templateCenter.getTemplate(template)
+
+            for field in ["input_parameters","formData"]:
+                newparams = pipeline["workflow"]["nodes"][node].get(field,{})
+                newTemplate[field].update(newparams)
+
+            ret["workflow"]["nodes"][node]= newTemplate
+
+        return ret
 
     def changeParameters(self, pipeline, node, parametersDict):
         """
