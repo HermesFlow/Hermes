@@ -37,41 +37,43 @@ class expandWorkflow():
         for node in workflow["workflow"]["nodes"]:
             print(node)
             currentNodeParams = workflow["workflow"]["nodes"][node]
-            newTemplate = self._templateCenter.getTemplate(currentNodeParams["Template"])
+            if "Template" in currentNodeParams:
+                newTemplate = self._templateCenter.getTemplate(currentNodeParams["Template"])
 
-            ## Update the execution input_parameters.
-            if "Execution" in currentNodeParams:
-                newparams = currentNodeParams["Execution"].get("input_parameters", {})
-                if "input_parameters" in newTemplate["Execution"]:
-                    newTemplate["Execution"]["input_parameters"].update(newparams)
-                else:
-                    newTemplate["Execution"]["input_parameters"] = newparams
-
-            ## Update the GUI.Properties
-            if "GUI" in currentNodeParams:
-                newparams = currentNodeParams["GUI"].get("Properties", {})
-                if "Properties" in newTemplate["GUI"]:
-                    newTemplate["GUI"]["Properties"].update(newparams)
-                else:
-                    newTemplate["GUI"]["Properties"] = newparams
-
-
-            ## Update the GUI.WebGui.formData
-            if "GUI" in currentNodeParams:
-                if "WebGui" in currentNodeParams["GUI"]:
-                    newparams = currentNodeParams["GUI"]["WebGui"].get("formData", {})
-                else:
-                    newparams = dict()
-
-                if "WebGui" in newTemplate["GUI"]:
-                    if "formData" in currentNodeParams["GUI"]["WebGui"]:
-                        newTemplate["GUI"]["WebGui"]['formData'].update(newparams)
+                ## Update the execution input_parameters.
+                if "Execution" in currentNodeParams:
+                    newparams = currentNodeParams["Execution"].get("input_parameters", {})
+                    if "input_parameters" in newTemplate["Execution"]:
+                        newTemplate["Execution"]["input_parameters"].update(newparams)
                     else:
-                        newTemplate["GUI"]["WebGui"]['formData'] = newparams
-                else:
-                    newTemplate["GUI"]["WebGui"] = dict(formData=newparams)
+                        newTemplate["Execution"]["input_parameters"] = newparams
 
-            ret["workflow"]["nodes"][node] = newTemplate
+                ## Update the GUI.Properties
+                if "GUI" in currentNodeParams:
+                    newparams = currentNodeParams["GUI"].get("Properties", {})
+                    if "Properties" in newTemplate["GUI"]:
+                        newTemplate["GUI"]["Properties"].update(newparams)
+                    else:
+                        newTemplate["GUI"]["Properties"] = newparams
+
+
+                ## Update the GUI.WebGui.formData
+                if "GUI" in currentNodeParams:
+                    if "WebGui" in currentNodeParams["GUI"]:
+                        newparams = currentNodeParams["GUI"]["WebGui"].get("formData", {})
+                    else:
+                        newparams = dict()
+
+                    if "WebGui" in newTemplate["GUI"]:
+                        if "formData" in currentNodeParams["GUI"]["WebGui"]:
+                            newTemplate["GUI"]["WebGui"]['formData'].update(newparams)
+                        else:
+                            newTemplate["GUI"]["WebGui"]['formData'] = newparams
+                    else:
+                        newTemplate["GUI"]["WebGui"] = dict(formData=newparams)
+
+                ret["workflow"]["nodes"][node] = newTemplate
+
         return ret
 
     def changeParameters(self, workflow, node, parametersDict):

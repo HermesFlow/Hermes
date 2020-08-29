@@ -45,29 +45,29 @@ class controlDict(abstractExecuter):
 
     def run(self, **inputs):
 
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/controlDict",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/controlDict",**inputs)}
 
 class fvSchemes(abstractExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/fvSchemes",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSchemes",**inputs)}
 
 class fvSolution(abstractExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/fvSolution",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSolution",**inputs)}
 
 class snappyHexMeshDict(abstractExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/snappyHexMeshDict",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/snappyHexMeshDict",**inputs)}
 
 class transportProperties(abstractExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/transportProperties",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/transportProperties",**inputs)}
 
 class turbulenceProperties(abstractExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM/turbulenceProperties",**inputs)}
+        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/turbulenceProperties",**inputs)}

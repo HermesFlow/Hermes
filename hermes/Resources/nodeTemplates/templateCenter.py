@@ -29,6 +29,9 @@ class templateCenter:
         """
         self._paths = paths
 
+    def __getitem__(self, item):
+        return self.getTemplate(item)
+
     def getTemplate(self, template):
         """
         Finds a template and return a copy of it  as a dict.

@@ -3,24 +3,18 @@
 import FreeCAD,FreeCADGui, WebGui
 import HermesTools
 from HermesTools import addObjectProperty
-
-# import the App Test module
-import TestApp               #Test as Module name not possible
 import sys
 from PyQt5 import QtGui,QtCore
-
 import os
-
 import json
-import string
-
-import CfdFaceSelectWidget
 import Part
-import copy
-import pydoc
-
 import HermesNode
 
+###################### Temporary hack while the hermes is not in the pythonpath
+import sys
+sys.path.append("/mnt/build")
+######################
+from hermes.Resources.nodeTemplates.templateCenter import templateCenter
 
 
 # =============================================================================
@@ -56,7 +50,7 @@ class _HermesWorkflow:
         self.JsonObject = None
         self.JsonObjectString=""
         self.JsonObjectfromFile = []
-        self.Templates=[]
+        self.Templates=None
         self.nLastNodeId="-1"
         self.partPathListFromJson=[]
         self.partNameListFromJson=[]
@@ -165,9 +159,7 @@ class _HermesWorkflow:
                
             #Define full path
             #'stp' file
-            fullPath=jsonSaveFilePath+'/' + partObjName + '.stp'
-            #'stl' file
-            fullPath=jsonSaveFilePath+'/' + partObjName + '.stp'
+            fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
                 
             # export all part Object
             Part.export([partObj],u""+fullPath)
@@ -217,15 +209,7 @@ class _HermesWorkflow:
             
             #Create the Template Json Object - import files if needed
             # add the default template file.
-            FreeCAD.Console.PrintMessage("=================================================")
-            print(os.path.exists("../nodeTemplates/templates.json"))
-            FreeCAD.Console.PrintMessage("=================================================")
-            self.Templates= self.getImportedJson("../nodeTemplates/templates.json")
-
-            self.Templates.update(self.getImportedJson(self.JsonObjectfromFile["workflow"]["Templates"]))
-            
-            #FreeCAD.Console.PrintMessage("Templates="+str(self.Templates)+"\n")
-            #FreeCAD.Console.PrintMessage("###################################\n")
+            self.Templates = templateCenter(self.JsonObjectfromFile["workflow"]["Templates"])
 
 
         #Create JsonObject will contain all the imported date from file/template
@@ -288,8 +272,7 @@ class _HermesWorkflow:
                 # list- saved as a dictionary
                 # 1 file - saved as keys and values
                 # *if*- check if the first value is a dict
-                if type(list(subtructVal.values())[0]) is dict:
-
+                if isinstance(list(subtructVal.values())[0],dict):
                     for fileKey,fileVal in subtructVal.items():
                         #call the function that open data
                         openImportData=self.importJsonDataFromFile(fileVal)

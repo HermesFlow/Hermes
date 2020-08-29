@@ -1,0 +1,132 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript",
+            "RunOsCommand",
+            "BlockMesh",
+            "GeometryDefiner",
+            "SnappyHexMesh",
+            "ControlDict",
+            "fvSchemes",
+            "fvSolution",
+            "transportProperties",
+            "RASProperties"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory"
+            },
+            "RunPythonScript": {
+                "Template": "general.RunPythonScript"
+            },
+            "RunOsCommand":{
+                "Template": "general.RunOsCommand"
+            },
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            },
+            "SnappyHexMesh":{
+                "Execution": {
+                    "typeExecution": "snappyHexMesh",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh"
+                    }
+                }
+            },
+            "ControlDict":{
+                "Execution": {
+                    "typeExecution": "controlDict",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.ControlDict"
+                    }
+                }
+            },
+            "FvSchemes":{
+                "Execution": {
+                    "typeExecution": "fvSchemes",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                    }
+                }
+            },
+            "FvSolution":{
+                "Execution": {
+                    "typeExecution": "fvSolution",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolution"
+                    }
+                }
+            },
+            "transportProperties":{
+                "Execution": {
+                    "typeExecution": "transportProperties",
+                    "input_parameters": {
+                        "formData": "{WebGui.simpleFOAM.WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.TransportProperties"
+                    }
+                }
+            },
+            "RASProperties":{
+                "Execution": {
+                    "typeExecution": "RASProperties",
+                    "input_parameters": {
+                        "formData": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "TypeFC": "WebGuiNode",
+                    "Properties": {
+                    },
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"
+                    }
+                }
+            }
+        }
+    }
+}

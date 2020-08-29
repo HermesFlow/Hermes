@@ -26,7 +26,7 @@ inputs = {}
 
 BlockMeshNode = BlockMeshjson["workflow"]["nodes"]["BlockMesh"]["GUI"]
 templateType= "openFOAM"
-casePath = "simpleFOAM"
+casePath = "simpleFOAM_batch"
 nodeName = "blockMesh"
 
 # defined 3 argument: template path, values , where to save(name)
