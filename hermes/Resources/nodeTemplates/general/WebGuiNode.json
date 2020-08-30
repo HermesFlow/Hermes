@@ -5,7 +5,7 @@
         }
     },
     "GUI": {
-        "type": "WebGuiNode",
+        "Type": "WebGuiNode",
         "Properties": {
             "generalProperty": {
                 "prop": "generalProperty",

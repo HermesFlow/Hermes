@@ -9,9 +9,9 @@
             "GeometryDefiner",
             "SnappyHexMesh",
             "ControlDict",
-            "fvSchemes",
-            "fvSolution",
-            "transportProperties",
+            "FvSchemes",
+            "FvSolution",
+            "TransportProperties",
             "RASProperties"
         ],
         "nodes": {
@@ -47,7 +47,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {
@@ -63,7 +63,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {
@@ -79,7 +79,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {
@@ -95,7 +95,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {
@@ -103,7 +103,7 @@
                     }
                 }
             },
-            "transportProperties":{
+            "TransportProperties":{
                 "Execution": {
                     "typeExecution": "transportProperties",
                     "input_parameters": {
@@ -111,7 +111,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {
@@ -127,7 +127,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {
                     },
                     "WebGui": {

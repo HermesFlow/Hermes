@@ -5,7 +5,7 @@
         }
     },
     "GUI": {
-        "TypeFC":"BlockMeshNode",
+        "Type":"BlockMeshNode",
         "Properties":{
                 "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
 

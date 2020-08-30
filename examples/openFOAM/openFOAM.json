@@ -19,7 +19,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh"
@@ -34,7 +34,7 @@
                     }
                 },
                 "GUI":{
-                    "TypeFC":"WebGuiNode",
+                    "Type":"WebGuiNode",
                     "Properties":{},
                     "WebGui":{
                         "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
@@ -49,7 +49,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
@@ -64,7 +64,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.FvSolution"
@@ -79,7 +79,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.TransportProperties"
@@ -94,7 +94,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "WebGuiNode",
+                    "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"

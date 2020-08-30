@@ -7,7 +7,7 @@
         }
     },
     "GUI": {
-        "type": "WebGuiNode",
+        "Type": "WebGuiNode",
         "Properties": {
             "Source": {
                 "prop": "Source",

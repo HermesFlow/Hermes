@@ -17,7 +17,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "BlockMeshNode",
+                    "Type": "BlockMeshNode",
                     "Properties": {
                         "Property01": {
                             "prop": "partName",
@@ -195,7 +195,7 @@
                     "input_parameters": {}
                 },
                 "GUI": {
-                    "TypeFC": "GeometryDefinerNode",
+                    "Type": "GeometryDefinerNode",
                     "Properties": {
                         "Property1": {
                             "prop": "IntegerProperty",

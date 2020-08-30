@@ -5,7 +5,7 @@
         }
     },
     "GUI": {
-        "TypeFC":"GeometryDefinerNode",
+        "Type":"GeometryDefinerNode",
         "Properties":{
             "Property1":{
                 "prop":"IntegerProperty",

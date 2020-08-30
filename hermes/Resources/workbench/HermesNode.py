@@ -1,18 +1,19 @@
 ﻿
 # import FreeCAD modules
 import FreeCAD,FreeCADGui, WebGui
-import HermesTools
-from HermesTools import addObjectProperty
-from PyQt5 import QtGui,QtCore
-import os
-
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
+# python modules
+from PyQt5 import QtGui,QtCore
 import json
 import pydoc
+import os
 
+# Hermes modules
+import HermesTools
+from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 from HermesBlockMesh import HermesBlockMesh
 
@@ -40,8 +41,13 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
 
     # find the class of the node from the its type
-    nodecls = pydoc.locate(f"HermesNode._{nodeData['type']}")
+    #nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
+    nodecls = pydoc.locate("HermesNode." +'_'+ nodeData["Type"])
 
+
+    #    # if the class is not exist, create a new class
+    #    if nodecls is None:
+    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
 
     # call to the class
     if nodecls is not None:
@@ -58,7 +64,8 @@ class _CommandHermesNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
-
+        # ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        # icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
         icon_path = os.path.join(FreeCAD.getResourceDir(),"Mod","Hermes","Resources","icons","NewNode.png")
 
         return {'Pixmap': icon_path,
@@ -240,7 +247,7 @@ class _HermesNode(_SlotHandler):
 
         # Update Values at the properties from nodeData
         obj.NodeId = self.nodeId
-        nodeType = self.nodeData["type"]
+        nodeType = self.nodeData["Type"]
         obj.Type = nodeType
         obj.Label = self.name  # automatically created with object.
         obj.setEditorMode("Label", 1)  # Make read-only

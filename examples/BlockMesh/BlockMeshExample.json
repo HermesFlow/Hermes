@@ -17,7 +17,7 @@
                     }
                 },
                 "GUI": {
-                    "TypeFC": "BlockMeshNode",
+                    "Type": "BlockMeshNode",
                     "Properties": {
                         "Property01": {
                             "prop": "partName",
