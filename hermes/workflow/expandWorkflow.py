@@ -1,7 +1,114 @@
+"""
+    Expands the templates in a file to a detaile pipeline file.
+    Allow the addition of outer parameter to overwrite existing values of the pipeline.
 
-import os
+    Note:
+        Check if we want to use jsonpath.
+"""
+from ..Resources.nodeTemplates.templateCenter import templateCenter
 import json
+import os
 
+
+class expandWorkflow():
+
+    _templateCenter = None
+
+    def __init__(self, paths=None):
+
+        self._templateCenter = templateCenter(paths)
+
+    def expand(self, workflowPath):
+        """
+        Expands a workflow by imbedding the template node to the workflow.
+
+        Parameters
+        -----------
+
+            workflowPath: str
+                        The path of the workflow
+
+        Returns
+        --------
+            Dict.
+        """
+        with open(workflowPath) as json_file:
+            workflow = json.load(json_file)
+
+        ret = dict(workflow)
+        for node in workflow["workflow"]["nodes"]:
+            print(node)
+            currentNodeParams = workflow["workflow"]["nodes"][node]
+            if "Template" in currentNodeParams:
+                newTemplate = self._templateCenter.getTemplate(currentNodeParams["Template"])
+
+                ## Update the execution input_parameters.
+                if "Execution" in currentNodeParams:
+                    newparams = currentNodeParams["Execution"].get("input_parameters", {})
+                    if "input_parameters" in newTemplate["Execution"]:
+                        newTemplate["Execution"]["input_parameters"].update(newparams)
+                    else:
+                        newTemplate["Execution"]["input_parameters"] = newparams
+
+                ## Update the GUI.Properties
+                if "GUI" in currentNodeParams:
+                    newparams = currentNodeParams["GUI"].get("Properties", {})
+                    if "Properties" in newTemplate["GUI"]:
+                        newTemplate["GUI"]["Properties"].update(newparams)
+                    else:
+                        newTemplate["GUI"]["Properties"] = newparams
+
+
+                ## Update the GUI.WebGui.formData
+                if "GUI" in currentNodeParams:
+                    if "WebGui" in currentNodeParams["GUI"]:
+                        newparams = currentNodeParams["GUI"]["WebGui"].get("formData", {})
+                    else:
+                        newparams = dict()
+
+                    if "WebGui" in newTemplate["GUI"]:
+                        if "formData" in currentNodeParams["GUI"]["WebGui"]:
+                            newTemplate["GUI"]["WebGui"]['formData'].update(newparams)
+                        else:
+                            newTemplate["GUI"]["WebGui"]['formData'] = newparams
+                    else:
+                        newTemplate["GUI"]["WebGui"] = dict(formData=newparams)
+
+                ret["workflow"]["nodes"][node] = newTemplate
+
+        return ret
+
+    def changeParameters(self, workflow, node, parametersDict):
+        """
+        Changes the parameters in a node according to the parameters specified in a dictionary.
+
+        Parameters
+        ----------
+            workflow: The workflow (as dictionary)
+            node: The node (string)
+            parametersDict: A dictionary of parameters and their values.
+
+        Return
+        -------
+            dict
+            The workflow as a dict.
+        """
+
+        for parameter in parametersDict:
+            if parameter in workflow["workflow"]["nodes"][node]["input_parameters"]:
+                workflow["workflow"]["nodes"][node]["input_parameters"][parameter] = parametersDict[parameter]
+            else:
+                addresses = parameter.split(".")
+                pipe=workflow["workflow"]["nodes"][node]
+                for address in addresses[:-1]:
+                    if pipe is None:
+                        break
+                    else:
+                        pipe = pipe.get(address)
+
+                pipe[addresses[-1]] = parametersDict[parameter]
+
+        return workflow
 
 class expandJson():
     """ this class is taking a json with reference
@@ -9,37 +116,30 @@ class expandJson():
       files into that json """
 
     def __init__(self):
-        self.JsonObject = {}
         self.getFromTemplate = "Template"
         self.importJsonfromfile = "importJsonfromfile"
 
         self.cwd = ""
         self.WD_path = ""
 
-    def createJsonObject(self,JsonObjectfromFile,jsonFilePath):
+    def createJsonObject(self, jsonFilePath):
+
+        JsonObjectfromFile = self.loadJsonFromfile(jsonFilePath)
 
         # define the current working directory - where the json file has been uploaded
         self.cwd = os.path.dirname(jsonFilePath)
 
-        # check if there is a reference to templates file in JsonObjectfromFile
-        if "Templates" in JsonObjectfromFile["workflow"]:
-            # Create the Template Json Object - import files if needed
-            self.Templates = self.getImportedJson(JsonObjectfromFile["workflow"]["Templates"])
-
-            # FreeCAD.Console.PrintMessage("Templates="+str(self.Templates)+"\n")
-            # FreeCAD.Console.PrintMessage("###################################\n")
 
         # Create JsonObject will contain all the imported date from file/template
 
-        self.JsonObject = JsonObjectfromFile.copy()
-        workflow = self.JsonObject["workflow"]
+        JsonObject = JsonObjectfromFile.copy()
+        workflow = JsonObject["workflow"]
 
         # get the List of nodes , and the 'nodes' from jsonObject
         nodeList = workflow["nodeList"]
         nodes = workflow["nodes"]
         new_nodes = {}
 
-        # to-do:check option of get the node list from a file
         # Loop the node List, and import external data
         for node in nodeList:
 
@@ -55,11 +155,10 @@ class expandJson():
                 new_nodes[node] = updatedCurrentNode
 
         # update the data in JsonObject to be the new dictionary new_nodes
-        #        self.JsonObject["nodes"]=new_nodes
         workflow["nodes"] = new_nodes
-        self.JsonObject["workflow"] = workflow
+        JsonObject["workflow"] = workflow
 
-        return self.JsonObject
+        return JsonObject
 
     def getImportedJson(self, jsonObjStruct):
 
@@ -68,7 +167,6 @@ class expandJson():
             return
 
         # insert the current jsonStruct to the UpdateJson that will be return after modify
-        #        UpdatedJsonStruct=jsonObjStruct.copy()
         UpdatedJsonStruct = {}
 
         # to know if it is the first iteration
@@ -81,7 +179,7 @@ class expandJson():
             openKeyData = {}
             openImportData = {}
 
-            # in case of import data from file
+            # in case import data from <file>
             if subStructKey == self.importJsonfromfile:
 
                 # check if there are list of files that need to be imported, or just 1:
@@ -116,29 +214,8 @@ class expandJson():
                         UpdatedJsonStruct = openImportData.copy()
 
 
-            # in case of import data from Template
+            # in case import data from <Template>
             elif subStructKey == self.getFromTemplate:
-                #
-                # # check if there are list of files that need to be imported, or just 1:
-                # # list- saved as a dictionary
-                # # 1 file - saved as keys and values
-                # # *if*- check if the first value is a dict
-                # print("subtructVal = " + str(subtructVal))
-                # if type(list(subtructVal.values())[0]) is dict:
-                #
-                #     for templateKey, templateVal in subtructVal.items():
-                #         # call the function that open data
-                #         openImportData = self.importJsonDataFromTemplate(templateVal)
-                #
-                #         if i > 0:
-                #             # not the first iteration -> overide the data
-                #             UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-                #         else:
-                #             # first iteration -> define the UpdatedJsonStruct as the open data
-                #             UpdatedJsonStruct = openImportData.copy()
-                #
-                #         i = i + 1
-                # else:
 
                 # call the function that open data
                 openImportData = self.importJsonDataFromTemplate(subtructVal)
@@ -201,16 +278,8 @@ class expandJson():
 
     def overidaDataFunc(self, overideData, UpdatedJsonStruct):
 
-        #        FreeCAD.Console.PrintMessage("===============Before===============\n")
-        #        FreeCAD.Console.PrintMessage("UpdatedJsonStruct="+str(UpdatedJsonStruct)+"\n")
-
-        #        if type(overideData) is dict:
         # loop all the overide data
         for dataKey, dataVal in overideData.items():
-
-            #            FreeCAD.Console.PrintMessage("=====================================\n")
-            #            FreeCAD.Console.PrintMessage("dataKey="+str(dataKey)+"\n")
-            #            FreeCAD.Console.PrintMessage("dataVal="+str(dataVal)+"\n")
 
             # check for each key, if exsist in UpdatedJsonStruct
             if dataKey in UpdatedJsonStruct:
@@ -228,29 +297,6 @@ class expandJson():
                         # recursion of override on the dict
                         UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
 
-                        # ================================================================================
-                        # # compare the dataVal and structure in dataKey, and update only necessary fields
-                        #
-                        # # get list of all the intersections of dataVal & UpdatedJsonStruct[dataKey]
-                        # duptList = UpdatedJsonStruct[dataKey].keys() & dataVal.keys()
-                        #
-                        # diffList = dataVal.keys() - UpdatedJsonStruct[dataKey].keys()
-                        #
-                        # # update the UpdatedJsonStruct where there are intersection
-                        # for dupt in duptList:
-                        #     pathDst = str(dataKey) + '.' + str(dupt)
-                        #     self.InjectJson(UpdatedJsonStruct, dataVal[dupt], pathDst)
-                        #     # InjectJson(       Dst       ,     Src     ,pathDst):
-                        #
-                        # for diff in diffList:
-                        #     pathDst = str(dataKey) + '.' + str(diff)
-                        #     self.InjectJson(UpdatedJsonStruct, dataVal[diff], pathDst)
-                        #     # InjectJson(       Dst       ,     Src     ,pathDst):
-                        # ================================================================================
-
-
-                #                            UpdatedJsonStruct[diff]=dataVal[diff]
-
                 # type is 'list'
                 elif type(dataVal) is list:
 
@@ -260,7 +306,7 @@ class expandJson():
                         # take all the data in dataVal and insert to 'dataKey' place in the structure
                         UpdatedJsonStruct[dataKey] = dataVal
 
-                    # check it item already exist in structure, if not  add it.
+                    # add items to the existing list
                     else:
 
                         # loop all items in the list
@@ -283,15 +329,11 @@ class expandJson():
                 # add to the dictionary
                 UpdatedJsonStruct[dataKey] = dataVal
 
+        # remove self.getFromTemplate and self.importJsonfromfile from UpdatedJsonStruct
         if self.getFromTemplate in UpdatedJsonStruct:
             UpdatedJsonStruct.pop(self.getFromTemplate)
         if self.importJsonfromfile in UpdatedJsonStruct:
             UpdatedJsonStruct.pop(self.importJsonfromfile)
-
-        #        FreeCAD.Console.PrintMessage("=====================================\n")
-        #        FreeCAD.Console.PrintMessage("overideData="+str(overideData)+"\n")
-        #        FreeCAD.Console.PrintMessage("===============After===============\n")
-        #        FreeCAD.Console.PrintMessage("UpdatedJsonStruct="+str(UpdatedJsonStruct)+"\n")
 
         return UpdatedJsonStruct
 
@@ -300,15 +342,16 @@ class expandJson():
 
         UpdatedJsonStruct = {}
 
-        # get the Hermes path
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-        import sys
-        # insert the path to sys
-        # insert at 1, 0 is the script path (or '' in REPL)
-        sys.path.insert(1, HermesDirpath)
+        # # get the Hermes path
+        # HermesDirpath = os.getenv('HERMES_2_PATH')
+        # import sys
+        # # insert the path to sys
+        # # insert at 1, 0 is the script path (or '' in REPL)
+        # sys.path.insert(1, HermesDirpath)
+        #
+        # # get and initial class _templateCenter
+        # from hermes.Resources.nodeTemplates.templateCenter import templateCenter
 
-        # get and initial class _templateCenter
-        from hermes.Resources.nodeTemplates.templateCenter import templateCenter
         paths = None
         self._templateCenter = templateCenter(paths)
 
@@ -317,50 +360,6 @@ class expandJson():
 
         # call 'getImportedJson' in case there are nested files that need to be imported
         UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
-
-        # # ------------ inject template from dict of Templates ------
-        # # find the path from the template to wanted data
-        # pathDst = importTemplate["TypeFC"]
-        #
-        # # create a split list of the path
-        # splitPathlist = pathDst.split(".")
-        #
-        # # if the length og the list is bigger than 1 -> use InjectJson
-        # if len(splitPathlist) > 1:
-        #     UpdatedJsonStruct = self.InjectJson(UpdatedJsonStruct, self.Templates, pathDst)
-        #     # InjectJson(       Dst       ,     Src      ,pathDst):
-        # else:
-        #     # load and recieve the json object directly from Template
-        #     UpdatedJsonStruct = self.Templates[importTemplate["TypeFC"]]
-
-        # # -----------------allow take part of a template ----------------
-        # # check if there is only a specific field that need to be imported from Template
-        # if "field" in importTemplate:
-        #
-        #     # empty data structure - so only relevent data will be returned
-        #     UpdatedJsonStruct = {}
-        #
-        #     # empty var
-        #     fieldData = self.Templates[importTemplate["TypeFC"]]
-        #
-        #     # loop all 'field' list
-        #     for entryPath in importTemplate["field"]:
-        #
-        #         if (len(entryPath) == 0):
-        #             continue
-        #
-        #         # split the entry
-        #         splitEntryPath = entryPath.split(".")
-        #
-        #         # get the entry path wanted data
-        #         for entry in splitEntryPath:
-        #             fieldData = fieldData[entry]
-        #
-        #         # add to the UpdatedJsonStruct
-        #         UpdatedJsonStruct.update(fieldData)
-        #
-        # #        else:
-        # #            UpdatedJsonStruct=self.Templates[importTemplate["TypeFC"]]
 
         return UpdatedJsonStruct
 
@@ -372,8 +371,6 @@ class expandJson():
         # update the current work directory
         os.chdir(current_dir)
         # ----------------------------------------------------
-
-        #        FreeCAD.Console.PrintMessage("cwd="+os.getcwd()+"\n")
 
         # get the path of the file
         pathFile = importFileData["path"]
@@ -439,63 +436,7 @@ class expandJson():
 
         return UpdatedJsonStruct
 
-    #
 
-    # to-do:make list of al possible upload files
-
-    # done: load files from differenet hirarchy in json - also possible load only a field/list of fields from file
-    def InjectJson(self, Dst, Src, pathDst):
-        # get the destiny Json var, source Json data ->update the source in the destiny
-        # for example:In case data has been upload from a file, and want the update only 1 entry
-
-        # split the path into list
-        splitPathlist = pathDst.split(".")
-        # FreeCAD.Console.PrintMessage("splitPathlist="+str(splitPathlist)+"\n")
-
-        # if Dst is not empty
-        if len(Dst) > 0:
-
-            # reverse the order of the list
-            splitPathlist.reverse()
-
-            # Intialize the "data" var with the "Src" data
-            data = Src.copy() if Src is dict else Src
-
-            # loop all the path list
-            for x in range(len(splitPathlist) - 1):
-                # if it is not the last element of the list
-                if x != len(splitPathlist) - 1:
-                    # take the structure containing the data
-                    structKey = splitPathlist[x + 1]
-                    struct = Dst[structKey]
-
-                    # update the data in the structure - splitPathlist[x]-> the key in the strucrure
-                    struct[splitPathlist[x]] = data
-
-                    # update the struct dat in the "data" var - enable to update the data in hierarchy structure
-                    data = struct
-
-            # update the Dst json struct with the data
-            # splitPathlist[-1] - the last element of the reverse path list-the highest location in the path hierarchy
-            Dst[splitPathlist[-1]] = data
-
-        else:
-
-            struct = Src.copy()
-
-            # loop all the path list
-            for x in range(len(splitPathlist)):
-                # find the current structKey
-                structKey = splitPathlist[x]
-
-                # update struct with the structKey data
-                struct = struct[structKey]
-
-            # update the Dst json struct with the struct value
-            Dst = struct
-
-        # return the update Dst json structure
-        return Dst
 
     def loadJsonFromfile(self, filePath, entryInFile=""):
 
