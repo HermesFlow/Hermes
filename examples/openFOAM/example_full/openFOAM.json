@@ -1,12 +1,8 @@
 {
-    "workflow": {
-        "root": null,
-        "Templates": [],
-        "nodeList": [
-            "CopyDirectory",
-            "RunPythonScript",
-            "RunOsCommand",
-            "GeometryDefiner",
+    "workflow":{
+        "root":null,
+        "Templates":{},
+        "nodeList":[
             "SnappyHexMesh",
             "ControlDict",
             "FvSchemes",
@@ -14,42 +10,17 @@
             "TransportProperties",
             "RASProperties"
         ],
-        "nodes": {
-            "CopyDirectory": {
-                "Template": "general.CopyDirectory",
+        "nodes":{
+            "SnappyHexMesh": {
                 "Execution": {
-                    "input_parameters": {
-                        "Target": "{paramters.source}"
-                    }
-                },
-                "GUI": {
-                    "Properties": {
-                        "Source": {
-                            "current_val": "abc"
-                        }
-                    }
-                }
-            },
-            "RunPythonScript": {
-                "Template": "general.RunPythonScript"
-            },
-            "RunOsCommand":{
-                "Template": "general.RunOsCommand"
-            },
-            "GeometryDefiner":{
-                "Template": "GeometryDefiner.GeometryDefinerTemplate"
-            },
-            "SnappyHexMesh":{
-                "Execution": {
-                    "typeExecution": "snappyHexMesh",
+                    "type": "snappyHexMesh",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
-                    "Properties": {
-                    },
+                    "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh"
                     }
@@ -57,31 +28,29 @@
             },
             "ControlDict":{
                 "Execution": {
-                    "typeExecution": "controlDict",
+                    "type": "controlDict",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
                 },
-                "GUI": {
-                    "Type": "WebGuiNode",
-                    "Properties": {
-                    },
-                    "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.ControlDict"
+                "GUI":{
+                    "Type":"WebGuiNode",
+                    "Properties":{},
+                    "WebGui":{
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
                     }
                 }
             },
             "FvSchemes":{
                 "Execution": {
-                    "typeExecution": "fvSchemes",
+                    "type": "FvSchemes",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
-                    "Properties": {
-                    },
+                    "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
                     }
@@ -89,15 +58,14 @@
             },
             "FvSolution":{
                 "Execution": {
-                    "typeExecution": "fvSolution",
+                    "type": "FvSolution",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
-                    "Properties": {
-                    },
+                    "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.FvSolution"
                     }
@@ -105,15 +73,14 @@
             },
             "TransportProperties":{
                 "Execution": {
-                    "typeExecution": "transportProperties",
+                    "type": "TransportProperties",
                     "input_parameters": {
-                        "formData": "{WebGui.simpleFOAM.WebGui.formData}"
+                        "formData": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
-                    "Properties": {
-                    },
+                    "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.TransportProperties"
                     }
@@ -121,15 +88,14 @@
             },
             "RASProperties":{
                 "Execution": {
-                    "typeExecution": "RASProperties",
+                    "type": "RASProperties",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
-                    "Properties": {
-                    },
+                    "Properties": {},
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"
                     }

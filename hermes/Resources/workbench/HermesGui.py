@@ -229,16 +229,17 @@ class _HermesWorkflow:
 
     def loadPart(self, obj, partPath):
 
+
         partIndex = -1
+        os.chdir(self.WD_path)
 
-        # check if relative path to Hermes folder
         if partPath.startswith("hermes"):
+            # check if relative path to Hermes folder
+            partPath = os.path.join(self.HermesDirpath, partPath)
+        else:
+            # update 'pathFile' to full path- absolute - relative to working dir
+            partPath = os.path.abspath(partPath)
 
-            # update partPath in relative to Hermes Dirpath
-            partPath = self.HermesDirpath + '/' + partPath
-
-        # update 'pathFile' to full path- absolute
-        partPath = os.path.abspath(partPath)
 
 
         # check if part has already been created using his path
@@ -451,6 +452,7 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         self.WD_path = path
 
 
+
 # =============================================================================
 #     "_CommandCreateHermesWorkflow" class
 # =============================================================================
@@ -562,13 +564,13 @@ class _ViewProviderHermesWorkflow:
 
     def _handle_ImportJSONFile(self, obj):
         if len(str(obj.ImportJSONFile)) > 0:
-            obj.Proxy.readJson(obj)
             # seperate file and dir, and define dir as workingDir
             Dirpath = os.path.dirname(obj.ImportJSONFile)
             # update workind directory to self of hermes class
             obj.Proxy.updateWorkingDirectory(Dirpath)
             # update workind directory to the hermes obj
             obj.WorkingDirectory = Dirpath
+            obj.Proxy.readJson(obj)
             obj.ImportJSONFile = ''
 
     def _handle_ExportJSONFile(self, obj):

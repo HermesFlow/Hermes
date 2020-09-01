@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "typeExecution": "executerPython",
+        "type": "executerPython",
         "input_parameters": {
         }
     },

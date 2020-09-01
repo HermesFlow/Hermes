@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "typeExecution": "RunPythonScript",
+        "type": "RunPythonScript",
         "input_parameters": {
             "ModulePath": "Properties.ModulePath.current_val",
             "MethodName": "Properties.MethodName.current_val",

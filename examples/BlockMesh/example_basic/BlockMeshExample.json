@@ -9,7 +9,7 @@
         "nodes": {
             "BlockMesh":{
                 "Execution": {
-                    "typeExecution": "BlockMesh",
+                    "type": "BlockMesh",
                     "input_parameters": {
                         "Properties": "{Properties}",
                         "boundary": "{boundary}",

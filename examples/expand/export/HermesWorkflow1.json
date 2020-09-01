@@ -48,7 +48,7 @@
             },
             "RunPythonScript": {
                 "Execution": {
-                    "typeExecution": "RunPythonScript",
+                    "type": "RunPythonScript",
                     "input_parameters": {
                         "ModulePath": "Properties.ModulePath.current_val",
                         "MethodName": "Properties.MethodName.current_val",
@@ -136,7 +136,7 @@
             },
             "GeometryDefiner": {
                 "Execution": {
-                    "typeExecution": "executerPython",
+                    "type": "executerPython",
                     "input_parameters": {}
                 },
                 "GUI": {
@@ -242,7 +242,7 @@
                             "faceList": {
                                 "Part1": {
                                     "Name": "Cube",
-                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/expand/",
+                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/expand/export/",
                                     "faces": [
                                         "Face1",
                                         "Face2"
@@ -266,7 +266,7 @@
                             "faceList": {
                                 "Part1": {
                                     "Name": "Cube",
-                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/expand/",
+                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/expand/export/",
                                     "faces": [
                                         "Face3",
                                         "Face4"
@@ -279,7 +279,7 @@
             },
             "SnappyHexMesh": {
                 "Execution": {
-                    "typeExecution": "snappyHexMesh",
+                    "type": "snappyHexMesh",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
@@ -1140,7 +1140,7 @@
             },
             "ControlDict": {
                 "Execution": {
-                    "typeExecution": "controlDict",
+                    "type": "controlDict",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
@@ -1331,7 +1331,7 @@
             },
             "FvSchemes": {
                 "Execution": {
-                    "typeExecution": "fvSchemes",
+                    "type": "fvSchemes",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
@@ -1515,15 +1515,14 @@
                             },
                             "wallDist": {
                                 "method": "meshWave"
-                            },
-                            "fluxRequired": {}
+                            }
                         }
                     }
                 }
             },
             "FvSolution": {
                 "Execution": {
-                    "typeExecution": "fvSolution",
+                    "type": "fvSolution",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
@@ -1895,7 +1894,7 @@
             },
             "TransportProperties": {
                 "Execution": {
-                    "typeExecution": "transportProperties",
+                    "type": "transportProperties",
                     "input_parameters": {
                         "formData": "{WebGui.simpleFOAM.WebGui.formData}"
                     }
@@ -1927,7 +1926,7 @@
             },
             "RASProperties": {
                 "Execution": {
-                    "typeExecution": "RASProperties",
+                    "type": "RASProperties",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }

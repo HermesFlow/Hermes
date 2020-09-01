@@ -9,12 +9,8 @@
         "nodes": {
             "BlockMesh": {
                 "Execution": {
-                    "typeExecution": "BlockMesh",
-                    "input_parameters": {
-                        "Properties": "{Properties}",
-                        "boundary": "{boundary}",
-                        "vertices": "{vertices}"
-                    }
+                    "type": "executerPython",
+                    "input_parameters": {}
                 },
                 "GUI": {
                     "Type": "BlockMeshNode",
@@ -33,7 +29,7 @@
                             "type": "App::PropertyPath",
                             "Heading": "BasicData",
                             "tooltip": "Path to tha part of the blockMesh node ",
-                            "current_val": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh"
+                            "current_val": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/export"
                         },
                         "Property03": {
                             "prop": "convertToMeters",
@@ -138,7 +134,7 @@
                                         "type": "App::PropertyPressure",
                                         "Heading": "Pressure",
                                         "tooltip": "Total Pressure ",
-                                        "current_val": "0.01 kg/(mm*s^2)"
+                                        "current_val": "12 Pa"
                                     }
                                 }
                             },
@@ -191,7 +187,7 @@
             },
             "GeometryDefiner": {
                 "Execution": {
-                    "typeExecution": "executerPython",
+                    "type": "executerPython",
                     "input_parameters": {}
                 },
                 "GUI": {
@@ -296,8 +292,8 @@
                             },
                             "faceList": {
                                 "Part1": {
-                                    "Name": "Cube",
-                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/",
+                                    "Name": "Cube001",
+                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/export/",
                                     "faces": [
                                         "Face1",
                                         "Face2"
@@ -320,8 +316,8 @@
                             },
                             "faceList": {
                                 "Part1": {
-                                    "Name": "Cube",
-                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/",
+                                    "Name": "Cube001",
+                                    "Path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/export/",
                                     "faces": [
                                         "Face3",
                                         "Face4"

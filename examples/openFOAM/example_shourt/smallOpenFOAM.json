@@ -9,7 +9,7 @@
         "nodes":{
             "ControlDict":{
                 "Execution": {
-                    "typeExecution": "jinjaExecuter",
+                    "type": "jinjaExecuter",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
@@ -24,7 +24,7 @@
             },
             "FvSchemes":{
                 "Execution": {
-                    "typeExecution": "jinjaExecuter",
+                    "type": "jinjaExecuter",
                     "input_parameters": {
                         "formData": "{WebGui.formData}"
                     }
