@@ -1,8 +1,7 @@
 {
     "Execution": {
-        "type": "executerPython",
-        "input_parameters": {
-        }
+        "type": "pythonExecuters.python",
+        "input_parameters": {}
     },
     "GUI": {
         "Type":"GeometryDefinerNode",

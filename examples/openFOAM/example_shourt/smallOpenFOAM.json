@@ -9,9 +9,10 @@
         "nodes":{
             "ControlDict":{
                 "Execution": {
-                    "type": "jinjaExecuter",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/ControlDict"
                     }
                 },
                 "GUI":{
@@ -24,9 +25,10 @@
             },
             "FvSchemes":{
                 "Execution": {
-                    "type": "jinjaExecuter",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSchemes"
                     }
                 },
                 "GUI": {
@@ -35,6 +37,23 @@
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
                     }
+                }
+            },
+            "fileWriter": {
+                "Execution": {
+                    "type": "general.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "/home/ofir/Projects/2020/hermesExamples",
+                        "Files": {
+                            "system/controlDict": "{ControlDict.output.file}",
+                            "system/fvSchemes": "{FvSchemes.output.file}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
                 }
             }
         }

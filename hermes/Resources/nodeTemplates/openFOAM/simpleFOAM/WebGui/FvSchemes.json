@@ -33,17 +33,17 @@
                         ],
                         "description":"The discretisation scheme"
                     },
-                    "grad(U)":{
+                    "gradU":{
                         "type":"string",
                         "title":"grad(U)",
                         "description":"discretisation of velocity gradient terms is overridden to improve boundedness and stability"
                     },
-                    "grad(k)":{
+                    "gradK":{
                         "type":"string",
                         "title":"grad(k)",
                         "description":"discretisation of k gradient terms is overridden to improve boundedness and stability"
                     },
-                    "grad(epsilon)":{
+                    "gradEpsilon":{
                         "type":"string",
                         "title":"grad(epsilon)",
                         "description":"discretisation of epsilon gradient terms is overridden to improve boundedness and stability"
@@ -59,27 +59,27 @@
                         "title":"default",
                         "description":"contains divergence terms."
                     },
-                    "div(phi,U)":{
+                    "divPhiU":{
                         "type":"string",
                         "title":"div(phi,U)"
                     },
-                    "div(phi,k)":{
+                    "divPhiK":{
                         "type":"string",
                         "title":"div(phi,k)"
                     },
-                    "div(phi,epsilon)":{
+                    "divPhiEpsilon":{
                         "type":"string",
                         "title":"div(phi,epsilon)"
                     },
-                    "div(phi,e)":{
+                    "divPhiE":{
                         "type":"string",
                         "title":"div(phi,e)"
                     },
-                    "div(phi,omega)":{
+                    "divPhiOmega":{
                         "type":"string",
                         "title":"div(phi,omega)"
                     },
-                    "more divSchemes properties":{
+                    "moreDivSchemesProperties":{
                         "type":"object",
                         "additionalProperties": {
                             "type": "string"
@@ -151,19 +151,19 @@
          },
          "gradSchemes": {
             "default": "Gauss linear",
-            "grad(U)": "cellLimited Gauss linear 1",
-            "grad(k)": "cellLimited Gauss linear 1",
-            "grad(epsilon)": "cellLimited Gauss linear 1"
+            "gradU": "cellLimited Gauss linear 1",
+            "gradK": "cellLimited Gauss linear 1",
+            "gradEpsilon": "cellLimited Gauss linear 1"
          },
          "divSchemes": {
-            "more divSchemes properties": {
-               "div((nuEff*dev2(T(grad(U)))))": "Gauss linear"
+            "moreDivSchemesProperties": {
+               "divNuEff": "Gauss linear"
             },
             "default": "none",
-            "div(phi,U)": "bounded Gauss upwind",
-            "div(phi,k)": "bounded Gauss upwind",
-            "div(phi,epsilon)": "bounded Gauss upwind",
-            "div(phi,omega)": "bounded Gauss upwind"
+            "divPhiU": "bounded Gauss upwind",
+            "divPhiK": "bounded Gauss upwind",
+            "divPhiEpsilon": "bounded Gauss upwind",
+            "divPhiOmega": "bounded Gauss upwind"
          },
          "laplacianSchemes": {
             "default": "Gauss linear corrected"

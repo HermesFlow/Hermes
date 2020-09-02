@@ -21,25 +21,24 @@ ddtSchemes
 
 gradSchemes
 {
-    default         {{values.gradSchemes.default}};
+    default           {{values.gradSchemes.default}};
 
-    grad(U)         {{values.gradSchemes.gradU}};
-    grad(k)         {{values.gradSchemes.gradK}};
+    grad(U)           {{values.gradSchemes.gradU}};
+    grad(k)           {{values.gradSchemes.gradK}};
     grad(epsilon)     {{values.gradSchemes.gradEpsilon}};
 }
 
 divSchemes
 {
-    default         {{values.divSchemes.default}};
+    default               {{values.divSchemes.default}};
 
-    div(phi,U)      {{values.divSchemes.divPhiU}};
+    div(phi,U)            {{values.divSchemes.divPhiU}};
 
-    turbulence      {{values.divSchemes.turbulence}};
-      div(phi,k)    {{values.divSchemes.divPhiK}};
+    turbulence            {{values.divSchemes.turbulence}};
+    div(phi,k)            {{values.divSchemes.divPhiK}};
 
-      div(phi,epsilon) {{values.divSchemes.divPhiEpsilon}};
-      div(phi,omega) {{values.divSchemes.divPhiOmega}};
-
+    div(phi,epsilon)      {{values.divSchemes.divPhiEpsilon}};
+    div(phi,omega)        {{values.divSchemes.divPhiOmega}};
 
     div((nuEff*dev2(T(grad(U))))) {{values.divSchemes.moreDivSchemesProperties.divNuEff}};
 }
@@ -56,12 +55,12 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default         {{values.snGradSchemes.default}};
+    default       {{values.snGradSchemes.default}};
 }
 
 wallDist
 {
-    method {{values.wallDist.method}};
+    method      {{values.wallDist.method}};
 }
 
 // ************************************************************************* //

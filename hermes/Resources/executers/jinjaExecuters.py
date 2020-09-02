@@ -8,8 +8,8 @@ from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
 class jinjaExecuter(abstractExecuter):
 
-    def __init__(self):
-        pass
+    # def __init__(self):
+    #     pass
     #     # get the user working dir
     #     self.u_wd = os.getcwd()
     #
@@ -49,15 +49,18 @@ class jinjaExecuter(abstractExecuter):
 
         # define the environment - in this case : templates directory
 #        file_loader = FileSystemLoader(self.templates)
-        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "jinjaTemplates"))
         env = Environment(loader=file_loader)
-        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+        print(os.path.join(pathlib.Path(__file__).parent.absolute(), "jinjaTemplates"))
 
         # Define the template to use
         template = env.get_template(templateName)
 
         # render jinja for the choosen template
         output = template.render(values=values)
+        print("======================")
+        print(output)
+        print("======================")
 
         # # save as dict item
         # D_item = {inputs['name'] : output}
@@ -70,8 +73,8 @@ class jinjaExecuter(abstractExecuter):
 
 class BlockMeshExecuter(abstractExecuter):
 
-    def __init__(self):
-        pass
+    # def __init__(self):
+    #     pass
 
     def _defaultParameters(self):
         return dict(
@@ -101,7 +104,7 @@ class BlockMeshExecuter(abstractExecuter):
 
         # define the environment - in this case : templates directory
 #        file_loader = FileSystemLoader(self.templates)
-        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
+        file_loader = FileSystemLoader(os.path.join(pathlib.Path(__file__).parent.absolute(), "jinjaTemplates"))
         env = Environment(loader=file_loader)
         # print(os.path.join(pathlib.Path(__file__).parent.absolute(), "templates"))
 
@@ -110,5 +113,9 @@ class BlockMeshExecuter(abstractExecuter):
 
         # render jinja for the choosen template
         output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
+
+        print("======================")
+        print(output)
+        print("======================")
 
         return output

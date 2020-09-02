@@ -13,9 +13,10 @@
         "nodes":{
             "SnappyHexMesh": {
                 "Execution": {
-                    "type": "snappyHexMesh",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/SnappyHexMeshDict"
                     }
                 },
                 "GUI": {
@@ -28,9 +29,10 @@
             },
             "ControlDict":{
                 "Execution": {
-                    "type": "controlDict",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/ControlDict"
                     }
                 },
                 "GUI":{
@@ -43,9 +45,10 @@
             },
             "FvSchemes":{
                 "Execution": {
-                    "type": "FvSchemes",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSchemes"
                     }
                 },
                 "GUI": {
@@ -58,9 +61,10 @@
             },
             "FvSolution":{
                 "Execution": {
-                    "type": "FvSolution",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSolution"
                     }
                 },
                 "GUI": {
@@ -73,9 +77,10 @@
             },
             "TransportProperties":{
                 "Execution": {
-                    "type": "TransportProperties",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/TransportProperties"
                     }
                 },
                 "GUI": {
@@ -88,9 +93,10 @@
             },
             "RASProperties":{
                 "Execution": {
-                    "type": "RASProperties",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/TurbulenceProperties"
                     }
                 },
                 "GUI": {

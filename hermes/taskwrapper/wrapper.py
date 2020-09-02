@@ -237,7 +237,6 @@ class hermesTaskWrapper(object):
         return ".".join(executerhome[self.taskType].split(".")[:-1])
 
     def getExecuterClass(self):
-        # print(executerhome[self.taskType])
         return executerhome[self.taskType].split(".")[-1]
 
     def getNetworkTasks(self):
