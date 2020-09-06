@@ -59,7 +59,10 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         params['Properties'] = {{taskwrapper.task_Properties}}
         params['WebGui']     = {{taskwrapper.task_webGui}}
         
-       
+        params['vertices'] = {{taskwrapper.task_vertices}}
+        params['boundary'] = {{taskwrapper.task_boundary}}
+
+        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='{{WD_path}}'
                     
@@ -82,7 +85,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
 
 
     #def transform(self,taskWrapper,WD_path):
-    def transform(self,taskWrapper,WD_path):
+    def transform(self, taskWrapper, WD_path):
 
 
 

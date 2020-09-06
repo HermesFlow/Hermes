@@ -61,9 +61,6 @@ class hermesTaskWrapper(object):
         notNodeTypes = ["workflowJSON","value","output","Properties","WebGui"]
 
         typesList = []
-        # print(taskJSON)
-        # print("==============")
-        # print(taskJSON['Execution']['input_parameters'])
         for param_path in taskJSON['Execution']['input_parameters'].values():
             if type(param_path)==dict:
                 for param_p in param_path.values():
@@ -71,17 +68,11 @@ class hermesTaskWrapper(object):
             else:
                 typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
 
-        # print(typesList)
-        # print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
         # append nodes list in the 'dependent_tasks'
         typesList.append(numpy.atleast_1d(taskJSON.get('requires',[])))
 
-        # print(typesList)
-        # print("2^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         typesList = [*set([x for x in chain(*typesList)])]
-        # print(typesList)
-        # print("3^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         return [x for x in typesList if x not in notNodeTypes]
 
 

@@ -49,8 +49,8 @@ class GeometryDefiner_0(luigi.Task,hermesutils):
         params['uiSchema']   = {}
         params['Properties'] = {'Property1': {'prop': 'IntegerProperty', 'init_val': 10, 'type': 'App::PropertyInteger', 'Heading': 'PropInteger', 'tooltip': 'IntegerProperty', 'current_val': 10}}
         params['WebGui']     = {}
-
         
+       
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/example_template_part'
                     
@@ -104,6 +104,9 @@ class BlockMesh_0(luigi.Task,hermesutils):
         params['uiSchema']   = {}
         params['Properties'] = {'Property01': {'prop': 'partName', 'init_val': '', 'type': 'App::PropertyString', 'Heading': 'BasicData', 'tooltip': 'Name of tha part of the blockMesh node ', 'current_val': 'Cube'}, 'Property02': {'prop': 'partPath', 'init_val': '', 'type': 'App::PropertyPath', 'Heading': 'BasicData', 'tooltip': 'Path to tha part of the blockMesh node ', 'current_val': ''}, 'Property03': {'prop': 'convertToMeters', 'init_val': 1, 'type': 'App::PropertyFloat', 'Heading': 'BasicData', 'tooltip': 'Link a part to the blockMesh node ', 'current_val': 1.0}, 'Property04': {'prop': 'NumberOfCells', 'init_val': '1 2 3', 'type': 'App::PropertyString', 'Heading': 'Block', 'tooltip': 'Numbers of cells in each direction ', 'current_val': '1 2 3'}, 'Property05': {'prop': 'simpleGradingX', 'init_val': ['1'], 'type': 'App::PropertyStringList', 'Heading': 'Block', 'tooltip': 'simpleGrading in x direction ', 'current_val': ['1']}, 'Property06': {'prop': 'simpleGradingY', 'init_val': ['1'], 'type': 'App::PropertyStringList', 'Heading': 'Block', 'tooltip': 'simpleGrading in y direction ', 'current_val': ['0.2 0.3 4', '0.6 0.4 1', '0.2 0.3 0.25']}, 'Property07': {'prop': 'simpleGradingZ', 'init_val': ['1'], 'type': 'App::PropertyStringList', 'Heading': 'Block', 'tooltip': 'simpleGrading in z direction ', 'current_val': ['1']}}
         params['WebGui']     = {}
+        
+        params['vertices'] = ['0.0 0.0 0.0 ', '10.0 0.0 0.0 ', '10.0 10.0 0.0 ', '0.0 10.0 0.0 ', '0.0 0.0 10.0 ', '10.0 0.0 10.0 ', '10.0 10.0 10.0 ', '0.0 10.0 10.0 ']
+        params['boundary'] = [{'Name': 'Inlet', 'Type': 'patch', 'Properties': {'Property01': {'prop': 'P0', 'init_val': '10 Pa', 'type': 'App::PropertyPressure', 'Heading': 'Pressure', 'tooltip': 'Total Pressure ', 'current_val': '0.01 kg/(mm*s^2)'}}, 'faces': {'Face5': {'vertices': '0 3 2 1'}}}]
 
         
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
@@ -161,8 +164,8 @@ class finalnode_xx_0(luigi.Task,hermesutils):
         params['uiSchema']   = {}
         params['Properties'] = {}
         params['WebGui']     = {}
-
         
+       
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/example_template_part'
                     

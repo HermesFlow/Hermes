@@ -48,10 +48,18 @@ class LuigiBuilder(object):
 
     def __init__(self):
         self._mapping = {} # dict(spanParameters=pydoc.locate("Hermes.transform.spanParameters")())
-        #self.WD_path=WD_path
 
     def _getTransformaer(self, tasktype):
-        return self._mapping.get(tasktype, pydoc.locate("hermes.engines.luigi.default.transform")())
+        taskName = tasktype.split('.')[-1]
+        path = ("hermes.engines.luigi.luigi%s.default%s.transform" % (taskName, taskName))
+        try:
+            defaultClass = pydoc.locate(path)()
+        except:
+            defaultClass = pydoc.locate("hermes.engines.luigi.default.transform")()
+
+        return defaultClass
+
+        # return self._mapping.get(tasktype, pydoc.locate("hermes.engines.luigi.default.transform")())
 
 
     def buildWorkflow(self, workflow):
@@ -83,11 +91,11 @@ from hermes.engines.luigi.taskUtils import utils as hermesutils
         rtemplate = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(ret)
         ret=rtemplate.render(Resources_path=workflow.Resources_path)
 
-        print("LuigiBuilder-workflow.WD_path="+workflow.WD_path+"\n")
+        # print("LuigiBuilder-workflow.WD_path="+workflow.WD_path+"\n")
 
         for taskname,taskWrapperList in workflow.taskRepresentations.items():
             for taskwrapper in taskWrapperList:
                 transformer = self._getTransformaer(taskwrapper.taskType)
-                ret += transformer.transform(taskwrapper,workflow.WD_path) + "\n"
+                ret += transformer.transform(taskwrapper, workflow.WD_path) + "\n"
 
         return ret
