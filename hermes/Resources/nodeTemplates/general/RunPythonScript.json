@@ -1,10 +1,10 @@
 {
     "Execution": {
-        "type": "RunPythonScript",
+        "type": "pythonExecuters.python",
         "input_parameters": {
-            "ModulePath": "Properties.ModulePath.current_val",
-            "MethodName": "Properties.MethodName.current_val",
-            "Parameters": "Properties.Parameters.current_val"
+            "ModulePath": "{Properties.ModulePath.current_val}",
+            "MethodName": "{Properties.MethodName.current_val}",
+            "Parameters": "{Properties.Parameters.current_val}"
         }
     },
     "GUI": {

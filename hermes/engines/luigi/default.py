@@ -70,8 +70,8 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         params['output'] = output        
         
         out_params = params
-        with open(self.output().fn,"w") as outfile:
-            json.dump(out_params,outfile)
+        with open(self.output().fn, "w") as outfile:
+            json.dump(out_params, outfile)
 """
 
 

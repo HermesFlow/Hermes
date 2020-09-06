@@ -58,18 +58,8 @@ class jinjaExecuter(abstractExecuter):
 
         # render jinja for the choosen template
         output = template.render(values=values)
-        print("======================")
-        print(output)
-        print("======================")
 
-        # # save as dict item
-        # D_item = {inputs['name'] : output}
-        #
-        # # return the user working directory
-        # os.chdir(self.u_wd)
-
-        # return D_item
-        return output
+        return dict(openFOAMfile=output)
 
 class BlockMeshExecuter(abstractExecuter):
 
@@ -114,8 +104,4 @@ class BlockMeshExecuter(abstractExecuter):
         # render jinja for the choosen template
         output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
 
-        print("======================")
-        print(output)
-        print("======================")
-
-        return output
+        return dict(openFOAMfile=output)

@@ -4,7 +4,8 @@
         "Templates": [],
         "nodeList": [
             "BlockMesh",
-            "GeometryDefiner"
+            "GeometryDefiner",
+            "FileWriter"
         ],
         "nodes": {
             "BlockMesh":{
@@ -43,6 +44,22 @@
             },
             "GeometryDefiner":{
                 "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            },
+            "FileWriter": {
+                 "Execution": {
+                     "type": "generalExecuters.FilesWriter",
+                     "input_parameters": {
+                         "casePath": "OpenFOAMfiles/",
+                         "Files": {
+                             "system/BlockMesh": "{BlockMesh.output.openFOAMfile}"
+                         }
+                     }
+                 },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
             }
         }
     }

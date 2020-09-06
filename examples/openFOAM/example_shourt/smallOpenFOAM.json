@@ -4,7 +4,8 @@
         "Templates":{},
         "nodeList":[
             "ControlDict",
-            "FvSchemes"
+            "FvSchemes",
+            "FileWriter"
         ],
         "nodes":{
             "ControlDict":{
@@ -39,14 +40,14 @@
                     }
                 }
             },
-            "fileWriter": {
+            "FileWriter": {
                 "Execution": {
-                    "type": "general.FilesWriter",
+                    "type": "generalExecuters.FilesWriter",
                     "input_parameters": {
-                        "casePath": "/home/ofir/Projects/2020/hermesExamples",
+                        "casePath": "OpenFOAMfiles/",
                         "Files": {
-                            "system/controlDict": "{ControlDict.output.file}",
-                            "system/fvSchemes": "{FvSchemes.output.file}"
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}"
                         }
                     }
                 },

@@ -581,11 +581,13 @@ class _ViewProviderHermesWorkflow:
 
     def _handle_RunWorkflow(self, obj):
         if obj.Proxy.JsonObject is not None:
-            obj.Proxy.prepareJsonVar(obj, "null")
-            obj.Proxy.RunworkflowCreation(obj)
+            if obj.RunWorkflow:
+                obj.Proxy.prepareJsonVar(obj, "null")
+                obj.Proxy.RunworkflowCreation(obj)
 
     def _handle_RunLuigi(self, obj):
-        obj.Proxy.RunLuigiScript()
+        if obj.RunLuigi:
+            obj.Proxy.RunLuigiScript()
 
     def _handle_WorkingDirectory(self, obj):
         if len(str(obj.WorkingDirectory)) > 0:
