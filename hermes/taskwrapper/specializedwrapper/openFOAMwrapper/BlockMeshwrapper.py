@@ -1,5 +1,5 @@
 
-from ....wrapper import hermesTaskWrapper
+from ...wrapper import hermesTaskWrapper
 
 class BlockMeshTaskWrapper(hermesTaskWrapper):
 

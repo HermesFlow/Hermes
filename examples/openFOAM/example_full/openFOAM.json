@@ -8,7 +8,8 @@
             "FvSchemes",
             "FvSolution",
             "TransportProperties",
-            "RASProperties"
+            "RASProperties",
+            "FileWriter"
         ],
         "nodes":{
             "SnappyHexMesh": {
@@ -105,6 +106,27 @@
                     "WebGui": {
                         "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"
                     }
+                }
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
+                            "system/fvSolution": "{FvSolution.output.openFOAMfile}",
+                            "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
+                            "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
                 }
             }
         }

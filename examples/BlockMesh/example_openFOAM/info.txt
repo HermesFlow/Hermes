@@ -1,0 +1,7 @@
+
+example_openFOAM
+----------------
+
+This examples allows you to use BlockMesh when its location is at openFOAM, and not inside simpleFOAM/pimpleFOAM
+
+The JSON Relies on on the BlockMesh nodeTemplate, but override the [Execution.input_parameters.template] data

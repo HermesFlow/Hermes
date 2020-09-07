@@ -52,7 +52,7 @@ class RunOsCommand_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.fileSystemExecuters import RunOsCommandExecuter  
         output = RunOsCommandExecuter(self._taskJSON).run(**executer_parameters)
@@ -107,7 +107,7 @@ class TransportProperties_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -165,7 +165,7 @@ class BlockMesh_0(luigi.Task,hermesutils):
 
         
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import BlockMeshExecuter  
         output = BlockMeshExecuter(self._taskJSON).run(**executer_parameters)
@@ -220,7 +220,7 @@ class SnappyHexMesh_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -275,7 +275,7 @@ class ControlDict_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -330,7 +330,7 @@ class RASProperties_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -385,7 +385,7 @@ class FvSchemes_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -440,7 +440,7 @@ class FvSolution_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.jinjaExecuters import jinjaExecuter  
         output = jinjaExecuter(self._taskJSON).run(**executer_parameters)
@@ -502,7 +502,7 @@ class FileWriter_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.generalExecuters import FilesWriterExecuter  
         output = FilesWriterExecuter(self._taskJSON).run(**executer_parameters)
@@ -557,7 +557,7 @@ class GeometryDefiner_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.pythonExecuters import pythonExecuter  
         output = pythonExecuter(self._taskJSON).run(**executer_parameters)
@@ -612,7 +612,7 @@ class RunPythonScript_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.pythonExecuters import pythonExecuter  
         output = pythonExecuter(self._taskJSON).run(**executer_parameters)
@@ -667,7 +667,7 @@ class CopyDirectory_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.fileSystemExecuters import copyDirectoryExecuter  
         output = copyDirectoryExecuter(self._taskJSON).run(**executer_parameters)
@@ -734,7 +734,7 @@ class finalnode_xx_0(luigi.Task,hermesutils):
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
-        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_GUI'
+        executer_parameters['WD_path']='/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/simpleFOAM_batch'
                     
         from hermes.Resources.executers.generalExecuters import parameterExecuter  
         output = parameterExecuter(self._taskJSON).run(**executer_parameters)
