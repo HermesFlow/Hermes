@@ -1,0 +1,26 @@
+{
+    "Execution": {
+        "type": "jinjaExecuters.BlockMesh",
+        "input_parameters": {
+            "Properties": "{value.Properties}",
+            "boundary": "{value.boundary}",
+            "vertices": "{value.vertices}",
+            "template": "openFOAM/simpleFOAM/BlockMesh"
+        }
+    },
+    "GUI": {
+        "Type":"BlockMeshNode",
+        "Properties":{
+                "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
+
+        },
+        "GeometryFaceTypes":{
+            "TypeList":["wall","symmetry","patch","cyclic"],
+            "TypeProperties":{
+                "Template":"GeometryDefiner.BlockMesh.BMTypesListProperties"
+            }
+        },
+        "boundary": [],
+        "vertices": []
+    }
+}

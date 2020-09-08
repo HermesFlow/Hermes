@@ -1,0 +1,14 @@
+{
+    "wall":{
+        "Template":"GeometryDefiner.BlockMesh.BMwallTemplate"
+    },
+    "symmetry":{
+        "Template":"GeometryDefiner.BlockMesh.BMsymTemplate"
+    },
+    "patch": {
+        "Template":"GeometryDefiner.BlockMesh.BMpatchTemplate"
+    },
+    "cyclic": {
+        "Template":"GeometryDefiner.BlockMesh.BMcyclicTemplate"
+    }
+}

@@ -1,0 +1,16 @@
+In order to run the example make sure that:
+
+* The Hermes_git is included in the PYTHONPATH envrionmental parameter.
+* The Hermes_git/hermes/bin is included in PYTHON envrionmental parameter.
+
+Expand the workflow:
+
+hermes-Workflow expand RunNCopyTemplate.json RunNCopy.json
+
+Build the python-luigi file:
+
+hermes-Workflow buildPython RunNCopy.json RunNCopy.py
+
+Run the luigi (can also be done through the hermes-Workflow).
+
+python3 -m luigi --module RunNCopy finalnode_xx_0 --local-scheduler

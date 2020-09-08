@@ -1,0 +1,8 @@
+{#-macro that will return the name of geometry-#}
+{%- macro MgetName(geoDict) -%}
+{%- set geoName=namespace(N='n') -%}
+{%- for key,value in geoDict.items() -%}
+{%- if key[0:4] =='name'-%} {%- set geoName.N=value %} {%- endif -%}
+{%- endfor -%}
+    {{geoName.N}}
+{%- endmacro -%}

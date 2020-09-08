@@ -1,0 +1,134 @@
+{
+    "workflow":{
+        "root":null,
+        "Templates":{},
+        "nodeList":[
+            "SnappyHexMesh",
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution",
+            "TransportProperties",
+            "RASProperties",
+            "FileWriter"
+        ],
+        "nodes":{
+            "SnappyHexMesh": {
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/SnappyHexMeshDict"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGui"
+                    }
+                }
+            },
+            "ControlDict":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/ControlDict"
+                    }
+                },
+                "GUI":{
+                    "Type":"WebGuiNode",
+                    "Properties":{},
+                    "WebGui":{
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
+                    }
+                }
+            },
+            "FvSchemes":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSchemes"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
+                    }
+                }
+            },
+            "FvSolution":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSolution"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolutionWebGui"
+                    }
+                }
+            },
+            "TransportProperties":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/TransportPropertiesWebGui"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.TransportPropertiesWebGui"
+                    }
+                }
+            },
+            "RASProperties":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/TurbulencePropertiesWebGui"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.RASPropertiesWebGui"
+                    }
+                }
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
+                            "system/fvSolution": "{FvSolution.output.openFOAMfile}",
+                            "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
+                            "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
+            }
+        }
+    }
+}

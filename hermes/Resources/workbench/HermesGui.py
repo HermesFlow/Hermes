@@ -1,48 +1,33 @@
-﻿# FreeCAD Part module
-# (c) 2001 Juergen Riegel
-#
-# Part design module
-
-# ***************************************************************************
-# *   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
-# *                                                                         *
-# *   This file is part of the FreeCAD CAx development system.              *
-# *                                                                         *
-# *   This program is free software; you can redistribute it and/or modify  *
-# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
-# *   as published by the Free Software Foundation; either version 2 of     *
-# *   the License, or (at your option) any later version.                   *
-# *   for detail see the LICENCE text file.                                 *
-# *                                                                         *
-# *   FreeCAD is distributed in the hope that it will be useful,            *
-# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-# *   GNU Library General Public License for more details.                  *
-# *                                                                         *
-# *   You should have received a copy of the GNU Library General Public     *
-# *   License along with FreeCAD; if not, write to the Free Software        *
-# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-# *   USA                                                                   *
-# *                                                                         *
-# *   Juergen Riegel 2002                                                   *
-# ***************************************************************************/
-
+﻿
 # import FreeCAD modules
 import FreeCAD, FreeCADGui, WebGui
 import HermesTools
 from HermesTools import addObjectProperty
 
+# python modules
 import sys
 from PyQt5 import QtGui, QtCore
-
 import os
 import json
 import Part
 
+# Hemes modules
 import HermesNode
-from expandJson import expandJson
 import HermesPart
 
+# add hermes to paths
+HermesDirpath = os.getenv('HERMES_2_PATH')
+# add an Error message in case the environment variable does not exist
+if (HermesDirpath == None):
+    FreeCAD.Console.PrintError('Error: HermesGui.py - The Hermes environment variable does not exist!\n')
+sys.path.insert(1, HermesDirpath)
+
+from hermes.workflow.expandWorkflow import expandWorkflow
+
+# ###################### Temporary hack while the hermes is not in the pythonpath
+# sys.path.append("/mnt/build")
+# ######################
+# from hermes.Resources.nodeTemplates.templateCenter import templateCenter
 
 # =============================================================================
 #     "makeHermesWorkflow" class
@@ -75,10 +60,9 @@ class _HermesWorkflow:
         self.Type = "HermesWorkflow"
         self.initProperties(obj)
 
-        self.JsonObject = []
+        self.JsonObject = None
         self.JsonObjectString = ""
-        self.JsonObjectfromFile = []
-        self.Templates = []
+        self.Templates = None
         self.nLastNodeId = "-1"
         self.partPathListFromJson = []
         self.partNameListFromJson = []
@@ -91,6 +75,15 @@ class _HermesWorkflow:
         self.getFromTemplate = "Template"
 
         self.WD_path = ""
+
+        # get the path from environment variable
+        self.HermesDirpath = os.getenv('HERMES_2_PATH')
+
+        # add an Error message in case the environment variable does not exist
+        if (self.HermesDirpath == None):
+            FreeCAD.Console.PrintError('Error: HermesGui.py - The Hermes environment variable does not exist!\n')
+            return
+
 
     def initProperties(self, obj):
 
@@ -136,7 +129,6 @@ class _HermesWorkflow:
             _ViewProviderHermesWorkflow(obj.ViewObject)
 
         # parse json data
-
     #        self.JsonObject = json.loads(obj.JSONString)
 
     def prepareJsonVar(self, obj, rootVal):
@@ -152,6 +144,14 @@ class _HermesWorkflow:
         self.JsonObjectString = json.dumps(self.JsonObject)
 
     def saveJson(self, obj, jsonSaveFilePath, FileSaveName):
+        """
+            Saves the current workflow to JSON.
+
+        :param obj:
+        :param jsonSaveFilePath:
+        :param FileSaveName:
+        :return:
+        """
 
         # ^^^Export Json-file
 
@@ -171,14 +171,17 @@ class _HermesWorkflow:
 
         # loop all the objects
         for y in range(len(self.partNameExportList)):
-            partObjName = self.partNameExportList[y];
+
+            partObjName = self.partNameExportList[y]
             partObj = doc.getObject(partObjName)
 
             # Define full path
             # 'stp' file
-            fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
+            fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
+            # fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
+
             # 'stl' file
-            fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
+            # fullPath_stl = jsonSaveFilePath + '/' + partObjName + '.stl'
 
             # export all part Object
             Part.export([partObj], u"" + fullPath)
@@ -187,13 +190,10 @@ class _HermesWorkflow:
 
     def readJson(self, obj):
         # get json file full path
-        jsonFileName = obj.ImportJSONFile
-
-        # Open JsonFile , Read & parsed, assign to JsonObject
-        self.JsonObjectfromFile = expandJson().loadJsonFromfile(jsonFileName)
+        jsonFilePath = obj.ImportJSONFile
 
         # create jsonObject varieble that contain all data, including imported data from files/templates
-        self.JsonObject = expandJson().createJsonObject(self.JsonObjectfromFile,jsonFileName)
+        self.JsonObject = expandWorkflow().expand(jsonFilePath)
 
         # assign the data been import to the JSONString property after dumps
         obj.JSONString = json.dumps(self.JsonObject)
@@ -229,19 +229,17 @@ class _HermesWorkflow:
 
     def loadPart(self, obj, partPath):
 
+
         partIndex = -1
+        os.chdir(self.WD_path)
 
-        # check if relative path to Hermes folder
         if partPath.startswith("hermes"):
+            # check if relative path to Hermes folder
+            partPath = os.path.join(self.HermesDirpath, partPath)
+        else:
+            # update 'pathFile' to full path- absolute - relative to working dir
+            partPath = os.path.abspath(partPath)
 
-            # get the path from environment variable
-            HermesDirpath = os.getenv('HERMES_2_PATH')
-
-            # update partPath in relative to HermesDirpath
-            partPath = HermesDirpath + '/' + partPath
-
-        # update 'pathFile' to full path- absolute
-        partPath = os.path.abspath(partPath)
 
 
         # check if part has already been created using his path
@@ -299,11 +297,11 @@ class _HermesWorkflow:
 
     def updateNodeList(self, obj):
 
-        x = 1;
+        x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
         for y in nodes:
             # get Node data
-            nodeData = nodes[y]
+            nodeData = nodes[y]["GUI"]
 
             # get node name
             nodename = y
@@ -350,7 +348,7 @@ class _HermesWorkflow:
             nodename = child.Proxy.name
 
             # # update the child nodeDate in the JsonObject
-            self.JsonObject["workflow"]["nodes"][nodename] = nodaData
+            self.JsonObject["workflow"]["nodes"][nodename]["GUI"] = nodaData
 
 
         return
@@ -360,21 +358,12 @@ class _HermesWorkflow:
         # save the current work directory before it changed
         currentDirFC = os.getcwd()
 
-        # get the path from environment variable
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-
-        # add an Error message in case the environment variable does not exist
-        if (HermesDirpath == None):
-            FreeCAD.Console.PrintError('Error: HermesGui.py - line 940: The environment variable does not exist!\n')
-            return
-        current_dir = HermesDirpath
-
-        current_dir = HermesDirpath + '/hermes/'
+        current_dir = self.HermesDirpath + '/hermes/'
 
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)
         sys.path.insert(1, current_dir)
-        sys.path.insert(1, HermesDirpath)
+        sys.path.insert(1, self.HermesDirpath)
 
         # update 'current_dir' to full path- absolute
         current_dir = os.path.abspath(current_dir)
@@ -386,7 +375,7 @@ class _HermesWorkflow:
         from hermes import hermesWorkflow
 
         # call hermes workflow and keep its result in var
-        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, HermesDirpath)
+        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
 
         print(wf)
         print("===================================")
@@ -418,10 +407,11 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         # save the current work directory before it changed
         currentDirFC = os.getcwd()
 
-        # get the path from environment variable
-        HermesDirpath = os.getenv('HERMES_2_PATH')
-        # print("RunLuigi:HermesDirpath=" + str(HermesDirpath))
-        current_dir = HermesDirpath
+        # define current dir
+        current_dir = self.HermesDirpath
+
+        if (len(self.WD_path) == 0) or (len(current_dir) == 0):
+            return
 
         # insert the path to sys
         # insert at 1, 0 is the script path (or '' in REPL)
@@ -460,6 +450,7 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
 
     def updateWorkingDirectory(self, path):
         self.WD_path = path
+
 
 
 # =============================================================================
@@ -530,32 +521,79 @@ class _ViewProviderHermesWorkflow:
         self.bubbles = None
 
     def updateData(self, obj, prop):
-        # We get here when the object of HermesWorkflow changes
-        # For this moment, we consider only the JSONFile parameter
+        """
+            We get here when the object of HermesWorkflow changes
+            For this moment, we consider only the JSONFile parameter
 
-        # Check if the JSONFile parameter changed and its not empty path
-        if (str(prop) == 'ImportJSONFile' and len(str(obj.ImportJSONFile)) > 0):
-            obj.Proxy.readJson(obj)
+        :param obj:
+
+        :param prop:
+
+        :return:
+        """
+
+        fname = "_handle_%s" % str(prop)
+
+        if hasattr(self, fname):
+            getattr(self, fname)(obj)
+
+
+        # # Check if the JSONFile parameter changed and its not empty path
+        # if (str(prop) == 'ImportJSONFile' and len(str(obj.ImportJSONFile)) > 0):
+        #     obj.Proxy.readJson(obj)
+        #     # seperate file and dir, and define dir as workingDir
+        #     Dirpath = os.path.dirname(obj.ImportJSONFile)
+        #     # update workind directory to self of hermes class
+        #     obj.Proxy.updateWorkingDirectory(Dirpath)
+        #     # update workind directory to the hermes obj
+        #     obj.WorkingDirectory = Dirpath
+        #     obj.ImportJSONFile = ''
+        # if (str(prop) == 'ExportJSONFile' and len(str(obj.ExportJSONFile)) > 0):
+        #     obj.Proxy.prepareJsonVar(obj, "null")
+        #     obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
+        #     obj.ExportJSONFile = ''
+        # if (str(prop) == 'RunWorkflow' and (obj.RunWorkflow)):
+        #     obj.Proxy.prepareJsonVar(obj, "null")
+        #     obj.Proxy.RunworkflowCreation(obj)
+        #
+        # if (str(prop) == 'RunLuigi' and (obj.RunLuigi)):
+        #     obj.Proxy.RunLuigiScript()
+        #
+        # if (str(prop) == 'WorkingDirectory' and len(str(obj.WorkingDirectory)) > 0):
+        #     obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
+
+    def _handle_ImportJSONFile(self, obj):
+        if len(str(obj.ImportJSONFile)) > 0:
             # seperate file and dir, and define dir as workingDir
             Dirpath = os.path.dirname(obj.ImportJSONFile)
             # update workind directory to self of hermes class
             obj.Proxy.updateWorkingDirectory(Dirpath)
             # update workind directory to the hermes obj
             obj.WorkingDirectory = Dirpath
+            obj.Proxy.readJson(obj)
             obj.ImportJSONFile = ''
-        if (str(prop) == 'ExportJSONFile' and len(str(obj.ExportJSONFile)) > 0):
+
+    def _handle_ExportJSONFile(self, obj):
+        if len(str(obj.ExportJSONFile)) > 0:
             obj.Proxy.prepareJsonVar(obj, "null")
             obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
             obj.ExportJSONFile = ''
-        if (str(prop) == 'RunWorkflow' and (obj.RunWorkflow)):
-            obj.Proxy.prepareJsonVar(obj, "null")
-            obj.Proxy.RunworkflowCreation(obj)
 
-        if (str(prop) == 'RunLuigi' and (obj.RunLuigi)):
+    def _handle_RunWorkflow(self, obj):
+        if obj.Proxy.JsonObject is not None:
+            if obj.RunWorkflow:
+                obj.Proxy.prepareJsonVar(obj, "null")
+                obj.Proxy.RunworkflowCreation(obj)
+
+    def _handle_RunLuigi(self, obj):
+        if obj.RunLuigi:
             obj.Proxy.RunLuigiScript()
 
-        if (str(prop) == 'WorkingDirectory' and len(str(obj.WorkingDirectory)) > 0):
+    def _handle_WorkingDirectory(self, obj):
+        if len(str(obj.WorkingDirectory)) > 0:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
+
+
 
     def onChanged(self, vobj, prop):
         # self.makePartTransparent(vobj)

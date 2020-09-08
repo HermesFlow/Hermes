@@ -12,8 +12,8 @@ sys.path.insert(1, HermesDirpath)
 
 #import hermes
 
-from hermes.Resources.executers.jinjaExecuter import jinjaExecuter
-from hermes.Resources.executers.pythonExecuter import exportFiles
+from hermes.Resources.executers.jinjaExecuters import jinjaExecuter
+from hermes.Resources.executers.pythonExecuters import exportFiles
 
 
 # load json file
@@ -34,9 +34,12 @@ for nodeKey,nodeValue in openFOAMjson["files"].items():
 
     # inject input args to jinja executer,
     # save the rendered data into J
-    J.update(jinjaExecuter().run(**inputs))
 
-# # print values for debug
+    output = (jinjaExecuter().run(**inputs))
+    J[nodeValue["name"]] = output
+
+
+# print values for debug
 # for Jkey,Jval in J.items():
 #     print("=======================================\n")
 #     print("Jkey = " + Jkey + "\n" )
@@ -45,5 +48,5 @@ for nodeKey,nodeValue in openFOAMjson["files"].items():
 # print("J:" + str(J))
 
 # export strings to files
-exportFiles().run(**J)
+# exportFiles().run(**J)
 

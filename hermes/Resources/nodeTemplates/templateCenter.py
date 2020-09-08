@@ -29,9 +29,12 @@ class templateCenter:
         """
         self._paths = paths
 
+    def __getitem__(self, item):
+        return self.getTemplate(item)
+
     def getTemplate(self, template):
         """
-        Finds a template and returns it as a dict.
+        Finds a template and return a copy of it  as a dict.
         """
         jsonPath = None
         template = template.replace(".", "/") + ".json"
@@ -48,4 +51,5 @@ class templateCenter:
                 template = json.load(json_file)
         except FileNotFoundError:
             raise KeyError("Template %s Not Found" % template)
-        return template
+
+        return dict(template)

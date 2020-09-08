@@ -8,7 +8,7 @@ We can build the python file using the hermes-Pipeline command line.
 
 .. code-block:: python
 
-    hermes-Pipeline expand "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
+    hermes-Pipeline buildPython "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
                            "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAM.py"
 
 The default working directory is the directory of the python file.
@@ -16,7 +16,7 @@ If one desires to choose another one, one can add it is a third argument:
 
 .. code-block:: python
 
-    hermes-Pipeline expand "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
+    hermes-Pipeline buildPython "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
                            "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAM.py"
                            "/AnotherWorkingDirectory"
 
@@ -25,7 +25,7 @@ If one desires to choose another one, one can add it is a fourth argument:
 
 .. code-block:: python
 
-    hermes-Pipeline expand "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
+    hermes-Pipeline buildPython "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAMexpanded.json"
                            "/home/ofir/Downloads/Hermes/Hermes_git/examples/simpleFOAM/simpleFOAM.py"
                            "/AnotherWorkingDirectory"
                            "AnotherBuilder"

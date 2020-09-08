@@ -1,45 +1,19 @@
-﻿# FreeCAD Part module
-# (c) 2001 Juergen Riegel
-#
-# Part design module
-
-# ***************************************************************************
-# *   (c) Juergen Riegel (juergen.riegel@web.de) 2002                       *
-# *                                                                         *
-# *   This file is part of the FreeCAD CAx development system.              *
-# *                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   FreeCAD is distributed in the hope that it will be useful,            *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with FreeCAD; if not, write to the Free Software        *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#*   Juergen Riegel 2002                                                   *
-#***************************************************************************/
-
+﻿
 # import FreeCAD modules
 import FreeCAD,FreeCADGui, WebGui
-import HermesTools
-from HermesTools import addObjectProperty
-from PyQt5 import QtGui,QtCore
-
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
+# python modules
+from PyQt5 import QtGui,QtCore
 import json
 import pydoc
+import os
 
+# Hermes modules
+import HermesTools
+from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 from HermesBlockMesh import HermesBlockMesh
 
@@ -67,27 +41,17 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
 
     # find the class of the node from the its type
-    #nodecls = pydoc.locate("HermesGui." + nodeData["TypeFC"])
-    nodecls = pydoc.locate("HermesNode." +'_'+ nodeData["TypeFC"])
+    #nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
+    nodecls = pydoc.locate("HermesNode." +'_'+ nodeData["Type"])
 
 
     #    # if the class is not exist, create a new class
     #    if nodecls is None:
-    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["TypeFC"])
+    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
 
     # call to the class
     if nodecls is not None:
         nodecls(obj, nodeId, nodeData, name)
-
-        # ----------------static find class------------------
-        # =============================================================================
-        #     if nodeData["TypeFC"]=="webGui":
-        #         _WebGuiNode(obj, nodeId,nodeData,name)
-        #     elif nodeData["TypeFC"]=="GE":
-        #         _GeometryDefinerNode(obj, nodeId,nodeData,name)
-        #     else:
-        #         _HermesNode(obj, nodeId,nodeData,name)
-        # =============================================================================
 
         obj.Proxy.initializeFromJson(obj)
 
@@ -100,8 +64,10 @@ class _CommandHermesNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
+        # ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        # icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
+        icon_path = os.path.join(FreeCAD.getResourceDir(),"Mod","Hermes","Resources","icons","NewNode.png")
+
         return {'Pixmap': icon_path,
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_Node", "Hermes Node"),
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Hermes_Node", "Creates new Hermes Node")}
@@ -200,44 +166,6 @@ class _HermesNode(_SlotHandler):
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
 
-        # # additional properties BlockMesh node
-        # if self.name == "BlockMesh":
-        #
-        #     # get the choosen methon
-        #     partPath = getattr(obj, "partPath")
-        #     partName = getattr(obj, "partName")
-        #
-        #     if len(partPath) != 0 and len(partName) != 0:
-        #
-        #         # Create full path of the part for Import
-        #         pathPartStr = partPath + partName + ".stp" if list(partPath)[-1] == '/' else partPath + "/" + partName + ".stp"
-        #
-        #         # get workflow obj
-        #         workflowObj = obj.getParentGroup()
-        #
-        #         # create the part
-        #         partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
-        #
-        #         if len(partName != 0):
-        #
-        #             # get part by its name in FC
-        #             partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
-        #
-        #             # update the part Name at the BlockMesh node properties
-        #             setattr(obj, "partName", partNameFC)
-        #
-        #             # link the part to thr BlockMesh node
-        #             setattr(obj, "partLink", partObj)
-        #
-        #             # link the part to its children
-        #             for child in obj.Group:
-        #                 # set the BlockMesh partlink  at each child
-        #                 setattr(child, "partLink", partObj)
-        #         else:
-        #             FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part')
-        #     else:
-        #         FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing')
-
 
     def initProperties(self, obj):
 
@@ -281,7 +209,7 @@ class _HermesNode(_SlotHandler):
 
         # Update Values at the properties from nodeData
         obj.NodeId = self.nodeId
-        nodeType = self.nodeData["TypeFC"]
+        nodeType = self.nodeData["Type"]
         obj.Type = nodeType
         obj.Label = self.name  # automatically created with object.
         obj.setEditorMode("Label", 1)  # Make read-only
@@ -749,7 +677,7 @@ class _GeometryDefinerNode(_HermesNode):
         #     HermesBlockMesh().updateJson(obj)
 
 
-    def geDialogClosed(self, obj, GEtype):
+    def geDialogClosed(self, obj, GEtype, GEname):
         # call when created new GE node
 
         # Create basic structure of a GENodeData
@@ -769,7 +697,7 @@ class _GeometryDefinerNode(_HermesNode):
         GEProperties = GEJsonType["Properties"]
 
         # update values in GENodeData structure
-        GENodeData["Name"] = GEtype  # meaningful name is thr type
+        GENodeData["Name"] = GEname  # meaningful name is thr type
         GENodeData["Type"] = GEtype
         GENodeData["Properties"] = GEProperties
 

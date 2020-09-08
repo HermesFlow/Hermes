@@ -1,0 +1,62 @@
+{
+    "workflow":{
+        "root":null,
+        "Templates":{},
+        "nodeList":[
+            "ControlDict",
+            "FvSchemes",
+            "FileWriter"
+        ],
+        "nodes":{
+            "ControlDict":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/ControlDict"
+                    }
+                },
+                "GUI":{
+                    "Type":"WebGuiNode",
+                    "Properties":{},
+                    "WebGui":{
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
+                    }
+                }
+            },
+            "FvSchemes":{
+                "Execution": {
+                    "type": "jinjaExecuters.jinja",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSchemes"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
+                    }
+                }
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
+            }
+        }
+    }
+}

@@ -8,12 +8,20 @@
         ],
         "nodes":{
             "CopyDirectory":{
-                "Template":"general.CopyDirectory"
+                "Template":"general.CopyDirectory",
+                "Execution": {
+                    "input_parameters": {
+                        "Source": "mySource",
+                        "Target": "myTarget"
+                    }
+                }
             },
             "RunOsCommand":{
                 "Template":"general.RunOsCommand",
-                "input_parameters": {
-                    "OS": "blockmesh -c {CopyDirectory.output.directory}"
+                "Execution": {
+                    "input_parameters": {
+                        "OS": "blockmesh -c {CopyDirectory.output.Source}"
+                    }
                 }
             }
         }

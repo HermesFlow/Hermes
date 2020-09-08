@@ -1,8 +1,0 @@
-{
-    "typeExecution":"pythonExecuter.exportFiles",
-    "TypeFC":"WebGuiNode",
-    "input_parameters":{
-        "casePath":"",
-        "Files":{}
-    }
-}

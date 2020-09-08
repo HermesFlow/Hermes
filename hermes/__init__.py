@@ -1,6 +1,19 @@
-__version__=(0,0,1) 
+__version__=(1,0,0)
 
 """
+	Version 1.0.0
+	-------------
+    
+    * Fixed new structure of the nodes. 
+            - Execution 
+                    - type : the execution type of the node.  
+            - GUI 
+                    - type : the GUI node type
+                    
+    * Changed the directory copying and ect to be <class names>Executer 
+    * Added the right output to the directory. 
+    * Fixed the RunNCopy example. 
+
 	Version 0.0.1
 	-------------
 
@@ -11,8 +24,8 @@ __version__=(0,0,1)
 """
 
 
-from hermes.pipline.workflow import hermesWorkflow
+from .workflow.workflow import hermesWorkflow
 from .taskwrapper import hermesTaskWrapper
 from .Resources.nodeTemplates.templateCenter import templateCenter
-from .pipline.expandPipeline import expandPipeline
+from .workflow.expandWorkflow import expandWorkflow
 from .Resources.executers.executerHome import executerHome
