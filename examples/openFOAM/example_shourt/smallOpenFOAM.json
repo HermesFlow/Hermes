@@ -20,7 +20,7 @@
                     "Type":"WebGuiNode",
                     "Properties":{},
                     "WebGui":{
-                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
                     }
                 }
             },
@@ -36,7 +36,7 @@
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
                     }
                 }
             },

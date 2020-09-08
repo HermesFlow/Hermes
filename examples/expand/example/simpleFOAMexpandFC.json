@@ -51,7 +51,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh"
+                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGui"
                     }
                 }
             },
@@ -67,7 +67,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.ControlDict"
+                        "Template": "openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
                     }
                 }
             },
@@ -83,7 +83,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
                     }
                 }
             },
@@ -99,7 +99,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolution"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolutionWebGui"
                     }
                 }
             },
@@ -115,7 +115,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.TransportProperties"
+                        "Template": "openFOAM.simpleFOAM.WebGui.TransportPropertiesWebGui"
                     }
                 }
             },
@@ -131,7 +131,7 @@
                     "Properties": {
                     },
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"
+                        "Template": "openFOAM.simpleFOAM.WebGui.RASPropertiesWebGui"
                     }
                 }
             }

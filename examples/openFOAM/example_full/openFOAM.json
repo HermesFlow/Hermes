@@ -24,7 +24,7 @@
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh"
+                        "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGui"
                     }
                 }
             },
@@ -40,7 +40,7 @@
                     "Type":"WebGuiNode",
                     "Properties":{},
                     "WebGui":{
-                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
                     }
                 }
             },
@@ -56,7 +56,7 @@
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
                     }
                 }
             },
@@ -72,7 +72,7 @@
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolution"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSolutionWebGui"
                     }
                 }
             },
@@ -81,14 +81,14 @@
                     "type": "jinjaExecuters.jinja",
                     "input_parameters": {
                         "values": "{WebGui.formData}",
-                        "template": "openFOAM/simpleFOAM/TransportProperties"
+                        "template": "openFOAM/simpleFOAM/TransportPropertiesWebGui"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.TransportProperties"
+                        "Template": "openFOAM.simpleFOAM.WebGui.TransportPropertiesWebGui"
                     }
                 }
             },
@@ -97,14 +97,14 @@
                     "type": "jinjaExecuters.jinja",
                     "input_parameters": {
                         "values": "{WebGui.formData}",
-                        "template": "openFOAM/simpleFOAM/TurbulenceProperties"
+                        "template": "openFOAM/simpleFOAM/TurbulencePropertiesWebGui"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.RASProperties"
+                        "Template": "openFOAM.simpleFOAM.WebGui.RASPropertiesWebGui"
                     }
                 }
             },
