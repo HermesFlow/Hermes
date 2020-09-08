@@ -33,12 +33,12 @@ class expandPipeline():
         for node in pipeline["workflow"]["nodes"]:
             print(node)
             template = pipeline["workflow"]["nodes"][node]["Template"]
-
             newTemplate = self._templateCenter.getTemplate(template)
 
             for field in ["input_parameters","formData"]:
                 newparams = pipeline["workflow"]["nodes"][node].get(field,{})
-                newTemplate[field].update(newparams)
+                if newparams:
+                    newTemplate[field].update(newparams)
 
             ret["workflow"]["nodes"][node]= newTemplate
 

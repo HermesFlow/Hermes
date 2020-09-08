@@ -6,6 +6,7 @@ from hermes import hermesWorkflow
 import json
 import os
 import pathlib
+import hera
 
 parser = argparse.ArgumentParser()
 parser.add_argument('command', nargs=1, type=str)
@@ -19,11 +20,23 @@ def expand_handler(arguments):
 
     templatePath = arguments[0]
     newTemplatePath = arguments[1]
-    parametersPath = arguments[2] if len(arguments) > 2 else None
+    ProjectName = arguments[2] if len(arguments) > 2 else None
+    parametersPath = arguments[3] if len(arguments) > 3 else None
 
     newTemplate = exapnder.expand(pipelinePath=templatePath,parametersPath=parametersPath)
     with open(newTemplatePath, 'w') as fp:
         json.dump(newTemplate, fp)
+
+    if ProjectName:
+        import pdb
+        pdb.set_trace()
+        print('Adding doc to DB')
+        hera.datalayer.Simulations.addDocument(projectName=ProjectName,
+                                               resource=newTemplate['CaseDirectory'],
+                                               dataFormat='string',
+                                               type='HermesOpenFoam',
+                                               desc=dict(OF_Workflow=newTemplate))
+    print('done')
 
 def buildPython_handler(arguments):
 
@@ -31,14 +44,12 @@ def buildPython_handler(arguments):
     pythonPath = arguments[1]
     WDPath = arguments[2] if len(arguments) > 2 else str(pathlib.Path(pythonPath).parent.absolute())
     builder = arguments[3] if len(arguments) > 3 else "luigi"
-
     flow = hermesWorkflow(templatePath, WDPath,"")
     build = flow.build(builder)
     with open(pythonPath, "w") as file:
         file.write(build)
 
 def executeLuigi_handler(arguments):
-
     pythonPath = arguments[0]
     cwd = pathlib.Path().absolute()
     moduleParent = pathlib.Path(pythonPath).parent.absolute()

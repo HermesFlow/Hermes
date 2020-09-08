@@ -74,14 +74,11 @@ class exportFiles(abstractExecuter):
         #     # export the file
         #     with open( file_path , "w+" ) as f:
         #         f.write(Ival)
-
         path = inputs["casePath"]
         files = inputs["Files"]
-
         for filename, file in files.items():
 
             newPath = os.path.join(path, filename)
-
             if not os.path.exists(os.path.dirname(newPath)):
                 try:
                     os.makedirs(os.path.dirname(newPath))

@@ -23,7 +23,8 @@ class copyDirectory(abstractExecuter):
         #    print("inputs["+itemKey+"]="+itemVal)
 
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            os.popen('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
+            #os.popen('cp -r ' + inputs["Source"] + ' ' + inputs["Target"]).read()
+            os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
         else:
             print("=============== empty ===============")
 
