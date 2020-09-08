@@ -20,7 +20,7 @@ def expand_handler(arguments):
     templatePath = arguments[0]
     newTemplatePath = arguments[1]
 
-    newTemplate = exapnder.expand(workflowPath=templatePath)
+    newTemplate = exapnder.expand(jsonFilePath=templatePath)
     with open(newTemplatePath, 'w') as fp:
         json.dump(newTemplate, fp)
 

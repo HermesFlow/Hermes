@@ -15,9 +15,9 @@
 
         },
         "GeometryFaceTypes":{
-            "TypeList":["wall","symmetry","patch","boundarylayer"],
+            "TypeList":["wall","symmetry","patch","cyclic"],
             "TypeProperties":{
-                "Template":"GeometryDefiner.GeometryFaceTypes.GFTypesListProperties"
+                "Template":"GeometryDefiner.BlockMesh.BMTypesListProperties"
             }
         },
         "boundary": [],
