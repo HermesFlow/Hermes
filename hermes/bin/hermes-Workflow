@@ -28,14 +28,12 @@ def expand_handler(arguments):
         json.dump(newTemplate, fp)
 
     if ProjectName:
-        import pdb
-        pdb.set_trace()
         print('Adding doc to DB')
         hera.datalayer.Simulations.addDocument(projectName=ProjectName,
                                                resource=newTemplate['CaseDirectory'],
                                                dataFormat='string',
                                                type='HermesOpenFoam',
-                                               desc=dict(OF_Workflow=newTemplate))
+                                               desc=dict(OF_Workflow=newTemplate)) #desc=dict(OF_Workflow=newTemplate
     print('done')
 
 def buildPython_handler(arguments):
