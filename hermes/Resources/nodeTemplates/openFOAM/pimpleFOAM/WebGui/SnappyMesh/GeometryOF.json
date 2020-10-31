@@ -11,7 +11,7 @@
                     "triSurfaceMesh":{
                         "type":"object",
                         "properties":{
-                            "Template":"openFOAM.SnappyMesh.objects.triSurfaceMesh"
+                            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.triSurfaceMesh"
                         }
                     }
                 }
@@ -21,7 +21,7 @@
                 "title":"Region",
                 "properties":{ 
                     "searchableObject":{ 
-                        "Template":"openFOAM.SnappyMesh.geometryObject"
+                        "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.geometryObject"
                     }
                 }
             }

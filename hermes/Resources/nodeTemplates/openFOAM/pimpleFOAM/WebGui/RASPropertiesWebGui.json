@@ -1,8 +1,4 @@
-{    "typeExecution": "openFOAM.pimpleFOAM.turbulenceProperties",
-    "TypeFC": "WebGuiNode",
-    "input_parameters": {
-        "values": "{value.formData}"
-    },
+{
 	"Schema":{
 		"type":"object",
 		"properties":{
@@ -65,8 +61,8 @@
         "simulationType":"RAS",
         "RAS":{
             "RASModel":"kEpsilon",
-            "turbulence":true,
-            "printCoeffs":true
+            "turbulence":"true",
+            "printCoeffs":"true"
         }
     }
 }
