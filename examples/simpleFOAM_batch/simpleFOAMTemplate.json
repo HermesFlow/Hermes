@@ -3,11 +3,7 @@
     "root": null,
     "Templates": [],
     "nodeList": [
-      "CopyDirectory",
-      "RunPythonScript",
-      "RunOsCommand",
       "BlockMesh",
-      "GeometryDefiner",
       "ControlDict",
       "FvSchemes",
       "FvSolution",
@@ -47,25 +43,25 @@
         }
       },
       "FvSchemes": {
-        "Template": "OpenFOAM.simpleFOAM.FvSchemes"
+        "Template": "openFOAM.simpleFOAM.FvSchemes"
       },
       "FvSolution": {
-        "Template": "OpenFOAM.simpleFOAM.FvSolution"
+        "Template": "openFOAM.simpleFOAM.FvSolution"
       },
       "TransportProperties": {
-        "Template": "OpenFOAM.simpleFOAM.TransportProperties"
+        "Template": "openFOAM.simpleFOAM.TransportProperties"
       },
       "RASProperties": {
-        "Template": "OpenFOAM.simpleFOAM.RASProperties",
+        "Template": "openFOAM.simpleFOAM.RASProperties"
       },
       "FileWriter": {
+        "Template": "openFOAM.simpleFOAM.fileWriter",
         "Execution": {
           "type": "generalExecuters.FilesWriter",
           "input_parameters": {
             "casePath": "OpenFOAMfiles/",
             "Files": {
-              "system/BlockMesh": "{BlockMesh.output.openFOAMfile}",
-              "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+              "system/BlockMeshDict": "{BlockMesh.output.openFOAMfile}",
               "system/controlDict": "{ControlDict.output.openFOAMfile}",
               "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
               "system/fvSolution": "{FvSolution.output.openFOAMfile}",
@@ -73,11 +69,6 @@
               "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
             }
           }
-        },
-        "GUI": {
-          "Type": "WebGuiNode",
-          "Properties": {},
-          "WebGui": {}
         }
       }
     }

@@ -61,8 +61,8 @@
         "simulationType":"RAS",
         "RAS":{
             "RASModel":"kEpsilon",
-            "turbulence":true,
-            "printCoeffs":true
+            "turbulence":"true",
+            "printCoeffs":"true"
         }
     }
 }
