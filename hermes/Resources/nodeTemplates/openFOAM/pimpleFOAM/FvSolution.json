@@ -3,7 +3,7 @@
     "type": "jinjaExecuters.jinja",
     "input_parameters": {
       "values": "{WebGui.formData}",
-      "template": "openFOAM/simpleFOAM/ControlDict"
+      "template": "openFOAM/simpleFOAM/FvSolution"
     }
   },
   "GUI": {
@@ -11,7 +11,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
+      "Template": "openFOAM.simpleFOAM.WebGui.FvSolutionWebGui"
     }
   }
 }

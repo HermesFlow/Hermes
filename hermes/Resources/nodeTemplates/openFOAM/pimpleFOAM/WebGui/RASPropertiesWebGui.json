@@ -1,8 +1,4 @@
-{    "typeExecution": "openFOAM.pimpleFOAM.turbulenceProperties",
-    "TypeFC": "WebGuiNode",
-    "input_parameters": {
-        "values": "{value.formData}"
-    },
+{
 	"Schema":{
 		"type":"object",
 		"properties":{
