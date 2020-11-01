@@ -1,0 +1,13 @@
+{#-macro that will print a value or a list-#}
+{%- macro macroBlockMeshGrading(list) -%}
+{%- set length = list|length -%}
+{%- if length == 1 -%}
+{{list[0]}}
+{%- else -%}
+(
+{%- for x in range(length) %}
+            ({{list[x]}})
+{%- endfor %}
+        )
+{%- endif -%}
+{%- endmacro %}

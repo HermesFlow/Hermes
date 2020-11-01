@@ -4,5 +4,9 @@
 # ignore all .pyc files
 **/*.pyc
 
+<<<<<<< HEAD
+.idea
+=======
 doc/build
 doc/source/.idea/
+>>>>>>> b5a449698022b0e68a25fe8af86a807b882f6f75

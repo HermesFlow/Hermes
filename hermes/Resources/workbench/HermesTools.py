@@ -1,36 +1,3 @@
-# =============================================================================
-# # ***************************************************************************
-# # *                                                                         *
-# # *   Copyright (c) 2015 - FreeCAD Developers                               *
-# # *   Copyright (c) 2015 - Qingfeng Xia <qingfeng xia eng.ox.ac.uk>         *
-# # *   Copyright (c) 2017 Johan Heyns (CSIR) <jheyns@csir.co.za>             *
-# # *   Copyright (c) 2017 Oliver Oxtoby (CSIR) <ooxtoby@csir.co.za>          *
-# # *   Copyright (c) 2017 Alfred Bogaers (CSIR) <abogaers@csir.co.za>        *
-# # *   Copyright (c) 2019 Oliver Oxtoby <oliveroxtoby@gmail.com>             *
-# # *                                                                         *
-# # *   This program is free software; you can redistribute it and/or modify  *
-# # *   it under the terms of the GNU Lesser General Public License (LGPL)    *
-# # *   as published by the Free Software Foundation; either version 2 of     *
-# # *   the License, or (at your option) any later version.                   *
-# # *   for detail see the LICENCE text file.                                 *
-# # *                                                                         *
-# # *   This program is distributed in the hope that it will be useful,       *
-# # *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-# # *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-# # *   GNU Library General Public License for more details.                  *
-# # *                                                                         *
-# # *   You should have received a copy of the GNU Library General Public     *
-# # *   License along with this program; if not, write to the Free Software   *
-# # *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-# # *   USA                                                                   *
-# # *                                                                         *
-# # ***************************************************************************
-# 
-# # Utility functions like mesh exporting, shared by any CFD solver
-# # =============================================================================
-# # 
-# # from __future__ import print_function
-# # 
 import FreeCAD
 from FreeCAD import Units
 # # import CfdConsoleProcess
@@ -54,6 +21,7 @@ if FreeCAD.GuiUp:
 # FOAM_DIR_DEFAULTS = {"Windows": ["C:\\Program Files\\blueCFD-Core-2017\\OpenFOAM-5.x",
 #                                  "C:\\Program Files\\blueCFD-Core-2016\\OpenFOAM-4.x"],
 #                      "Linux": ["/opt/openfoam4", "/opt/openfoam5", "/opt/openfoam6", "/opt/openfoam-dev",
+#                                "~/OpenFOAM/OpenFOAM-6.x", "~/OpenFOAM/OpenFOAM-6.0",
 #                                "~/OpenFOAM/OpenFOAM-6.x", "~/OpenFOAM/OpenFOAM-6.0",
 #                                "~/OpenFOAM/OpenFOAM-5.x", "~/OpenFOAM/OpenFOAM-5.0",
 #                                "~/OpenFOAM/OpenFOAM-4.x", "~/OpenFOAM/OpenFOAM-4.0", "~/OpenFOAM/OpenFOAM-4.1",

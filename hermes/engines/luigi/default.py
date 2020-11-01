@@ -56,24 +56,22 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         params['files']      = {{taskwrapper.files}}
         params['Schema']     = {{taskwrapper.Schema}}
         params['uiSchema']   = {{taskwrapper.uiSchema}}
-        params['parameters'] = {{taskwrapper.task_parameters}}
-        params['WebGUI']     = {{taskwrapper.task_webGUI}}
         params['Properties'] = {{taskwrapper.task_Properties}}
         params['WebGui']     = {{taskwrapper.task_webGui}}
-
         
+       
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='{{WD_path}}'
                     
         from {{taskwrapper.getExecuterPackage()}} import {{taskwrapper.getExecuterClass()}}  
-        output =  {{taskwrapper.getExecuterClass()}}(self._taskJSON).run(**executer_parameters)
+        output = {{taskwrapper.getExecuterClass()}}(self._taskJSON).run(**executer_parameters)
         
         params['input_parameters'] = executer_parameters 
         params['output'] = output        
         
         out_params = params
-        with open(self.output().fn,"w") as outfile:
-            json.dump(out_params,outfile)
+        with open(self.output().fn, "w") as outfile:
+            json.dump(out_params, outfile)
 """
 
 

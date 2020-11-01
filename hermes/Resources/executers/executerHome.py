@@ -17,7 +17,7 @@ class executerHome(object):
 
     def __getitem__(self, item):
         if item not in self._thirdPartyExcuters:
-            return f"hermes.Resources.executers.{item}"
+            return f"hermes.Resources.executers.{item}Executer"
         else:
             return self._thirdPartyExcuters[item]
 
