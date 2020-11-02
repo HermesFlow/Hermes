@@ -51,6 +51,12 @@ maxCo           {{values.maxCo}};
 
 
 functions
-{{values.functions}};
+{
+{{values.functions}}
+};
+
+libs (
+{{values.libs}}
+);
 
 // ************************************************************************* //
