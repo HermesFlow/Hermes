@@ -54,9 +54,8 @@
         "Template": "openFOAM.simpleFOAM.RASProperties"
       },
       "FileWriter": {
-        "Template": "openFOAM.simpleFOAM.fileWriter",
+        "Template": "openFOAM.fileWriter",
         "Execution": {
-          "type": "generalExecuters.FilesWriter",
           "input_parameters": {
             "casePath": "OpenFOAMfiles/",
             "Files": {

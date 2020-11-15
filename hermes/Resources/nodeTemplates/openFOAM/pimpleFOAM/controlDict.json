@@ -3,7 +3,7 @@
     "type": "jinjaExecuters.jinja",
     "input_parameters": {
       "values": "{WebGui.formData}",
-      "template": "openFOAM/pimpleFOAM/ControlDict"
+      "template": "openFOAM/pimpleFOAM/controlDict"
     }
   },
   "GUI": {

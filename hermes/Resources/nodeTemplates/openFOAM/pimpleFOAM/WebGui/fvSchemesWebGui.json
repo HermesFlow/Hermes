@@ -156,14 +156,13 @@
             "gradEpsilon": "cellLimited Gauss linear 1"
          },
          "divSchemes": {
-            "moreDivSchemesProperties": {
-               "divNuEff": "Gauss linear"
-            },
-            "default": "none",
-            "divPhiU": "bounded Gauss upwind",
-            "divPhiK": "bounded Gauss upwind",
-            "divPhiEpsilon": "bounded Gauss upwind",
-            "divPhiOmega": "bounded Gauss upwind"
+           "default": "none",
+           "divPhiU": "bounded Gauss upwind",
+           "divPhiK": "bounded Gauss upwind",
+           "divPhiB": "Gauss vanLeer",
+           "divB": "Gauss linear",
+           "divPhiNuTilda": "Gauss limitedLinear 1",
+           "divNuEff": "Gauss linear"
          },
          "laplacianSchemes": {
             "default": "Gauss linear corrected"

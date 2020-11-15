@@ -28,11 +28,11 @@ divSchemes
 {
     default             {{values.divSchemes.default}};
     div(phi,U)          {{values.divSchemes.divPhiU}};
-    div(phi,k)          {{values.divSchemes.divPhik}};
+    div(phi,k)          {{values.divSchemes.divPhiK}};
     div(phi,B)          {{values.divSchemes.divPhiB}};
     div(B)              {{values.divSchemes.divB}};
     div(phi,nuTilda)    {{values.divSchemes.divPhiNuTilda}};
-    div((nuEff*dev2(T(grad(U))))) {{values.divSchemes.moreDivSchemesProperties.divNuEff}};
+    div((nuEff*dev2(T(grad(U))))) {{values.divSchemes.divNuEff}};
 }
 
 laplacianSchemes

@@ -171,6 +171,8 @@
         "timeFormat": "general",
         "timePrecision": 6,
         "runTimeModifiable": "false",
+        "adjustTimeStep": "no",
+        "maxCo": "0.5",
         "functions": [""],
         "libs": ""
 	}

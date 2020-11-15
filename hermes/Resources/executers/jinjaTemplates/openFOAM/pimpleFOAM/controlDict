@@ -15,48 +15,48 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     {{values.application}};
+application         {{values.application}};
 
-startFrom       {{values.startFrom}};
+startFrom           {{values.startFrom}};
 
-startTime       {{values.startTime}};
+startTime           {{values.startTime}};
 
-stopAt          {{values.stopAt}};
+stopAt              {{values.stopAt}};
 
-endTime         {{values.endTime}};
+endTime             {{values.endTime}};
 
-deltaT          {{values.deltaT}};
+deltaT              {{values.deltaT}};
 
-writeControl    {{values.writeControl}};
+writeControl        {{values.writeControl}};
 
-writeInterval   {{values.writeInterval}};
+writeInterval       {{values.writeInterval}};
 
-purgeWrite      {{values.purgeWrite}};
+purgeWrite          {{values.purgeWrite}};
 
-writeFormat     {{values.writeFormat}};
+writeFormat         {{values.writeFormat}};
 
-writePrecision  {{values.writePrecision}};
+writePrecision      {{values.writePrecision}};
 
-writeCompression {{values.writeCompression}};
+writeCompression    {{values.writeCompression}};
 
-timeFormat      {{values.timeFormat}};
+timeFormat          {{values.timeFormat}};
 
-timePrecision   {{values.timePrecision}};
+timePrecision       {{values.timePrecision}};
 
-runTimeModifiable {{ 'runTimeModifiable true;' if runTimeModifiable else 'runTimeModifiable false;' }}
+runTimeModifiable   {{values.runTimeModifiable}};
 
-adjustTimeStep   {{values.adjustTimeStep}};
+adjustTimeStep      {{values.adjustTimeStep}};
 
-maxCo           {{values.maxCo}};
+maxCo               {{values.maxCo}};
 
 
 functions
 {
 {{values.functions}}
 };
-
+{% if values.libs|length > 0 %}
 libs (
-{{values.libs}}
-);
-
+    {% for lbs in values.libs %} "{{lbs}}", {% endfor %}
+    );
+{% endif %}
 // ************************************************************************* //
