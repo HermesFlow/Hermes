@@ -31,7 +31,6 @@ class jinjaExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-
         # get the  name of the template
         templateName = inputs['template']
         # templateName = os.path.abspath(templateName)
