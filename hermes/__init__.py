@@ -29,3 +29,23 @@ from .taskwrapper import hermesTaskWrapper
 from .Resources.nodeTemplates.templateCenter import templateCenter
 from .workflow.expandWorkflow import expandWorkflow
 from .Resources.executers.executerHome import executerHome
+import os
+import json
+
+import logging.config
+
+with open(os.path.join(os.path.dirname(__file__),'logging','hermesLogging.config'),'r') as logconfile:
+     log_conf_str = logconfile.read().replace("\n","")
+     log_conf = json.loads(log_conf_str.replace("{hermespath}",os.path.dirname(__file__)))
+
+EXECUTION = 15
+logging.addLevelName(EXECUTION, 'EXECUTION')
+
+
+def execution(self, message, *args, **kws):
+    self.log(EXECUTION, message, *args, **kws)
+
+logging.Logger.execution = execution
+
+logging.config.dictConfig(log_conf)
+

@@ -1,0 +1,91 @@
+{
+  "CopyDirectory": {
+    "formData": {},
+    "files": {},
+    "Schema": {},
+    "uiSchema": {},
+    "Properties": {
+      "Source": {
+        "prop": "Source",
+        "init_val": "",
+        "type": "App::PropertyPath",
+        "Heading": "Parameters",
+        "tooltip": "The source directory",
+        "current_val": ""
+      },
+      "Target": {
+        "prop": "Target",
+        "init_val": "",
+        "type": "App::PropertyPath",
+        "Heading": "Parameters",
+        "tooltip": "The target directory",
+        "current_val": ""
+      }
+    },
+    "WebGui": {},
+    "input_parameters": {
+      "Source": "mySource",
+      "Target": "myTarget",
+      "WD_path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/RunNCopy"
+    },
+    "output": {
+      "copyDirectory": "copyDirectory",
+      "Target": "myTarget",
+      "Source": "mySource"
+    }
+  },
+  "formData": {},
+  "files": {},
+  "Schema": {},
+  "uiSchema": {},
+  "Properties": {
+    "ChooseMethod": {
+      "prop": "ChooseMethod",
+      "init_val": [
+        "Commands list",
+        "batchFile"
+      ],
+      "type": "App::PropertyEnumeration",
+      "Heading": "Parameters",
+      "tooltip": "True-commands, False-file",
+      "current_val": "Commands list"
+    },
+    "Commands": {
+      "prop": "Commands",
+      "init_val": [],
+      "type": "App::PropertyStringList",
+      "Heading": "Parameters",
+      "tooltip": "The OS commands to execute",
+      "current_val": [
+        "echo 'Here is an example of a shell script'",
+        "echo '1a. File listing'",
+        "ls",
+        "echo ''"
+      ]
+    },
+    "batchFile": {
+      "prop": "batchFile",
+      "init_val": "Text",
+      "type": "App::PropertyFile",
+      "Heading": "Parameters",
+      "tooltip": "File containing all the OS commands to execute",
+      "current_val": ""
+    }
+  },
+  "WebGui": {},
+  "input_parameters": {
+    "Method": "Commands list",
+    "Commands": [
+      "echo 'Here is an example of a shell script'",
+      "echo '1a. File listing'",
+      "ls",
+      "echo ''"
+    ],
+    "batchFile": "",
+    "OS": "mySource",
+    "WD_path": "/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/RunNCopy"
+  },
+  "output": {
+    "RunOsCommand": "RunOsCommand"
+  }
+}

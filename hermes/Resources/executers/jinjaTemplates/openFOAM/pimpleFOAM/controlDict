@@ -55,8 +55,16 @@ functions
 {{values.functions}}
 };
 {% if values.libs|length > 0 %}
+{% if values.libs|length > 1 %}
 libs (
     {% for lbs in values.libs %} "{{lbs}}", {% endfor %}
     );
+{% else %}
+libs (
+    {% for lbs in values.libs %} "{{lbs}}" {% endfor %}
+    );
+
 {% endif %}
+{% endif %}
+
 // ************************************************************************* //
