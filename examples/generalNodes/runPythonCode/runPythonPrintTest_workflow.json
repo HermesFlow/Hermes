@@ -1,0 +1,64 @@
+{
+  "workflow": {
+    "root": null,
+    "Templates": [],
+    "nodeList": [
+      "RunPythonCode"
+    ],
+    "nodes": {
+      "RunPythonCode": {
+        "Template": "general.RunPythonCode",
+        "Execution": {
+          "input_parameters": {
+            "Parameters": {
+              "caseDirectory": "/home/davidg/Projects/2020/runSponge",
+              "fileName": "alpha",
+              "default_value": 0,
+              "dimensions": "[ 0 0 -1 0 0 0 0 ]",
+              "SpongeLayers": {
+                "top": {
+                  "profile": "linear",
+                  "direction": "z",
+                  "vals": [
+                    {
+                      "z": 750,
+                      "alpha": 0
+                    },
+                    {
+                      "z": 800,
+                      "alpha": 1e-3
+                    },
+                    {
+                      "z": 850,
+                      "alpha": 1e-2
+                    },
+                    {
+                      "z": 900,
+                      "alpha": 5e-1
+                    },
+                    {
+                      "z": 950,
+                      "alpha": 1e-1
+                    },
+                    {
+                      "z": 1000,
+                      "alpha": 1e-1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "GUI": {
+          "Properties": {
+            "ModulePath": {
+              "current_val": "runMe.Main"},
+            "MethodName": {
+              "current_val": "printMe"}
+          }
+        }
+      }
+    }
+  }
+}
