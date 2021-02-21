@@ -191,7 +191,8 @@
                     "nCorrectorsPIMPLE": 2,
                     "nNonOrthogonalCorrectorsPIMPLE":0,
                     "pRefCellPIMPLE":1001,
-                    "pRefValuePIMPLE":0
+                    "pRefValuePIMPLE":0,
+                    "momentumPredictorPIMPLE": "yes"
                 }
             }
         ],
