@@ -109,8 +109,18 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     #    obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
 
     # Object can not have children
-    obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
+    # obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
 
+    import Draft
+    # s = FreeCADGui.Selection.getSelectionEx()
+    s = mvRefToSel(Nodeobj)
+    if s is None:
+        return None
+
+    # create facebinder object - part of draft Module
+    obj = Draft.makeFacebinder(s)
+    Draft.autogroup(obj)
+    FreeCAD.ActiveDocument.recompute()
 
     # add GENodeobj(obj) as child of Nodeobj
     Nodeobj.addObject(obj)
@@ -125,6 +135,48 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     if FreeCAD.GuiUp:
         _ViewProviderGE(obj.ViewObject)
     return obj
+
+
+def mvRefToSel(obj):
+
+    partNameList = []
+    partList = []
+    # partDict = {
+    #     "partName": "",
+    #     "partFaces": []
+    # }
+
+    References = obj.References
+    if len(References) == 0:
+        return None
+
+    for ref in References:
+        partName = ref[0]
+        faceName = ref[1]
+        # FreeCAD.Console.PrintMessage("partName=" + partName + "\n")
+
+        if len(partList) == 0:
+            partNameList.append(partName)
+            partList.append(dict(partName=partName, partFaces=[faceName]))
+        else:
+            for part in partList:
+                if partName == part["partName"]:
+                    if faceName not in part["partFaces"]:
+                        part["partFaces"].append(faceName)
+                elif partName not in partNameList:
+                    partList.append(dict(partName=partName, partFaces=[faceName]))
+                    partNameList.append(partName)
+
+
+    facesList = []
+    for part in partList:
+        partObj = FreeCAD.ActiveDocument.getObject(part["partName"])
+        select = (partObj, tuple(part["partFaces"]))
+        # FreeCAD.Console.PrintMessage("select = " + str(select) + "\n")
+        facesList.append(select)
+
+
+    return facesList
 
 # ======================================================================
 class _CommandHermesGeNodeSelection:
@@ -296,7 +348,10 @@ class _HermesGE:
                 # use here the label and not the name
                 if FreeCAD.ActiveDocument.getObject(PartName) is not None:
                     partLabel = FreeCAD.ActiveDocument.getObject(PartName).Label
+                    partName = FreeCAD.ActiveDocument.getObject(PartName).Name
+                    FreeCAD.Console.PrintMessage("partLabel = " + partLabel + "; partName = " + partName + "\n")
                     workflowObj.Proxy.partList[partLabel] = HermesPart.HermesPart(PartName).getpartDict()
+
 
             # update face list of the part
             else:
@@ -339,7 +394,8 @@ class _HermesGE:
             # update the PartObj data at the current PartNode in faceList
             faceList[PartNode] = PartObj
 
-            workflowObj.Proxy.ExportPart(str(PartObj['Name']))
+            # remove connection of part and json - do not export
+            # workflowObj.Proxy.ExportPart(str(PartObj['Name']))
 
         # Update faceList attach to the GE at the GEnodeData
         self.EntityNodeData["faceList"] = faceList
@@ -374,7 +430,9 @@ class _HermesGE:
             pathPartStr = PartPath + PartName + ".stp"
 
             # Call 'loadPart' from 'hermesWorkflow' to load part
-            givenPartName = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+            # givenPartName = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+            # remove the connection between the json and part objects
+            givenPartName = ""
 
             # ToDo: Check if this line is needed
             if len(givenPartName) == 0:
@@ -439,9 +497,18 @@ class _HermesGE:
 
         return
 
-    def geDialogClosed(self, callingObject, GEtype, GEName):
-        # todo: is needed?
-        pass
+    def geDialogClosed(self, obj, GEtype, GEName):
+        facesList = mvRefToSel(obj)
+        obj.Faces = facesList
+
+        obj.Label = GEName
+
+        # import FreeCAD as App
+        # App.ActiveDocument.recompute()
+
+        # # todo: is needed?
+        # pass
+
 
     def UpdateGENodePropertiesData(self, obj):
         # update the properties in the "GEnodeData"
@@ -509,9 +576,21 @@ class _ViewProviderGE:
 
     def updateData(self, obj, prop):
         # We get here when the object of GE Node changes
+        # FreeCAD.Console.PrintMessage("GM - updateData - " + str(obj) + " \n")
+        #
+        # if FreeCADGui.Selection.isSelected(obj):
+        #     FreeCAD.Console.PrintMessage("GM - updateData - item selected \n")
+
         return
 
     def onChanged(self, obj, prop):
+        # obj2 = obj.Object
+        #
+        # FreeCAD.Console.PrintMessage("GM - onChanged - " + str(obj) + " \n")
+        #
+        # if FreeCADGui.Selection.isSelected(obj2):
+        #     FreeCAD.Console.PrintMessage("GM - onChanged - item selected")
+
         return
 
     def doubleClicked(self, vobj):

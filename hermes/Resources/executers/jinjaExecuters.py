@@ -5,7 +5,7 @@ from jinja2 import FileSystemLoader, Environment
 #from abstractExecuter import abstractExecuter
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
 
-
+# *************************************************************
 class jinjaExecuter(abstractExecuter):
 
     # def __init__(self):
@@ -60,6 +60,7 @@ class jinjaExecuter(abstractExecuter):
 
         return dict(openFOAMfile=output)
 
+# *************************************************************
 class BlockMeshExecuter(abstractExecuter):
 
     # def __init__(self):
@@ -104,3 +105,18 @@ class BlockMeshExecuter(abstractExecuter):
         output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
 
         return dict(openFOAMfile=output)
+
+# *************************************************************
+class GeometryDefinerExecuter(abstractExecuter):
+
+    def _defaultParameters(self):
+        return dict(
+            output=[],
+            inputs=[],
+            webGUI=dict(JSONSchema=None,
+                        UISchema=None),
+            parameters={}
+        )
+
+    def run(self, **inputs):
+        return dict(GeometryDefinerExecuter="GeometryDefinerExecuter")

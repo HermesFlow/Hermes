@@ -47,5 +47,5 @@ def execution(self, message, *args, **kws):
 
 logging.Logger.execution = execution
 
-logging.config.dictConfig(log_conf)
+# logging.config.dictConfig(log_conf)
 

@@ -13,8 +13,9 @@ class Hermes ( Workbench ):
         # load the module
         import HermesGui
 
-        list = ["CreateWorkflow"]
+        list = ["CreateWorkflow", "GeometryDefinerSelection"]
         self.appendToolbar("HermesToolbar", list)
+        self.appendMenu("Hermes", list)
 
 
 #    def GetClassName(self):

@@ -12,6 +12,9 @@ class HermesPart:
         self.partName = Name
         self.doc = FreeCAD.ActiveDocument
         self.partObj = self.getFreeCADpart()
+        if self.partObj is None:
+            FreeCAD.Console.PrintMessage("self.partObj is None")
+            return None
 
         maxmin={'min': 1e6 , 'max': -1e6}
         self.extrema = {'x': maxmin.copy(), 'y': maxmin.copy(), 'z': maxmin.copy()}
@@ -109,6 +112,8 @@ class HermesPart:
 
         # get the plane of the face (constant x/y/z : min/max)
         plane = self.getPlane(partVertices, vertexList)
+        if plane is None:
+            return None
 
         # 2 cases to arrange vertices clockeise from center point of view
         if (plane == ['x', 'min']) or (plane == ['y', 'max']) or (plane == ['z', 'min']):
@@ -201,14 +206,19 @@ class HermesPart:
             sum['y'] += partVertices[verName]["coordinates"]['y']
             sum['z'] += partVertices[verName]["coordinates"]['z']
 
+
         # loop sum
         for cor in sum:
             # if the sum in the direction is zero - plane on constant cor min
-            if (sum[cor]) == 0:
+            if (sum[cor]) == 4 * self.extrema[cor]['min']:
                 return [cor, 'min']
             # if the sum in the direction is 4*max - plane on constant cor max
             elif sum[cor] == 4 * self.extrema[cor]['max']:
                 return [cor, 'max']
+
+        FreeCAD.Console.PrintError("Plane has not been found. HermesPart.py: getPlane\n")
+        return None
+
 
     def getVertices(self):
 
