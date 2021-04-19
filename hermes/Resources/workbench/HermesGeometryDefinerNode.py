@@ -19,7 +19,8 @@ import CfdFaceSelectWidget
 import HermesPart
 
 
-
+import Draft
+from Draft import _Facebinder
 
 # -----------------------------------------------------------------------#
 # This enables us to open a dialog on the left with a click of a button #
@@ -111,7 +112,7 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     # Object can not have children
     # obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
 
-    import Draft
+    # import Draft
     # s = FreeCADGui.Selection.getSelectionEx()
     s = mvRefToSel(Nodeobj)
     if s is None:
@@ -220,7 +221,7 @@ if FreeCAD.GuiUp:
 # =============================================================================
 # Hermes GE class
 # =============================================================================
-class _HermesGE:
+class _HermesGE(_Facebinder):
     """ The Hermes GE (Geometry Entity) """
 
     def __init__(self, obj, TypeList, EntityNodeData):
@@ -500,6 +501,7 @@ class _HermesGE:
     def geDialogClosed(self, obj, GEtype, GEName):
         facesList = mvRefToSel(obj)
         obj.Faces = facesList
+        FreeCAD.ActiveDocument.recompute()
 
         obj.Label = GEName
 
@@ -508,6 +510,9 @@ class _HermesGE:
 
         # # todo: is needed?
         # pass
+
+    def __getstate__(self):
+        return
 
 
     def UpdateGENodePropertiesData(self, obj):
