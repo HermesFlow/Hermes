@@ -116,6 +116,7 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     # s = FreeCADGui.Selection.getSelectionEx()
     s = mvRefToSel(Nodeobj)
     if s is None:
+        FreeCAD.Console.PrintWarning("Must select faces to create Geometry Definer Entity")
         return None
 
     # create facebinder object - part of draft Module
@@ -135,6 +136,9 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
 
     if FreeCAD.GuiUp:
         _ViewProviderGE(obj.ViewObject)
+
+    obj.ViewObject.LineWidth = 4
+
     return obj
 
 
@@ -350,7 +354,7 @@ class _HermesGE(_Facebinder):
                 if FreeCAD.ActiveDocument.getObject(PartName) is not None:
                     partLabel = FreeCAD.ActiveDocument.getObject(PartName).Label
                     partName = FreeCAD.ActiveDocument.getObject(PartName).Name
-                    FreeCAD.Console.PrintMessage("partLabel = " + partLabel + "; partName = " + partName + "\n")
+                    # FreeCAD.Console.PrintMessage("partLabel = " + partLabel + "; partName = " + partName + "\n")
                     workflowObj.Proxy.partList[partLabel] = HermesPart.HermesPart(PartName).getpartDict()
 
 

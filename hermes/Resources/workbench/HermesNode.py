@@ -732,7 +732,7 @@ class _GeometryDefinerNode(_HermesNode):
 # #_CommandGeometryDefinerSelection
 # =============================================================================
 class _CommandGeometryDefinerSelection:
-    """ CFD physics selection command definition """
+    """ Geometry Definer selection command definition """
 
     def GetResources(self):
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
@@ -740,9 +740,9 @@ class _CommandGeometryDefinerSelection:
         # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
 
         return {'Pixmap': icon_path,
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export GD"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export GD as obj")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer as obj")}
 
     def IsActive(self):
         GD = FreeCAD.ActiveDocument.getObjectsByLabel("GeometryDefiner")[0]
@@ -765,8 +765,18 @@ class _CommandGeometryDefinerSelection:
         for child in GD.Group:
             objs.append(child)
 
+        # create help cube
+        h_cube = FreeCAD.ActiveDocument.addObject("Part::Box", "NoNameCube")
+        # h_cube.Label = "NoNameCube"
+        FreeCAD.ActiveDocument.recompute()
+        # Add to objs list -> in case of 1 object will still exports in names
+        objs.append(h_cube)
+
         # save file in wanted location
         self.save_obj_file(objs)
+
+        #  remove help object
+        FreeCAD.ActiveDocument.removeObject("NoNameCube")
 
         del objs
 
