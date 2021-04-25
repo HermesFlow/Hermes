@@ -4,10 +4,8 @@
         "Templates": [],
         "nodeList": [
             "CopyDirectory",
-            "RunPythonScript",
             "RunOsCommand",
             "BlockMesh",
-            "GeometryDefiner",
             "SnappyHexMesh",
             "ControlDict",
             "FvSchemes",
@@ -20,17 +18,11 @@
             "CopyDirectory": {
                 "Template": "general.CopyDirectory"
             },
-            "RunPythonScript": {
-                "Template": "general.RunPythonCode"
-            },
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"
             },
             "BlockMesh":{
                 "Template": "GeometryDefiner.BlockMeshTemplate"
-            },
-            "GeometryDefiner":{
-                "Template": "GeometryDefiner.GeometryDefinerTemplate"
             },
             "SnappyHexMesh":{
                 "Template": "openFOAM.simpleFOAM.SnappyHexMesh"

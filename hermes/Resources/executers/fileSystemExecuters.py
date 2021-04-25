@@ -1,5 +1,5 @@
 from .abstractExecuter import abstractExecuter
-
+import numpy
 import os, sys, stat
 
 class copyDirectory(abstractExecuter):
@@ -23,10 +23,7 @@ class copyDirectory(abstractExecuter):
         #    print("inputs["+itemKey+"]="+itemVal)
 
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            #os.popen('cp -r ' + inputs["Source"] + ' ' + inputs["Target"]).read()
             os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
-        else:
-            print("=============== empty ===============")
 
         return dict(copyDirectory="copyDirectory")
 
@@ -58,11 +55,6 @@ class RunOsCommand(abstractExecuter):
 
     def run(self, **inputs):
         import os, sys, stat
-
-        print("===========================")
-        print(" ---got to RunOsCommand---")
-        print("===========================")
-
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile
             fullPath = inputs["batchFile"]
@@ -81,7 +73,7 @@ class RunOsCommand(abstractExecuter):
             ret = "#!/bin/bash" + "\n"+"\n"
 
             #loop all items in the list and add it to the string
-            for item in inputs["Commands"]:
+            for item in numpy.atleast_1d(inputs["Commands"]):
                 ret+= item +"\n"
             
             #save the file in the working directory

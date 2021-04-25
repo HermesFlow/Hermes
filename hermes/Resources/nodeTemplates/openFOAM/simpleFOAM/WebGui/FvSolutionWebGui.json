@@ -139,7 +139,7 @@
                 "parameterProperties":{ 
                     "GAMGproperties":[ 
                         { 
-                            "cacheAgglomeration":true,
+                            "cacheAgglomeration":"true",
                             "agglomerator":"faceAreaPair",
                             "nCellsInCoarsestLevel":10,
                             "mergeLevels":1

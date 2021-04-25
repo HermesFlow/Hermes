@@ -1,0 +1,25 @@
+{
+  "workflow": {
+    "root": null,
+    "Templates": [],
+    "nodeList": [
+      "RunParameters"
+    ],
+    "nodes": {
+      "RunParameters": {
+        "Template": "general.Parameters",
+        "Execution": {
+          "input_parameters": {}
+        },
+        "GUI": {
+          "WebGui": {
+            "formData": {
+              "caseDirectory": "case/dir/path",
+              "OFtemplateDirectory": "OF/template/directory"
+            }
+          }
+        }
+      }
+    }
+  }
+}

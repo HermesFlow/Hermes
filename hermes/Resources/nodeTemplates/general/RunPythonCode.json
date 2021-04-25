@@ -3,8 +3,9 @@
         "type": "pythonExecuters.python",
         "input_parameters": {
             "ModulePath": "{Properties.ModulePath.current_val}",
+            "ClassName": "{Properties.ClassName.current_val}",
             "MethodName": "{Properties.MethodName.current_val}",
-            "Parameters": "{Properties.Parameters.current_val}"
+            "Parameters": "{WebGui.formData}"
         }
     },
     "GUI": {
@@ -18,6 +19,14 @@
                 "tooltip": "The path to the python module directory",
                 "current_val": ""
             },
+            "ClassName": {
+                "prop": "ClassName",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "PythonNodule",
+                "tooltip": "The name of the class to load",
+                "current_val": ""
+            },
             "MethodName": {
                 "prop": "MethodName",
                 "init_val": "",
@@ -25,17 +34,10 @@
                 "Heading": "PythonNodule",
                 "tooltip": "The python module name",
                 "current_val": ""
-            },
-            "Parameters": {
-                "prop": "Parameters",
-                "init_val": [],
-                "type": "App::PropertyStringList",
-                "Heading": "PythonNodule",
-                "tooltip": "The python module input parameters",
-                "current_val": []
             }
         },
         "WebGui": {
+            "formData" : {}
         }
     }
 }

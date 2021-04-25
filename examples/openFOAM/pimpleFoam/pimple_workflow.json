@@ -1,0 +1,193 @@
+{
+  "workflow": {
+    "root": null,
+    "Templates": [],
+    "nodeList": [
+      "Parameters",
+      "copyDirectory",
+      "controlDict",
+      "fileWriter",
+      "fvSchemes",
+      "fvSolution",
+      "transport",
+      "RunOS_blockMesh",
+      "runOS_CellCenters",
+      "runPythonCode_sponge"
+    ],
+    "nodes": {
+      "copyDirectory": {
+        "Template": "general.CopyDirectory",
+        "Execution": {
+          "input_parameters": {
+            "Source": "{Parameters.WebGui.formData.OFtemplateDirectory}",
+            "Target": "{Parameters.WebGui.formData.caseDirectory}"
+          }
+        },
+        "GUI": {
+        }
+      },
+      "controlDict": {
+        "Template": "openFOAM.pimpleFOAM.controlDict",
+        "GUI": {
+          "WebGui": {
+            "formData": {
+              "stopAt": "endTime",
+              "endTime": 60000,
+              "deltaT": 5,
+              "writeInterval": 5,
+              "writeControl": "adjustableRunTime",
+              "runTimeModifiable": "false",
+              "interpolate": "true",
+              "adjustTimeStep": "yes",
+              "functions": "    fieldAverage1\n    {\n        type            fieldAverage;\n        libs            (\"libfieldFunctionObjects.so\");\n        writeControl    writeTime;\n\n\trestartOnOutput yes;\n\n        fields\n        (\n            U\n            {\n                mean        on;\n                prime2Mean  on;\n                base        time;\n            }\n\n            p\n            {\n                mean        on;\n                prime2Mean  on;\n                base        time;\n            }\n        );\n    }",
+              "libs": [
+                "libSponge.so"
+              ]
+            }
+          }
+        }
+      },
+      "fvSchemes": {
+        "Template": "openFOAM.pimpleFOAM.fvSchemes",
+        "GUI": {
+          "WebGui": {
+            "formData": {
+              "ddtSchemes": {
+                "default": "backward"
+              },
+              "divSchemes": {
+                "divPhiU": "Gauss vanLeerV",
+                "divPhiK": "Gauss vanLeer"
+              }
+            }
+          }
+        }
+      },
+      "fvSolution": {
+        "Template": "openFOAM.pimpleFOAM.fvSolution"
+      },
+      "transport": {
+        "Template": "openFOAM.pimpleFOAM.transportProperties",
+        "GUI": {
+          "WebGui": {
+            "formData": {
+              "nu": "[0 2 -1 0 0 0 0] 2e-05"
+            }
+          }
+        }
+      },
+      "fileWriter": {
+        "Template": "openFOAM.fileWriter",
+        "Execution": {
+          "input_parameters": {
+            "casePath": "{copyDirectory.output.Target}",
+            "Files": {
+              "system/controlDict": "{controlDict.output.openFOAMfile}",
+              "system/fvSchemes": "{fvSchemes.output.openFOAMfile}",
+              "system/fvSolution": "{fvSolution.output.openFOAMfile}",
+              "constant/transportProperties": "{transport.output.openFOAMfile}"
+            }
+          }
+        }
+      },
+      "RunOS_blockMesh": {
+        "Template": "general.RunOsCommand",
+        "Execution": {
+          "type": "fileSystemExecuters.RunOsCommand",
+          "input_parameters": {
+            "Method": "command",
+            "Commands": "blockMesh -case {copyDirectory.output.Target}"
+          },
+          "GUI": {
+          }
+        }
+      },
+      "runOS_CellCenters": {
+        "Template": "general.RunOsCommand",
+        "Execution": {
+          "type": "fileSystemExecuters.RunOsCommand",
+          "input_parameters": {
+            "Method": "command",
+            "Commands": "postProcess -func writeCellCentres -case {RunOS_blockMesh.copyDirectory.output.Target}"
+          },
+          "GUI": {
+          }
+        }
+      },
+      "runPythonCode_sponge": {
+        "Template": "general.RunPythonCode",
+        "Execution": {
+          "input_parameters": {
+            "caseDirectory": "{runOS_CellCenters.RunOS_blockMesh.copyDirectory.output.Target}"
+          }
+        },
+        "GUI": {
+          "Properties": {
+            "ModulePath": {
+              "current_val": "hera.simulations.openfoam.preprocess.sponge"
+            },
+            "ClassName": {
+              "current_val": "sponge_handler"
+            },
+            "MethodName": {
+              "current_val": "run"
+            }
+          },
+          "WebGui": {
+            "formData": {
+              "fileName": "alpha",
+              "default_value": 0,
+              "dimensions": "[ 0 0 -1 0 0 0 0 ]",
+              "SpongeLayers": {
+                "top": {
+                  "profile": "linear",
+                  "direction": "z",
+                  "vals": [
+                    {
+                      "z": 750,
+                      "alpha": 0
+                    },
+                    {
+                      "z": 800,
+                      "alpha": 1e-3
+                    },
+                    {
+                      "z": 850,
+                      "alpha": 1e-2
+                    },
+                    {
+                      "z": 900,
+                      "alpha": 5e-2
+                    },
+                    {
+                      "z": 950,
+                      "alpha": 1e-1
+                    },
+                    {
+                      "z": 1000,
+                      "alpha": 1e-1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Parameters": {
+        "Template": "general.Parameters",
+        "Execution": {
+          "input_parameters": {}
+        },
+        "GUI": {
+          "WebGui": {
+            "formData": {
+              "caseDirectory": "/home/davidg/Projects/2020/OpenFoam/simulations/LESDrops/Run_cube1000Sponge",
+              "OFtemplateDirectory": "/home/davidg/Projects/2020/OpenFoam/simulations/LESDrops/OF_Templates/cube1000SpongeTemplate"
+            }
+          }
+        }
+      }
+    }
+  }
+}

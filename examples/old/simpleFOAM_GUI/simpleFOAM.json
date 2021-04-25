@@ -21,7 +21,7 @@
                 "Template": "general.CopyDirectory"
             },
             "RunPythonScript": {
-                "Template": "general.RunPythonCode"
+                "Template": "general.RunPythonScript"
             },
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"

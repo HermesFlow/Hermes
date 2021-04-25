@@ -35,10 +35,9 @@
             "deltaT": 1,
             "writeControl": "timeStep",
             "writeInterval": 100,
-            "runTimeModifiable": true,
-            "interpolate": true,
-            "functions": [
-            ]
+            "runTimeModifiable": "true",
+            "interpolate": "true",
+            "functions": []
           }
         }
       },
@@ -55,13 +54,12 @@
         "Template": "openFOAM.simpleFOAM.RASProperties"
       },
       "FileWriter": {
-        "Template": "openFOAM.simpleFOAM.fileWriter",
+        "Template": "openFOAM.fileWriter",
         "Execution": {
-          "type": "generalExecuters.FilesWriter",
           "input_parameters": {
             "casePath": "OpenFOAMfiles/",
             "Files": {
-              "system/BlockMeshDict": "{BlockMesh.output.openFOAMfile}",
+              "system/blockMeshDict": "{BlockMesh.output.openFOAMfile}",
               "system/controlDict": "{ControlDict.output.openFOAMfile}",
               "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
               "system/fvSolution": "{FvSolution.output.openFOAMfile}",
