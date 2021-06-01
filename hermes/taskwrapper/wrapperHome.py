@@ -1,5 +1,9 @@
 from .wrapper import hermesTaskWrapper
 
+from pydoc import locate
+# from . import specializedwrapper
+
+
 class hermesTaskWrapperHome(object):
     """
         Implements a factory of the wrapper objects available.
@@ -39,10 +43,36 @@ class hermesTaskWrapperHome(object):
             :return:
                 An instace of the taskwrapper.
             """
-        hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'],hermesTaskWrapper)
+
+        # print("-----------------------")
+        # print("taskid: " + str(taskid))
+        # print("taskname: " + str(taskname))
+        # print("taskJSON: " + str(taskJSON))
+        # print("-----------------------")
+
+
+        if "template" in taskJSON['Execution']["input_parameters"]:
+            # add wrapper to path - and creste new full path
+            specializedName = taskname + "TaskWrapper"
+            specializedPath = taskJSON['Execution']["input_parameters"]['template']
+            splitPath = specializedPath.split("/")
+            wrapperPath = [element + "wrapper" for element in splitPath]
+            specializedPath =  "hermes.taskwrapper.specializedwrapper." + ".".join(wrapperPath)
+            full = specializedPath + "." + specializedName
+
+            # try locate the package
+            specializedPack = locate(full)
+            if specializedPack is not None:
+                hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], specializedPack)
+            else:
+                hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], hermesTaskWrapper)
+        else:
+            hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], hermesTaskWrapper)
 
         return hermesTaskWrapperObj(taskname=taskname,
                                     taskJSON=taskJSON,
                                     taskid=taskid,
                                     requiredTasks=requiredTasks,
                                     workflowJSON=workflowJSON)
+
+

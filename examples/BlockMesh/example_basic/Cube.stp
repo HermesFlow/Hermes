@@ -3,7 +3,7 @@ HEADER;
 FILE_DESCRIPTION(('FreeCAD Model'),'2;1');
 FILE_NAME(
 '/home/noga/Noga/FreeCad/github/Hermes/master/Hermes/examples/BlockMesh/
-Cube.stp','2020-08-12T09:27:37',('FreeCAD'),('FreeCAD'),
+example_basic/Cube.stp','2020-09-07T13:13:06',('FreeCAD'),('FreeCAD'),
   'Open CASCADE STEP processor 7.3','FreeCAD','Unknown');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;

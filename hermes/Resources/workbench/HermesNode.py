@@ -166,44 +166,6 @@ class _HermesNode(_SlotHandler):
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
 
-        # # additional properties BlockMesh node
-        # if self.name == "BlockMesh":
-        #
-        #     # get the choosen methon
-        #     partPath = getattr(obj, "partPath")
-        #     partName = getattr(obj, "partName")
-        #
-        #     if len(partPath) != 0 and len(partName) != 0:
-        #
-        #         # Create full path of the part for Import
-        #         pathPartStr = partPath + partName + ".stp" if list(partPath)[-1] == '/' else partPath + "/" + partName + ".stp"
-        #
-        #         # get workflow obj
-        #         workflowObj = obj.getParentGroup()
-        #
-        #         # create the part
-        #         partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
-        #
-        #         if len(partName != 0):
-        #
-        #             # get part by its name in FC
-        #             partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
-        #
-        #             # update the part Name at the BlockMesh node properties
-        #             setattr(obj, "partName", partNameFC)
-        #
-        #             # link the part to thr BlockMesh node
-        #             setattr(obj, "partLink", partObj)
-        #
-        #             # link the part to its children
-        #             for child in obj.Group:
-        #                 # set the BlockMesh partlink  at each child
-        #                 setattr(child, "partLink", partObj)
-        #         else:
-        #             FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part')
-        #     else:
-        #         FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing')
-
 
     def initProperties(self, obj):
 

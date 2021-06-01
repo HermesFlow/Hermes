@@ -20,7 +20,7 @@ class utils(object):
             #local = dict([("%s.%s" % (nodename, key), value) for key, value in output.items()])
 
             ret.update({nodename :output})
-            #print(ret)
+
         return ret
 
     def _queryJSONPath(self, JSONPath):
@@ -79,7 +79,6 @@ class utils(object):
     def _handle_node(self, parameterPath, params):
         params = params.get(parameterPath[0],{})
         parameterPath = ".".join(parameterPath[1:])
-
         return self._evaluate_path(parameterPath,params)
 
     def _handle_workflow(self, parameterPath, params):
@@ -94,6 +93,10 @@ class utils(object):
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_output(self,parameterPath, params):
+        # if len(parameterPath) == 1:
+        #     params = params.get(parameterPath[0], {})
+        #     return params
+        # else:
         params = params.get(parameterPath[0],{})
         parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
@@ -128,6 +131,8 @@ class utils(object):
                     if ispath:
                         try:
                             value=self._evaluate_path(token, params)
+
+
                         except IndexError:
                             errMsg =f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
                             print(errMsg)
@@ -158,6 +163,7 @@ class utils(object):
                     param_ret.append(self.build_executer_parameters(dict_parampath, params))
 
                 ret[paramname] = param_ret
+
 
         return ret
 

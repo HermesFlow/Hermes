@@ -1,7 +1,11 @@
 {
     "Execution": {
-        "type": "executerPython",
+        "type": "jinjaExecuters.BlockMesh",
         "input_parameters": {
+            "Properties": "{value.Properties}",
+            "boundary": "{value.boundary}",
+            "vertices": "{value.vertices}",
+            "template": "openFOAM/simpleFOAM/BlockMesh"
         }
     },
     "GUI": {

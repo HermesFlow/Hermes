@@ -22,7 +22,7 @@ if (HermesDirpath == None):
     FreeCAD.Console.PrintError('Error: HermesGui.py - The Hermes environment variable does not exist!\n')
 sys.path.insert(1, HermesDirpath)
 
-from hermes.workflow.expandWorkflow import expandJson
+from hermes.workflow.expandWorkflow import expandWorkflow
 
 # ###################### Temporary hack while the hermes is not in the pythonpath
 # sys.path.append("/mnt/build")
@@ -193,7 +193,7 @@ class _HermesWorkflow:
         jsonFilePath = obj.ImportJSONFile
 
         # create jsonObject varieble that contain all data, including imported data from files/templates
-        self.JsonObject = expandJson().createJsonObject(jsonFilePath)
+        self.JsonObject = expandWorkflow().expand(jsonFilePath)
 
         # assign the data been import to the JSONString property after dumps
         obj.JSONString = json.dumps(self.JsonObject)
@@ -581,11 +581,13 @@ class _ViewProviderHermesWorkflow:
 
     def _handle_RunWorkflow(self, obj):
         if obj.Proxy.JsonObject is not None:
-            obj.Proxy.prepareJsonVar(obj, "null")
-            obj.Proxy.RunworkflowCreation(obj)
+            if obj.RunWorkflow:
+                obj.Proxy.prepareJsonVar(obj, "null")
+                obj.Proxy.RunworkflowCreation(obj)
 
     def _handle_RunLuigi(self, obj):
-        obj.Proxy.RunLuigiScript()
+        if obj.RunLuigi:
+            obj.Proxy.RunLuigiScript()
 
     def _handle_WorkingDirectory(self, obj):
         if len(str(obj.WorkingDirectory)) > 0:

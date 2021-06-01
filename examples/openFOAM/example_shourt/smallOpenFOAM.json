@@ -4,37 +4,57 @@
         "Templates":{},
         "nodeList":[
             "ControlDict",
-            "FvSchemes"
+            "FvSchemes",
+            "FileWriter"
         ],
         "nodes":{
             "ControlDict":{
                 "Execution": {
-                    "type": "jinjaExecuter",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/ControlDict"
                     }
                 },
                 "GUI":{
                     "Type":"WebGuiNode",
                     "Properties":{},
                     "WebGui":{
-                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDict"
+                        "Template":"openFOAM.simpleFOAM.WebGui.ControlDictWebGui"
                     }
                 }
             },
             "FvSchemes":{
                 "Execution": {
-                    "type": "jinjaExecuter",
+                    "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "formData": "{WebGui.formData}"
+                        "values": "{WebGui.formData}",
+                        "template": "openFOAM/simpleFOAM/FvSchemes"
                     }
                 },
                 "GUI": {
                     "Type": "WebGuiNode",
                     "Properties": {},
                     "WebGui": {
-                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemes"
+                        "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
                     }
+                }
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
                 }
             }
         }

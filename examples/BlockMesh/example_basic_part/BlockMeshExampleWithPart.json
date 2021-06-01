@@ -4,16 +4,18 @@
         "Templates": [],
         "nodeList": [
             "BlockMesh",
-            "GeometryDefiner"
+            "GeometryDefiner",
+            "FileWriter"
         ],
         "nodes": {
             "BlockMesh": {
                 "Execution": {
-                    "type": "BlockMesh",
+                    "type": "jinjaExecuters.BlockMesh",
                     "input_parameters": {
-                        "Properties": "{Properties}",
-                        "boundary": "{boundary}",
-                        "vertices": "{vertices}"
+                        "Properties": "{value.Properties}",
+                        "boundary": "{value.boundary}",
+                        "vertices": "{value.vertices}",
+                        "template": "openFOAM/simpleFOAM/BlockMesh"
                     }
                 },
                 "GUI": {
@@ -191,7 +193,7 @@
             },
             "GeometryDefiner": {
                 "Execution": {
-                    "type": "executerPython",
+                    "type": "pythonExecuters.python",
                     "input_parameters": {}
                 },
                 "GUI": {
@@ -330,6 +332,22 @@
                             }
                         }
                     }
+                }
+            },
+            "FileWriter": {
+                 "Execution": {
+                     "type": "generalExecuters.FilesWriter",
+                     "input_parameters": {
+                         "casePath": "OpenFOAMfiles/",
+                         "Files": {
+                             "system/BlockMesh": "{BlockMesh.output.openFOAMfile}"
+                         }
+                     }
+                 },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
                 }
             }
         }
