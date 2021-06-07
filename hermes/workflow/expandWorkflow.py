@@ -164,8 +164,10 @@ class expandWorkflow():
                     UpdatedJsonStruct[subStructKey] = UpdatedJsonList
 
 
-                # dont apply on values that are not dict - (str/int/doubke etc.)
+
+                # dont apply on values that are not dict - (str/int/double etc.)
                 elif type(subtructVal) is dict:
+
 
                     # call 'getImportedJson' in case there are nested files that need to be imported
                     openKeyData = self.getImportedJson(subtructVal)

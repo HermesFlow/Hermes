@@ -7,24 +7,18 @@ import json
 import os
 import pathlib
 
-parser = argparse.ArgumentParser()
-parser.add_argument('command', nargs=1, type=str)
-parser.add_argument('args', nargs='*', type=str)
 
-args = parser.parse_args()
+def handler_expand(arguments):
+    exapnder = expandWorkflow()
 
-exapnder = expandWorkflow()
+    templateFileName = arguments.args[0]
+    expandedWorkflow = arguments.args[1]
+    newTemplate = exapnder.expand(jsonFilePath=templateFileName)
 
-def expand_handler(arguments):
+    with open(expandedWorkflow, 'w') as fp:
+        json.dump(newTemplate, fp,indent=4)
 
-    templatePath = arguments[0]
-    newTemplatePath = arguments[1]
-
-    newTemplate = exapnder.expand(workflowPath=templatePath)
-    with open(newTemplatePath, 'w') as fp:
-        json.dump(newTemplate, fp)
-
-def buildPython_handler(arguments):
+def handler_build(arguments):
 
     templatePath = arguments[0]
     pythonPath = arguments[1]
@@ -36,7 +30,12 @@ def buildPython_handler(arguments):
     with open(pythonPath, "w") as file:
         file.write(build)
 
-def executeLuigi_handler(arguments):
+def handler_execute(arguments):
+    """
+        Should be updated to select execution engine.
+    :param arguments:
+    :return:
+    """
 
     pythonPath = arguments[0]
     cwd = pathlib.Path().absolute()
@@ -45,55 +44,42 @@ def executeLuigi_handler(arguments):
     os.system(f"python3 -m luigi --module {os.path.basename(pythonPath)} finalnode_xx_0 --local-scheduler")
     os.chdir(cwd)
 
-def runAll_handler(arguments):
 
-    expand_handler()
-    buildPython_handler()
-    executeLuigi_handler()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help='sub-command help',dest="subparser_name")
 
-#######
-####    Help
-##
-#
-def help_handler(arguments):
-    if not arguments:
-        help = ["usage: hermes-Workflow <command> [<args>]\n",
-                "These are the available commands:\n",
-                "    expand\t Expand a workflow by suplementing the templates",
-                "    buildPython\tBuild the Luigi-python code from a workflow",
-                "    executeLuigi\tExecute the "
-                ]
-        print("\n".join(help))
+    parser_expandWorkflow = subparsers.add_parser('expand',
+                                                  help='Expands the workflow JSON with the default values of the nodes')
+    parser_buildExecuter = subparsers.add_parser('build',
+                                                 help='Builds the python execution file for the execution engine ')
+    parser_execute = subparsers.add_parser('execute',
+                                       help='Runs the python execution file with the appropriate execution engine')
+
+    parser_expandWorkflow.add_argument('args', nargs=2, type=str, help="[template file] [workflow file]")
+
+    parser_buildExecuter.add_argument('args', nargs=2, type=str, help="[workflow] [executer name]")
+    parser_buildExecuter.add_argument('expand', action='store_true', default=False,
+                                      help="If true, also expand the workflow")
+
+    parser_execute.add_argument('args', nargs=1, type=str, help="[executer]")
+
+    args = parser.parse_args()
+    print(args)
+
+    if not hasattr(args,"subparser_name"):
+        parser.print_help()
     else:
-        try:
-            globals()['help_%s_handler' % arguments[0]]()
-        except KeyError:
-            msg = ["'%s' is not an available command\n" % arguments[0],
-                   "These are the available commands:\n",
-                   "    expand",
-                   "    buildPython",
-                   "    executeLuigi"
-                   ]
-            print("\n".join(msg))
+        globals()[f'handler_{args.subparser_name}'](args)
 
-
-
-def help_expand_handler():
-    #wrapper = textwrap.TextWrapper(width=80)
-    help = ["\033[1mNAME\033[0m",
-            "\texpand - Expand a workflow\n",
-            "\033[1mSYNOPSYS\033[0m",
-            "\t\033[4mhermes-workflow\033[0m \033[4mexpand\033[0m <template file> <workflow file>\n",
-            "\033[1mDESCRIPTION\033[0m",
-            "\tExpand a workflow by suplementing the templates\n",
-            "\033[1mEXAMPLE\033[0m",
-            '''\t\033[1mhermes-workflow expand test.json final.json\033[0m''',
-            "\t    This example should print all the documents of a project called 'example'"
-            ]
-    print('\n'.join(help))
-    # print("list the documents in the project")
-    # print("\thera-datalyer list projectName [mongodb query]")
-
-
-
-globals()['%s_handler' % args.command[0]](args.args)
+# help = ["\033[1mNAME\033[0m",
+#         "\texpand - Expand a workflow\n",
+#         "\033[1mSYNOPSYS\033[0m",
+#         "\t\033[4mhermes-workflow\033[0m \033[4mexpand\033[0m <template file> <workflow file>\n",
+#         "\033[1mDESCRIPTION\033[0m",
+#         "\tExpand a workflow by suplementing the templates\n",
+#         "\033[1mEXAMPLE\033[0m",
+#         '''\t\033[1mhermes-workflow expand test.json final.json\033[0m''',
+#         "\t    This example should print all the documents of a project called 'example'"
+#         ]
+# print('\n'.join(help))
