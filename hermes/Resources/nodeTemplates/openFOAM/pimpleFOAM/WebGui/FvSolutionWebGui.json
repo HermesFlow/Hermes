@@ -1,8 +1,4 @@
-{    "typeExecution": "openFOAM.pimpleFOAM.fvSolution",
-    "TypeFC": "WebGuiNode",
-    "input_parameters": {
-        "values": "{value.formData}"
-    },
+{
 	"Schema":{
 		"type":"object",
 		"properties":{
@@ -72,7 +68,7 @@
                                     "items":{
                                         "type":"object",
                                         "properties":{
-                                            "Template": "openFOAM.fvSolution.GAMGproperties"
+                                            "Template": "openFOAM.simpleFOAM.WebGui.FvSolution.GAMGproperties"
                                         }
                                     }
                                 },
@@ -82,7 +78,7 @@
                                     "items":{
                                         "type":"object",
                                         "properties":{
-                                            "Template":"openFOAM.fvSolution.SmoothProperties"
+                                            "Template":"openFOAM.simpleFOAM.WebGui.FvSolution.SmoothProperties"
                                         }
                                     }
                                 },
@@ -105,13 +101,13 @@
                     "type":"object",
                     "anyOf":[
                         {
-                            "Template":"openFOAM.fvSolution.PISO"
+                            "Template":"openFOAM.simpleFOAM.WebGui.FvSolution.PISO"
                         },
                         {
-                            "Template":"openFOAM.fvSolution.SIMPLE"
+                            "Template":"openFOAM.simpleFOAM.WebGui.FvSolution.SIMPLE"
                         },
                         {
-                            "Template":"openFOAM.fvSolution.PIMPLE"
+                            "Template":"openFOAM.simpleFOAM.WebGui.FvSolution.PIMPLE"
                         }
                     ]
                 }
@@ -130,7 +126,7 @@
                 "type":"object",
                 "title":"relaxationFactors",
                 "properties":{
-                    "Template":"openFOAM.fvSolution.relaxationFactors"
+                    "Template":"openFOAM.simpleFOAM.WebGui.FvSolution.relaxationFactors"
                 }
             }
         }
@@ -151,50 +147,36 @@
                     ],
                     "solver":"GAMG",
                     "smoother":"GaussSeidel",
-                    "tolerance":0,
+                    "tolerance":1e-06,
                     "relTol":0.1
                 },
-                "parameterName":"p"
+                "parameterName":"P"
             },
-            {
-                "parameterProperties":{
-                    "smoother":"DICGaussSeidel",
-                    "tolerance":1e-06,
-                    "relTol":0
-                },
-                "parameterName":"pFinal"
-            },
-            {
-                "parameterProperties":{
+            { 
+                "parameterProperties":{ 
+                    "more properties":{ 
+    
+                    },
                     "solver":"smoothSolver",
                     "smoother":"symGaussSeidel",
-                    "tolerance":1e-05,
+                    "tolerance":1e-06,
                     "relTol":0.1
                 },
-                "parameterName":"(U|k|nuTilda)"
-            },
-            {
-                "parameterProperties":{ 
-                    "tolerance":1e-05,
-                    "relTol":0
-                },
-                "parameterName":"(U|k|nuTilda)Final"
+                "parameterName":"(U|k|omega|epsilon)"
             }
         ],
         "algorithms":[ 
             { 
-                "PIMPLEName":"PIMPLE",
-                "PIMPLEproperties":{
+                "SIMPLEName":"SIMPLE",
+                "SIMPLEproperties":{ 
                     "residualControl":{ 
                         "P":1e-4,
                         "U":1e-4,
                         "(k|omega|epsilon)":1e-4
                     },
-                    "nOuterCorrectorsPIMPLE": 1,
-                    "nCorrectorsPIMPLE": 2,
-                    "nNonOrthogonalCorrectorsPIMPLE":0,
-                    "pRefCellPIMPLE":1001,
-                    "pRefValuePIMPLE":0
+                    "nNonOrthogonalCorrectorsSIMPLE":5,
+                    "pRefCellSIMPLE":0,
+                    "pRefValueSIMPLE":0
                 }
             }
         ],
@@ -210,7 +192,7 @@
                 "k" : 0.7,
                 "omega":0.7,
                 "epsilon" : 0.7
-            }
+            }            
         }
     }   
 }

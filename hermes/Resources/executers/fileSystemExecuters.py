@@ -2,7 +2,7 @@ from .abstractExecuter import abstractExecuter
 
 import os, sys, stat
 
-class copyDirectoryExecuter(abstractExecuter):
+class copyDirectory(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -14,10 +14,21 @@ class copyDirectoryExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
 
-        return dict(copyDirectory="copyDirectory",Target=inputs["Target"],Source=inputs["Source"])
+        print("===========================")
+        print(" ---got to copyDirectory---")
+        print("===========================")
+
+        # for itemKey,itemVal in inputs.items():
+        #    print("inputs["+itemKey+"]="+itemVal)
+
+        if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
+            #os.popen('cp -r ' + inputs["Source"] + ' ' + inputs["Target"]).read()
+            os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
+        else:
+            print("=============== empty ===============")
+
+        return dict(copyDirectory="copyDirectory")
 
 
 class copyFile(abstractExecuter):
@@ -34,7 +45,7 @@ class copyFile(abstractExecuter):
     def run(self, **inputs):
             return dict(copyField="copyFile")
 
-class RunOsCommandExecuter(abstractExecuter):
+class RunOsCommand(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -47,6 +58,10 @@ class RunOsCommandExecuter(abstractExecuter):
 
     def run(self, **inputs):
         import os, sys, stat
+
+        print("===========================")
+        print(" ---got to RunOsCommand---")
+        print("===========================")
 
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile

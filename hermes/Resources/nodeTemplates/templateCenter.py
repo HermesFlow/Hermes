@@ -38,6 +38,7 @@ class templateCenter:
         """
         jsonPath = None
         template = template.replace(".", "/") + ".json"
+
         if self._paths is not None:
             for path in self._paths:
                 if os.path.exists(path+template):
@@ -45,7 +46,10 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
-        # print(jsonPath)
+        #import pdb
+        #pdb.set_trace()
+
+        print(jsonPath)
         try:
             with open(jsonPath) as json_file:
                 template = json.load(json_file)

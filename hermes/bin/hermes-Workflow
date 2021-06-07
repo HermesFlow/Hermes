@@ -1,35 +1,62 @@
 #! /usr/bin/env python
 
 import argparse
-from hermes import expandWorkflow
+from hermes import expandPipeline
 from hermes import hermesWorkflow
 import json
 import os
 import pathlib
+import hera
 
 
 def handler_expand(arguments):
     exapnder = expandWorkflow()
 
+<<<<<<< HEAD
     templateFileName = arguments.args[0]
     expandedWorkflow = arguments.args[1]
     newTemplate = exapnder.expand(jsonFilePath=templateFileName)
+=======
+exapnder = expandPipeline()
+>>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
 
     with open(expandedWorkflow, 'w') as fp:
         json.dump(newTemplate, fp,indent=4)
 
+<<<<<<< HEAD
 def handler_build(arguments):
+=======
+    templatePath = arguments[0]
+    newTemplatePath = arguments[1]
+    ProjectName = arguments[2] if len(arguments) > 2 else None
+    parametersPath = arguments[3] if len(arguments) > 3 else None
+
+    newTemplate = exapnder.expand(pipelinePath=templatePath,parametersPath=parametersPath)
+    with open(newTemplatePath, 'w') as fp:
+        json.dump(newTemplate, fp)
+
+    if ProjectName:
+        print('Adding doc to DB')
+        hera.datalayer.Simulations.addDocument(projectName=ProjectName,
+                                               resource=newTemplate['CaseDirectory'],
+                                               dataFormat='string',
+                                               type='HermesOpenFoam',
+                                               desc=dict(OF_Workflow=newTemplate)) #desc=dict(OF_Workflow=newTemplate
+    print('done')
+
+def buildPython_handler(arguments):
+>>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
 
     templatePath = arguments[0]
     pythonPath = arguments[1]
     WDPath = arguments[2] if len(arguments) > 2 else str(pathlib.Path(pythonPath).parent.absolute())
     builder = arguments[3] if len(arguments) > 3 else "luigi"
-
     flow = hermesWorkflow(templatePath, WDPath,"")
     build = flow.build(builder)
     with open(pythonPath, "w") as file:
         file.write(build)
 
+<<<<<<< HEAD
 def handler_execute(arguments):
     """
         Should be updated to select execution engine.
@@ -37,6 +64,9 @@ def handler_execute(arguments):
     :return:
     """
 
+=======
+def executeLuigi_handler(arguments):
+>>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
     pythonPath = arguments[0]
     cwd = pathlib.Path().absolute()
     moduleParent = pathlib.Path(pythonPath).parent.absolute()
@@ -44,6 +74,7 @@ def handler_execute(arguments):
     os.system(f"python3 -m luigi --module {os.path.basename(pythonPath)} finalnode_xx_0 --local-scheduler")
     os.chdir(cwd)
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -83,3 +114,12 @@ if __name__ == "__main__":
 #         "\t    This example should print all the documents of a project called 'example'"
 #         ]
 # print('\n'.join(help))
+=======
+def runAll_handler(arguments):
+
+    expand_handler()
+    buildPython_handler()
+    executeLuigi_handler()
+
+globals()['%s_handler' % args.command[0]](args.args)
+>>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
