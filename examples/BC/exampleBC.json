@@ -1,0 +1,26 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "GeometryDefiner",
+            "BC",
+            "ControlDict"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            },
+            "BC":{
+                "Template": "BC.BC"
+            },
+            "ControlDict":{
+                "Template": "openFOAM.simpleFOAM.ControlDict"
+            }
+        }
+    }
+}

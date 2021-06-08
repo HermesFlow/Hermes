@@ -1,0 +1,21 @@
+{
+  "Execution": {
+    "type": "jinjaExecuters.jinja",
+    "input_parameters": {
+      "values": "{WebGui.formData}",
+      "template": ""
+    }
+  },
+  "GUI": {
+    "Type": "WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "BC.BCWebGui"
+    },
+    "BCList": {
+      "Template": "BC.BCList"
+    },
+    "BCByField": {}
+  }
+}
