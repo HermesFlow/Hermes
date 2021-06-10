@@ -7,11 +7,7 @@
             "partName":{
                 "type":"string",
                 "title": "Part Name",
-                "enum":[
-                    "Inlet",
-                    "Outlet",
-                    "Wall"
-                ],
+                "enum":[],
                 "description":"Defined Boundary condition for this part"
             }
         }

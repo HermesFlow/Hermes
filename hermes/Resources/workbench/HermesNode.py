@@ -510,6 +510,9 @@ class _WebGuiNode(_HermesNode):
         # get node WebGui- Scheme,uiScheme,FormData
         nodeWebGUI = self.nodeData["WebGui"]
 
+        if obj.Label == "BC":
+            self.updateBCPartList(obj)
+
         # Check if webGui is empty
         if not ((len(nodeWebGUI) == 0)):
             # define web address & pararmeters
@@ -584,6 +587,25 @@ class _WebGuiNode(_HermesNode):
 
         # return data to the webGui node
         self.nodeData["WebGui"] = nodeWebGUI
+
+    def updateBCPartList(self, obj):
+
+        # get the active document
+        doc = FreeCAD.ActiveDocument
+
+        # get the part names from the active document
+        partList = [obj.Label for obj in doc.Objects if obj.Module == "Part"]
+
+        # FreeCAD.Console.PrintMessage("partList = " + str(partList) + "\n")
+
+        # update the list in the webGui and description - depend if the list is empty or not
+        if len(partList) == 0:
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["description"] = "There are no parts in the FreeCAD document"
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = []
+        else:
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["description"] = "Defined Boundary condition for this part"
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = partList
+
 
 
 
