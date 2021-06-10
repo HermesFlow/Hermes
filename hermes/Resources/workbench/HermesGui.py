@@ -99,6 +99,9 @@ class _HermesWorkflow:
         # JSONString property - keep the json data as a string
         addObjectProperty(obj, "JSONString", "", "App::PropertyString", "", "JSON Stringify", 4)
 
+        # Calculated Fields property
+        addObjectProperty(obj, "CalculatedFields", ["U", "P"], "App::PropertyStringList", "JSON", "Calculated Fields")
+
         #        #link property - link to other object (beside parent)
         #        addObjectProperty(obj, "HermesLink", "", "App::PropertyLink", "", "Link to",4)
 
@@ -299,12 +302,12 @@ class _HermesWorkflow:
 
         x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
-        for y in nodes:
+        for node in nodes:
             # get Node data
-            nodeData = nodes[y]["GUI"]
+            nodeData = nodes[node]["GUI"]
 
             # get node name
-            nodename = y
+            nodename = node
 
             # Create node obj
             # makeNode(nodename, obj, str(x), nodeData)
@@ -451,6 +454,22 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
     def updateWorkingDirectory(self, path):
         self.WD_path = path
 
+    def updateBCFields(self, fieldList, HermesObj):
+        BCNode = None
+        for child in HermesObj.Group:
+            if "BC" == child.Label:
+                BCNode = child
+
+        if BCNode is None:
+            return
+
+        BCNode.Proxy.updateBCNodeFields(fieldList, BCNode)
+
+        # FreeCAD.Console.PrintMessage("Calculated fields: ")
+        # for field in fieldList:
+        #     FreeCAD.Console.PrintMessage(field + ", ")
+        # FreeCAD.Console.PrintMessage("\n")
+
 
 
 # =============================================================================
@@ -593,6 +612,8 @@ class _ViewProviderHermesWorkflow:
         if len(str(obj.WorkingDirectory)) > 0:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
+    def _handle_CalculatedFields(self, obj):
+        obj.Proxy.updateBCFields(obj.CalculatedFields, obj)
 
 
     def onChanged(self, vobj, prop):

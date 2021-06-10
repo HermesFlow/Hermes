@@ -16,6 +16,7 @@ from PyQt5 import QtGui,QtCore
 import json
 import pydoc
 import os
+import copy
 
 # Hermes modules
 import HermesTools
@@ -65,6 +66,10 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         if FreeCAD.GuiUp:
             _ViewProviderNode(obj.ViewObject)
+
+        if obj.Label == "BC":
+            obj.Proxy.updateBCNodeFields(workflowObj.CalculatedFields, obj)
+
     return obj
 
 #**********************************************************************
@@ -547,6 +552,44 @@ class _WebGuiNode(_HermesNode):
 
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
+
+    def updateBCNodeFields(self, fieldList, obj):
+
+        # take the WebGui part to a var
+        nodeWebGUI = self.nodeData["WebGui"]
+        currentBCList = list(nodeWebGUI["Schema"]["properties"].keys())
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in currentBCList]
+        del_list = [field for field in currentBCList if field not in fieldList]
+        del_list.remove("partName") # need to remain in dictionary
+
+        # remove fields from webGui
+        for field in del_list:
+            nodeWebGUI["Schema"]["properties"].pop(field)
+
+        # add fields to webGui
+        for field in add_list:
+            if len(field) > 0:
+
+                # deep cp of template BCLisy to a new dict
+                field_dict = copy.deepcopy(self.nodeData["BCList"])
+
+                # update the data in structure
+                field_dict["title"] = field
+                field_dict["description"] = "Defined " + field + " Boundary condition for the part."
+
+                # insert the the new dict into the webGui under ["Schema"]["properties"]
+                nodeWebGUI["Schema"]["properties"][field] = field_dict
+
+        # return data to the webGui node
+        self.nodeData["WebGui"] = nodeWebGUI
+
+
+
+
+
+
 
 
 # =============================================================================

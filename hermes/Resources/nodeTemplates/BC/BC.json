@@ -11,7 +11,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "BC.BCWebGui"
+      "Template": "BC.BCWebGui_empty"
     },
     "BCList": {
       "Template": "BC.BCList"

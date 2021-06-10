@@ -1,0 +1,23 @@
+{
+	"Schema":{  
+		"title":"",
+		"description":"",
+		"type":"object",
+		"properties":{
+            "partName":{
+                "type":"string",
+                "title": "Part Name",
+                "enum":[
+                    "Inlet",
+                    "Outlet",
+                    "Wall"
+                ],
+                "description":"Defined Boundary condition for this part"
+            }
+        }
+	},
+	"uiSchema":{
+	},
+	"formData":{
+	}
+}

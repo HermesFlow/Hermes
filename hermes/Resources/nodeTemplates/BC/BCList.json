@@ -1,5 +1,5 @@
 {
-  "title": "U",
+  "title": "BCName",
   "type": "object",
   "description":"defined the Velocity boundaary condition",
   "properties": {
