@@ -51,6 +51,9 @@ boundary
     {{tmpBoundary.Name }}
     {
         type {{tmpBoundary.Type}};
+        {%- if tmpBoundary.Type == "cyclic" %}
+        neighbourPatch {{tmpBoundary.Properties.Property01.current_val}}
+        {%- endif %}
         faces
         (
             {%- for key,value in tmpBoundary.faces.items() %}

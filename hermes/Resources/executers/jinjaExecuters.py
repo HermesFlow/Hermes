@@ -103,6 +103,7 @@ class BlockMeshExecuter(abstractExecuter):
 
         # render jinja for the choosen template
         output = template.render(Properties = Properties, boundary = boundary, vertices = vertices)
+        # print(output)
 
         return dict(openFOAMfile=output)
 

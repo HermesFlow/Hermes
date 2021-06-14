@@ -114,11 +114,13 @@
                                 "Properties": {
                                     "Property01": {
                                         "prop": "neighbour",
-                                        "init_val": "",
-                                        "type": "App::PropertyString",
+                                        "init_val": [
+                                            "notSet"
+                                        ],
+                                        "type": "App::PropertyEnumeration",
                                         "Heading": "Neighbour",
                                         "tooltip": "Neight face name",
-                                        "current_val": ""
+                                        "current_val": "a"
                                     }
                                 }
                             }
@@ -126,28 +128,44 @@
                     },
                     "boundary": [
                         {
-                            "Name": "wall",
-                            "Type": "wall",
-                            "Properties": {},
+                            "Name": "a",
+                            "Type": "cyclic",
+                            "Properties": {
+                                "Property01": {
+                                    "prop": "neighbour",
+                                    "init_val": [
+                                        "notSet"
+                                    ],
+                                    "type": "App::PropertyEnumeration",
+                                    "Heading": "Neighbour",
+                                    "tooltip": "Neight face name",
+                                    "current_val": "b"
+                                }
+                            },
                             "faces": {
                                 "Face6": {
                                     "vertices": "4 5 6 7"
-                                },
-                                "Face1": {
-                                    "vertices": "0 4 7 3"
-                                },
-                                "Face4": {
-                                    "vertices": "3 7 6 2"
                                 }
                             }
                         },
                         {
-                            "Name": "fgh",
-                            "Type": "patch",
-                            "Properties": {},
+                            "Name": "b",
+                            "Type": "cyclic",
+                            "Properties": {
+                                "Property01": {
+                                    "prop": "neighbour",
+                                    "init_val": [
+                                        "notSet"
+                                    ],
+                                    "type": "App::PropertyEnumeration",
+                                    "Heading": "Neighbour",
+                                    "tooltip": "Neight face name",
+                                    "current_val": "a"
+                                }
+                            },
                             "faces": {
-                                "Face3": {
-                                    "vertices": "0 1 5 4"
+                                "Face1": {
+                                    "vertices": "0 4 7 3"
                                 }
                             }
                         }
