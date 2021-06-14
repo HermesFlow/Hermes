@@ -639,6 +639,38 @@ class _HermesBME(_HermesGE):
             addObjectProperty(obj, "partLink", getattr(Nodeobj, "partLink"), "App::PropertyLink", "part", "Link GE to part")
             obj.setEditorMode("partLink", 1)
 
+        # if type cyclic - update the Enumeration list in neighbour property for all cyclic types
+        if obj.Type == "cyclic":
+
+            # loop all BlockMesh children
+            for BME in Nodeobj.Group:
+
+                # get list of all cyclic type nodes
+                cyclicList = [BME.Label for BME in Nodeobj.Group if BME.Type == "cyclic"]
+                if len(cyclicList) > 0:
+
+                    # check if the current entity is cyclic
+                    if BME.Type == "cyclic":
+
+                        # make sure neighbour property is defined
+                        if "neighbour" in BME.PropertiesList:
+
+                            # get the current value at the neighbour enum
+                            currentVal = BME.neighbour
+
+                            # remove the current entity from cyclicList - cannot be its own neighbour
+                            cyclicList.remove(BME.Label)
+
+                            if len(cyclicList) > 0:
+                                # update the list of neighbour enum
+                                BME.neighbour = cyclicList
+
+                                # if it is not the default value, update the current value in enum(keep value while changing the enum list)
+                                if currentVal != "notSet":
+                                    setattr(BME, "neighbour", currentVal)
+
+
+
 
 
     def UpdateFacesInJson(self,obj):

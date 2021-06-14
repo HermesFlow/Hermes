@@ -2,11 +2,11 @@
     "Properties":{
         "Property01":{
             "prop":"neighbour",
-            "init_val":"",
-            "type":"App::PropertyString",
+            "init_val":["notSet"],
+            "type":"App::PropertyEnumeration",
             "Heading":"Neighbour",
             "tooltip":"Neight face name",
-            "current_val":""
+            "current_val":"notSet"
         }
     }
 }
