@@ -25,7 +25,7 @@
         "Template": "GeometryDefiner.BlockMeshTemplate"
       },
       "ControlDict": {
-        "Template": "OpenFOAM.simpleFOAM.ControlDict",
+        "Template": "openFOAM.simpleFOAM.ControlDict",
         "GUI": {
           "formData": {
             "startFrom": "startTime",

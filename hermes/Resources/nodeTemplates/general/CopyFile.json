@@ -1,0 +1,32 @@
+{
+    "Execution": {
+        "type":"fileSystemExecuters.copyFile",
+        "input_parameters": {
+            "Source": "{Properties.Source.current_val}",
+            "Target": "{Properties.Target.current_val}"
+        }
+    },
+    "GUI": {
+        "Type": "WebGuiNode",
+        "Properties": {
+            "Source": {
+                "prop": "Source",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "Parameters",
+                "tooltip": "The source directory",
+                "current_val": ""
+            },
+            "Target": {
+                "prop": "Target",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "Parameters",
+                "tooltip": "The target directory",
+                "current_val": ""
+            }
+        },
+        "WebGui": {
+        }
+    }
+}

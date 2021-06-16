@@ -1,8 +1,8 @@
 from .abstractExecuter import abstractExecuter
-
+import shutil
 import os, sys, stat
 
-class copyDirectory(abstractExecuter):
+class copyDirectoryExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -14,24 +14,15 @@ class copyDirectory(abstractExecuter):
         )
 
     def run(self, **inputs):
-
-        print("===========================")
-        print(" ---got to copyDirectory---")
-        print("===========================")
-
-        # for itemKey,itemVal in inputs.items():
-        #    print("inputs["+itemKey+"]="+itemVal)
-
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            #os.popen('cp -r ' + inputs["Source"] + ' ' + inputs["Target"]).read()
-            os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
+            shutil.copytree(inputs['Source'],inputs['Target'])
         else:
             print("=============== empty ===============")
 
         return dict(copyDirectory="copyDirectory")
 
 
-class copyFile(abstractExecuter):
+class copyFileExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -43,9 +34,14 @@ class copyFile(abstractExecuter):
         )
 
     def run(self, **inputs):
+            if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
+                shutil.copy(inputs['Source'], inputs['Target'])
+            else:
+                print("=============== empty ===============")
+
             return dict(copyField="copyFile")
 
-class RunOsCommand(abstractExecuter):
+class RunOsCommandExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -99,7 +95,7 @@ class RunOsCommand(abstractExecuter):
 
 
 
-class executeScript(abstractExecuter):
+class executeScriptExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(

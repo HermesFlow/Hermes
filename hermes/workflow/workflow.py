@@ -204,8 +204,6 @@ class hermesWorkflow(dict):
 
     def build(self,buildername):
 
-        print("self.WD_path="+self.WD_path+"\n")
-        
         return builders[buildername.lower()].buildWorkflow(self)
 
 

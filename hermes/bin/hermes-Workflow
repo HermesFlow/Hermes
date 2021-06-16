@@ -1,62 +1,50 @@
 #! /usr/bin/env python
-
 import argparse
-from hermes import expandPipeline
-from hermes import hermesWorkflow
+from hermes import expandWorkflow,hermesWorkflow
 import json
 import os
 import pathlib
-import hera
+
 
 
 def handler_expand(arguments):
     exapnder = expandWorkflow()
 
-<<<<<<< HEAD
+
     templateFileName = arguments.args[0]
-    expandedWorkflow = arguments.args[1]
-    newTemplate = exapnder.expand(jsonFilePath=templateFileName)
-=======
-exapnder = expandPipeline()
->>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
+    expandedWorkflow = f"{arguments.args[1].split('.')[0]}.json"
+    newTemplate = exapnder.expand(templateJSON=templateFileName)
 
     with open(expandedWorkflow, 'w') as fp:
         json.dump(newTemplate, fp,indent=4)
 
-<<<<<<< HEAD
 def handler_build(arguments):
-=======
-    templatePath = arguments[0]
-    newTemplatePath = arguments[1]
-    ProjectName = arguments[2] if len(arguments) > 2 else None
-    parametersPath = arguments[3] if len(arguments) > 3 else None
+    exapnder = expandWorkflow()
 
-    newTemplate = exapnder.expand(pipelinePath=templatePath,parametersPath=parametersPath)
-    with open(newTemplatePath, 'w') as fp:
-        json.dump(newTemplate, fp)
+    templateFile = arguments.args[0]
+    newWorkflow = f"{arguments.args[1].split('.')[0]}.py"
 
-    if ProjectName:
-        print('Adding doc to DB')
-        hera.datalayer.Simulations.addDocument(projectName=ProjectName,
-                                               resource=newTemplate['CaseDirectory'],
-                                               dataFormat='string',
-                                               type='HermesOpenFoam',
-                                               desc=dict(OF_Workflow=newTemplate)) #desc=dict(OF_Workflow=newTemplate
-    print('done')
+    expandedWorkflow = f"{newWorkflow.split('.')[0]}.json"
 
-def buildPython_handler(arguments):
->>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
+    parametersPath = dict()
+    if arguments.parameters is not None:
+        with open(arguments.parameters) as paramfile:
+            parametersPath = json.load(paramfile)
 
-    templatePath = arguments[0]
-    pythonPath = arguments[1]
-    WDPath = arguments[2] if len(arguments) > 2 else str(pathlib.Path(pythonPath).parent.absolute())
-    builder = arguments[3] if len(arguments) > 3 else "luigi"
-    flow = hermesWorkflow(templatePath, WDPath,"")
+    newTemplate = exapnder.expand(templateJSON=templateFile, parameters=parametersPath)
+    with open(expandedWorkflow, 'w') as fp:
+        json.dump(newTemplate, fp,indent=4)
+
+    WDPath = os.getcwd()
+
+
+
+    builder = "luigi"
+    flow = hermesWorkflow(newTemplate, WDPath,"")
     build = flow.build(builder)
-    with open(pythonPath, "w") as file:
+    with open(newWorkflow, "w") as file:
         file.write(build)
 
-<<<<<<< HEAD
 def handler_execute(arguments):
     """
         Should be updated to select execution engine.
@@ -64,17 +52,16 @@ def handler_execute(arguments):
     :return:
     """
 
-=======
-def executeLuigi_handler(arguments):
->>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
-    pythonPath = arguments[0]
-    cwd = pathlib.Path().absolute()
-    moduleParent = pathlib.Path(pythonPath).parent.absolute()
-    os.chdir(moduleParent)
-    os.system(f"python3 -m luigi --module {os.path.basename(pythonPath)} finalnode_xx_0 --local-scheduler")
-    os.chdir(cwd)
+    pythonPath = arguments.args[0].split(".")[0]
 
-<<<<<<< HEAD
+
+    #cwd = pathlib.Path().absolute()
+    #moduleParent = pathlib.Path(pythonPath).parent.absolute()
+    #os.chdir(moduleParent)
+    executionStr = f"python3 -m luigi --module {os.path.basename(pythonPath)} finalnode_xx_0 --local-scheduler"
+    print(executionStr)
+    os.system(executionStr)
+    #os.chdir(cwd)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -89,37 +76,25 @@ if __name__ == "__main__":
 
     parser_expandWorkflow.add_argument('args', nargs=2, type=str, help="[template file] [workflow file]")
 
-    parser_buildExecuter.add_argument('args', nargs=2, type=str, help="[workflow] [executer name]")
-    parser_buildExecuter.add_argument('expand', action='store_true', default=False,
-                                      help="If true, also expand the workflow")
+    parser_buildExecuter.add_argument('args', nargs=2, type=str, help="[workflow template] [workflow]")
+    parser_buildExecuter.add_argument('--parameters', type=str, default=None,required=False, help="A path to paremeters file (optional)")
+
 
     parser_execute.add_argument('args', nargs=1, type=str, help="[executer]")
 
     args = parser.parse_args()
-    print(args)
 
     if not hasattr(args,"subparser_name"):
         parser.print_help()
     else:
         globals()[f'handler_{args.subparser_name}'](args)
 
-# help = ["\033[1mNAME\033[0m",
-#         "\texpand - Expand a workflow\n",
-#         "\033[1mSYNOPSYS\033[0m",
-#         "\t\033[4mhermes-workflow\033[0m \033[4mexpand\033[0m <template file> <workflow file>\n",
-#         "\033[1mDESCRIPTION\033[0m",
-#         "\tExpand a workflow by suplementing the templates\n",
-#         "\033[1mEXAMPLE\033[0m",
-#         '''\t\033[1mhermes-workflow expand test.json final.json\033[0m''',
-#         "\t    This example should print all the documents of a project called 'example'"
-#         ]
-# print('\n'.join(help))
-=======
-def runAll_handler(arguments):
 
-    expand_handler()
-    buildPython_handler()
-    executeLuigi_handler()
-
-globals()['%s_handler' % args.command[0]](args.args)
->>>>>>> e0f09f6255bfc24ea37b48b4e60921a1d9464195
+    # if ProjectName:
+    #     print('Adding doc to DB')
+    #     hera.datalayer.Simulations.addDocument(projectName=ProjectName,
+    #                                            resource=newTemplate['CaseDirectory'],
+    #                                            dataFormat='string',
+    #                                            type='HermesOpenFoam',
+    #                                            desc=dict(OF_Workflow=newTemplate)) #desc=dict(OF_Workflow=newTemplate
+    # print('done')

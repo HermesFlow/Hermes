@@ -8,12 +8,23 @@
 from ..Resources.nodeTemplates.templateCenter import templateCenter
 import json
 import os
+import collections.abc
+
 
 
 class expandWorkflow():
     """ this class is taking a json with reference
       to other files , end inject the data from those other
       files into that json """
+
+    def updateMap(self,d, u):
+        for k, v in u.items():
+            if isinstance(v, collections.abc.Mapping):
+                d[k] = self.updateMap(d.get(k, {}), v)
+            else:
+                d[k] = v
+        return d
+
 
     def __init__(self):
         self.getFromTemplate = "Template"
@@ -22,25 +33,29 @@ class expandWorkflow():
         self.cwd = ""
         self.WD_path = ""
 
-    def expand(self, jsonFilePath):
+    def expand(self, templateJSON, parameters={}):
         """
         Expands a workflow by imbedding the template node to the workflow.
 
         Parameters
         -----------
 
-            jsonFilePath: str
+            templateJSON: str
                         The path of the workflow json
+
+            parameters : dict
+                        A dictionary that can overwrite the template defaults.
+                        Adds the values to the dictionary if necessary
 
         Returns
         --------
             Dict.
         """
 
-        JsonObjectfromFile = self.loadJsonFromfile(jsonFilePath)
+        JsonObjectfromFile = self.loadJsonFromfile(templateJSON)
 
         # define the current working directory - where the json file has been uploaded
-        self.cwd = os.path.dirname(jsonFilePath)
+        self.cwd = os.path.dirname(templateJSON)
 
 
         # Create JsonObject will contain all the imported date from file/template
@@ -71,7 +86,9 @@ class expandWorkflow():
         workflow["nodes"] = new_nodes
         JsonObject["workflow"] = workflow
 
-        return JsonObject
+        ret = self.updateMap(JsonObject,parameters)
+
+        return ret
 
     def getImportedJson(self, jsonObjStruct):
 
