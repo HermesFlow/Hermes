@@ -7,15 +7,16 @@ class copyDirectoryExecuter(abstractExecuter):
     def _defaultParameters(self):
         return dict(
             output=["status"],
-            inputs=["source","target"],
+            inputs=["source","target","dirs_exist_ok"],
             webGUI=dict(JSONSchema="webGUI/copyDirectory_JSONchema.json",
                         UISchema  = "webGUI/copyDirectory_UISchema.json"),
             parameters={}
         )
 
     def run(self, **inputs):
+
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            shutil.copytree(inputs['Source'],inputs['Target'])
+            shutil.copytree(inputs['Source'],inputs['Target'],dirs_exist_ok=inputs["dirs_exist_ok"])
         else:
             print("=============== empty ===============")
 

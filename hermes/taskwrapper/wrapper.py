@@ -63,11 +63,13 @@ class hermesTaskWrapper(object):
         typesList = []
         try:
             for param_path in taskJSON['Execution']['input_parameters'].values():
-                if type(param_path)==dict:
+                if isinstance(param_path,dict):
                     for param_p in param_path.values():
                         typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
-                else:
+                elif isinstance(param_path,str):
                     typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
+                else:
+                    pass
         except KeyError:
             import pdb
             pdb.set_trace()
