@@ -16,28 +16,25 @@ FoamFile
 
 
 
-convertToMeters {{Properties.Property03.current_val}};
+convertToMeters {{geometry.convertToMeters}};
 
 vertices
 (
-    {%- for x in range(vertices|length) %}
-    ({{vertices[x]}})
+    {%- for pnt in vertices %}
+        ({%- for coord in pnt %} {{ coord }} {%- endfor %})
     {%- endfor %}
-
 );
 
-{%- import "openFOAM/simpleFOAM/MacroSBlockMeshGrading.jinja" as Grading %}
+
+
+{%- import "openFOAM/blockMesh/MacroSBlockMeshGrading.jinja" as Grading %}
 
 blocks
 (
     hex (0 1 2 3 4 5 6 7)
-    {{Properties.Property04.current_val}}
+    ({%- for x in geometry.cellCount %} {{x}} {%- endfor %})
     simpleGrading
-    (
-        {{Grading.macroBlockMeshGrading(Properties.Property05.current_val)}}
-        {{Grading.macroBlockMeshGrading(Properties.Property06.current_val)}}
-        {{Grading.macroBlockMeshGrading(Properties.Property07.current_val)}}
-    )
+    ({%- for x in geometry.grading %} {{x}} {%- endfor %})
 );
 
 edges
@@ -46,20 +43,23 @@ edges
 
 boundary
 (
-    {%- for x in range(boundary|length) -%}
-    {%- set tmpBoundary=boundary[x] %}
-    {{tmpBoundary.Name }}
-    {
-        type {{tmpBoundary.Type}};
-        faces
-        (
-            {%- for key,value in tmpBoundary.faces.items() %}
-            ({{value.vertices}})
-            {%- endfor %}
-        );
-    }
-    {%- endfor %}
+    {%- for bndry in boundary %}
+        {{bndry.name }}
+        {
+            type {{bndry.type}};
+            faces
+            (
+                {%- for indx in range(bndry.faces|length)%}
+                    ({%- for face in bndry.faces[indx] %} {{ face }} {%- endfor %})
 
+                {%- endfor %}
+
+            );
+            {%- if bndry['Type'] =='cyclic' %}
+                neighbourPatch {{bndry.neighbourPatch}};
+            {%- endif %}
+        }
+    {%- endfor %}
 );
 
 mergePatchPairs

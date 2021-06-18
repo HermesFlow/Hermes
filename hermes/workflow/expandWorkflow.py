@@ -227,37 +227,17 @@ class expandWorkflow():
 
                     else:
                         # recursion of override on the dict
-                        UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        if isinstance(UpdatedJsonStruct[dataKey],dict):
+                            UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        else:
+                            UpdatedJsonStruct[dataKey] = dataVal
 
-                # type is 'list'
-                elif type(dataVal) is list:
-
-                    # check if 'dataKey' in the structure is empty
-                    if len(UpdatedJsonStruct[dataKey]) == 0:
-
-                        # take all the data in dataVal and insert to 'dataKey' place in the structure
-                        UpdatedJsonStruct[dataKey] = dataVal
-
-                    # add items to the existing list
-                    else:
-
-                        # loop all items in the list
-                        for i in range(len(dataVal)):
-
-                            # if item not in structure list
-                            if not (dataVal[i] in UpdatedJsonStruct[dataKey]):
-                                # add the item from overide data
-                                UpdatedJsonStruct[dataKey].append(dataVal[i])
-
-                # any other type (int,boolean..)
+                # type is any other data type.
                 else:
-                    # update its data from overide
                     UpdatedJsonStruct[dataKey] = dataVal
-
 
             # dataKey not exist in UpdatedJsonStruct
             else:
-
                 # add to the dictionary
                 UpdatedJsonStruct[dataKey] = dataVal
 

@@ -1,0 +1,24 @@
+{
+    "Execution": {
+        "type": "openFOAM.meshExecuters.BlockMesh",
+        "input_parameters": {
+            "geometry": "{value.Properties}",
+            "boundary": "{value.boundary}",
+            "vertices": "{value.vertices}"
+        }
+    },
+    "GUI": {
+        "Type":"BlockMeshNode",
+        "Properties":{
+                "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
+        },
+        "GeometryFaceTypes":{
+            "TypeList":["wall","symmetry","patch","cyclic"],
+            "TypeProperties":{
+                "Template":"GeometryDefiner.BlockMesh.BMTypesListProperties"
+            }
+        },
+        "boundary": [],
+        "vertices": []
+    }
+}

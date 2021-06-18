@@ -1,0 +1,12 @@
+{
+    "Properties":{
+        "Property01":{
+            "prop":"neighbour",
+            "init_val":"",
+            "type":"App::PropertyString",
+            "Heading":"Neighbour",
+            "tooltip":"Neight face name",
+            "current_val":""
+        }
+    }
+}
