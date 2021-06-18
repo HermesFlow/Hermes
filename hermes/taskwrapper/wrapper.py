@@ -61,13 +61,16 @@ class hermesTaskWrapper(object):
         notNodeTypes = ["workflowJSON","value","output","Properties","WebGui"]
 
         typesList = []
-        for param_path in taskJSON['Execution']['input_parameters'].values():
-            if type(param_path)==dict:
-                for param_p in param_path.values():
-                    typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
-            else:
-                typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
-
+        try:
+            for param_path in taskJSON['Execution']['input_parameters'].values():
+                if type(param_path)==dict:
+                    for param_p in param_path.values():
+                        typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
+                else:
+                    typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
+        except KeyError:
+            import pdb
+            pdb.set_trace()
 
         # append nodes list in the 'dependent_tasks'
         typesList.append(numpy.atleast_1d(taskJSON.get('requires',[])))

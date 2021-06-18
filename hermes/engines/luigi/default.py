@@ -83,9 +83,6 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
 
     #def transform(self,taskWrapper,WD_path):
     def transform(self,taskWrapper,WD_path):
-
-
-
         """
             Transforms a taskWrapper to a luigi task.
 
