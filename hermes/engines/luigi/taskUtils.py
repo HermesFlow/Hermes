@@ -118,41 +118,47 @@ class utils(object):
         return params.get(".".join(parameterPath[1:]),{})
 
 
+    def _parseAndEvaluatePath(self, paramPath,params):
+        value = []
+        tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
+        for token, ispath in tokenList:
+            if ispath:
+                try:
+                    value.append(self._evaluate_path(token, params))
+
+                except IndexError:
+                    errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                    print(errMsg)
+                    raise KeyError(errMsg)
+
+                except KeyError:
+                    errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                    print(errMsg)
+                    raise KeyError(errMsg)
+            else:
+                value.append(token)
+
+        if (all([isinstance(x, str) for x in value])):
+            ret = "".join(value)
+        else:
+            ret = value[0]
+
+        return ret
+
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
 
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
-                value = []
-                tokenList = hermes.hermesTaskWrapper.parsePath(parampath)
-                for token,ispath in tokenList:
-                    if ispath:
-                        try:
-                            value.append(self._evaluate_path(token, params))
-
-                        except IndexError:
-                            errMsg =f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
-                            print(errMsg)
-                            raise KeyError(errMsg)
-
-                        except KeyError:
-                            errMsg =f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
-                            print(errMsg)
-                            raise KeyError(errMsg)
-                    else:
-                        value.append(token)
-
-                if (all([isinstance(x,str) for x in value])):
-                    ret[paramname] = "".join(value)
-                else:
-                    ret[paramname] = value[0]
+                ret[paramname] = self._parseAndEvaluatePath(parampath,params)
 
             elif isinstance(parampath, dict):
                 param_ret = {}
                 for dict_paramname, dict_parampath in parampath.items():
-
                     if isinstance(dict_parampath,dict):
                         param_ret[dict_paramname] = self.build_executer_parameters({dict_paramname:dict_parampath}, params)[dict_paramname]
+                    elif isinstance(dict_parampath,str):
+                        param_ret[dict_paramname] = self._parseAndEvaluatePath(dict_parampath, params)
                     else:
                         param_ret[dict_paramname] = dict_parampath
 
