@@ -173,6 +173,8 @@ class utils(object):
                         param_ret.append(dict_parampath)
 
                 ret[paramname] = param_ret
+            else:
+                ret[paramname] = parampath
 
         return ret
 

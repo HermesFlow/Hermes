@@ -189,7 +189,7 @@ class _HermesNode(_SlotHandler):
 
         if self.name == "BlockMesh":
             # link part - link to 1 part - Inherite from parent BM
-            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link blockMesh node to part")
+            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link mesh node to part")
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")

@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
+|  \\    /   O peration     | Version:  7                                |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -27,7 +27,7 @@ vertices
 
 
 
-{%- import "openFOAM/blockMesh/MacroSBlockMeshGrading.jinja" as Grading %}
+{%- import "openFOAM/mesh/MacroSBlockMeshGrading.jinja" as Grading %}
 
 blocks
 (

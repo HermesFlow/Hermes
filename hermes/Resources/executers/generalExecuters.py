@@ -51,7 +51,6 @@ class FilesWriterExecuter(abstractExecuter):
 
         path = inputs["casePath"]
         files = inputs["Files"]
-
         for filename, file in files.items():
 
             newPath = os.path.join(path, filename)

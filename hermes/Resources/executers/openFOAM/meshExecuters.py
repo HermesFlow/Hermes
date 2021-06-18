@@ -6,7 +6,7 @@ import re
 
 class BlockMeshExecuter(jinjaExecuter):
     """
-        Transforms JSON->blockMeshDict using the jinja template in jinjaTemplates.openFOAM.blockMesh.BlockMesh
+        Transforms JSON->blockMeshDict using the jinja template in jinjaTemplates.openFOAM.mesh.BlockMesh
 
         The JSON format is:
 
@@ -64,7 +64,7 @@ Noga:
     def run(self, **inputs):
 
         # get the  name of the template
-        templateName = "openFOAM/blockMesh/BlockMesh"
+        templateName = "openFOAM/mesh/BlockMesh"
         # templateName = os.path.abspath(templateName)
 
         ## Noga:
