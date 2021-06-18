@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import argparse
-from hermes import expandPipeline
+from hermes import expandWorkflow
 from hermes import hermesWorkflow
 import json
 import os
@@ -9,21 +9,37 @@ import pathlib
 import hera
 
 parser = argparse.ArgumentParser()
-parser.add_argument('command', nargs=1, type=str)
-parser.add_argument('args', nargs='*', type=str)
+subparsers = parser.add_subparsers(dest="actionName")
 
-args = parser.parse_args()
+parser_expand = subparsers.add_parser('expand', help='Expanding a workflow')
+parser_build  = subparsers.add_parser('build', help='Build the python script to execute the workflow')
+parser_execute = subparsers.add_parser('run', help='Runs the workflow')
 
-exapnder = expandPipeline()
+
+parser_expand.add_argument('-t','-workflow',dest='workflow')
+parser_expand.add_argument('-o','-outputPath',dest='outputPath')
+parser_expand.add_argument('-p','-projectName',dest='projectName',default=None)
+#parser_expand.add_argument('-f','-parameterFile',dest='parameterFile',default=None)
+
+parser_build.add_argument('-t','-workflow',dest='workflow')
+parser_build.add_argument('-o','-outputPath',dest='outputPath')
+parser_build.add_argument('-w','-workDirectory',dest='workDirectory')
+parser_build.add_argument('-e','-executer',dest='executer',choices=['luigi'],default='luigi')
+
+parser_execute.add_argument('-t','-executePath',dest='executePath')
+
+
+
 
 def expand_handler(arguments):
 
-    templatePath = arguments[0]
-    newTemplatePath = arguments[1]
-    ProjectName = arguments[2] if len(arguments) > 2 else None
-    parametersPath = arguments[3] if len(arguments) > 3 else None
+    workflow = arguments.workflow
+    newTemplatePath = arguments.outputPath
+    ProjectName = arguments.projectName
+ #   parametersPath = arguments.parameterFile
 
-    newTemplate = exapnder.expand(pipelinePath=templatePath,parametersPath=parametersPath)
+    exapnder = expandWorkflow()
+    newTemplate = exapnder.expand(workflow) #,parametersPath=parametersPath)
     with open(newTemplatePath, 'w') as fp:
         json.dump(newTemplate, fp)
 
@@ -38,17 +54,17 @@ def expand_handler(arguments):
 
 def buildPython_handler(arguments):
 
-    templatePath = arguments[0]
-    pythonPath = arguments[1]
-    WDPath = arguments[2] if len(arguments) > 2 else str(pathlib.Path(pythonPath).parent.absolute())
-    builder = arguments[3] if len(arguments) > 3 else "luigi"
+    templatePath = arguments.workflow
+    pythonPath   = arguments.outputPath
+    WDPath = str(pathlib.Path(pythonPath).parent.absolute()) if arguments.workDirectory is None else arguments.workDirectory
+    builder = arguments.executer
     flow = hermesWorkflow(templatePath, WDPath,"")
     build = flow.build(builder)
     with open(pythonPath, "w") as file:
         file.write(build)
 
 def executeLuigi_handler(arguments):
-    pythonPath = arguments[0]
+    pythonPath = arguments.executePath
     cwd = pathlib.Path().absolute()
     moduleParent = pathlib.Path(pythonPath).parent.absolute()
     os.chdir(moduleParent)
@@ -61,4 +77,9 @@ def runAll_handler(arguments):
     buildPython_handler()
     executeLuigi_handler()
 
-globals()['%s_handler' % args.command[0]](args.args)
+
+if __name__=="__main__":
+
+    args = parser.parse_args()
+    print(args)
+    globals()['%s_handler' % args.actionName](args)
