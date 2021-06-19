@@ -16,123 +16,108 @@ FoamFile
 
 #includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
 
-{{ 'castellatedMesh on;' if values.castellatedMesh else 'castellatedMesh off;' }}
-{{ 'snap on;' if values.snap else 'snap off;' }}
-{{ 'addLayers on;' if values.castellatedMesh else 'addLayers off;' }}
+castellatedMesh {{ 'on' if modules.castellatedMesh else 'off' }};
+snap            {{ 'on' if modules.snap else 'off' }};
+addLayers       {{ 'on' if modules.layer else 'off' }};
 
-{%- import "openFOAM/mesh/MacroSnappyGeo.jinja" as Msnappy %}
-{% import "openFOAM/mesh/MgetName.jinja" as Mname %}
+{%- import "openFOAM/mesh/toPoint.jinja" %}
+
 geometry
 {
-    {%- for x in range(values.geometry|length) -%}
-        {%- set sort=values.geometry[x]|dictsort -%}
-        {%- set type=sort[0][0] %}
-        {%- if type == 'triSurfaceMesh' %}
-    {{Mname.MgetName(values.geometry[x][type])}}.stl
-    {
-            {%- for key,value in values.geometry[x][type].items() -%}
-        {{Msnappy.macroSnappyGeo(key,value)}}
+    {%- for geometryName,geometryData in geometry.objects.items() %}
+        {{geometryName}}
+        {
+            type triSurfaceMesh;
+            file "{{geometryData.objectName}}.{{geometryData.objectType}}";
+
+        }
+    {%- endfor %}
+
+    {%- for regionName,regionData in geometry.regions.items() %}
+        {{regionName}}
+        {
+            type {{regionData.type}}
+            {%- for regionGeometryName,regionGeometryData in regionData.data.items() %}
+                {{regionGeometryName}} toPoint(regionGeometryData)
             {%- endfor %}
-    };
-        {% else %}
-            {%- for key,value in values.geometry[x][type].items() -%}
-                {%- if key[0:10]=='properties'%}
-    {{Mname.MgetName(values.geometry[x][type])}}
-    {
-                    {%- for pkey,pvalue in value.items() -%}
-        {{Msnappy.macroSnappyGeo(pkey,pvalue)}}
-                    {%- endfor %}
-                {%- endif %}
-            {%- endfor %}
-    };
-        {%- endif -%}
+        }
     {%- endfor %}
 };
 
 castellatedMeshControls
 {
-    nCellsBetweenLevels {{values.castellatedMeshControls.nCellsBetweenLevels}};
-    maxGlobalCells {{values.castellatedMeshControls.maxGlobalCells}};
-    maxLocalCells {{values.castellatedMeshControls.maxLocalCells}};
+    nCellsBetweenLevels {{castellatedMeshControls.nCellsBetweenLevels}};
+    maxGlobalCells      {{castellatedMeshControls.maxGlobalCells}};
+    maxLocalCells       {{castellatedMeshControls.maxLocalCells}};
+    minRefinementCells  {{castellatedMeshControls.minRefinementCells}};
+    maxLoadUnbalance    {{castellatedMeshControls.maxLoadUnbalance}};
+    nCellsBetweenLevels {{castellatedMeshControls.nCellsBetweenLevels}};
+    resolveFeatureAngle {{castellatedMeshControls.resolveFeatureAngle}};
+    allowFreeStandingZoneFaces {{castellatedMeshControls.allowFreeStandingZoneFaces}};
 
-    {%- for x in range(values.geometry|length) %}
-        {% if 'triSurfaceMesh' in values.geometry[x] %}
+
+    locationInMesh toPoint(castellatedMeshControls.locationInMesh);
+
     features
     (
-        {file   "{{values.geometry[x]['triSurfaceMesh']['featuresTSM']['file']}}";
-        levels   {{values.geometry[x]['triSurfaceMesh']['featuresTSM']['levels']}}; }
+        {%- for geometryName,geometryData in geometry.objects.items() %}
+            {
+                file {{geometryData.objectName}}.emesh;
+                level {{geometryData.levels}};
 
-    );
-        {%- endif %}
-    {%- endfor %}
+                {%- set objRegions=geometryData.ObjectRegions %}
+                regions {
+                    {%- for regionName,regionData for objRegions.items()  %}
+                        {{regionName}}
+                        {
+                            name {{regionData.name}};
+                        }
+                    {%- endfor %}
+                }
+            }
+        {%- endfor %}
+    )
+
     refinementSurfaces
     {
-        {%- for x in range(values.geometry|length) %}
-            {%- if 'triSurfaceMesh' in values.geometry[x] %}
-        {{Mname.MgetName(values.geometry[x]['triSurfaceMesh'])}}
-        {
-            level {{values.geometry[x]['triSurfaceMesh']['refinementSurfacesTSM']['level']}};
-            patchInfo { type {{values.geometry[x]['triSurfaceMesh']['refinementSurfacesTSM']['patchInfo']['type']}};}
-        };
-            {% endif %}
-        {%- endfor %}
+
     }
 
     refinementRegions
     {
-        {%- for x in range(values.geometry|length) %}
-            {%- if 'searchableObject' in values.geometry[x] %}
-                {%- for key,value in values.geometry[x]['searchableObject'].items() -%}
-                    {% if key[0:11]=='refinementR' %}
-        {{Mname.MgetName(values.geometry[x]['searchableObject'])}}
-        {
-            mode {{values.geometry[x]['searchableObject'][key]['mode']}};
-            levels {{values.geometry[x]['searchableObject'][key]['levels']}};
-        };
-                    {%- endif %}
-                {%- endfor %}
-            {%- endif %}
-        {%- endfor %}
-    }
 
-    locationInMesh {{values.castellatedMeshControls.locationInMesh}};
+    }
 }
 
 snapControls
 {
-    explicitFeatureSnap    {{values.snapControls.explicitFeatureSnap}};
-    implicitFeatureSnap    {{values.snapControls.implicitFeatureSnap}};
-}
+    nSmoothPatch    {{snapControls.nSmoothPatch}};
+    tolerance       {{snapControls.tolerance}};
+    nSolveIter      {{snapControls.nSolveIter}};
+    nRelaxIter      {{snapControls.nRelaxIter}};
 
-layers
-{
-    {%- for x in range(values.geometry|length) %}
-        {%- if 'triSurfaceMesh' in values.geometry[x] %}
-            {%- if values.geometry[x]['triSurfaceMesh']['layersTSM']|length >0  %}
-    {{Mname.MgetName(values.geometry[x]['triSurfaceMesh'])}}
-{
-nSurfaceLayers {{values.geometry[x]['triSurfaceMesh']['layersTSM']['nSurfaceLayers']}};
-}
-            {%- endif %}
-        {%- endif %}
-    {%- endfor %}
+    nFeatureSnapIter {{snapControls.nFeatureSnapIter}};
+
+    explicitFeatureSnap    {{snapControls.explicitFeatureSnap}};
+    multiRegionFeatureSnap {{snapControls.multiRegionFeatureSnap}};
+    implicitFeatureSnap    {{snapControls.implicitFeatureSnap}};
+
 }
 
 addLayersControls
 {
-
-    // Are the thickness parameters below relative to the undistorted
-    // size of the refined cell outside layer (true) or absolute sizes (false).
-    relativeSizes {{values.addLayersControls.relativeSizes}};
-
     // Per final patch (so not geometry!) the layer information
     layers
     {
 
     }
 
+    // Are the thickness parameters below relative to the undistorted
+    // size of the refined cell outside layer (true) or absolute sizes (false).
+    relativeSizes {{addLayersControls.relativeSizes}};
+
     // Expansion factor for layer mesh
-    expansionRatio {{values.addLayersControls.expansionRatio}};
+    expansionRatio {{addLayersControls.expansionRatio}};
 
     // Wanted thickness of final added cell layer. If multiple layers
     // is the
@@ -140,76 +125,119 @@ addLayersControls
     // Relative to undistorted size of cell outside layer.
     // is the thickness of the layer furthest away from the wall.
     // See relativeSizes parameter.
-    finalLayerThickness {{values.addLayersControls.finalLayerThickness}};
+    finalLayerThickness {{addLayersControls.finalLayerThickness}};
 
     // Minimum thickness of cell layer. If for any reason layer
     // cannot be above minThickness do not add layer.
     // Relative to undistorted size of cell outside layer.
-    minThickness {{values.addLayersControls.minThickness}};
+    minThickness {{addLayersControls.minThickness}};
 
     // If points get not extruded do nGrow layers of connected faces that are
     // also not grown. This helps convergence of the layer addition process
     // close to features.
     // Note: changed(corrected) w.r.t 17x! (didn't do anything in 17x)
-    nGrow {{values.addLayersControls.nGrow}};
+    nGrow {{addLayersControls.nGrow}};
 
     // Advanced settings
 
     // When not to extrude surface. 0 is flat surface, 90 is when two faces
     // are perpendicular
-    featureAngle {{values.addLayersControls.featureAngle}};
+    featureAngle {{addLayersControls.featureAngle}};
 
     // At non-patched sides allow mesh to slip if extrusion direction makes
     // angle larger than slipFeatureAngle.
-    slipFeatureAngle {{values.addLayersControls.slipFeatureAngle}};
+    slipFeatureAngle {{addLayersControls.slipFeatureAngle}};
 
     // Maximum number of snapping relaxation iterations. Should stop
     // before upon reaching a correct mesh.
-    nRelaxIter {{values.addLayersControls.nRelaxIter}};
+    nRelaxIter {{addLayersControls.nRelaxIter}};
 
     // Number of smoothing iterations of surface normals
-    nSmoothSurfaceNormals {{values.addLayersControls.nSmoothSurfaceNormals}};
+    nSmoothSurfaceNormals {{addLayersControls.nSmoothSurfaceNormals}};
 
     // Number of smoothing iterations of interior mesh movement direction
-    nSmoothNormals {{values.addLayersControls.nSmoothNormals}};
+    nSmoothNormals {{addLayersControls.nSmoothNormals}};
 
     // Smooth layer thickness over surface patches
-    nSmoothThickness {{values.addLayersControls.nSmoothThickness}};
+    nSmoothThickness {{addLayersControls.nSmoothThickness}};
 
     // Stop layer growth on highly warped cells
-    maxFaceThicknessRatio {{values.addLayersControls.maxFaceThicknessRatio}};
+    maxFaceThicknessRatio {{addLayersControls.maxFaceThicknessRatio}};
 
     // Reduce layer growth where ratio thickness to medial
     // distance is large
-    maxThicknessToMedialRatio {{values.addLayersControls.maxThicknessToMedialRatio}};
+    maxThicknessToMedialRatio {{addLayersControls.maxThicknessToMedialRatio}};
 
     // Angle used to pick up medial axis points
     // Note: changed(corrected) w.r.t 17x! 90 degrees corresponds to 130 in 17x.
-    minMedianAxisAngle {{values.addLayersControls.minMedianAxisAngle}};
+    minMedianAxisAngle {{addLayersControls.minMedianAxisAngle}};
 
 
     // Create buffer region for new layer terminations
-    nBufferCellsNoExtrude {{values.addLayersControls.nBufferCellsNoExtrude}};
+    nBufferCellsNoExtrude {{addLayersControls.nBufferCellsNoExtrude}};
 
 
     // Overall max number of layer addition iterations. The mesher will exit
     // if it reaches this number of iterations; possibly with an illegal
     // mesh.
-    nLayerIter {{values.addLayersControls.nLayerIter}};
+    nLayerIter {{addLayersControls.nLayerIter}};
 
 }
 
 meshQualityControls
 {
+
+
+    maxNonOrtho       {{meshQualityControls.maxNonOrtho}};
+
+    maxBoundarySkewness {{meshQualityControls.maxBoundarySkewness}};
+
+    maxInternalSkewness {{meshQualityControls.maxInternalSkewness}};
+
+    maxConcave        {{meshQualityControls.maxConcave}};
+
+    // Minimum cell pyramid volume; case dependent
+    minVol            {{meshQualityControls.minVol}};
+
+    minTetQuality    {{meshQualityControls.minTetQuality}};
+
+    // if >0 : preserve single cells with all points on the surface if the
+    // resulting volume after snapping (by approximation) is larger than
+    // minVolCollapseRatio times old volume (i.e. not collapsed to flat cell).
+    //  If <0 : delete always.
+    //minVolCollapseRatio 0.5;
+
+    minArea          {{meshQualityControls.minArea}};
+
+    minTwist          {{meshQualityControls.minTwist}};
+
+    minDeterminant    {{meshQualityControls.minDeterminant}};
+
+    minFaceWeight     {{meshQualityControls.minFaceWeight}};
+
+    minVolRatio       {{meshQualityControls.minVolRatio}};
+
+    minTriangleTwist {{meshQualityControls.minTriangleTwist}};
+
+    nSmoothScale      {{meshQualityControls.nSmoothScale}};
+
+    errorReduction    {{meshQualityControls.errorReduction}};
+
+    relaxed
+    {
+        maxNonOrtho       {{meshQualityControls.relaxed}};
+    }
+
+
 }
 
 writeFlags
 (
-    {%- for x in range(values.writeFlags|length) %}
-    {{values.writeFlags[x]}}
+    {%- for x in range(writeFlags|length) %}
+    {{writeFlags[x]}}
     {%- endfor %}
 );
 
-mergeTolerance {{values.mergeTolerance}};
+mergeTolerance {{mergeTolerance}};
 
 // ************************************************************************* //
