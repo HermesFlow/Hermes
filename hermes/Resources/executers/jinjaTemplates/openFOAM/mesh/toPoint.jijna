@@ -1,3 +1,0 @@
-{%- macro toPoint(vertices) -%}
-  ({%- for coord in pnt %} {{ coord }} {%- endfor %})
-{%- endmacro %}

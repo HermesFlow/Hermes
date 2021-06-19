@@ -82,10 +82,10 @@ Noga:
         return dict(openFOAMfile=output)
 
 
-class snappyHexMeshDict(jinjaExecuter):
+class snappyHexMeshExecuter(jinjaExecuter):
 
     def run(self, **inputs):
 
-        template = self._getTemplate("openFOAM/mesh/snappyHexMeshDict")
+        template = self._getTemplate("openFOAM/mesh/SnappyHexMeshDict")
         output = template.render(**inputs)
         return dict(openFOAMfile=output)

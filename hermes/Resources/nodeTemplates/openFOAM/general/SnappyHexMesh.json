@@ -1,17 +1,17 @@
 {
   "Execution": {
-    "type": "openFOAM.meshExecuters.snappyHexMeshDict",
+    "type": "openFOAM.meshExecuters.snappyHexMesh",
     "input_parameters": {
       "modules": {
         "castellatedMesh": true,
         "snap": true,
-        "addLayers": true
+        "addLayers": true,
+        "mergeTolerance" : 1e-6
       },
       "geometry": {
-        "objects": {
-        },
-        "regions" : {
-        }
+        "objects": {},
+        "refinementSurfaces": {},
+        "regions": {}
       },
       "castellatedMeshControls": {
         "maxLocalCells": 100000,

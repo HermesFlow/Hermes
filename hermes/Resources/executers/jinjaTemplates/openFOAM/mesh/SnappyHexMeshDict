@@ -20,17 +20,27 @@ castellatedMesh {{ 'on' if modules.castellatedMesh else 'off' }};
 snap            {{ 'on' if modules.snap else 'off' }};
 addLayers       {{ 'on' if modules.layer else 'off' }};
 
-{%- import "openFOAM/mesh/toPoint.jinja" %}
+{%- import "openFOAM/mesh/utils.jinja" as utils %}
 
 geometry
 {
     {%- for geometryName,geometryData in geometry.objects.items() %}
-        {{geometryName}}
-        {
-            type triSurfaceMesh;
-            file "{{geometryData.objectName}}.{{geometryData.objectType}}";
+    {{geometryName}}
+    {
+        type triSurfaceMesh;
+        file "{{geometryData.objectName}}.{{geometryData.objectType}}";
 
+        {%- set objRegions=geometryData.ObjectRegions %}
+        regions {
+            {%- for regionName,regionData in objRegions.items()  %}
+                {{regionName}}
+                {
+                    name {{regionData.name}};
+                }
+            {%- endfor %}
         }
+
+    }
     {%- endfor %}
 
     {%- for regionName,regionData in geometry.regions.items() %}
@@ -38,7 +48,7 @@ geometry
         {
             type {{regionData.type}}
             {%- for regionGeometryName,regionGeometryData in regionData.data.items() %}
-                {{regionGeometryName}} toPoint(regionGeometryData)
+                {{regionGeometryName}} {{utils.toPoint(regionGeometryData)}}
             {%- endfor %}
         }
     {%- endfor %}
@@ -53,34 +63,30 @@ castellatedMeshControls
     maxLoadUnbalance    {{castellatedMeshControls.maxLoadUnbalance}};
     nCellsBetweenLevels {{castellatedMeshControls.nCellsBetweenLevels}};
     resolveFeatureAngle {{castellatedMeshControls.resolveFeatureAngle}};
-    allowFreeStandingZoneFaces {{castellatedMeshControls.allowFreeStandingZoneFaces}};
+    allowFreeStandingZoneFaces {%- if castellatedMeshControls.allowFreeStandingZoneFaces%} true {%- else %} false {%- endif %};
 
-
-    locationInMesh toPoint(castellatedMeshControls.locationInMesh);
+    locationInMesh {{utils.toPoint(castellatedMeshControls.locationInMesh)}};
 
     features
     (
         {%- for geometryName,geometryData in geometry.objects.items() %}
             {
-                file {{geometryData.objectName}}.emesh;
+                file "{{geometryData.objectName}}.eMesh";
                 level {{geometryData.levels}};
-
-                {%- set objRegions=geometryData.ObjectRegions %}
-                regions {
-                    {%- for regionName,regionData for objRegions.items()  %}
-                        {{regionName}}
-                        {
-                            name {{regionData.name}};
-                        }
-                    {%- endfor %}
-                }
             }
         {%- endfor %}
-    )
+    );
 
     refinementSurfaces
     {
+    {%- for geometryName,geometryData in geometry.objects.items() %}
+        {{geometryName}}
+        {
+            level {{utils.toPoint(geometryData.refinementSurfaceLevels)}};
+            patchInfo { type {{geometryData.patchType}}; }
 
+        }
+    {%- endfor %}
     }
 
     refinementRegions
@@ -98,9 +104,9 @@ snapControls
 
     nFeatureSnapIter {{snapControls.nFeatureSnapIter}};
 
-    explicitFeatureSnap    {{snapControls.explicitFeatureSnap}};
-    multiRegionFeatureSnap {{snapControls.multiRegionFeatureSnap}};
-    implicitFeatureSnap    {{snapControls.implicitFeatureSnap}};
+    explicitFeatureSnap    {%- if snapControls.explicitFeatureSnap%} true {%- else %} false {%- endif %};
+    multiRegionFeatureSnap {%- if snapControls.multiRegionFeatureSnap%} true {%- else %} false {%- endif %};
+    implicitFeatureSnap    {%- if snapControls.implicitFeatureSnap%} true {%- else %} false {%- endif %};
 
 }
 
@@ -225,7 +231,7 @@ meshQualityControls
 
     relaxed
     {
-        maxNonOrtho       {{meshQualityControls.relaxed}};
+        maxNonOrtho       {{meshQualityControls.relaxed.maxNonOrtho}};
     }
 
 
@@ -238,6 +244,6 @@ writeFlags
     {%- endfor %}
 );
 
-mergeTolerance {{mergeTolerance}};
+mergeTolerance {{modules.mergeTolerance}};
 
 // ************************************************************************* //

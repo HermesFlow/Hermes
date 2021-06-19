@@ -14,14 +14,14 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-{%- import "openFOAM/mesh/toPoint.jinja" %}
+{%- import "openFOAM/mesh/utils.jinja"  as utils %}
 
 convertToMeters {{geometry.convertToMeters}};
 
 vertices
 (
     {%- for pnt in vertices %}
-        toPoint(vertices)
+        {{utils.toPoint(vertices)}}
     {%- endfor %}
 );
 
@@ -32,9 +32,9 @@ vertices
 blocks
 (
     hex (0 1 2 3 4 5 6 7)
-    toPoint(geometry.cellCount)
+    {{utils.toPoint(geometry.cellCount)}}
     simpleGrading
-    toPoint(geometry.grading)
+    {{utils.toPoint(geometry.grading)}}
 );
 
 edges
@@ -44,13 +44,13 @@ edges
 boundary
 (
     {%- for bndry in boundary %}
-        {{bndry.name }}
+        {{bndry.name}}
         {
             type {{bndry.type}};
             faces
             (
                 {%- for indx in range(bndry.faces|length)%}
-                       toPoint(bndry.faces[indx])
+                       {{utils.toPoint(bndry.faces[indx])}}
                 {%- endfor %}
 
             );
