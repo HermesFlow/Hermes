@@ -14,11 +14,7 @@ class BlockMeshExecuter(jinjaExecuter):
             "geometry": {
                     "convertToMeters" : "...",
                     "cellCount" : (50,50,30)
-                    "grading" : {
-                        "x"
-                        "y"
-                        "z"
-                    }
+                    "grading" : [ x x x ]
             },
             "boundary" : [
                 {
@@ -83,4 +79,13 @@ Noga:
         # render jinja for the choosen template
         output = template.render(geometry = geometry, boundary = boundary, vertices = vertices)
 
+        return dict(openFOAMfile=output)
+
+
+class snappyHexMeshDict(jinjaExecuter):
+
+    def run(self, **inputs):
+
+        template = self._getTemplate("openFOAM/mesh/snappyHexMeshDict")
+        output = template.render(**inputs)
         return dict(openFOAMfile=output)

@@ -57,10 +57,6 @@ class fvSolution(abstractExecuter):
     def run(self, **inputs):
         return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSolution",**inputs)}
 
-class snappyHexMeshDict(abstractExecuter):
-
-    def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/snappyHexMeshDict",**inputs)}
 
 class transportProperties(abstractExecuter):
 
