@@ -124,7 +124,6 @@ class utils(object):
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 valueList = []
-                #value=""
                 tokenList = hermes.hermesTaskWrapper.parsePath(parampath)
                 for token,ispath in tokenList:
                     if ispath:
@@ -142,9 +141,7 @@ class utils(object):
                         valueList.append(value)
                     else:
                         valueList.append(token)
-                        #value=token
                 ret[paramname] = "".join(valueList)
-                #ret[paramname] =value
 
             elif isinstance(parampath, dict):
                 param_ret = {}
