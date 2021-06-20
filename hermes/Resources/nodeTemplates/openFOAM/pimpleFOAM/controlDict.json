@@ -1,0 +1,17 @@
+{
+  "Execution": {
+    "type": "jinjaExecuters.jinja",
+    "input_parameters": {
+      "values": "{WebGui.formData}",
+      "template": "openFOAM/pimpleFOAM/controlDict"
+    }
+  },
+  "GUI": {
+    "Type": "WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.pimpleFOAM.WebGui.ControlDictWebGui"
+    }
+  }
+}

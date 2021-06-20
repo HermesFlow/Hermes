@@ -1,0 +1,10 @@
+{
+  "Execution": {
+    "type": "generalExecuters.FilesWriter"
+  },
+  "GUI": {
+    "Type": "WebGuiNode",
+    "Properties": {},
+    "WebGui": {}
+  }
+}

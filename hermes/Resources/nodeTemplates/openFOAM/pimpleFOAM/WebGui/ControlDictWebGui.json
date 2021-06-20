@@ -156,7 +156,7 @@
         } 
 	},
 	"formData":{
-        "application": "simpleFoam",
+        "application": "pimpleFoam",
         "startFrom": "startTime",
         "startTime": 0,
         "stopAt": "endTime",
@@ -166,14 +166,14 @@
         "writeInterval": 100,
         "purgeWrite": 0,
         "writeFormat": "ascii",
-        "writePrecision": 7,
-        "writeCompression":false,
+        "writePrecision": 6,
+        "writeCompression":"off",
         "timeFormat": "general",
         "timePrecision": 6,
-        "runTimeModifiable": true,
-        "interpolate": true,
-         "functions": [
-            "probes.txt"
-         ]
+        "runTimeModifiable": "false",
+        "adjustTimeStep": "no",
+        "maxCo": "0.5",
+        "functions": [""],
+        "libs": ""
 	}
 }

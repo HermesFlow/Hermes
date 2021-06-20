@@ -11,7 +11,6 @@ import os
 import collections.abc
 
 
-
 class expandWorkflow():
     """ this class is taking a json with reference
       to other files , end inject the data from those other
@@ -26,9 +25,17 @@ class expandWorkflow():
         return d
 
 
+    @property
+    def templateCenter(self):
+        return self._templateCenter
+
     def __init__(self):
         self.getFromTemplate = "Template"
         self.importJsonfromfile = "importJsonfromfile"
+
+        paths = None
+        self._templateCenter = templateCenter(paths)
+
 
         self.cwd = ""
         self.WD_path = ""
@@ -52,7 +59,9 @@ class expandWorkflow():
             Dict.
         """
 
-        JsonObjectfromFile = self.loadJsonFromfile(templateJSON)
+        with open(templateJSON, 'r') as myfile:
+            JsonObjectfromFile  = json.load(myfile)
+
 
         # define the current working directory - where the json file has been uploaded
         self.cwd = os.path.dirname(templateJSON)
@@ -211,11 +220,11 @@ class expandWorkflow():
     def overidaDataFunc(self, overideData, UpdatedJsonStruct):
 
         # loop all the overide data
+
         for dataKey, dataVal in overideData.items():
 
             # check for each key, if exsist in UpdatedJsonStruct
             if dataKey in UpdatedJsonStruct:
-
                 # type is dictionary
                 if type(dataVal) is dict:
 
@@ -227,37 +236,17 @@ class expandWorkflow():
 
                     else:
                         # recursion of override on the dict
-                        UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        if isinstance(UpdatedJsonStruct[dataKey],dict):
+                            UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        else:
+                            UpdatedJsonStruct[dataKey] = dataVal
 
-                # type is 'list'
-                elif type(dataVal) is list:
-
-                    # check if 'dataKey' in the structure is empty
-                    if len(UpdatedJsonStruct[dataKey]) == 0:
-
-                        # take all the data in dataVal and insert to 'dataKey' place in the structure
-                        UpdatedJsonStruct[dataKey] = dataVal
-
-                    # add items to the existing list
-                    else:
-
-                        # loop all items in the list
-                        for i in range(len(dataVal)):
-
-                            # if item not in structure list
-                            if not (dataVal[i] in UpdatedJsonStruct[dataKey]):
-                                # add the item from overide data
-                                UpdatedJsonStruct[dataKey].append(dataVal[i])
-
-                # any other type (int,boolean..)
+                # type is any other data type.
                 else:
-                    # update its data from overide
                     UpdatedJsonStruct[dataKey] = dataVal
-
 
             # dataKey not exist in UpdatedJsonStruct
             else:
-
                 # add to the dictionary
                 UpdatedJsonStruct[dataKey] = dataVal
 
@@ -374,10 +363,8 @@ class expandWorkflow():
 
         # Open JsonFile & Read
         with open(filePath, 'r') as myfile:
-            data = myfile.read()
+            dataParsed = json.load(myfile)
 
-        # parse data and return it
-        dataParsed = json.loads(data)
 
         # No split the 'entryInFile' and get the data from that path
         if (len(entryInFile) == 0):

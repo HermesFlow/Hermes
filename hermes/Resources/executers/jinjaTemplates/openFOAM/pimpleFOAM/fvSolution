@@ -56,7 +56,7 @@ PIMPLE
     nNonOrthogonalCorrectors    {{values.algorithms.0.PIMPLEproperties.nNonOrthogonalCorrectorsPIMPLE}};
     pRefCell                    {{values.algorithms.0.PIMPLEproperties.pRefCellPIMPLE}};
     pRefValue                   {{values.algorithms.0.PIMPLEproperties.pRefValuePIMPLE}};
-
+    momentumPredictor           {{values.algorithms.0.PIMPLEproperties.momentumPredictorPIMPLE}};
 }
 
 

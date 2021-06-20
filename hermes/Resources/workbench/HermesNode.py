@@ -5,6 +5,12 @@ if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
+    import PySide
+    # from PySide import QtGui, QtCore
+    # from PySide.QtGui import *
+    # from PySide.QtCore import *
+
+
 # python modules
 from PyQt5 import QtGui,QtCore
 import json
@@ -16,6 +22,8 @@ import HermesTools
 from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 from HermesBlockMesh import HermesBlockMesh
+
+
 
 
 
@@ -181,7 +189,7 @@ class _HermesNode(_SlotHandler):
 
         if self.name == "BlockMesh":
             # link part - link to 1 part - Inherite from parent BM
-            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link blockMesh node to part")
+            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link mesh node to part")
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -561,7 +569,9 @@ class _GeometryDefinerNode(_HermesNode):
         TypeList = GeometryFaceTypes["TypeList"]
 
         # get the list of Geometry Entities that has been saved
-        GeometryEntityList = self.nodeData["GeometryEntityList"]
+        # GeometryEntityList = self.nodeData["GeometryEntityList"]
+        # To make sure entities are not uploaded from json
+        GeometryEntityList = []
 
         # Loop all the Geometry Entities that has been saved (GE = GeometryEntity )
         for y in GeometryEntityList:
@@ -574,6 +584,8 @@ class _GeometryDefinerNode(_HermesNode):
 
             # Create the GE node
             GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GEnum, obj)
+            if GENodeObj is None:
+                return None
 
             # get the GE properties, and update their current value
             GEProperties = GEnum["Properties"]
@@ -703,15 +715,111 @@ class _GeometryDefinerNode(_HermesNode):
 
         # Create the GEObject
         GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GENodeData, obj)
+        if GENodeObj is None:
+            return None
 
         # get the References from the parent node to the the new GE child
         GENodeObj.References = obj.References
-        # print(GENodeObj.References)
+        GENodeObj.Proxy.geDialogClosed(GENodeObj, GEtype, GEname)
+
 
         # Empty the parent node References for further use
         obj.References = []
 
         return
+
+# =============================================================================
+# #_CommandGeometryDefinerSelection
+# =============================================================================
+class _CommandGeometryDefinerSelection:
+    """ Geometry Definer selection command definition """
+
+    def GetResources(self):
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
+        # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
+
+        return {'Pixmap': icon_path,
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer as obj")}
+
+    def IsActive(self):
+        GD = FreeCAD.ActiveDocument.getObjectsByLabel("GeometryDefiner")[0]
+        if GD is not None:
+            children = GD.Group
+            if len(children) > 0:
+                return True
+            else:
+                return False
+        return False
+
+    def Activated(self):
+        FreeCAD.ActiveDocument.openTransaction("Choose export")
+
+        # get GeometryDefiner FreeCAD object
+        GD = FreeCAD.ActiveDocument.getObjectsByLabel("GeometryDefiner")[0]
+
+        # add all GeometryDefiner objects to a list
+        objs = []
+        for child in GD.Group:
+            objs.append(child)
+
+        # create help cube
+        h_cube = FreeCAD.ActiveDocument.addObject("Part::Box", "NoNameCube")
+        # h_cube.Label = "NoNameCube"
+        FreeCAD.ActiveDocument.recompute()
+        # Add to objs list -> in case of 1 object will still exports in names
+        objs.append(h_cube)
+
+        # save file in wanted location
+        self.save_obj_file(objs)
+
+        #  remove help object
+        FreeCAD.ActiveDocument.removeObject("NoNameCube")
+
+        del objs
+
+    def save_obj_file(self, objs):
+        import Mesh
+        import re
+
+        # what the dialog open dir - path
+        # path = FreeCAD.ConfigGet("UserAppData")
+        path = os.getcwd()
+
+        try:
+            SaveName = QFileDialog.getSaveFileName(None, QString.fromLocal8Bit("Save Geometry Definer as obj file"), path,
+                                                   "*.obj")  # PyQt4
+        #                          "here the text displayed on windows" "here the filter (extension)"
+
+        except Exception:
+            SaveName, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save Geometry Definer as obj file", path,
+                                                                        "*.obj")  # PySide
+        #       "here the text displayed on windows" "here the filter (extension)"
+
+        if SaveName == "":  # if the name file are not selected then Abord process
+            FreeCAD.Console.PrintMessage("Export obj file aborted" + "\n")
+        else:  # if the name file are selected
+            # remove unnecessary suffix if user added it
+            if SaveName.endswith(".obj"):
+                SaveName = re.sub('\.obj$', '', SaveName)
+
+            FreeCAD.Console.PrintMessage(
+                "Exporting file " + SaveName + ".obj" + "\n")  # text displayed to Report view (Menu > View > Report view checked)
+            try:  # if error detected to export ...
+                outpath = u"" + SaveName + ".obj"
+                Mesh.export(objs, outpath)
+            except Exception:  # if error detected to write
+                FreeCAD.Console.PrintError(
+                        "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
+
+
+
+
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('GeometryDefinerSelection', _CommandGeometryDefinerSelection())
+
 
 # =============================================================================
 # #_BlockMeshNode
@@ -744,13 +852,17 @@ class _BlockMeshNode(_GeometryDefinerNode):
         TypeList = GeometryFaceTypes["TypeList"]
 
         # get the list of Geometry Entities that has been saved
-        boundaryList = self.nodeData["boundary"]
+        # boundaryList = self.nodeData["boundary"]
+        # to make sure entities are not uploaded from json
+        boundaryList = []
 
         # Loop all the Geometry Entities that has been saved (BME = BlockMeshEntity )
         for boundary in boundaryList:
 
             # Create the BME node
             BMENodeObj = HermesGeometryDefinerNode.makeEntityNode('BME', TypeList, boundary, obj)
+            if BMENodeObj is None:
+                return None
 
             # get the GE properties, and update their current value
             GEProperties = boundary["Properties"]
@@ -784,7 +896,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
             workflowObj = obj.getParentGroup()
 
             # create the part
-            partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+            # partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
+            partNameFC = ""
 
             # make sure part imported
             if len(partNameFC) != 0:
@@ -826,8 +939,9 @@ class _BlockMeshNode(_GeometryDefinerNode):
             partDict = workflowObj.Proxy.partList[partName]
             vertices = partDict["Vertices"]["openFoam"]
 
-            # export BM part
-            workflowObj.Proxy.ExportPart(partName)
+            # export BM partand json - do no export part here
+            # remove connection part
+            # workflowObj.Proxy.ExportPart(partName)
 
             # update vertices in nodedata
             self.updateVertices(vertices)
