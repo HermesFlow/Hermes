@@ -63,7 +63,7 @@ class _HermesWorkflow:
         self.JsonObject = None
         self.JsonObjectString = ""
         self.Templates = None
-        self.nLastNodeId = "-1"
+        # self.nLastNodeId = "-1"
         self.partPathListFromJson = []
         self.partNameListFromJson = []
         #        self.partPathExportList=[]
@@ -106,11 +106,11 @@ class _HermesWorkflow:
         #        addObjectProperty(obj, "HermesLink", "", "App::PropertyLink", "", "Link to",4)
 
         # Active property- keep if obj has been activated (douuble clicked get active)
-        addObjectProperty(obj, "IsActiveWorkflow", False, "App::PropertyBool", "",
+        addObjectProperty(obj, "IsActiveObj", False, "App::PropertyBool", "",
                           "Active hermes workflow object in document")
 
         # make some properties to be 'read-only'
-        obj.setEditorMode("IsActiveWorkflow", 1)  # Make read-only (2 = hidden)
+        obj.setEditorMode("IsActiveObj", 1)  # Make read-only (2 = hidden)
         obj.setEditorMode("Group", 1)
 
         # RunWorkflow property - Run the workflow as a basic to luigi if change to true
@@ -121,7 +121,7 @@ class _HermesWorkflow:
 
     def onDocumentRestored(self, obj):
 
-        self.nLastNodeId = "-1"
+        # self.nLastNodeId = "-1"
 
         # when restored- initilaize properties
         self.initProperties(obj)
@@ -318,22 +318,32 @@ class _HermesWorkflow:
 
         return
 
-    def updateLastNode(self, obj, nNodeId):
+    # def updateLastNode(self, obj, nNodeId):
+    def updateLastNode(self, obj):
+
         # backup LastNode data
 
-        # loop all children in HermesWorkflow
-        for child in obj.Group:
+        # loop all objects in the document
+        objsFC = FreeCAD.ActiveDocument.Objects
+        # check if it is root partent HemesWorkfloe
+        for o in objsFC:
+            if o == obj:
+                o.IsActiveObj = False
 
-            # find the child object that have the same index as 'nLastNodeId'
-            if (child.NodeId == self.nLastNodeId):
-                # backup child 'nodeDate'
-                child.Proxy.backupNodeData(child)
+            # make sure it is not a part
+            elif o.Module == 'App':
+            # find the obj object that "is active"
 
-                # update the node active property to false
-                child.IsActiveNode = False
+                if o.IsActiveObj:
+
+                    # backup obj 'nodeDate'
+                    o.Proxy.backupNodeData(o)
+
+                    # update the node active property to false
+                    o.IsActiveObj = False
 
         # Update the new 'nLastNodeId'
-        self.nLastNodeId = nNodeId
+        # self.nLastNodeId = nNodeId
 
     def updateJsonBeforeExport(self, obj):
 

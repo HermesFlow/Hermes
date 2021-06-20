@@ -15,10 +15,10 @@ if FreeCAD.GuiUp:
 
 path_to_faceselection_wizard_ui = FreeCAD.getResourceDir() + "Mod/Hermes/Resources/ui/TaskPanelCfdListOfFaces.ui"
 
-class CfdFaceSelectWidget:
+class HermesCfdFaceSelectWidget:
     def __init__(self, parent_widget, obj, allow_face_sel, allow_solid_sel,
                  allow_point_sel=False, allow_edge_sel=False):
-        
+
         #NO-define widget parameters
         self.parent_widget = parent_widget
         self.form = FreeCADGui.PySideUic.loadUi(path_to_faceselection_wizard_ui, self.parent_widget)

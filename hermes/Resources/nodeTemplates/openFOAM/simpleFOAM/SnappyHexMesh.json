@@ -7,11 +7,28 @@
     }
   },
   "GUI": {
-    "Type": "WebGuiNode",
+    "Type": "SnappyHexMesh",
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGui"
+      "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGuiNoGeometry"
+    },
+    "Geometry": {
+      "Type": "SnappyHexMeshGeometry",
+      "Properties": {},
+      "WebGui": {},
+      "Entities": {
+        "TemplateEntity": {
+          "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.GeometryOFEntity"
+        },
+        "items": {
+        }
+      }
+    },
+    "Refinement": {
+      "Type": "WebGuiNode",
+      "Properties": {},
+      "WebGui": {}
     }
   }
 }

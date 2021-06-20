@@ -1,0 +1,16 @@
+{
+  "Type": "WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"SnappyHexMesh Geometry",
+      "description":"",
+      "type":"object",
+      "properties": {
+        "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.triSurfaceMesh"
+      }
+    },
+    "uiSchema":{},
+    "formData":{}
+  }
+}

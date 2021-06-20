@@ -15,7 +15,7 @@ import json
 import copy
 
 import HermesNode
-import CfdFaceSelectWidget
+import HermesCfdFaceSelectWidget
 import HermesPart
 
 
@@ -49,7 +49,7 @@ class CGEDialogPanel:
         #        self.GEObjName=obj.Name
 
         # Face list selection panel - modifies obj.References passed to it
-        self.faceSelector = CfdFaceSelectWidget.CfdFaceSelectWidget(self.form.m_pFaceSelectWidget,
+        self.faceSelector = HermesCfdFaceSelectWidget.HermesCfdFaceSelectWidget(self.form.m_pFaceSelectWidget,
                                                                     obj, True, False)
 
     def addGE(self, geType):
@@ -116,7 +116,7 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     # s = FreeCADGui.Selection.getSelectionEx()
     s = mvRefToSel(Nodeobj)
     if s is None:
-        FreeCAD.Console.PrintWarning("Must select faces to create Geometry Definer Entity")
+        FreeCAD.Console.PrintWarning("Must select faces to create " + Nodeobj.Label + " Entity \n")
         return None
 
     # create facebinder object - part of draft Module
@@ -250,10 +250,7 @@ class _HermesGE(_Facebinder):
         #     obj.setEditorMode("partLink", 1)
 
         # Active property- keep if obj has been activated (douuble clicked get active)
-        addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
-
-        # Active property- keep if obj has been activated (douuble clicked get active)
-        addObjectProperty(obj, "IsActiveGE", False, "App::PropertyBool", "", "Active heraccept object in document")
+        addObjectProperty(obj, "IsActiveObj", False, "App::PropertyBool", "", "Active heraccept object in document")
 
         # EntityNodeDataString property - keep the json GE node data as a string
         addObjectProperty(obj, "EntityNodeDataString", "-1", "App::PropertyString", "EntityNodeData", "Data of the node", 4)
@@ -639,7 +636,7 @@ class _HermesBME(_HermesGE):
             addObjectProperty(obj, "partLink", getattr(Nodeobj, "partLink"), "App::PropertyLink", "part", "Link GE to part")
             obj.setEditorMode("partLink", 1)
 
-        # if type cyclic - update the Enumeration list in neighbour property for all cyclic types
+        # if type cyclic - update the Enumeration list in neighbourPatch property for all cyclic types
         if obj.Type == "cyclic":
 
             # loop all BlockMesh children
@@ -652,22 +649,22 @@ class _HermesBME(_HermesGE):
                     # check if the current entity is cyclic
                     if BME.Type == "cyclic":
 
-                        # make sure neighbour property is defined
-                        if "neighbour" in BME.PropertiesList:
+                        # make sure neighbourPatch property is defined
+                        if "neighbourPatch" in BME.PropertiesList:
 
-                            # get the current value at the neighbour enum
-                            currentVal = BME.neighbour
+                            # get the current value at the neighbourPatch enum
+                            currentVal = BME.neighbourPatch
 
-                            # remove the current entity from cyclicList - cannot be its own neighbour
+                            # remove the current entity from cyclicList - cannot be its own neighbourPatch
                             cyclicList.remove(BME.Label)
 
                             if len(cyclicList) > 0:
-                                # update the list of neighbour enum
-                                BME.neighbour = cyclicList
+                                # update the list of neighbourPatch enum
+                                BME.neighbourPatch = cyclicList
 
                                 # if it is not the default value, update the current value in enum(keep value while changing the enum list)
                                 if currentVal != "notSet":
-                                    setattr(BME, "neighbour", currentVal)
+                                    setattr(BME, "neighbourPatch", currentVal)
 
 
 

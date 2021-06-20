@@ -52,7 +52,7 @@ boundary
     {
         type {{tmpBoundary.Type}};
         {%- if tmpBoundary.Type == "cyclic" %}
-        neighbourPatch {{tmpBoundary.Properties.Property01.current_val}}
+        neighbourPatch {{tmpBoundary.Properties.Property01.current_val}};
         {%- endif %}
         faces
         (

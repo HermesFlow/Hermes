@@ -1,0 +1,41 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "SnappyHexMesh",
+            "ControlDict",
+            "FileWriter"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "SnappyHexMesh":{
+                "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
+            },
+            "ControlDict":{
+                "Template": "openFOAM.simpleFOAM.ControlDict"
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/BlockMesh": "{BlockMesh.output.openFOAMfile}",
+                            "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
+            }
+        }
+    }
+}

@@ -1,7 +1,8 @@
 { 
     "typeTSM":{ 
         "type":"string",
-        "title":"type"
+        "title":"type",
+        "default": "triSurfaceMesh"
     },
     "toleranceTSM":{ 
         "type":"number",
