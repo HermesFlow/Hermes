@@ -6,6 +6,16 @@ class decomposeparExecuter(jinjaExecuter):
 
         templateName = "openFOAM/decomposepar"
         template = self._getTemplate(templateName)
-        print(inputs)
         output = template.render(**inputs)
         return dict(openFOAMfile=output)
+
+
+class controlDictExecuter(jinjaExecuter):
+
+    def run(self, **inputs):
+        templateName = "openFOAM/ControlDict"
+        template = self._getTemplate(templateName)
+        output = template.render(**inputs)
+        return dict(openFOAMfile=output)
+
+

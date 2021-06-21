@@ -45,10 +45,14 @@ timePrecision   {{values.timePrecision}};
 
 runTimeModifiable {{values.runTimeModifiable}};
 
-// adjustTimeStep  yes;
+adjustTimeStep  {%- if values.adjustTimeStep %} yes {% else %} no {%- endif %};
 
-// maxCo           1;
+maxCo           {{values.maxCo}};
 
-interpolate     {{values.interpolate}};
 
-functions       {{values.functions}};
+functions
+{
+    {%- for function in values.functions %}
+       {{function}};
+    {%- endfor %}
+}

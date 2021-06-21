@@ -41,27 +41,31 @@ class CopenFOAM():
 
         return openFOAMString
 
-class controlDict(abstractExecuter):
+
+class fvSchemesExecuter(jinjaExecuter):
 
     def run(self, **inputs):
+        templateName = "openFOAM/simpleFOAM/FvSchemes"
+        template = self._getTemplate(templateName)
+        output = template.render(**inputs)
+        return dict(openFOAMfile=output)
 
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/controlDict",**inputs)}
-
-class fvSchemes(abstractExecuter):
-
-    def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSchemes",**inputs)}
-
-class fvSolution(abstractExecuter):
+class fvSolutionExecuter(jinjaExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSolution",**inputs)}
+        templateName = "openFOAM/simpleFOAM/FvSolution"
+        template = self._getTemplate(templateName)
+        output = template.render(**inputs)
+        return dict(openFOAMfile=output)
 
-
-class transportProperties(abstractExecuter):
+class transportPropertiesExecuter(jinjaExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/transportProperties",**inputs)}
+        templateName = "openFOAM/simpleFOAM/TransportProperties"
+        template = self._getTemplate(templateName)
+        output = template.render(**inputs)
+        return dict(openFOAMfile=output)
+
 
 class turbulenceProperties(abstractExecuter):
 

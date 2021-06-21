@@ -172,6 +172,7 @@
         "timePrecision": 6,
         "runTimeModifiable": "true",
         "interpolate": "true",
+        "maxCo" : 0.5,
          "functions": []
 	}
 }

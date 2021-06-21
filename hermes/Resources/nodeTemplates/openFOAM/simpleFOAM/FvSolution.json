@@ -1,9 +1,8 @@
 {
   "Execution": {
-    "type": "jinjaExecuters.jinja",
+    "type": "openFOAM.simpleFOAM.fvSolution",
     "input_parameters": {
-      "values": "{WebGui.formData}",
-      "template": "openFOAM/simpleFOAM/FvSolution"
+      "values": "{WebGui.formData}"
     }
   },
   "GUI": {

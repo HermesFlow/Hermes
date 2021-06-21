@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "openFOAM.simpleFOAM.fvSchemes",
+    "type": "openFOAM.systemExecuters.controlDict",
     "input_parameters": {
       "values": "{WebGui.formData}"
     }
@@ -10,7 +10,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.FvSchemesWebGui"
+      "Template": "openFOAM.general.WebGui.ControlDictWebGui"
     }
   }
 }
