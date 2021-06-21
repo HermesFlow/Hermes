@@ -2,7 +2,93 @@
   "Execution": {
     "type": "openFOAM.simpleFOAM.fvSchemes",
     "input_parameters": {
-      "values": "{WebGui.formData}"
+      "default": {
+        "ddtScheme": "Euler",
+        "gradSchemes": {
+          "type": "Gauss",
+          "name": "linear"
+        },
+        "divSchemes": {
+          "type": "Gauss",
+          "name": "linear",
+          "parameters": ""
+        },
+        "interpolationSchemes": "linear",
+        "snGradSchemes": "uncorrected",
+        "wallDist": "meshWave"
+      },
+      "fields": {
+        "U": {
+          "fluxRequired ": false,
+          "divSchemes": [
+            {
+              "noOfOperators": 2,
+              "phi": "phi",
+              "type": "Gauss",
+              "name": "UMISTV",
+              "parameters": ""
+            }
+          ],
+          "laplacianSchemes": [
+            {
+              "noOfOperators": 2,
+              "coefficient": "nuEff",
+              "type": "Gauss",
+              "name": "linear",
+              "parameters": "uncorrected"
+            },
+            {
+              "noOfOperators": 2,
+              "coefficient": "AnisotropicDiffusion",
+              "type": "Gauss",
+              "name": "linear",
+              "parameters": "uncorrected"
+            }
+          ]
+        },
+        "k": {
+          "fluxRequired ": false,
+          "divSchemes": [
+            {
+              "noOfOperators": 2,
+              "phi": "phi",
+              "type": "Gauss",
+              "name": "UMIST",
+              "parameters": ""
+            }
+          ],
+          "laplacianSchemes": [
+            {
+              "noOfOperators": 2,
+              "coefficient": "DkEff",
+              "type": "Gauss",
+              "name": "linear",
+              "parameters": "uncorrected"
+            }
+          ]
+        },
+        "epsilon": {
+          "fluxRequired ": false,
+          "divSchemes": [
+            {
+              "noOfOperators": 2,
+              "phi": "phi",
+              "type": "Gauss",
+              "name": "UMIST",
+              "parameters": ""
+            }
+          ],
+          "laplacianSchemes": [
+            {
+              "noOfOperators": 2,
+              "coefficient": "DepsilonEff",
+              "type": "Gauss",
+              "name": "linear",
+              "parameters": "uncorrected"
+            }
+          ]
+        }
+      }
     }
   },
   "GUI": {
