@@ -16,51 +16,94 @@ FoamFile
 
 ddtSchemes
 {
-    default         {{values.ddtSchemes.default}};
+    default         {{default.ddtScheme}};
 }
 
 gradSchemes
 {
-    default           {{values.gradSchemes.default}};
+    {% if 'gradSchemes' in default %}
+    default           {{default.gradSchemes.type}} {{default.gradSchemes.name}};
+    {% endif %}
 
-    grad(U)           {{values.gradSchemes.gradU}};
-    grad(k)           {{values.gradSchemes.gradK}};
-    grad(epsilon)     {{values.gradSchemes.gradEpsilon}};
+    {%- for field in fields %}
+        {%- set gradSchemeDict = field.gradScheme %}
+
+        {% if 'gradScheme' in gradSchemeDict %}
+        grad({{field.name}}) {{field.gradScheme}}
+        {%- endif %}
+    {%- endfor %}
 }
 
 divSchemes
 {
-    default               {{values.divSchemes.default}};
+    {% if 'divSchemes' in default %}
+    default               {{default.divSchemes.type}} {{default.divSchemes.name}} {{default.divSchemes.parameters}};
+    {% endif %}
 
-    div(phi,U)            {{values.divSchemes.divPhiU}};
+{%- for fieldName,fieldData in fields.items() %}
+  {% for divSchemeDict in fieldData.divSchemes %}
+    {% if divSchemeDict.noOfOperators == 0 %}
 
-    turbulence            {{values.divSchemes.turbulence}};
-    div(phi,k)            {{values.divSchemes.divPhiK}};
+    {{fieldName}}  {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
 
-    div(phi,epsilon)      {{values.divSchemes.divPhiEpsilon}};
-    div(phi,omega)        {{values.divSchemes.divPhiOmega}};
+    {% elif field.divScheme.noOfOperators == 1 %}
 
-    div((nuEff*dev2(T(grad(U))))) {{values.divSchemes.moreDivSchemesProperties.divNuEff}};
+    div({{fieldName}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
+
+    {% else %}
+
+    div(divSchemeDict.phi,{{field.name}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
+
+    {%- endif %}
+  {%- endfor %}
+{%- endfor %}
+
 }
 
 laplacianSchemes
 {
-    default         {{values.laplacianSchemes.default}};
+    {% if 'laplacianSchemes' in default %}
+    default               {{default.laplacianSchemes.type}} {{default.laplacianSchemes.name}} {{default.laplacianSchemes.parameters}};
+    {% endif %}
+
+
+{%- for fieldName,fieldData in fields.items() %}
+ {% for laplacianSchemeDict  in fieldData.laplacianSchemes %}
+  {% if laplacianSchemeDict.noOfOperators == 1 %}
+
+    laplacian({{fieldName}})  {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
+
+    {% elif field.laplacianSchemeDict.noOfOperators == 2 %}
+
+    laplacian({{laplacianSchemeDict.coefficient}}, {{fieldName}}) {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
+  {% endif %}
+ {% endfor %}
+{% endfor %}
+
 }
 
 interpolationSchemes
 {
-    default         {{values.interpolationSchemes.default}};
+    default         {{default.interpolationSchemes}};
 }
 
 snGradSchemes
 {
-    default       {{values.snGradSchemes.default}};
+    default       {{default.snGradSchemes}};
 }
 
 wallDist
 {
-    method      {{values.wallDist.method}};
+    method      {{default.wallDist}};
+}
+
+fluxRequired
+{
+    default         no;
+    {%- for fieldName,fieldData in fields.items() %}
+        {%- if fieldData.fluxRequired %} {{fieldName}} {% endif %}
+    {% endfor %}
+
 }
 
 // ************************************************************************* //
