@@ -15,7 +15,7 @@ class copyDirectoryExecuter(abstractExecuter):
 
     def run(self, **inputs):
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            shutil.copytree(inputs['Source'],inputs['Target'],dirs_exist_ok=True)
+            shutil.copytree(inputs['Source'],inputs['Target'],dirs_exist_ok=inputs.get("dirs_exist_ok",True))
         else:
             print("=============== empty ===============")
 
@@ -64,7 +64,7 @@ class RunOsCommandExecuter(abstractExecuter):
 
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile
-            fullPath = inputs["Command"]
+            fullPath = inputs["batchFile"]
             #update 'pathFile' to full path- absolute
             fullPath=os.path.abspath(fullPath)
             # give the file execute premission of the user
@@ -87,7 +87,7 @@ class RunOsCommandExecuter(abstractExecuter):
                 ret.append(result)
         else:
             raise ValueError("Method must be 'batchFile', or 'command'")
-            
+
 
         return dict(RunOsCommand="RunOsCommand",
                     commands=ret)
