@@ -1,6 +1,14 @@
-__version__=(1,0,0)
+__version__=(1,1,0)
 
 """
+	Version 1.1.0
+	-------------
+	
+	- Restructturing the blockMesh and snappyHexMesh. 
+	- Extension to the processing of paths (allow lists and dicts). 
+	 
+    
+
 	Version 1.0.0
 	-------------
     

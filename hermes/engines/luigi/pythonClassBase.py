@@ -1,6 +1,6 @@
 import jinja2
 
-class transform(object,):
+class transform:
     """
         Transforms a TaskWrapper to the appropriate Luigi class.
 
@@ -74,18 +74,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
             json.dump(out_params, outfile)
 """
 
-
-
-    def __init__(self):
-        pass
-        
-
-
-    #def transform(self,taskWrapper,WD_path):
     def transform(self,taskWrapper,WD_path):
-
-
-
         """
             Transforms a taskWrapper to a luigi task.
 

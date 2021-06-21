@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
+|  \\    /   O peration     | Version:  7                                |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -14,30 +14,27 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+{%- import "openFOAM/mesh/utils.jinja"  as utils %}
 
-
-convertToMeters {{Properties.Property03.current_val}};
+convertToMeters {{geometry.convertToMeters}};
 
 vertices
 (
-    {%- for x in range(vertices|length) %}
-    ({{vertices[x]}})
+    {%- for pnt in vertices %}
+        {{utils.toPoint(vertices)}}
     {%- endfor %}
-
 );
 
-{%- import "openFOAM/simpleFOAM/MacroSBlockMeshGrading.jinja" as Grading %}
+
+
+
 
 blocks
 (
     hex (0 1 2 3 4 5 6 7)
-    {{Properties.Property04.current_val}}
+    {{utils.toPoint(geometry.cellCount)}}
     simpleGrading
-    (
-        {{Grading.macroBlockMeshGrading(Properties.Property05.current_val)}}
-        {{Grading.macroBlockMeshGrading(Properties.Property06.current_val)}}
-        {{Grading.macroBlockMeshGrading(Properties.Property07.current_val)}}
-    )
+    {{utils.toPoint(geometry.grading)}}
 );
 
 edges
@@ -46,20 +43,22 @@ edges
 
 boundary
 (
-    {%- for x in range(boundary|length) -%}
-    {%- set tmpBoundary=boundary[x] %}
-    {{tmpBoundary.Name }}
-    {
-        type {{tmpBoundary.Type}};
-        faces
-        (
-            {%- for key,value in tmpBoundary.faces.items() %}
-            ({{value.vertices}})
-            {%- endfor %}
-        );
-    }
-    {%- endfor %}
+    {%- for bndry in boundary %}
+        {{bndry.name}}
+        {
+            type {{bndry.type}};
+            faces
+            (
+                {%- for indx in range(bndry.faces|length)%}
+                       {{utils.toPoint(bndry.faces[indx])}}
+                {%- endfor %}
 
+            );
+            {%- if bndry['Type'] =='cyclic' %}
+                neighbourPatch {{bndry.neighbourPatch}};
+            {%- endif %}
+        }
+    {%- endfor %}
 );
 
 mergePatchPairs

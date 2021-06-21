@@ -13,7 +13,7 @@ class HermesBlockMesh:
 
     def updateJson(self, GEnode):
 
-        # get the blockMesh formData
+        # get the mesh formData
         blockMeshObj = FreeCAD.ActiveDocument.getObject('BlockMesh')
         nodeData = json.loads(blockMeshObj.NodeDataString)
         formData = nodeData["WebGui"]["formData"]
@@ -36,7 +36,7 @@ class HermesBlockMesh:
             partName = FreeCAD.ActiveDocument.getObjectsByLabel(partLabel)[0].Name
             partDict = partList[partLabel]
         else:
-            print("Error blockMesh: the part " +partLabel+ " has bo boundary condition")
+            print("Error mesh: the part " +partLabel+ " has bo boundary condition")
             return
 
 

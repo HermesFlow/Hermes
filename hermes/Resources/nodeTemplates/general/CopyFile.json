@@ -1,10 +1,9 @@
 {
     "Execution": {
-        "type":"fileSystemExecuters.copyDirectory",
+        "type":"fileSystemExecuters.copyFile",
         "input_parameters": {
             "Source": "{Properties.Source.current_val}",
-            "Target": "{Properties.Target.current_val}",
-             "dirs_exist_ok" :true
+            "Target": "{Properties.Target.current_val}"
         }
     },
     "GUI": {

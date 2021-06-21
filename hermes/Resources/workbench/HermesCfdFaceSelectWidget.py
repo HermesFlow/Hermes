@@ -199,7 +199,7 @@ class HermesCfdFaceSelectWidget:
         #                           part name equal to ref name part
         #                     else: move to next selection
 
-        # in case its being called from blockMesh
+        # in case its being called from mesh
         if (self.obj.Name == "BlockMesh"):
             partLinkobj = getattr(self.obj, "partLink")
             # check link exist

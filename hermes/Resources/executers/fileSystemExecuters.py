@@ -1,5 +1,5 @@
 from .abstractExecuter import abstractExecuter
-import numpy
+import shutil
 import os, sys, stat
 
 class copyDirectoryExecuter(abstractExecuter):
@@ -15,12 +15,18 @@ class copyDirectoryExecuter(abstractExecuter):
 
     def run(self, **inputs):
         if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-            os.system('cp -r ' + inputs["Source"] + ' ' + inputs["Target"])
+            shutil.copytree(inputs['Source'],inputs['Target'],dirs_exist_ok=inputs.get("dirs_exist_ok",True))
+        else:
+            print("=============== empty ===============")
 
-        return dict(copyDirectory="copyDirectory",Target=inputs["Target"],Source=inputs["Source"])
+        absSource = os.path.abspath(inputs["Source"])
+        absTarget = os.path.abspath(inputs["Target"])
+
+        return dict(copyDirectory="copyDirectory",
+                    Source =absSource,Target=absTarget)
 
 
-class copyFile(abstractExecuter):
+class copyFileExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -32,7 +38,15 @@ class copyFile(abstractExecuter):
         )
 
     def run(self, **inputs):
-            return dict(copyField="copyFile")
+            if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
+                shutil.copy(inputs['Source'], inputs['Target']) # this will change to a flag like the other version.
+            else:
+                print("=============== empty ===============")
+
+            absSource = os.path.abspath(inputs["Source"])
+            absTarget = os.path.abspath(inputs["Target"])
+
+            return dict(copyField="copyFile",Source =absSource,Target=absTarget)
 
 class RunOsCommandExecuter(abstractExecuter):
 
@@ -46,7 +60,8 @@ class RunOsCommandExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        import os, sys, stat
+        import stat,os
+
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile
             fullPath = inputs["batchFile"]
@@ -56,34 +71,30 @@ class RunOsCommandExecuter(abstractExecuter):
             os.chmod(fullPath, stat.S_IRWXU)
             # run the batch file
             os.system(fullPath)
+        elif inputs["Method"]=="command":
+            import subprocess, stat, numpy
+            ret = []
+            for cmd in numpy.atleast_1d(inputs["Command"]):
+                output = subprocess.Popen(cmd.split(" "),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+                stdout,stderr = output.communicate()
+
+                stdout = "" if stdout is None else stdout.decode()
+                stderr = "" if stderr is None else stderr.decode()
+
+                result = dict(command=cmd,
+                              stdout=stdout,
+                              stderr=stderr)
+                ret.append(result)
         else:
-            # commands where choosen
-            # create a batchfile from the commands using jinja, save it and run
+            raise ValueError("Method must be 'batchFile', or 'command'")
 
-            #create the file
-            # define the interpreter-
-            ret = "#!/bin/bash" + "\n"+"\n"
 
-            #loop all items in the list and add it to the string
-            for item in numpy.atleast_1d(inputs["Commands"]):
-                ret+= item +"\n"
-            
-            #save the file in the working directory
-            path = inputs["WD_path"]+"/Commands.sh"
-            with open(path, "w") as fh:
-                fh.write(ret) 
-
-            # give the file execute premission of the user
-            os.chmod(path, stat.S_IRWXU)
-            # run the batch file
-            os.system(path)
-            
-
-        return dict(RunOsCommand="RunOsCommand")
+        return dict(RunOsCommand="RunOsCommand",
+                    commands=ret)
 
 
 
-class executeScript(abstractExecuter):
+class executeScriptExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
