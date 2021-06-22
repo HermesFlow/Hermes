@@ -9,6 +9,14 @@
   "GUI": {
     "Type": "SnappyHexMesh",
     "Properties": {
+      "Property01": {
+        "prop": "locationInMesh",
+        "init_val": null,
+        "type": "App::PropertyLink",
+        "Heading": "Links",
+        "tooltip": "point of locationInMesh ",
+        "current_val": null
+      }
     },
     "WebGui": {
       "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGuiNoGeometry"

@@ -23,6 +23,7 @@ import HermesTools
 from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 import HermesPart
+import Draft
 from HermesBlockMesh import HermesBlockMesh
 
 
@@ -648,6 +649,24 @@ class _SnappyHexMesh(_WebGuiNode):
     #
     #     self.selectNode(obj)
 
+    def selectNode(self, obj):
+        # check point exist
+        snappyPoint = [obj for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
+        if len(snappyPoint) > 0:
+
+            x = format(float(snappyPoint[0].X), '.2f')
+            y = format(float(snappyPoint[0].Y), '.2f')
+            z = format(float(snappyPoint[0].Z), '.2f')
+
+            locationString = "(" + x + " " + y + " " + z + ")"
+
+            self.nodeData["WebGui"]["formData"]["castellatedMeshControls"]["locationInMesh"] = locationString
+        # update Point coordinate
+
+        #continue as webgui
+        super().selectNode(obj)
+
+
     def backupNodeData(self, obj):
         # backup the data of the last node pressed
         super().backupNodeData(obj)
@@ -862,6 +881,82 @@ class SnappyHexMeshGeometryEntityDialogPanel:
     def reject(self):
         # check if it reset choices
         return True
+
+# =============================================================================
+# #_CommandSnappyHexMeshPointSelection
+# =============================================================================
+from DraftTools import Point
+from DraftGui import todo
+
+class _CommandSnappyHexMeshPointSelection(Point):
+    """ Geometry Definer selection command definition """
+
+    def GetResources(self):
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/point01.png"
+        # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
+
+        return {'Pixmap': icon_path,
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshPoint", "3D point snappyHexMesh"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshPoint", "Create a 3D point for snappyHexMesh")}
+
+    def IsActive(self):
+        snappy = FreeCAD.ActiveDocument.getObjectsByLabel("SnappyHexMesh")[0]
+        if snappy is not None:
+            # check if point already exist
+            docObjs = [obj.Label for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
+            if len(docObjs) > 0:
+                return False
+
+            return True
+
+        return False
+
+    # def Activated(self):
+    #
+    #     super().Activated()
+
+    def click(self, event_cb=None):
+        super().click()
+        FreeCAD.ActiveDocument.recompute()
+
+        todo.delayAfter(self.linkToSnappy,[])
+
+    def linkToSnappy(self):
+
+
+        snappyObj = FreeCAD.ActiveDocument.getObjectsByLabel("SnappyHexMesh")[0]
+        # FreeCADGui.doCommand("FreeCAD.Console.PrintMessage('Objects = ' + str([obj.Label for obj in FreeCAD.ActiveDocument.Objects]) + '\n')")
+        # FreeCAD.Console.PrintMessage("Objects = " + str([obj.Label for obj in FreeCAD.ActiveDocument.Objects]) + "\n")
+
+
+        snappyPoint = FreeCAD.ActiveDocument.Objects[-1]
+        if "Point" not in snappyPoint.Label:
+            return
+        # snappyPoint = Draft.makePoint(0, 0, 0, point_size=10)
+        snappyPoint.Label = "Point_locationInMesh"
+
+        snappyObj.locationInMesh = snappyPoint
+
+        # nodeData = json.loads(snappyObj.NodeDataString)
+        nodeData = snappyObj.Proxy.nodeData
+
+        x = format(float(snappyPoint[0].X), '.2f')
+        y = format(float(snappyPoint[0].Y), '.2f')
+        z = format(float(snappyPoint[0].Z), '.2f')
+
+        locationString = "(" + x + " " + y + " " + z + ")"
+
+        nodeData["WebGui"]["formData"]["castellatedMeshControls"]["locationInMesh"] = locationString
+
+        # snappyObj.NodeDataString = json.dumps(nodeData)
+        snappyObj.Proxy.nodeData = nodeData
+        snappyObj.Proxy.backupNodeData(snappyObj)
+
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('SnappyHexMeshPointSelection', _CommandSnappyHexMeshPointSelection())
+
 
 # =============================================================================
 # #_GeometryDefinerNode

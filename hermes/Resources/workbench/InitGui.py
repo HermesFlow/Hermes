@@ -13,7 +13,7 @@ class Hermes ( Workbench ):
         # load the module
         import HermesGui
 
-        list = ["CreateWorkflow", "GeometryDefinerSelection"]
+        list = ["CreateWorkflow", "GeometryDefinerSelection", "SnappyHexMeshPointSelection"]
         self.appendToolbar("HermesToolbar", list)
         self.appendMenu("Hermes", list)
 

@@ -64,8 +64,12 @@
             }
         }
     },
-    "uiSchema":{ 
-
+    "uiSchema":{
+        "castellatedMeshControls":{
+            "locationInMesh":{
+                "ui:readOnly": true
+            }
+        }
     },
     "formData":{ 
         "castellatedMesh":true,
