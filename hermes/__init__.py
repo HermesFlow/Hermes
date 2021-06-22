@@ -1,6 +1,14 @@
-__version__=(1,1,0)
+__version__=(1,2,0)
 
 """
+
+	Version 1.2.0
+	-------------
+	
+	- Restructturing the fvSolution and the fvSchemes inputs 
+	- Updating the transport properties and ect. 
+
+
 	Version 1.1.0
 	-------------
 	

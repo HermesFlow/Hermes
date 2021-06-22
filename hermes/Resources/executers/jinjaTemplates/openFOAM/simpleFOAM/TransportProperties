@@ -14,8 +14,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-transportModel  {{values.transportModel}};
+transportModel  {{transportModel}};
 
-nu              {{values.nu}};
+nu              {{nu}};
 
 // ************************************************************************* //
