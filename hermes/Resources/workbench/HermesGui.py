@@ -14,6 +14,7 @@ import Part
 # Hemes modules
 import HermesNode
 import HermesPart
+import HermesSnappyHexMesh
 
 # add hermes to paths
 HermesDirpath = os.getenv('HERMES_2_PATH')
@@ -518,6 +519,9 @@ class _CommandCreateHermesWorkflow:
 
         # Add HermesGENode object when HermesGui container is created
         FreeCADGui.addModule("HermesGeometryDefinerNode")
+
+        FreeCADGui.addModule("HermesSnappyHexMesh")
+
 
         # Add fluid properties object when CfdAnalysis container is created
         # FreeCADGui.addModule("CfdFluidMaterial")
