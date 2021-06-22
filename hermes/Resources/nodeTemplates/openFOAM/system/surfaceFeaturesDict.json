@@ -1,0 +1,13 @@
+{
+    "Execution": {
+        "type": "openFOAM.systemExecuters.surfaceFeaturesDict",
+        "input_parameters": {
+            "geometryData" :  {},
+            "nonManifoldEdges" : true,
+            "openEdges" : true
+        }
+    },
+    "GUI": {
+        "Properties" : {}
+    }
+}

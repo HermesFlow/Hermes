@@ -19,9 +19,14 @@ FoamFile
 
 {{fieldName}}
 {
+    {% if 'internalField' in fieldChangeData %}
+        internalField {{fieldChangeData.internalField}};
+    {% endif %}
+
+
     boundaryField
     {
-        {% for patchName,patchData in fields.boundaryField.items() %}
+        {% for patchName,patchData in fieldChangeData.boundaryField.items() %}
         {{patchName}}
         {
             {% for itemName,itemData in patchData.items() %}
@@ -31,7 +36,7 @@ FoamFile
         {% endfor %}
     }
 }
-{% endofor %}
+{% endfor %}
 
 
 
