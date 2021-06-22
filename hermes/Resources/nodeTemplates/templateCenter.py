@@ -21,7 +21,7 @@ class templateCenter:
                 [path].[filename]
 
             for example:
-                general.CopyDirectory.
+                mesh.CopyDirectory.
 
             The class will search in all the repositories and return the first match.
 

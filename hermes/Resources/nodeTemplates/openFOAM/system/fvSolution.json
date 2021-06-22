@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "openFOAM.simpleFOAM.fvSolution",
+    "type": "openFOAM.systemExecuters.fvSolution",
     "input_parameters": {
       "fields": {
         "p": {

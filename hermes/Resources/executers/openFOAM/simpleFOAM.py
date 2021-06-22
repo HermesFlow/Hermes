@@ -1,8 +1,4 @@
-import pydoc
-from hermes.Resources.executers.abstractExecuter import abstractExecuter
-from hermes.Resources.executers.jinjaExecuters import jinjaExecuter
-import pathlib
-import os
+from ..jinjaExecuters import jinjaExecuter
 
 class CopenFOAM():
     '''
@@ -45,7 +41,7 @@ class CopenFOAM():
 class transportPropertiesExecuter(jinjaExecuter):
 
     def run(self, **inputs):
-        templateName = "openFOAM/simpleFOAM/TransportProperties"
+        templateName = "openFOAM/simpleFOAM/transportProperties"
         template = self._getTemplate(templateName)
 
         effectiveInputs = inputs.get('values',inputs)
@@ -57,7 +53,7 @@ class transportPropertiesExecuter(jinjaExecuter):
 class turbulenceProperties(jinjaExecuter):
 
     def run(self, **inputs):
-        templateName = "openFOAM/simpleFOAM/TurbulenceProperties"
+        templateName = "openFOAM/simpleFOAM/turbulenceProperties"
         template = self._getTemplate(templateName)
         effectiveInputs = inputs.get('values',inputs)
         output = template.render(**effectiveInputs)

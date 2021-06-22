@@ -10,7 +10,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.general.WebGui.ControlDictWebGui"
+      "Template": "openFOAM.system.WebGui.ControlDictWebGui"
     }
   }
 }

@@ -1,8 +1,9 @@
 {
   "Execution": {
-    "type": "openFOAM.simpleFOAM.transportProperties",
+    "type": "openFOAM.constantExecuters.transportProperties",
     "input_parameters": {
-      "values": "{WebGui.formData}"
+      "transportModel" : "Newtonian",
+      "nu" : 1e-5
     }
   },
   "GUI": {

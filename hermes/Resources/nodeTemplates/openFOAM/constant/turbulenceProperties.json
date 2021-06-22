@@ -1,9 +1,11 @@
 {
   "Execution": {
-    "type": "jinjaExecuters.jinja",
+    "type": "openFOAM.constantExecuters.turbulenceProperties",
     "input_parameters": {
-      "values": "{WebGui.formData}",
-      "template": "openFOAM/simpleFOAM/TurbulenceProperties"
+      "simulationType" : "RAS",
+      "Model" : "kEpsilon",
+      "turbulence" : true,
+      "printCoeffs" : false
     }
   },
   "GUI": {
