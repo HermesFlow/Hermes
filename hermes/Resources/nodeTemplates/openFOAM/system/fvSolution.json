@@ -60,8 +60,8 @@
           }
         }
       },
-      "algorithm": "SIMPLE",
       "solverProperties": {
+        "algorithm": "SIMPLE",
         "residualControl": {
           "p": 1e-4,
           "U": 1e-4,

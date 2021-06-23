@@ -63,7 +63,7 @@ laplacianSchemes
 {% if laplacianSchemeDict.noOfOperators == 1 %}
     laplacian({{fieldName}})  {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
 {% elif laplacianSchemeDict.noOfOperators == 2 %}
-    laplacian({{laplacianSchemeDict.coefficient}}, {{fieldName}}) {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
+    laplacian({{laplacianSchemeDict.coefficient}},{{fieldName}}) {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
   {% endif %}
  {% endfor %}
 {% endfor %}

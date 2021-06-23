@@ -25,11 +25,9 @@ addLayers       {{ 'on' if modules.layer else 'off' }};
 geometry
 {
     {%- for geometryName,geometryData in geometry.objects.items() %}
-    {{geometryName}}
+    {{geometryData.objectName}}.{{geometryData.objectType}}
     {
         type triSurfaceMesh;
-        file "{{geometryData.objectName}}.{{geometryData.objectType}}";
-
         {%- set objRegions=geometryData.ObjectRegions %}
         regions {
             {%- for regionName,regionData in objRegions.items()  %}

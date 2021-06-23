@@ -71,7 +71,7 @@ class RunOsCommandExecuter(abstractExecuter):
             os.chmod(fullPath, stat.S_IRWXU)
             # run the batch file
             os.system(fullPath)
-        elif inputs["Method"]=="command":
+        elif inputs["Method"]=="Command list":
             import subprocess, stat, numpy
             ret = []
             for cmd in numpy.atleast_1d(inputs["Command"]):
@@ -86,7 +86,7 @@ class RunOsCommandExecuter(abstractExecuter):
                               stderr=stderr)
                 ret.append(result)
         else:
-            raise ValueError("Method must be 'batchFile', or 'command'")
+            raise ValueError(f"Method must be 'batchFile', or 'Command list'. got {input['Method']}")
 
 
         return dict(RunOsCommand="RunOsCommand",

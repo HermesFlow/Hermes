@@ -26,7 +26,7 @@ subsetFeatures
     nonManifoldEdges       {% if nonManifoldEdges %}no{%else%}yes{%endif%};
 
     // Keep open edges (edges with 1 connected face)
-    openEdges       {% if openEdges %}no{%else%}yes{%endif%};;
+    openEdges       {% if openEdges %}no{%else%}yes{%endif%};
 }
 
 // ************************************************************************* //

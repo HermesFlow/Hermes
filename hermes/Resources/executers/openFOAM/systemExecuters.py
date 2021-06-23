@@ -48,7 +48,7 @@ class surfaceFeaturesDictExecuter(systemFileExecuter):
         retFiles ={}
 
         for objectName,objectData in inputs['geometryData'].items():
-            retFiles[objectName] = template.render(nonManifoldEdges=inputs['nonManifoldEdges'],openEdges=inputs['openEdges'],geometryData=objectData)
+            retFiles[objectName] = template.render(nonManifoldEdges=inputs['nonManifoldEdges'],openEdges=inputs['openEdges'],geometryData=objectData,includeAngle=inputs['includeAngle'])
         return dict(openFOAMfile=retFiles)
 
 
