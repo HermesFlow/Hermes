@@ -364,6 +364,9 @@ class _HermesWorkflow:
             # # update the child nodeDate in the JsonObject
             self.JsonObject["workflow"]["nodes"][nodename]["GUI"] = nodaData
 
+            if "BlockMesh" in nodename:
+                self.JsonObject["workflow"]["nodes"][nodename]["Execution"]["input_parameters"] = child.Proxy.jsonToJinja(child)
+
 
         return
 

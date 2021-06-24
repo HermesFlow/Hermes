@@ -464,7 +464,25 @@ class _HermesGE(_Facebinder):
 
     def onDocumentRestored(self, obj):
         # when restored- initilaize properties
+
+        FreeCAD.Console.PrintMessage("onDocumentRestored " + obj.Label + " \n")
+        self.TypeList = obj.Type
+        self.EntityNodeData = json.loads(obj.EntityNodeDataString)
+
+        References = []
+        partFaces = obj.Faces
+        for part in partFaces:
+            partName = part[0].Name
+            for face in part[1]:
+                ref = (partName, face)
+                References.append(ref)
+
+        FreeCAD.Console.PrintMessage("onDocumentRestored; obj.References = " + str(obj.References) + "\n")
+        FreeCAD.Console.PrintMessage("onDocumentRestored; obj.Faces = " + str(obj.Faces) + "\n")
         self.initProperties(obj)
+
+        obj.References = References
+        FreeCAD.Console.PrintMessage("onDocumentRestored; obj.References = " + str(obj.References) + "\n")
 
         if FreeCAD.GuiUp:
             _ViewProviderGE(obj.ViewObject)
@@ -569,6 +587,7 @@ class _ViewProviderGE:
     def __init__(self, vobj):
         vobj.Proxy = self
         self.GENodeType = vobj.Object.Type
+        self.GENodeObjName = vobj.Object.Name
 
     def getIcon(self):
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
@@ -711,10 +730,11 @@ class _HermesBME(_HermesGE):
 
                 # get the vertices of the face and sav as a string
                 verticesList = partDict["Faces"][FaceName]['vertices']
-                verticesString = ' '.join(verticesList)
+                # verticesString = ' '.join(verticesList)
 
                 # add the vrtices to the current face struct
-                faceStruct["vertices"] = verticesString
+                # faceStruct["vertices"] = verticesString
+                faceStruct["vertices"] = verticesList
 
                 # add the current face struct to the boundry struct
                 boundary_strc["faces"][FaceName] = faceStruct.copy()

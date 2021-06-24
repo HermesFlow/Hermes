@@ -13,10 +13,127 @@
                 "Execution": {
                     "type": "jinjaExecuters.BlockMesh",
                     "input_parameters": {
-                        "Properties": "{value.Properties}",
-                        "boundary": "{value.boundary}",
-                        "vertices": "{value.vertices}",
-                        "template": "openFOAM/simpleFOAM/BlockMesh"
+                        "geomerty": {
+                            "convertToMeters": 1,
+                            "cellCount": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "grading": [
+                                [
+                                    1.0
+                                ],
+                                [
+                                    [
+                                        0.2,
+                                        0.3,
+                                        4.0
+                                    ],
+                                    [
+                                        0.6,
+                                        0.4,
+                                        1.0
+                                    ],
+                                    [
+                                        0.2,
+                                        0.3,
+                                        0.25
+                                    ]
+                                ],
+                                [
+                                    1.0
+                                ]
+                            ]
+                        },
+                        "boundry": [
+                            {
+                                "name": "w",
+                                "type": "wall",
+                                "faces": [
+                                    [
+                                        4,
+                                        5,
+                                        6,
+                                        7
+                                    ],
+                                    [
+                                        0,
+                                        4,
+                                        7,
+                                        3
+                                    ]
+                                ]
+                            },
+                            {
+                                "name": "a",
+                                "type": "cyclic",
+                                "faces": [
+                                    [
+                                        0,
+                                        1,
+                                        5,
+                                        4
+                                    ]
+                                ],
+                                "neighbourPatch": "b"
+                            },
+                            {
+                                "name": "b",
+                                "type": "cyclic",
+                                "faces": [
+                                    [
+                                        3,
+                                        7,
+                                        6,
+                                        2
+                                    ]
+                                ],
+                                "neighbourPatch": "a"
+                            }
+                        ],
+                        "vertices": [
+                            [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            [
+                                10.0,
+                                0.0,
+                                0.0
+                            ],
+                            [
+                                10.0,
+                                10.0,
+                                0.0
+                            ],
+                            [
+                                0.0,
+                                10.0,
+                                0.0
+                            ],
+                            [
+                                0.0,
+                                0.0,
+                                10.0
+                            ],
+                            [
+                                10.0,
+                                0.0,
+                                10.0
+                            ],
+                            [
+                                10.0,
+                                10.0,
+                                10.0
+                            ],
+                            [
+                                0.0,
+                                10.0,
+                                10.0
+                            ]
+                        ]
                     }
                 },
                 "GUI": {
@@ -113,7 +230,7 @@
                             "cyclic": {
                                 "Properties": {
                                     "Property01": {
-                                        "prop": "neighbour",
+                                        "prop": "neighbourPatch",
                                         "init_val": [
                                             "notSet"
                                         ],
@@ -128,11 +245,34 @@
                     },
                     "boundary": [
                         {
+                            "Name": "w",
+                            "Type": "wall",
+                            "Properties": {},
+                            "faces": {
+                                "Face6": {
+                                    "vertices": [
+                                        4,
+                                        5,
+                                        6,
+                                        7
+                                    ]
+                                },
+                                "Face1": {
+                                    "vertices": [
+                                        0,
+                                        4,
+                                        7,
+                                        3
+                                    ]
+                                }
+                            }
+                        },
+                        {
                             "Name": "a",
                             "Type": "cyclic",
                             "Properties": {
                                 "Property01": {
-                                    "prop": "neighbour",
+                                    "prop": "neighbourPatch",
                                     "init_val": [
                                         "notSet"
                                     ],
@@ -143,8 +283,13 @@
                                 }
                             },
                             "faces": {
-                                "Face6": {
-                                    "vertices": "4 5 6 7"
+                                "Face3": {
+                                    "vertices": [
+                                        0,
+                                        1,
+                                        5,
+                                        4
+                                    ]
                                 }
                             }
                         },
@@ -153,7 +298,7 @@
                             "Type": "cyclic",
                             "Properties": {
                                 "Property01": {
-                                    "prop": "neighbour",
+                                    "prop": "neighbourPatch",
                                     "init_val": [
                                         "notSet"
                                     ],
@@ -164,21 +309,58 @@
                                 }
                             },
                             "faces": {
-                                "Face1": {
-                                    "vertices": "0 4 7 3"
+                                "Face4": {
+                                    "vertices": [
+                                        3,
+                                        7,
+                                        6,
+                                        2
+                                    ]
                                 }
                             }
                         }
                     ],
                     "vertices": [
-                        "0.0 0.0 0.0 ",
-                        "10.0 0.0 0.0 ",
-                        "10.0 10.0 0.0 ",
-                        "0.0 10.0 0.0 ",
-                        "0.0 0.0 10.0 ",
-                        "10.0 0.0 10.0 ",
-                        "10.0 10.0 10.0 ",
-                        "0.0 10.0 10.0 "
+                        [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        [
+                            10.0,
+                            0.0,
+                            0.0
+                        ],
+                        [
+                            10.0,
+                            10.0,
+                            0.0
+                        ],
+                        [
+                            0.0,
+                            10.0,
+                            0.0
+                        ],
+                        [
+                            0.0,
+                            0.0,
+                            10.0
+                        ],
+                        [
+                            10.0,
+                            0.0,
+                            10.0
+                        ],
+                        [
+                            10.0,
+                            10.0,
+                            10.0
+                        ],
+                        [
+                            0.0,
+                            10.0,
+                            10.0
+                        ]
                     ]
                 }
             },

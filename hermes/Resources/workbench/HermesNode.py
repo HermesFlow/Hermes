@@ -1,6 +1,6 @@
-
 # import FreeCAD modules
-import FreeCAD,FreeCADGui, WebGui
+import FreeCAD, FreeCADGui, WebGui
+
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
@@ -10,9 +10,8 @@ if FreeCAD.GuiUp:
     # from PySide.QtGui import *
     # from PySide.QtCore import *
 
-
 # python modules
-from PyQt5 import QtGui,QtCore
+from PyQt5 import QtGui, QtCore
 import json
 import pydoc
 import os
@@ -27,8 +26,6 @@ import Draft
 from HermesBlockMesh import HermesBlockMesh
 
 
-
-
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
@@ -40,7 +37,7 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
     # Object with option to have children
     obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
-    #print ("HermesNode make node\n")
+    # print ("HermesNode make node\n")
 
     #    # Object can not have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
@@ -51,11 +48,10 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
 
     # find the class of the node from the its type
-    #nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
-    nodecls = pydoc.locate("HermesNode." +'_'+ nodeData["Type"])
+    # nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
+    nodecls = pydoc.locate("HermesNode." + '_' + nodeData["Type"])
     if nodecls is None:
         nodecls = pydoc.locate("HermesSnappyHexMesh." + '_' + nodeData["Type"])
-
 
     #    # if the class is not exist, create a new class
     #    if nodecls is None:
@@ -75,14 +71,15 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
     return obj
 
-#**********************************************************************
+
+# **********************************************************************
 class _CommandHermesNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
         # ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
         # icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
-        icon_path = os.path.join(FreeCAD.getResourceDir(),"Mod","Hermes","Resources","icons","NewNode.png")
+        icon_path = os.path.join(FreeCAD.getResourceDir(), "Mod", "Hermes", "Resources", "icons", "NewNode.png")
 
         return {'Pixmap': icon_path,
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Hermes_Node", "Hermes Node"),
@@ -110,11 +107,11 @@ class _CommandHermesNodeSelection:
             FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
 
 
-
 if FreeCAD.GuiUp:
     FreeCADGui.addCommand('Hermes_Node', _CommandHermesNodeSelection())
 
-#**********************************************************************
+
+# **********************************************************************
 class _SlotHandler:
     """ Slot Handler """
 
@@ -182,7 +179,6 @@ class _HermesNode(_SlotHandler):
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
 
-
     def initProperties(self, obj):
 
         # ^^^ Constant properties ^^^
@@ -200,7 +196,6 @@ class _HermesNode(_SlotHandler):
             addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link blockMesh node to part")
         else:
             addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link to part")
-
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -372,7 +367,8 @@ class _ViewProviderNode:
 
     def getIcon(self):
         # Define Resource dir end with ','
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
+                                                      -1] == '/' else FreeCAD.getResourceDir() + "/"
 
         if self.NodeObjType == "WebGuiNode":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
@@ -444,7 +440,7 @@ class _ViewProviderNode:
                     return
 
                 print("viewProvider, updateData")
-                #get the part object using prop
+                # get the part object using prop
                 partobj = getattr(obj, prop)
 
                 # set the BlockMesh partlink  at each child
@@ -531,7 +527,8 @@ class _WebGuiNode(_HermesNode):
         # Check if webGui is empty
         if not ((len(nodeWebGUI) == 0)):
             # define web address & pararmeters
-            ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+            ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
+                                                          -1] == '/' else FreeCAD.getResourceDir() + "/"
             path = ResourceDir + 'Mod/Hermes/Resources/jsonReactWebGui.html?parameters='
             address = 'file:///' + path
 
@@ -565,7 +562,6 @@ class _WebGuiNode(_HermesNode):
         # FreeCAD.Console.PrintMessage("backup--nodedata.webgui['formData']="+str(formData)+"\n")
         # FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
 
-
     def backupNodeData(self, obj):
         # backup the data of the last node pressed
         super().backupNodeData(obj)
@@ -582,7 +578,7 @@ class _WebGuiNode(_HermesNode):
         # create list of items need to be added or removed from webGui
         add_list = [field for field in fieldList if field not in currentBCList]
         del_list = [field for field in currentBCList if field not in fieldList]
-        del_list.remove("partName") # need to remain in dictionary
+        del_list.remove("partName")  # need to remain in dictionary
 
         # remove fields from webGui
         for field in del_list:
@@ -591,7 +587,6 @@ class _WebGuiNode(_HermesNode):
         # add fields to webGui
         for field in add_list:
             if len(field) > 0:
-
                 # deep cp of template BCLisy to a new dict
                 field_dict = copy.deepcopy(self.nodeData["BCList"])
 
@@ -617,346 +612,13 @@ class _WebGuiNode(_HermesNode):
 
         # update the list in the webGui and description - depend if the list is empty or not
         if len(partList) == 0:
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["description"] = "There are no parts in the FreeCAD document"
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"][
+                "description"] = "There are no parts in the FreeCAD document"
             self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = []
         else:
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["description"] = "Defined Boundary condition for this part"
+            self.nodeData["WebGui"]["Schema"]["properties"]["partName"][
+                "description"] = "Defined Boundary condition for this part"
             self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = partList
-
-
-
-# # =============================================================================
-# # #_SnappyHexMesh
-# # =============================================================================
-# class _SnappyHexMesh(_WebGuiNode):
-#     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-#     #    and add current class functionalites
-#
-#     def __init__(self, obj, nodeId, nodeData, name):
-#         super().__init__(obj, nodeId, nodeData, name)
-#
-#         geometry_obj = makeNode("Geometry", obj, str(0), self.nodeData["Geometry"])
-#         refinement_obj = makeNode("Refinement", obj, str(0), self.nodeData["Refinement"])
-#
-#
-#         # create Geometry obj
-#             # this also a webGuiNode
-#
-#         # create refinement object
-#         # this node is just show without any action (read only for now?)
-#
-#     # def doubleClickedNode(self, obj):
-#     #     super().doubleClickedNode(obj)
-#     #
-#     #     self.selectNode(obj)
-#
-#     def selectNode(self, obj):
-#         # check point exist
-#         snappyPoint = [obj for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
-#         if len(snappyPoint) > 0:
-#
-#             x = format(float(snappyPoint[0].X), '.2f')
-#             y = format(float(snappyPoint[0].Y), '.2f')
-#             z = format(float(snappyPoint[0].Z), '.2f')
-#
-#             locationString = "(" + x + " " + y + " " + z + ")"
-#
-#             self.nodeData["WebGui"]["formData"]["castellatedMeshControls"]["locationInMesh"] = locationString
-#         # update Point coordinate
-#
-#         #continue as webgui
-#         super().selectNode(obj)
-#
-#
-#     def backupNodeData(self, obj):
-#         # backup the data of the last node pressed
-#         super().backupNodeData(obj)
-#
-#         for child in obj.Group:
-#             child.Proxy.backupNodeData(child)
-#             self.nodeData[child.Name] = json.loads(child.NodeDataString)
-#
-#
-#         # then Update nodeData  at the NodeDataString by converting from json to string
-#         obj.NodeDataString = json.dumps(self.nodeData)
-#
-# # =============================================================================
-# # #_SnappyHexMeshRefinement
-# # =============================================================================
-# class _SnappyHexMeshRefinement(_WebGuiNode):
-#     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-#     #    and add current class functionalites
-#
-#     def __init__(self, obj, nodeId, nodeData, name):
-#         super().__init__(obj, nodeId, nodeData, name)
-#
-#     # def doubleClickedNode(self, obj):
-#     #     # super().doubleClickedNode(obj)
-#     #     self.selectNode(obj)
-#
-#     # def backupNodeData(self, obj):
-#     #     # backup the data of the last node pressed
-#     #     # super().backupNodeData(obj)
-#     #
-#     #     # then Update nodeData  at the NodeDataString by converting from json to string
-#     #     obj.NodeDataString = json.dumps(self.nodeData)
-#
-# # =============================================================================
-# # #_SnappyHexMeshGeometry
-# # =============================================================================
-# class _SnappyHexMeshGeometry(_HermesNode):
-#     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-#     #    and add current class functionalites
-#
-#     def __init__(self, obj, nodeId, nodeData, name):
-#         super().__init__(obj, nodeId, nodeData, name)
-#
-#     def initializeFromJson(self, obj):
-#         super().initializeFromJson(obj)
-#
-#         for itemKey, itemVal in self.nodeData["Entities"]["items"].items():
-#             l = len(obj.Group)
-#             GeoEntity_obj = makeNode(itemKey, obj, str(l), itemVal)
-#
-#
-#
-#     def doubleClickedNode(self, obj):
-#         super().doubleClickedNode(obj)
-#         # self.selectNode(obj)
-#         # num = len(obj.Group)
-#         # GeoEntity_obj = makeNode("GeoEntity_"+str(num), obj, str(num), copy.deepcopy(self.nodeData["Entities"]["TemplateEntity"]))
-#
-#         # -------- panel dialog box  definitions --------------
-#
-#         # create snappyGeDialog Object
-#         snappyGeDialog = SnappyHexMeshGeometryEntityDialogPanel(obj)
-#
-#         # get Parts from FC
-#         Parts = [FCobj.Label for FCobj in FreeCAD.ActiveDocument.Objects if FCobj.Module == 'Part']
-#
-#         # make sure part won't be chosen twice
-#         for child in obj.Group:
-#             if child.partLink.Label in Parts:
-#                 Parts.remove(child.partLink.Label)
-#
-#         # try without Facebinder (BlockMesh entities) - any link of part give him a parent
-#         # it is ok for BlockMesh but what if there will be other links later?
-#         # Parts = []
-#         # for FCobj in FreeCAD.ActiveDocument.Objects:
-#         #     if FCobj.Module == 'Part':
-#         #         if FCobj.getParentGroup() is None:
-#         #             Parts.append(FCobj.Name)
-#         #         elif FCobj.getParentGroup().Module != 'App':
-#         #             Parts.append(FCobj.Name)
-#
-#         # FreeCAD.Console.PrintMessage("Parts = " + str(Parts) + "\n")
-#
-#         # in case part list is empty -> no need dialog
-#         if len(Parts) == 0:
-#             FreeCAD.Console.PrintWarning("There are no geometries in FreeCAD document, or all have been defined \n")
-#             return
-#
-#         # add the part to options at the dialog
-#         for part in Parts:
-#             snappyGeDialog.addGemotry(part)
-#
-#         # update the first value to be shown in the comboBox
-#         snappyGeDialog.setCurrentGeometry(Parts[0])
-#
-#         # add node Object name to the geDialog name
-#         snappyGeDialog.setCallingObject(obj.Name)
-#
-#         # show the Dialog in FreeCAD
-#         FreeCADGui.Control.showDialog(snappyGeDialog)
-#
-#
-#     def backupNodeData(self, obj):
-#         # backup the data of the last node pressed
-#         super().backupNodeData(obj)
-#
-#         items = {}
-#         for child in obj.Group:
-#             child.Proxy.backupNodeData(child)
-#             items[child.Name] = json.loads(child.NodeDataString)
-#
-#         self.nodeData["Entities"]["items"] = copy.deepcopy(items)
-#         # then Update nodeData  at the NodeDataString by converting from json to string
-#         obj.NodeDataString = json.dumps(self.nodeData)
-#
-#     def SnappyGeDialogClosed(self, obj, geometryLabel):
-#         # call when created new GE node
-#         num = len(obj.Group)
-#
-#         # take the entity node data and update its title with the geometry name
-#         entityNodeData = copy.deepcopy(self.nodeData["Entities"]["TemplateEntity"])
-#         entityNodeData["WebGui"]["Schema"]["title"] = "SnappyHexMesh " + geometryLabel
-#
-#         # create the FC obj
-#         GeoEntity_obj = makeNode("snappy_"+geometryLabel, obj, str(num), entityNodeData)
-#
-#         # check object has been created
-#         if GeoEntity_obj is None:
-#             return None
-#
-#         # geometryObj = FreeCAD.ActiveDocument.getObject(geometryName)
-#         geometryObj = FreeCAD.ActiveDocument.getObjectsByLabel(geometryLabel)[0]
-#         if geometryObj is not None:
-#             GeoEntity_obj.partLink = geometryObj
-#             GeoEntity_obj.Proxy.doubleClickedNode(GeoEntity_obj)
-#         else:
-#             FreeCAD.Console.PrintMessage("SnappyGeDialogClosed: geometryObj is None \n")
-#
-#
-#
-#         return
-#
-# # =============================================================================
-# # #_SnappyHexMeshGeometryEntity
-# # =============================================================================
-# class _SnappyHexMeshGeometryEntity(_WebGuiNode):
-#     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-#     #    and add current class functionalites
-#
-#     def __init__(self, obj, nodeId, nodeData, name):
-#         super().__init__(obj, nodeId, nodeData, name)
-#         # FreeCAD.Console.PrintMessage("__init__: GeometryEntity nodadata = " + str(self.nodeData))
-#
-#
-#
-#     # def doubleClickedNode(self, obj):
-#     #     # super().doubleClickedNode(obj)
-#     #     self.selectNode(obj)
-#     #     self.backupNodeData(obj)
-#     #     # FreeCAD.Console.PrintMessage("GeometryEntity nodadata = " + str(self.nodeData))
-#
-#     # def backupNodeData(self, obj):
-#     #     # backup the data of the last node pressed
-#     #     super().backupNodeData(obj)
-#         # FreeCAD.Console.PrintMessage("===============================================================\n")
-#         # FreeCAD.Console.PrintMessage("Node: Name = " + obj.Name + "; Label = " + obj.Label +"\n")
-#         # FreeCAD.Console.PrintMessage("self.nodeData[WebGui] = " + str(self.nodeData["WebGui"]) + "\n")
-#
-#     #
-#     #     # then Update nodeData  at the NodeDataString by converting from json to string
-#     #     obj.NodeDataString = json.dumps(self.nodeData)
-#
-# # =============================================================================
-# # SnappyHexMeshGeometryEntityDialogPanel
-# # =============================================================================
-# # Path To GE UI
-# snappy_ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-# path_to_snappyGe_ui = snappy_ResourceDir + "Mod/Hermes/Resources/ui/snappygeometry.ui"
-#
-# class SnappyHexMeshGeometryEntityDialogPanel:
-#
-#     def __init__(self, obj):
-#         # Create widget from ui file
-#         self.form = FreeCADGui.PySideUic.loadUi(path_to_snappyGe_ui)
-#
-#     def addGemotry(self, gemetry):
-#         # add  geType to options at GE dialog
-#         self.form.m_pGeometryCB.addItem(gemetry)
-#
-#     def setCurrentGeometry(self,GemetryName):
-#         # update the current value in the comboBox
-#         self.form.m_pGeometryCB.setCurrentText(GemetryName)
-#
-#     def setCallingObject(self, callingObjName):
-#         # get obj Name, so in def 'accept' can call the obj
-#         self.callingObjName = callingObjName
-#
-#     def accept(self):
-#         # Happen when Close Dialog
-#         # get the current GE type name from Dialog
-#         Geometry = self.form.m_pGeometryCB.currentText()
-#
-#         # calling the nodeObj from name
-#         callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
-#
-#         # calling the function that create the new GE Object
-#         callingObject.Proxy.SnappyGeDialogClosed(callingObject, Geometry)
-#
-#         # close the Dialog in FreeCAD
-#         FreeCADGui.Control.closeDialog()
-#
-#     def reject(self):
-#         # check if it reset choices
-#         return True
-#
-# # =============================================================================
-# # #_CommandSnappyHexMeshPointSelection
-# # =============================================================================
-# from DraftTools import Point
-# from DraftGui import todo
-#
-# class _CommandSnappyHexMeshPointSelection(Point):
-#     """ Geometry Definer selection command definition """
-#
-#     def GetResources(self):
-#         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-#         icon_path = ResourceDir + "Mod/Hermes/Resources/icons/point01.png"
-#         # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
-#
-#         return {'Pixmap': icon_path,
-#                 'MenuText': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshPoint", "3D point snappyHexMesh"),
-#                 'Accel': "",
-#                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshPoint", "Create a 3D point for snappyHexMesh")}
-#
-#     def IsActive(self):
-#         snappy = FreeCAD.ActiveDocument.getObjectsByLabel("SnappyHexMesh")[0]
-#         if snappy is not None:
-#             # check if point already exist
-#             docObjs = [obj.Label for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
-#             if len(docObjs) > 0:
-#                 return False
-#
-#             return True
-#
-#         return False
-#
-#     # def Activated(self):
-#     #
-#     #     super().Activated()
-#
-#     def click(self, event_cb=None):
-#         super().click()
-#         FreeCAD.ActiveDocument.recompute()
-#
-#         todo.delayAfter(self.linkToSnappy,[])
-#
-#     def linkToSnappy(self):
-#
-#
-#         snappyObj = FreeCAD.ActiveDocument.getObjectsByLabel("SnappyHexMesh")[0]
-#         # FreeCADGui.doCommand("FreeCAD.Console.PrintMessage('Objects = ' + str([obj.Label for obj in FreeCAD.ActiveDocument.Objects]) + '\n')")
-#         # FreeCAD.Console.PrintMessage("Objects = " + str([obj.Label for obj in FreeCAD.ActiveDocument.Objects]) + "\n")
-#
-#
-#         snappyPoint = FreeCAD.ActiveDocument.Objects[-1]
-#         if "Point" not in snappyPoint.Label:
-#             return
-#         # snappyPoint = Draft.makePoint(0, 0, 0, point_size=10)
-#         snappyPoint.Label = "Point_locationInMesh"
-#
-#         snappyObj.locationInMesh = snappyPoint
-#
-#         # nodeData = json.loads(snappyObj.NodeDataString)
-#         nodeData = snappyObj.Proxy.nodeData
-#
-#         x = format(float(snappyPoint[0].X), '.2f')
-#         y = format(float(snappyPoint[0].Y), '.2f')
-#         z = format(float(snappyPoint[0].Z), '.2f')
-#
-#         locationString = "(" + x + " " + y + " " + z + ")"
-#
-#         nodeData["WebGui"]["formData"]["castellatedMeshControls"]["locationInMesh"] = locationString
-#
-#         # snappyObj.NodeDataString = json.dumps(nodeData)
-#         snappyObj.Proxy.nodeData = nodeData
-#         snappyObj.Proxy.backupNodeData(snappyObj)
-#
-# if FreeCAD.GuiUp:
-#     FreeCADGui.addCommand('SnappyHexMeshPointSelection', _CommandSnappyHexMeshPointSelection())
 
 
 # =============================================================================
@@ -1098,7 +760,6 @@ class _GeometryDefinerNode(_HermesNode):
         #     # update block mesh with its vertices and boundry
         #     HermesBlockMesh().updateJson(obj)
 
-
     def geDialogClosed(self, obj, GEtype, GEname):
         # call when created new GE node
 
@@ -1132,11 +793,11 @@ class _GeometryDefinerNode(_HermesNode):
         GENodeObj.References = obj.References
         GENodeObj.Proxy.geDialogClosed(GENodeObj, GEtype, GEname)
 
-
         # Empty the parent node References for further use
         obj.References = []
 
         return
+
 
 # =============================================================================
 # #_CommandGeometryDefinerSelection
@@ -1145,7 +806,8 @@ class _CommandGeometryDefinerSelection:
     """ Geometry Definer selection command definition """
 
     def GetResources(self):
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
+                                                      -1] == '/' else FreeCAD.getResourceDir() + "/"
         icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
         # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
 
@@ -1199,7 +861,8 @@ class _CommandGeometryDefinerSelection:
         path = os.getcwd()
 
         try:
-            SaveName = QFileDialog.getSaveFileName(None, QString.fromLocal8Bit("Save Geometry Definer as obj file"), path,
+            SaveName = QFileDialog.getSaveFileName(None, QString.fromLocal8Bit("Save Geometry Definer as obj file"),
+                                                   path,
                                                    "*.obj")  # PyQt4
         #                          "here the text displayed on windows" "here the filter (extension)"
 
@@ -1222,9 +885,7 @@ class _CommandGeometryDefinerSelection:
                 Mesh.export(objs, outpath)
             except Exception:  # if error detected to write
                 FreeCAD.Console.PrintError(
-                        "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
-
-
+                    "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
 
 
 if FreeCAD.GuiUp:
@@ -1241,13 +902,10 @@ class _BlockMeshNode(_GeometryDefinerNode):
             - update differnt structure of json
     '''
 
-
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
         self.initBMflag = False
         self.BMcount = 0
-
-
 
     def initializeFromJson(self, obj):
         _HermesNode.initializeFromJson(self, obj)
@@ -1289,8 +947,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
             BMEType = boundary["Type"]
             BMENodeObj.Type = BMEType
 
-
-
     def linkPartToBM(self, obj):
 
         # get the part name and path
@@ -1300,7 +956,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
         if len(partPath) != 0 and len(partName) != 0:
 
             # Create full path of the part for Import
-            pathPartStr = partPath + partName + ".stp" if list(partPath)[-1] == '/' else partPath + "/" + partName + ".stp"
+            pathPartStr = partPath + partName + ".stp" if list(partPath)[
+                                                              -1] == '/' else partPath + "/" + partName + ".stp"
 
             # get workflow obj
             workflowObj = obj.getParentGroup()
@@ -1329,7 +986,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
                     # set the BlockMesh partlink  at each child
                     setattr(child, "partLink", partObj)
             else:
-                FreeCAD.Console.PrintWarning('BlockMesh part has not been uploaded - check path and/or name of the part\n')
+                FreeCAD.Console.PrintWarning(
+                    'BlockMesh part has not been uploaded - check path and/or name of the part\n')
         else:
             FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
 
@@ -1341,16 +999,14 @@ class _BlockMeshNode(_GeometryDefinerNode):
         # get workflow object
         workflowObj = obj.getParentGroup()
 
-
-
         # get part object
         partObj = getattr(obj, "partLink")
         if partObj is not None:
             # get the part dictionary with and vertices data
             partName = partObj.Name
 
-            if partName not in workflowObj.Proxy.partList:
-                workflowObj.Proxy.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
+            # if partName not in workflowObj.Proxy.partList:
+            workflowObj.Proxy.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
 
             partDict = workflowObj.Proxy.partList[partName]
             vertices = partDict["Vertices"]["openFoam"]
@@ -1374,7 +1030,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
         # loop all objects in Nodeobj
         for child in obj.Group:
-
             # get GE-child nodeDate from EntityNodeDataString property
             BMEnodeData = json.loads(child.EntityNodeDataString)
 
@@ -1384,25 +1039,33 @@ class _BlockMeshNode(_GeometryDefinerNode):
         # update the Geometry Entity List section data in nodeData
         self.nodeData['boundary'] = boundryList
 
-
     def updateVertices(self, vertices):
 
         # create a list of string vertices
-        stringVertices = []
+        ListVertices = []
         for ver in vertices:
-            string = self.createVerticesString(vertices[ver])
-            stringVertices.append(string)
+            # string = self.createVerticesString(vertices[ver])
+            # ListVertices.append(string)
+
+            listVer = self.createVerticesList(vertices[ver])
+            ListVertices.append(listVer)
 
         # push the list to the form data
-        self.nodeData['vertices'] = stringVertices
+        self.nodeData['vertices'] = ListVertices
+
+    def createVerticesList(self,ver):
+        listVer = list()
+        for cor in ver['coordinates']:
+            listVer.append(ver['coordinates'][cor])
+
+        return listVer
 
     def createVerticesString(self, ver):
-        string =""
+        string = ""
         for cor in ver['coordinates']:
             string += str(ver['coordinates'][cor]) + " "
 
         return string
-
 
     def UpdateNodePropertiesData(self, obj):
 
@@ -1420,8 +1083,56 @@ class _BlockMeshNode(_GeometryDefinerNode):
             # update current properties value of the GE-child
             child.Proxy.UpdateGENodePropertiesData(child)
 
+    def jsonToJinja(self, obj):
+
+        # geometry
+
+        simpleGrading = []
+        json_grading = [getattr(obj, "simpleGradingX"), getattr(obj, "simpleGradingY"), getattr(obj, "simpleGradingZ")]
+        grading = []
+        for cor in json_grading:
+            sg_list = []
+            for sg in cor:
+                if len(sg.split()) == 1:
+                    item = float(sg)
+                    sg_list.append(item)
+                else:
+                    item = [float(e) for e in sg.split()]
+                    sg_list.append(item)
+
+            grading.append(sg_list)
+
+        # FreeCAD.Console.PrintMessage("grading = " + str(grading) + "\n")
+
+        cellCount = [int(c) for c in getattr(obj, "NumberOfCells").split()]
+        convertToMeters = int(getattr(obj, "convertToMeters"))
+
+        geometry = dict(convertToMeters=convertToMeters, cellCount=cellCount, grading=grading)
+
+        # vertices
+        vertices = self.nodeData["vertices"]
+        # json_vertices = self.nodeData["vertices"]
+        # vertices = list()
+        # for ver in json_vertices:
+        #     l_ver = ver.split()
+        #     vertices.append(l_ver)
+
+        # boundary
+        json_boundary = self.nodeData["boundary"]
+        boundry = list()
+        for bn in json_boundary:
+            bn_dict = dict()
+            bn_dict["name"] = bn["Name"]
+            bn_dict["type"] = bn["Type"]
+            bn_dict["faces"] = [bn["faces"][face]["vertices"] for face in bn["faces"]]
+            if bn["Type"] == "cyclic":
+                bn_dict["neighbourPatch"] = bn["Properties"]["Property01"]["current_val"]
+
+            boundry.append(copy.deepcopy(bn_dict))
 
 
 
+        jinja = dict(geomerty=geometry, boundry=boundry, vertices=vertices)
+        FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
 
-
+        return jinja

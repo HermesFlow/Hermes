@@ -106,6 +106,7 @@ class HermesPart:
             # add the sorted list of vertices name to the Face dict
             partFaces[face_name]["vertices"] = sortList
 
+        # FreeCAD.Console.PrintMessage("partFaces = "+ str(partFaces) + "\n")
         return partFaces
 
     def sortFaceVertecesClockwise(self, partVertices, vertexList):
@@ -159,13 +160,15 @@ class HermesPart:
             # get the vertex name from the partVertices
             verName = self.attachVerticesToVertexList(ver, partVertices)
 
+
             # make sure the vertex is on the face
             if verName in vertexList:
                 # add the vertex to the sorted list
-                sortList.append(verName)
+                sortList.append(int(verName))
             else:
                 print("===Error in attach vertices to face =====\n")
 
+        # FreeCAD.Console.PrintMessage("sortList = " + str(sortList) + "\n")
         return sortList
 
     def sortMinMax(self, ver, plane):
