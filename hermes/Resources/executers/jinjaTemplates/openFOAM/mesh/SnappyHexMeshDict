@@ -13,14 +13,13 @@ FoamFile
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
-
-castellatedMesh {{ 'on' if modules.castellatedMesh else 'off' }};
-snap            {{ 'on' if modules.snap else 'off' }};
-addLayers       {{ 'on' if modules.layer else 'off' }};
-
 {%- import "openFOAM/mesh/utils.jinja" as utils %}
+
+castellatedMesh {{utils.toBool(modules.castellatedMesh)}};
+snap            {{utils.toBool(modules.snap)}};
+addLayers       {{utils.toBool(modules.layer)}};
+
+
 
 geometry
 {
@@ -28,12 +27,16 @@ geometry
     {{geometryData.objectName}}.{{geometryData.objectType}}
     {
         type triSurfaceMesh;
-        {%- set objRegions=geometryData.ObjectRegions %}
+        name {{geometryName}};
+        {%- set objRegions=geometryData.regions %}
         regions {
             {%- for regionName,regionData in objRegions.items()  %}
                 {{regionName}}
                 {
                     name {{regionData.name}};
+                    {%- if 'type' in regionData %}
+                    type {{regionData.type}};
+                    {%- endif %}
                 }
             {%- endfor %}
         }
@@ -54,14 +57,14 @@ geometry
 
 castellatedMeshControls
 {
-    nCellsBetweenLevels {{castellatedMeshControls.nCellsBetweenLevels}};
     maxGlobalCells      {{castellatedMeshControls.maxGlobalCells}};
     maxLocalCells       {{castellatedMeshControls.maxLocalCells}};
     minRefinementCells  {{castellatedMeshControls.minRefinementCells}};
     maxLoadUnbalance    {{castellatedMeshControls.maxLoadUnbalance}};
     nCellsBetweenLevels {{castellatedMeshControls.nCellsBetweenLevels}};
     resolveFeatureAngle {{castellatedMeshControls.resolveFeatureAngle}};
-    allowFreeStandingZoneFaces {%- if castellatedMeshControls.allowFreeStandingZoneFaces%} true {%- else %} false {%- endif %};
+    allowFreeStandingZoneFaces {{utils.toBool(castellatedMeshControls.allowFreeStandingZoneFaces)}};
+
 
     locationInMesh {{utils.toPoint(castellatedMeshControls.locationInMesh)}};
 
@@ -89,7 +92,24 @@ castellatedMeshControls
 
     refinementRegions
     {
+        {%- for geometryName,geometryData in geometry.objects.items() %}
+        {%  set refinementRegions =  geometryData.refinementRegions %}
+        {% if 'mode' in geometryData.refinementRegions %}
+        {{geometryName}}
+        {
+            mode {{refinementRegions.mode}};
+            levels (
+                {% if (refinementRegions.mode == 'inside') or (refinementRegions.mode == 'outside') %}
+                {{utils.toPoint(refinementRegions.levels)}}
+                {% elif (refinementRegions.mode == 'distance') %}
+                    {% for pnt in refinementRegions.levels %} {{utils.toPoint(pnt)}} {% endfor %}
+                {% else %}
+                    Invalid mode {{refinementRegions.levels}}, must be inside, outside or distance.
+                {% endif %});
+        }
+        {% endif %}
 
+        {% endfor %}
     }
 }
 
@@ -102,9 +122,9 @@ snapControls
 
     nFeatureSnapIter {{snapControls.nFeatureSnapIter}};
 
-    explicitFeatureSnap    {%- if snapControls.explicitFeatureSnap%} true {%- else %} false {%- endif %};
-    multiRegionFeatureSnap {%- if snapControls.multiRegionFeatureSnap%} true {%- else %} false {%- endif %};
-    implicitFeatureSnap    {%- if snapControls.implicitFeatureSnap%} true {%- else %} false {%- endif %};
+    explicitFeatureSnap    {{utils.toBool(snapControls.explicitFeatureSnap)}};
+    multiRegionFeatureSnap {{utils.toBool(snapControls.multiRegionFeatureSnap)}};
+    implicitFeatureSnap    {{utils.toBool(snapControls.implicitFeatureSnap)}};
 
 }
 
@@ -118,7 +138,7 @@ addLayersControls
 
     // Are the thickness parameters below relative to the undistorted
     // size of the refined cell outside layer (true) or absolute sizes (false).
-    relativeSizes {{addLayersControls.relativeSizes}};
+    relativeSizes {{utils.toBool(addLayersControls.relativeSizes)}};
 
     // Expansion factor for layer mesh
     expansionRatio {{addLayersControls.expansionRatio}};

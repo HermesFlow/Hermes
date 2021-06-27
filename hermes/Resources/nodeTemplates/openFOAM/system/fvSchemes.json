@@ -18,6 +18,18 @@
         "wallDist": "meshWave"
       },
       "fields": {
+        "p" : {
+          "fluxRequired ": true,
+          "laplacianSchemes": [
+            {
+              "noOfOperators": 2,
+              "coefficient": "(1|A(U))",
+              "type": "Gauss",
+              "name": "linear",
+              "parameters": "uncorrected"
+            }
+            ]
+        },
         "U": {
           "fluxRequired ": false,
           "divSchemes": [

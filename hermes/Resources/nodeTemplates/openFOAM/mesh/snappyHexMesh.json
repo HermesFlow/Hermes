@@ -38,6 +38,9 @@
         "implicitFeatureSnap": true
       },
       "addLayersControls": {
+        "relativeSizes" : true,
+        "expansionRatio" : 1.05,
+        "firstLayerThickness" : 0.1,
         "featureAngle": 100,
         "slipFeatureAngle": 30,
         "nLayerIter": 50,
