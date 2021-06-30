@@ -56,3 +56,11 @@ functions
        {{function}};
     {%- endfor %}
 }
+
+
+libs
+(
+    {%- for lib in values.libs %}
+       "lib{{lib}}.so";
+    {%- endfor %}
+)
