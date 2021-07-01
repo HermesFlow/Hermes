@@ -1,0 +1,15 @@
+{
+  "Type": "WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"Boundary Condition Geometry",
+      "description":"",
+      "type":"object",
+      "properties": {}
+    },
+    "uiSchema":{},
+    "formData":{}
+  },
+  "Fields": {}
+}

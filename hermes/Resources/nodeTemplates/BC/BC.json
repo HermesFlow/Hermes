@@ -7,15 +7,23 @@
     }
   },
   "GUI": {
-    "Type": "WebGuiNode",
+    "Type": "BCNode",
     "Properties": {
     },
     "WebGui": {
       "Template": "BC.BCWebGui_empty"
     },
-    "BCList": {
-      "Template": "BC.BCList"
-    },
-    "BCByField": {}
+    "GeometriesSource": ["BlockMesh","SnappyHexMesh.Geometry"],
+    "Templates": {
+      "BCList": {
+        "Template": "BC.BCList"
+      },
+      "BCField": {
+        "Template": "BC.BCField"
+      },
+      "BCGeometry": {
+        "Template": "BC.BCGeometry"
+      }
+    }
   }
 }

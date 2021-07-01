@@ -1,0 +1,11 @@
+{
+  "Type": "WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "Template": "BC.BCList"
+    },
+    "uiSchema":{},
+    "formData":{}
+  }
+}

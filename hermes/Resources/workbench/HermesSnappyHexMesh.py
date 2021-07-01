@@ -128,6 +128,24 @@ class _SnappyHexMesh(_WebGuiNode):
             snappyPoint.Y = coordinates[1]
             snappyPoint.Z = coordinates[2]
 
+    def jsonToJinja(self, obj):
+
+        geometryEntity = dict(objectName="", objectType="obj", levels=int(),ObjectRegions=dict(), refinementSurfaceLevels=list(), patchType="")
+        for geKey, geValue in self.nodeData["Geometry"]["items"].items():
+            geometryEntity["objectName"] = geKey
+            # geometryEntity["levels"] = geValue["WebGui"]["formData"][]
+            # geometryEntity["ObjectRegions"] =
+            # geometryEntity["refinementSurfaceLevels"] =
+            # geometryEntity["patchType"] =
+
+        geometry = dict(objects=dict(), regions=dict())
+
+
+        castellatedMeshControls = self.nodeData["WebGui"]["formData"]["castellatedMeshControls"]
+
+        jinja = dict(geometry=geometry, castellatedMeshControls=castellatedMeshControls)
+        pass
+
 # =============================================================================
 # #_SnappyHexMeshRefinement
 # =============================================================================
@@ -184,8 +202,9 @@ class _SnappyHexMeshGeometry(_HermesNode):
 
         # make sure part won't be chosen twice
         for child in obj.Group:
-            if child.partLink.Label in Parts:
-                Parts.remove(child.partLink.Label)
+            part = FreeCAD.ActiveDocument.getObject(child.partLinkName)
+            if part.Label in Parts:
+                Parts.remove(part.Label)
 
         # try without Facebinder (BlockMesh entities) - any link of part give him a parent
         # it is ok for BlockMesh but what if there will be other links later?
@@ -225,7 +244,7 @@ class _SnappyHexMeshGeometry(_HermesNode):
         items = {}
         for child in obj.Group:
             child.Proxy.backupNodeData(child)
-            items[child.Name] = json.loads(child.NodeDataString)
+            items[child.Label] = json.loads(child.NodeDataString)
 
         self.nodeData["Entities"]["items"] = copy.deepcopy(items)
         # then Update nodeData  at the NodeDataString by converting from json to string
@@ -249,10 +268,14 @@ class _SnappyHexMeshGeometry(_HermesNode):
         # geometryObj = FreeCAD.ActiveDocument.getObject(geometryName)
         geometryObj = FreeCAD.ActiveDocument.getObjectsByLabel(geometryLabel)[0]
         if geometryObj is not None:
-            GeoEntity_obj.partLink = geometryObj
+            GeoEntity_obj.partLinkName = geometryObj.Name
             GeoEntity_obj.Proxy.doubleClickedNode(GeoEntity_obj)
         else:
             FreeCAD.Console.PrintMessage("SnappyGeDialogClosed: geometryObj is None \n")
+
+        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
+        if bcObj is not None:
+            bcObj.Proxy.updateBCPartList(bcObj)
 
 
 
@@ -342,7 +365,7 @@ class _CommandSnappyHexMeshPointSelection(Point):
 
     def GetResources(self):
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/point01.png"
+        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/blue_ball.png"
         # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
 
         return {'Pixmap': icon_path,
@@ -446,7 +469,8 @@ class _CommandSnappyHexMeshObjSelection:
         # create list from all Geometry objects linked to the snappyGeometries obj s
         objs = []
         for child in snappyGeo[0].Group:
-            objs.append(child.partLink)
+            part = FreeCAD.ActiveDocument.getObject(child.partLinkName)
+            objs.append(part)
 
         # save file in wanted location
         self.save_mult_objs_file(objs)

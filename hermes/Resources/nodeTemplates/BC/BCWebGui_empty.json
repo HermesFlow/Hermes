@@ -4,12 +4,6 @@
 		"description":"",
 		"type":"object",
 		"properties":{
-            "partName":{
-                "type":"string",
-                "title": "Part Name",
-                "enum":[],
-                "description":"Defined Boundary condition for this part"
-            }
         }
 	},
 	"uiSchema":{

@@ -471,13 +471,14 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
     def updateBCFields(self, fieldList, HermesObj):
         BCNode = None
         for child in HermesObj.Group:
-            if "BC" == child.Label:
+            if "BoundaryCondition" == child.Label:
                 BCNode = child
 
         if BCNode is None:
             return
 
-        BCNode.Proxy.updateBCNodeFields(fieldList, BCNode)
+        for bcChild in BCNode.Group:
+            BCNode.Proxy.updateBCNodeFields(fieldList, bcChild)
 
         # FreeCAD.Console.PrintMessage("Calculated fields: ")
         # for field in fieldList:

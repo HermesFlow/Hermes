@@ -16,6 +16,28 @@
             "RASProperties",
             "FileWriter"
         ],
+        "tagList": [
+            "copyDirectory",
+            "runPythonScript",
+            "runOsCommand",
+            "blockMesh",
+            "blockMeshEntity",
+            "geometryDefiner",
+            "snappyHexMesh",
+            "snappyHexMeshGeometry",
+            "snappyHexMeshRefinement",
+            "controlDict",
+            "fvSchemes",
+            "fvSolution",
+            "transportProperties",
+            "rasProperties",
+            "fileWriter",
+            "geometry",
+            "field",
+            "boundaryCondition",
+            "boundaryConditionGeometry",
+            "boundaryConditionGeometryField"
+        ],
         "nodes": {
             "CopyDirectory": {
                 "Template": "general.CopyDirectory"

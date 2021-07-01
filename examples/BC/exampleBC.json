@@ -4,18 +4,18 @@
         "Templates": [],
         "nodeList": [
             "BlockMesh",
-            "GeometryDefiner",
-            "BC",
+            "SnappyHexMesh",
+            "BoundaryCondition",
             "ControlDict"
         ],
         "nodes": {
             "BlockMesh":{
                 "Template": "GeometryDefiner.BlockMeshTemplate"
             },
-            "GeometryDefiner":{
-                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            "SnappyHexMesh": {
+                "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
             },
-            "BC":{
+            "BoundaryCondition":{
                 "Template": "BC.BC"
             },
             "ControlDict":{

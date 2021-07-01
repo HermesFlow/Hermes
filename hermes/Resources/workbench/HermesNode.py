@@ -63,11 +63,12 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         obj.Proxy.initializeFromJson(obj)
 
-        if FreeCAD.GuiUp:
-            _ViewProviderNode(obj.ViewObject)
-
-        if obj.Label == "BC":
-            obj.Proxy.updateBCNodeFields(workflowObj.CalculatedFields, obj)
+        if name == 'BoundaryCondition':
+            if FreeCAD.GuiUp:
+                _ViewProviderNodeBC(obj.ViewObject)
+        else:
+            if FreeCAD.GuiUp:
+                _ViewProviderNode(obj.ViewObject)
 
     return obj
 
@@ -195,7 +196,9 @@ class _HermesNode(_SlotHandler):
             # link part - link to 1 part - Inherite from parent BM
             addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link blockMesh node to part")
         else:
-            addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link to part")
+            # addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link to part")
+            addObjectProperty(obj, "partLinkName", "", "App::PropertyString", "BasicData", "Link to part by Name")
+            obj.setEditorMode("partLinkName", 2)  #(2 = hidden)
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -521,8 +524,8 @@ class _WebGuiNode(_HermesNode):
         # get node WebGui- Scheme,uiScheme,FormData
         nodeWebGUI = self.nodeData["WebGui"]
 
-        if obj.Label == "BC":
-            self.updateBCPartList(obj)
+        # FreeCAD.Console.PrintMessage("Schema = " + str(nodeWebGUI["Schema"]) + "\n")
+        # FreeCAD.Console.PrintMessage("==========================\n")
 
         # Check if webGui is empty
         if not ((len(nodeWebGUI) == 0)):
@@ -569,57 +572,206 @@ class _WebGuiNode(_HermesNode):
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def updateBCNodeFields(self, fieldList, obj):
 
-        # take the WebGui part to a var
-        nodeWebGUI = self.nodeData["WebGui"]
-        currentBCList = list(nodeWebGUI["Schema"]["properties"].keys())
+# =============================================================================
+# _BCNode
+# =============================================================================
+class _BCNode(_WebGuiNode):
+    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
+    #    and add current class functionalites
+
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
+
+        workflowObj = self.getRootParent(obj)
+
+        # self.updateBCNodeFields(workflowObj.CalculatedFields, obj)
+
+    def selectNode(self, obj):
+        self.updateBCPartList(obj)
+        super().selectNode(obj)
+
+    def updateBCNodeFields(self, fieldList, bcObj):
+
+        # get part from Name
+        part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
+
+        # get the Field name from the bc_field obj - remove the "part_" from obj label
+        # BCfieldList = [bcField.Label.replace(part.Label + '_', '') for bcField in bcObj.Group]
+        BCfieldList = list()
+        for bcField in bcObj.Group:
+            # remove the "part_" from obj label
+            field = bcField.Label.replace(part.Label + '_', '')
+            # remove spaces
+            field.replace(" ", "")
+
+            if len(field) > 0:
+                BCfieldList.append(field)
+
+        # remove spaces from Hermes field list
+        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
 
         # create list of items need to be added or removed from webGui
-        add_list = [field for field in fieldList if field not in currentBCList]
-        del_list = [field for field in currentBCList if field not in fieldList]
-        del_list.remove("partName")  # need to remain in dictionary
+        add_list = [field for field in fieldList if field not in BCfieldList]
+        del_list = [field for field in BCfieldList if field not in fieldList]
+
+
+
+        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCField] = " + str(self.nodeData["Templates"]["BCField"]) + "\n")
+
+        # create a new bc geometry object
+        if len(add_list) > 0:
+            for field in add_list:
+                bc_field_obj = makeNode(part.Label + "_" + field, bcObj, str(0), copy.deepcopy(self.nodeData["Templates"]["BCField"]))
+
+                bc_field_nodeData = bc_field_obj.Proxy.nodeData
+                bc_field_nodeData["WebGui"]["Schema"]["title"] = field + " - " + part.Label
+                bc_field_nodeData["WebGui"]["Schema"]["description"] = "Defined " + field + " Boundary condition for the part."
+                bc_field_obj.Proxy.nodeData = bc_field_nodeData
 
         # remove fields from webGui
         for field in del_list:
-            nodeWebGUI["Schema"]["properties"].pop(field)
+            for bcField in bcObj.Group:
+                if field in bcField.Label:
+                    bcObj.Document.removeObject(bcField.Name)
 
-        # add fields to webGui
-        for field in add_list:
-            if len(field) > 0:
-                # deep cp of template BCLisy to a new dict
-                field_dict = copy.deepcopy(self.nodeData["BCList"])
-
-                # update the data in structure
-                field_dict["title"] = field
-                field_dict["description"] = "Defined " + field + " Boundary condition for the part."
-
-                # insert the the new dict into the webGui under ["Schema"]["properties"]
-                nodeWebGUI["Schema"]["properties"][field] = field_dict
-
-        # return data to the webGui node
-        self.nodeData["WebGui"] = nodeWebGUI
 
     def updateBCPartList(self, obj):
 
-        # get the active document
-        doc = FreeCAD.ActiveDocument
+        workflowObj = self.getRootParent(obj)
+        nodesPartList = list()
+        nodesObjList = list()
 
-        # get the part names from the active document
-        partList = [obj.Label for obj in doc.Objects if obj.Module == "Part"]
+        # create bc nodes to these geometries
+        # get each node geometries
+        for node in self.nodeData["GeometriesSource"]:
+            split_node = node.split('.')
+            FreeCAD.Console.PrintMessage("split_node = " + str(split_node) + "\n")
+
+            # case it is first order node
+            if len(split_node) == 1:
+                nodeGroup = FreeCAD.ActiveDocument.getObject(node)
+            # case of inner node holding the geometries
+            elif len(split_node) > 1:
+                treeObjList = [FreeCAD.ActiveDocument.getObject(node) for node in split_node]
+                treeObjList.reverse()
+                i = 0
+                # FreeCAD.Console.PrintMessage("treeObjList = " + str(treeObjList) + "\n")
+                while len(treeObjList) > 1:
+                    if treeObjList[i] in treeObjList[i + 1].Group:
+                        if i == 0:
+                            nodeGroup = treeObjList[i]
+                            # FreeCAD.Console.PrintMessage("nodeGroup = " + str(nodeGroup) + "\n")
+
+                        treeObjList.remove(treeObjList[i])
+                    else:
+                        FreeCAD.Console.PrintWarning("node " + node + "has not been found \n")
+                    i = i + 1
+
+            FreeCAD.Console.PrintMessage("node = " + str(node) + "; nodeGroup = " + str(nodeGroup) + "\n")
+
+            nodePartList = list()
+            # get node and BC part list
+            for nodeObj in nodeGroup.Group:
+                if nodeObj.Module == 'Part':
+                    # nodePartList.append(nodeObj)
+                    nodePartList.append(nodeObj.Name)
+                else:
+                    # part = FreeCAD.ActiveDocument.getObject(nodeObj.partLinkName)
+                    part = nodeObj.partLinkName
+                    # if part is not None:
+                    if len(part) > 0:
+                        nodePartList.append(part)
+
+            nodesPartList += nodePartList
+            nodesObjList.append(nodeGroup)
+
+        # BCpartList = [FreeCAD.ActiveDocument.getObject(BCobj.partLinkName) for BCobj in obj.Group if len(BCobj.partLinkName) > 0]
+        BCpartList = [BCobj.partLinkName for BCobj in obj.Group if len(BCobj.partLinkName) > 0]
+
+        # compare the list - check if need to delete or add objects
+        add_list = [part for part in nodesPartList if part not in BCpartList]
+        del_list = [part for part in BCpartList if part not in nodesPartList]
+
 
         # FreeCAD.Console.PrintMessage("partList = " + str(partList) + "\n")
+        # get Hermes workflow
 
-        # update the list in the webGui and description - depend if the list is empty or not
-        if len(partList) == 0:
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"][
-                "description"] = "There are no parts in the FreeCAD document"
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = []
-        else:
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"][
-                "description"] = "Defined Boundary condition for this part"
-            self.nodeData["WebGui"]["Schema"]["properties"]["partName"]["enum"] = partList
+        FreeCAD.Console.PrintMessage("add_list = " + str(add_list) + "\n")
+        FreeCAD.Console.PrintMessage("del_list = " + str(del_list) + "\n")
 
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCGeometry] = " + str(self.nodeData["Templates"]["BCGeometry"]) + "\n")
+        # for nodeGroup in nodesObjList:
+            # create a new bc geometry object
+        if len(add_list) > 0:
+            FreeCAD.Console.PrintMessage("if len(add_list) > 0: \n")
+            for partName in add_list:
+                FreeCAD.Console.PrintMessage("add : part = " + partName + "\n")
+                # part = FreeCAD.ActiveDocument.getObject(partName)
+
+                # bc_part_name = "bc_" + self.getNodeLabel(part, nodeGroup)
+                bc_part_name = "bc_" + self.getNodeLabel(partName, nodesObjList)
+                bc_part_obj = makeNode(bc_part_name, obj, str(0), copy.deepcopy(self.nodeData["Templates"]["BCGeometry"]))
+                if bc_part_obj is None:
+                    FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
+                else:
+                    FreeCAD.Console.PrintMessage(" add obj: bc_part_name = " + bc_part_name + "\n")
+                bc_part_obj.partLinkName = partName
+                self.updateBCNodeFields(workflowObj.CalculatedFields, bc_part_obj)
+
+         # remove bc geometry objects
+        if len(del_list) > 0:
+            for partName in del_list:
+                for bcPart in BCpartList:
+                    if bcPart == partName:
+                        FreeCAD.Console.PrintMessage("dell: bcPart = " + bcPart + "\n")
+
+                        # bc_part_name = "bc_" + self.getNodeLabel(part, nodeGroup)
+                        # part = FreeCAD.ActiveDocument.getObject(partName)
+
+                        # bc_part_name = "bc_" + self.getNodeLabel(partName, nodesObjList)
+                        # bcPartObj = FreeCAD.ActiveDocument.getObject(bc_part_name)
+                        bcPartObj = self.getDelNode(partName, obj)
+                        for child in bcPartObj.Group:
+                            obj.Document.removeObject(child.Name)
+                        obj.Document.removeObject(bcPartObj.Name)
+
+    def getNodeLabel(self, partName, nodeGroupList):
+        for nodeGroup in nodeGroupList:
+            for node in nodeGroup.Group:
+                FreeCAD.Console.PrintMessage("getNodeLabel: node = " + node.Label + "\n")
+                if node.Name == partName:
+                    return node.Label
+                elif 'partLinkName' in node.PropertiesList:
+                    if partName == node.partLinkName:
+                        return node.Label
+        return None
+
+    def getDelNode(self, partName, obj):
+        for child in obj.Group:
+            if child.partLinkName == partName:
+                return child
+        return None
+
+# =============================================================================
+#      "_ViewProviderNodeBC" class
+# =============================================================================
+class _ViewProviderNodeBC(_ViewProviderNode):
+
+    def getIcon(self):
+        # Define Resource dir end with ','
+        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
+                                                      -1] == '/' else FreeCAD.getResourceDir() + "/"
+
+        red_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
+        yellow_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
+        green_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
+
+        icon_path = red_icon_path
+        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC - getIcon \n")
+
+        return icon_path
 
 # =============================================================================
 # #_GeometryDefinerNode
@@ -795,6 +947,10 @@ class _GeometryDefinerNode(_HermesNode):
 
         # Empty the parent node References for further use
         obj.References = []
+
+        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
+        if bcObj is not None:
+            bcObj.Proxy.updateBCPartList(bcObj)
 
         return
 
