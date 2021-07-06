@@ -49,18 +49,18 @@ adjustTimeStep  {%- if values.adjustTimeStep %} yes {% else %} no {%- endif %};
 
 maxCo           {{values.maxCo}};
 
+libs
+(
+    {%- for lib in values.libs -%}
+       "lib{{lib}}.so";
+    {%- endfor -%}
+);
 
 functions
 {
-    {%- for function in values.functions %}
+    {%- for function in values.functions -%}
        {{function}};
-    {%- endfor %}
+    {%- endfor -%}
 }
 
 
-libs
-(
-    {%- for lib in values.libs %}
-       "lib{{lib}}.so";
-    {%- endfor %}
-)

@@ -21,52 +21,51 @@ ddtSchemes
 
 gradSchemes
 {
-    {% if 'gradSchemes' in default %}
+    {% if 'gradSchemes' in default -%}
     default           {{default.gradSchemes.type}} {{default.gradSchemes.name}};
-    {% endif %}
+    {% endif -%}
 
-    {%- for fieldName,fieldData in fields.items() %}
-        {% if 'gradScheme' in gradSchemeDict %}
-        {%- set gradSchemeDict = fieldData.gradScheme %}
+    {% for fieldName,fieldData in fields.items() -%}
+        {%- if 'gradScheme' in fieldData -%}
+        {%- set gradSchemeDict = fieldData.gradScheme -%}
         grad({{fieldName}}) {{field.gradScheme}}
-        {%- endif %}
-    {%- endfor %}
+        {% endif -%}
+    {% endfor -%}
 }
 
 divSchemes
 {
-    {% if 'divSchemes' in default %}
+    {% if 'divSchemes' in default -%}
     default               {{default.divSchemes.type}} {{default.divSchemes.name}} {{default.divSchemes.parameters}};
-    {% endif %}
+    {% endif -%}
 
-{%- for fieldName,fieldData in fields.items() %}
-  {% for divSchemeDict in fieldData.divSchemes %}
-    {% if divSchemeDict.noOfOperators == 0 %}
+{% for fieldName,fieldData in fields.items() -%}
+  {%- for divSchemeDict in fieldData.divSchemes -%}
+    {%- if divSchemeDict.noOfOperators == 0 -%}
     {{fieldName}}  {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
-    {% elif divSchemeDict.noOfOperators == 1 %}
+    {%- elif divSchemeDict.noOfOperators == 1 -%}
     div({{fieldName}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
-    {% else %}
+    {%- else -%}
     div({{divSchemeDict.phi}},{{fieldName}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
-    {%- endif %}
-  {%- endfor %}
-{%- endfor %}
-
+    {% endif %}
+  {%- endfor -%}
+{% endfor -%}
 }
 
 laplacianSchemes
 {
-    {% if 'laplacianSchemes' in default %}
+    {% if 'laplacianSchemes' in default -%}
     default               {{default.laplacianSchemes.type}} {{default.laplacianSchemes.name}} {{default.laplacianSchemes.parameters}};
-    {% endif %}
+    {% endif -%}
 {%- for fieldName,fieldData in fields.items() %}
- {% for laplacianSchemeDict  in fieldData.laplacianSchemes %}
-{% if laplacianSchemeDict.noOfOperators == 1 %}
+ {%- for laplacianSchemeDict  in fieldData.laplacianSchemes -%}
+{%- if laplacianSchemeDict.noOfOperators == 1 -%}
     laplacian({{fieldName}})  {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
-{% elif laplacianSchemeDict.noOfOperators == 2 %}
+{%- elif laplacianSchemeDict.noOfOperators == 2 -%}
     laplacian({{laplacianSchemeDict.coefficient}},{{fieldName}}) {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
   {% endif %}
- {% endfor %}
-{% endfor %}
+ {%- endfor -%}
+{%- endfor -%}
 }
 
 interpolationSchemes
@@ -87,10 +86,9 @@ wallDist
 fluxRequired
 {
     default         no;
-    {%- for fieldName,fieldData in fields.items() %}
-        {%- if fieldData.fluxRequired %} {{fieldName}} {% endif %}
-    {% endfor %}
-
+    {% for fieldName,fieldData in fields.items() -%}
+        {%- if fieldData.fluxRequired -%} {{fieldName}} {%- endif -%}
+    {%- endfor %}
 }
 
 // ************************************************************************* //

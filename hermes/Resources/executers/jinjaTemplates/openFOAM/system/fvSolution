@@ -18,14 +18,14 @@ FoamFile
 
 solvers
 {
-    {% for fieldName,solverData in fields.items() %}
-        {{solvers.solver(fieldName,solverData,False)}}
-       {% if 'final' in solverData %}
-        {{solvers.solver(fieldName,solverData.final,True)}}
-       {% else %}
-        {{solvers.solver(fieldName,solverData,True)}}
-       {% endif %}
-    {% endfor %}
+    {% for fieldName,solverData in fields.items() -%}
+       {{solvers.solver(fieldName,solverData,False)}}
+       {%- if 'final' in solverData -%}
+       {{solvers.solver(fieldName,solverData.final,True)}}
+       {%- else -%}
+       {{solvers.solver(fieldName,solverData,True)}}
+       {%- endif -%}
+    {%- endfor %}
 
 }
 
@@ -33,9 +33,9 @@ solvers
 {
     residualControl
     {
-        {%- for fieldName, factor in solverProperties.residualControl.items() %}
+        {% for fieldName, factor in solverProperties.residualControl.items() -%}
         {{fieldName}}    {{factor}};
-        {%- endfor %}
+        {% endfor %}
     }
     nNonOrthogonalCorrectors {{solverProperties.nNonOrthogonalCorrectors}};
     pRefCell        {{solverProperties.pRefCell}};
@@ -47,18 +47,17 @@ relaxationFactors
 {
     fields
     {
-        {%- for fieldName, factor in relaxationFactors.fields.items() %}
-        {{fieldName}}   {{factor}};
-        {%- endfor %}
+        {% for fieldName, factor in relaxationFactors.fields.items() -%}
+        {{fieldName}} {{factor}};
+        {% endfor %}
     }
     equations
     {
-        {%- for fieldName, factorData in relaxationFactors.equations.items() %}
+        {% for fieldName, factorData in relaxationFactors.equations.items() -%}
         {{fieldName}}   {{factorData.factor}};
-        {% if 'final' in factor %}
-            {{fieldName}}Final {{factor.final}}
-        {% endif %}
-        {%- endfor %}
+        {%- if 'final' in factorData -%}{{fieldName}}Final {{factorData.final}};
+        {% endif -%}
+        {% endfor %}
     }
 }
 
