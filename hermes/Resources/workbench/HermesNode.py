@@ -63,7 +63,7 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         obj.Proxy.initializeFromJson(obj)
 
-        if name == 'BoundaryCondition':
+        if (nodeData["Type"] == 'BCNode') or (nodeData["Type"] == 'BCGeometryNode') or (nodeData["Type"] == 'BCFieldNode'):
             if FreeCAD.GuiUp:
                 _ViewProviderNodeBC(obj.ViewObject)
         else:
@@ -270,7 +270,7 @@ class _HermesNode(_SlotHandler):
         # when restored- initilaize properties
         self.initProperties(obj)
 
-        FreeCAD.Console.PrintMessage("Node onDocumentRestored\n")
+        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
 
         if FreeCAD.GuiUp:
             _ViewProviderNode(obj.ViewObject)
@@ -282,6 +282,8 @@ class _HermesNode(_SlotHandler):
 
     def doubleClickedNode(self, obj):
 
+
+
         # get "workflowObj" from been parent of the node obj
         workflowObj = self.getRootParent(obj)
 
@@ -290,6 +292,8 @@ class _HermesNode(_SlotHandler):
 
         # update is active
         obj.IsActiveObj = True
+
+        # FreeCAD.ActiveDocument.recompute()
 
         return
 
@@ -519,6 +523,7 @@ class _WebGuiNode(_HermesNode):
 
         self.selectNode(obj)
 
+
     def selectNode(self, obj):
 
         # get node WebGui- Scheme,uiScheme,FormData
@@ -582,6 +587,7 @@ class _BCNode(_WebGuiNode):
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
+        self.iconColor = "red"
 
         workflowObj = self.getRootParent(obj)
 
@@ -590,6 +596,7 @@ class _BCNode(_WebGuiNode):
     def selectNode(self, obj):
         self.updateBCPartList(obj)
         super().selectNode(obj)
+
 
     def updateBCNodeFields(self, fieldList, bcObj):
 
@@ -647,7 +654,6 @@ class _BCNode(_WebGuiNode):
         # get each node geometries
         for node in self.nodeData["GeometriesSource"]:
             split_node = node.split('.')
-            FreeCAD.Console.PrintMessage("split_node = " + str(split_node) + "\n")
 
             # case it is first order node
             if len(split_node) == 1:
@@ -657,19 +663,16 @@ class _BCNode(_WebGuiNode):
                 treeObjList = [FreeCAD.ActiveDocument.getObject(node) for node in split_node]
                 treeObjList.reverse()
                 i = 0
-                # FreeCAD.Console.PrintMessage("treeObjList = " + str(treeObjList) + "\n")
                 while len(treeObjList) > 1:
                     if treeObjList[i] in treeObjList[i + 1].Group:
                         if i == 0:
                             nodeGroup = treeObjList[i]
-                            # FreeCAD.Console.PrintMessage("nodeGroup = " + str(nodeGroup) + "\n")
 
                         treeObjList.remove(treeObjList[i])
                     else:
                         FreeCAD.Console.PrintWarning("node " + node + "has not been found \n")
                     i = i + 1
 
-            FreeCAD.Console.PrintMessage("node = " + str(node) + "; nodeGroup = " + str(nodeGroup) + "\n")
 
             nodePartList = list()
             # get node and BC part list
@@ -695,19 +698,14 @@ class _BCNode(_WebGuiNode):
         del_list = [part for part in BCpartList if part not in nodesPartList]
 
 
-        # FreeCAD.Console.PrintMessage("partList = " + str(partList) + "\n")
         # get Hermes workflow
 
-        FreeCAD.Console.PrintMessage("add_list = " + str(add_list) + "\n")
-        FreeCAD.Console.PrintMessage("del_list = " + str(del_list) + "\n")
 
-        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCGeometry] = " + str(self.nodeData["Templates"]["BCGeometry"]) + "\n")
+
         # for nodeGroup in nodesObjList:
             # create a new bc geometry object
         if len(add_list) > 0:
-            FreeCAD.Console.PrintMessage("if len(add_list) > 0: \n")
             for partName in add_list:
-                FreeCAD.Console.PrintMessage("add : part = " + partName + "\n")
                 # part = FreeCAD.ActiveDocument.getObject(partName)
 
                 # bc_part_name = "bc_" + self.getNodeLabel(part, nodeGroup)
@@ -715,8 +713,7 @@ class _BCNode(_WebGuiNode):
                 bc_part_obj = makeNode(bc_part_name, obj, str(0), copy.deepcopy(self.nodeData["Templates"]["BCGeometry"]))
                 if bc_part_obj is None:
                     FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
-                else:
-                    FreeCAD.Console.PrintMessage(" add obj: bc_part_name = " + bc_part_name + "\n")
+
                 bc_part_obj.partLinkName = partName
                 self.updateBCNodeFields(workflowObj.CalculatedFields, bc_part_obj)
 
@@ -725,13 +722,7 @@ class _BCNode(_WebGuiNode):
             for partName in del_list:
                 for bcPart in BCpartList:
                     if bcPart == partName:
-                        FreeCAD.Console.PrintMessage("dell: bcPart = " + bcPart + "\n")
 
-                        # bc_part_name = "bc_" + self.getNodeLabel(part, nodeGroup)
-                        # part = FreeCAD.ActiveDocument.getObject(partName)
-
-                        # bc_part_name = "bc_" + self.getNodeLabel(partName, nodesObjList)
-                        # bcPartObj = FreeCAD.ActiveDocument.getObject(bc_part_name)
                         bcPartObj = self.getDelNode(partName, obj)
                         for child in bcPartObj.Group:
                             obj.Document.removeObject(child.Name)
@@ -740,7 +731,6 @@ class _BCNode(_WebGuiNode):
     def getNodeLabel(self, partName, nodeGroupList):
         for nodeGroup in nodeGroupList:
             for node in nodeGroup.Group:
-                FreeCAD.Console.PrintMessage("getNodeLabel: node = " + node.Label + "\n")
                 if node.Name == partName:
                     return node.Label
                 elif 'partLinkName' in node.PropertiesList:
@@ -754,6 +744,208 @@ class _BCNode(_WebGuiNode):
                 return child
         return None
 
+    def getIconColor(self, obj):
+        if len(obj.Group) == 0:
+            self.iconColor = 'red'
+            return self.iconColor
+
+        colorList = [child.Proxy.iconColor for child in obj.Group]
+        # FreeCAD.Console.PrintMessage("BC.getIconColor: colorList = "+ str(colorList) + "\n")
+        countRed = 0
+        countGreen = 0
+        for color in colorList:
+            if color == 'green':
+                countGreen += 1
+            if color == 'red':
+                countRed += 1
+
+        if countGreen == len(colorList):
+            self.iconColor = "green"
+        elif countRed == len(colorList):
+            self.iconColor = "red"
+        else:
+            self.iconColor = "yellow"
+
+        return self.iconColor
+
+    def backupNodeData(self, obj):
+        super().backupNodeData(obj)
+
+
+
+    def onDocumentRestored(self, obj):
+
+        workflowObj = obj.getParentGroup()
+        workflowObj.Proxy.nLastNodeId = "-1"
+
+        # parse json data
+        self.nodeData = json.loads(obj.NodeDataString)
+
+        # when restored- initilaize properties
+        self.initProperties(obj)
+
+        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
+
+        if FreeCAD.GuiUp:
+            _ViewProviderNodeBC(obj.ViewObject)
+
+# =============================================================================
+# _BCGeometryNode
+# =============================================================================
+class _BCGeometryNode(_WebGuiNode):
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
+        self.iconColor = "red"
+
+    def initProperties(self, obj):
+        super().initProperties(obj)
+
+        # Is Avtive property- Boolean -keep if obj has been activated (douuble clicked get active)
+        addObjectProperty(obj, "colorFlag", False, "App::PropertyBool", "", "update color flag")
+        obj.setEditorMode("colorFlag", 2)  # Make read-only (2 = hidden)
+
+
+
+    def getIconColor(self, obj):
+        if len(obj.Group) == 0:
+            self.iconColor = 'red'
+            return self.iconColor
+
+        colorList = [child.Proxy.iconColor for child in obj.Group]
+        # FreeCAD.Console.PrintMessage("BCGeometryNode.getIconColor: colorList = "+ str(colorList) + "\n")
+
+        countRed = 0
+        countGreen = 0
+        for color in colorList:
+            if color == 'green':
+                countGreen += 1
+            if color == 'red':
+                countRed += 1
+
+        if countGreen == len(colorList):
+            self.iconColor = "green"
+        elif countRed == len(colorList):
+            self.iconColor = "red"
+        else:
+            self.iconColor = "yellow"
+
+        return self.iconColor
+
+    def backupNodeData(self, obj):
+        super().backupNodeData(obj)
+
+
+    def onDocumentRestored(self, obj):
+
+        workflowObj = obj.getParentGroup()
+        workflowObj.Proxy.nLastNodeId = "-1"
+
+        # parse json data
+        self.nodeData = json.loads(obj.NodeDataString)
+
+        # when restored- initilaize properties
+        self.initProperties(obj)
+
+        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
+
+        if FreeCAD.GuiUp:
+            _ViewProviderNodeBC(obj.ViewObject)
+
+
+# =============================================================================
+# _BCFieldNode
+# =============================================================================
+class _BCFieldNode(_WebGuiNode):
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
+        self.iconColor = "red"
+
+    def getIconColor(self, obj):
+        webGui = obj.Proxy.nodeData["WebGui"]
+        formData = webGui["formData"]
+
+        if len(webGui["formData"]) == 0:
+            self.iconColor = "red"
+            return 'red'
+        else:
+            typeBC = formData["typeBC"]
+            if typeBC == "notSet":
+                self.iconColor = "red"
+                return 'red'
+            else:
+                self.iconColor = self.compareSchemeFormData(webGui)
+
+        return self.iconColor
+
+    def compareSchemeFormData(self,webGui):
+        schema = webGui["Schema"]
+        formData = copy.deepcopy(webGui["formData"])
+
+        # take the properties keys from the schemes - in case there will be more properties but typeBC
+        scheme_list = list(schema["properties"].keys())
+
+        if "typeBC" not in formData:
+            return
+
+        typeBC = formData["typeBC"]
+        # take the properties keys from the dependencies
+        dependencies = schema["dependencies"]
+        for depend in dependencies["typeBC"]["oneOf"]:
+            if depend["properties"]["typeBC"]["enum"][0] == typeBC:
+                depend_list = list(depend["properties"].keys())
+                lenDependList = len(depend_list)
+                scheme_list += depend_list
+
+        # remove duplication from list
+        scheme_list = list(dict.fromkeys(scheme_list))
+
+        # remove typeBC from both scheme_list and formData
+        scheme_list.remove("typeBC")
+        formData.pop("typeBC")
+
+        # FreeCAD.Console.PrintMessage("compareSchemeFormData: scheme_list = " + str(scheme_list) + "\n")
+        # FreeCAD.Console.PrintMessage("compareSchemeFormData: formData = " + str(list(formData.keys())) + "\n")
+
+
+        # take only the keys in both formData and scheme
+        # (the formData keep all extra properties added from specific typeBC Enum. In case of changing the enum it will display former fill in)
+        # diff_scheme = [key for key in scheme_list if key in formData]
+        same_formData = [key for key in formData if key in scheme_list]
+        # diff_formData = [key for key in formData if key not in scheme_list]
+
+        # FreeCAD.Console.PrintMessage("compareSchemeFormData: same_formData = " + str(same_formData) + "\n")
+
+        if lenDependList == 1:
+            return 'green'
+        elif len(same_formData) == len(scheme_list):
+            return 'green'
+        elif len(same_formData) < len(scheme_list):
+            return 'yellow'
+
+        FreeCAD.Console.PrintMessage("compareSchemeFormData - got to the last return")
+
+        return 'red'
+
+    def backupNodeData(self, obj):
+        super().backupNodeData(obj)
+
+    def onDocumentRestored(self, obj):
+
+        workflowObj = obj.getParentGroup()
+        workflowObj.Proxy.nLastNodeId = "-1"
+
+        # parse json data
+        self.nodeData = json.loads(obj.NodeDataString)
+
+        # when restored- initilaize properties
+        self.initProperties(obj)
+
+        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
+
+        if FreeCAD.GuiUp:
+            _ViewProviderNodeBC(obj.ViewObject)
+
+
 # =============================================================================
 #      "_ViewProviderNodeBC" class
 # =============================================================================
@@ -763,15 +955,27 @@ class _ViewProviderNodeBC(_ViewProviderNode):
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
+        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC.getIcon: self.NodeObjName = " + self.NodeObjName + "\n")
 
-        red_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
-        yellow_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
-        green_icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
+        obj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
 
-        icon_path = red_icon_path
+        color = obj.Proxy.getIconColor(obj)
+        # FreeCAD.Console.PrintMessage("color = " + str(color) + "\n")
+        if color == 'red':
+            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
+        elif color == 'yellow':
+            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/yellow_ball.png"
+        elif color == 'green':
+            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/green_ball.png"
+        else:
+            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/blue_ball.png"
+
         # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC - getIcon \n")
 
         return icon_path
+
+
+
 
 # =============================================================================
 # #_GeometryDefinerNode
@@ -850,6 +1054,7 @@ class _GeometryDefinerNode(_HermesNode):
 
         # show the Dialog in FreeCAD
         FreeCADGui.Control.showDialog(geDialog)
+
 
     def backupNodeData(self, obj):
         super().backupNodeData(obj)

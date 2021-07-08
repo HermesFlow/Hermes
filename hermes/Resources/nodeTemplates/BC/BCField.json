@@ -1,5 +1,5 @@
 {
-  "Type": "WebGuiNode",
+  "Type": "BCFieldNode",
   "Properties": {},
   "WebGui": {
     "Schema":{

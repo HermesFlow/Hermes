@@ -336,6 +336,7 @@ class _HermesWorkflow:
             # find the obj object that "is active"
 
                 if o.IsActiveObj:
+                    # FreeCAD.Console.PrintMessage("updateLastNode obj " + o.Name + "\n")
 
                     # backup obj 'nodeDate'
                     o.Proxy.backupNodeData(o)
@@ -343,8 +344,31 @@ class _HermesWorkflow:
                     # update the node active property to false
                     o.IsActiveObj = False
 
+                    FreeCAD.ActiveDocument.recompute()
+
+                    self.recomputeParents(obj, o.getParentGroup())
+                    # FreeCAD.ActiveDocument.recompute()
+                    # FreeCADGui.doCommand("FreeCAD.ActiveDocument.recompute()")
+
         # Update the new 'nLastNodeId'
         # self.nLastNodeId = nNodeId
+
+    def recomputeParents(self,HermesWorkflow, child):
+        if child == HermesWorkflow:
+            return
+        else:
+            # marked the object as changed
+            child.touch()
+
+            # mark the object to tecompute
+            # child.enforceRecompute()
+
+            # FreeCADGui.doCommand("App.activeDocument().recompute()")
+            # FreeCAD.ActiveDocument.recompute()
+
+            self.recomputeParents(HermesWorkflow, child.getParentGroup())
+
+            return
 
     def updateJsonBeforeExport(self, obj):
 

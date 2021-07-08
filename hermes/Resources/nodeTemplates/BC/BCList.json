@@ -7,6 +7,7 @@
       "title": "type",
       "type": "string",
       "enum": [
+        "notSet",
         "fixedValue",
         "pressureInletOutletVelocity",
         "slip",
@@ -18,7 +19,7 @@
         "calculated",
         "nutkRoughWallFunction"
       ],
-      "default": "slip"
+      "default": "notSet"
     }
   },
   "dependencies": {
@@ -29,6 +30,15 @@
             "typeBC": {
               "enum": [
                 "slip"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "notSet"
               ]
             }
           }
