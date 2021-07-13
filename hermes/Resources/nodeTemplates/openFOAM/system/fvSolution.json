@@ -68,9 +68,11 @@
           "k": 1e-4,
           "epsilon": 1e-4
         },
-        "nNonOrthogonalCorrectors": 2,
-        "pRefCell": 0,
-        "pRefValue": 0
+        "solverFields" : {
+          "nNonOrthogonalCorrectors": 2,
+          "pRefCell": 0,
+          "pRefValue": 0
+        }
       },
       "relaxationFactors": {
         "fields": {

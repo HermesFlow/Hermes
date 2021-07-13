@@ -17,7 +17,7 @@ FoamFile
 
 castellatedMesh {{utils.toBool(modules.castellatedMesh)}};
 snap            {{utils.toBool(modules.snap)}};
-addLayers       {{utils.toBool(modules.layer)}};
+addLayers       {{utils.toBool(modules.layers)}};
 
 
 
@@ -133,7 +133,14 @@ addLayersControls
     // Per final patch (so not geometry!) the layer information
     layers
     {
-
+        {%- for geometryName,geometryData in geometry.objects.items() %}
+        {%- if 'layers' in geometryData %}
+            {{geometryData.objectName}}
+            {
+                nSurfaceLayers {{geometryData.layers.nSurfaceLayers}};
+            }
+        {%- endif %}
+        {%- endfor %}
     }
 
     // Are the thickness parameters below relative to the undistorted

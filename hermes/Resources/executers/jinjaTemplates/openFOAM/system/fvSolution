@@ -37,10 +37,11 @@ solvers
         {{fieldName}}    {{factor}};
         {% endfor %}
     }
-    nNonOrthogonalCorrectors {{solverProperties.nNonOrthogonalCorrectors}};
-    pRefCell        {{solverProperties.pRefCell}};
-    pRefValue       {{solverProperties.pRefValue}};
 
+    {% for field,fieldValue in solverProperties.solverFields.items() -%}
+        {{field}} {{fieldValue}};
+    {% endfor %}
+    }
 }
 
 relaxationFactors

@@ -62,6 +62,10 @@ class RunOsCommandExecuter(abstractExecuter):
     def run(self, **inputs):
         import stat,os
 
+        if "changeDirTo" in inputs:
+            cwd = os.getcwd()
+            os.chdir(os.path.abspath(inputs["changeDirTo"]))
+
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile
             fullPath = inputs["batchFile"]
@@ -75,19 +79,26 @@ class RunOsCommandExecuter(abstractExecuter):
             import subprocess, stat, numpy
             ret = []
             for cmd in numpy.atleast_1d(inputs["Command"]):
-                output = subprocess.Popen(cmd.split(" "),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-                stdout,stderr = output.communicate()
+                ret_val = os.system(cmd)
+                ret.append("Success" if ret == 1 else "Failed")
 
-                stdout = "" if stdout is None else stdout.decode()
-                stderr = "" if stderr is None else stderr.decode()
-
-                result = dict(command=cmd,
-                              stdout=stdout,
-                              stderr=stderr)
-                ret.append(result)
+                #### This solution to save the std out doesn't work when there are multiple parameters.
+                # output = subprocess.Popen(cmd.split(" "),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+                # stdout,stderr = output.communicate()
+                #
+                # stdout = "" if stdout is None else stdout.decode()
+                # stderr = "" if stderr is None else stderr.decode()
+                #
+                # result = dict(command=cmd,
+                #               stdout=stdout,
+                #               stderr=stderr)
+                # ret.append(result)
         else:
             raise ValueError(f"Method must be 'batchFile', or 'Command list'. got {input['Method']}")
 
+
+        if "changeDirTo" in inputs:
+            os.chdir(cwd)
 
         return dict(RunOsCommand="RunOsCommand",
                     commands=ret)

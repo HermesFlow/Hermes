@@ -3,7 +3,7 @@ import os
 import errno
 import json
 
-class parameterExecuter(abstractExecuter):
+class caseParametersExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -15,8 +15,9 @@ class parameterExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(parameterExecuter="parameterExecuter")
-
+        ret = dict(transformTemplate="parameterExecuter")
+        ret.update(inputs)
+        return ret
 
 class transformTemplateExecuter(abstractExecuter):
 
@@ -30,7 +31,9 @@ class transformTemplateExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(transformTemplate="transformTemplate")
+        ret = dict(transformTemplate="transformTemplate")
+        ret.update(inputs)
+        return ret
 
 
 class FilesWriterExecuter(abstractExecuter):

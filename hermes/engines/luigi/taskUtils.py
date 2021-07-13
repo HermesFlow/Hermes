@@ -138,16 +138,17 @@ class utils(object):
             else:
                 value.append(token)
 
-        if (all([isinstance(x, str) for x in value])):
-            ret = "".join(value)
-        else:
-            ret = value[0]
+        ret = "".join([str(x) for x in value])
+
+        # if (all([isinstance(x, str) for x in value])):
+        #     ret = "".join(value)
+        # else:
+        #     ret = value[0]
 
         return ret
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
-
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 ret[paramname] = self._parseAndEvaluatePath(parampath,params)
@@ -175,7 +176,6 @@ class utils(object):
                 ret[paramname] = param_ret
             else:
                 ret[paramname] = parampath
-
         return ret
 
 

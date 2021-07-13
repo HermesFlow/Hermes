@@ -5,13 +5,14 @@
       "modules": {
         "castellatedMesh": true,
         "snap": true,
-        "addLayers": true,
+        "layers": true,
         "mergeTolerance" : 1e-6
       },
       "geometry": {
         "objects": {},
         "refinementSurfaces": {},
-        "regions": {}
+        "regions": {},
+        "layers" : {"nSurfaceLayers" : 10}
       },
       "castellatedMeshControls": {
         "maxLocalCells": 100000,
