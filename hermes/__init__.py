@@ -2,6 +2,10 @@ __version__=(1,2,0)
 
 """
 
+    - Changes the target file directory execution to the name of the class. 
+    - Changes to the controldict and snappyhexmesh templates.
+    - Added location of execution to the tot he run os command node.  
+
 	Version 1.2.0
 	-------------
 	

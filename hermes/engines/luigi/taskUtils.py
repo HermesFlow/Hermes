@@ -138,12 +138,10 @@ class utils(object):
             else:
                 value.append(token)
 
-        ret = "".join([str(x) for x in value])
-
-        # if (all([isinstance(x, str) for x in value])):
-        #     ret = "".join(value)
-        # else:
-        #     ret = value[0]
+        if (all([isinstance(x, str) for x in value])):
+            ret = "".join(value)
+        else:
+            ret = value[0]
 
         return ret
 

@@ -80,7 +80,9 @@ class RunOsCommandExecuter(abstractExecuter):
             ret = []
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
-                ret.append("Success" if ret == 1 else "Failed")
+                if ret_val != 0:
+                    return None # failed run.
+                ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.
                 # output = subprocess.Popen(cmd.split(" "),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
