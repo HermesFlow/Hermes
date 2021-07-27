@@ -198,7 +198,7 @@ class _HermesNode(_SlotHandler):
         else:
             # addObjectProperty(obj, "partLink", None, "App::PropertyLink", "BasicData", "Link to part")
             addObjectProperty(obj, "partLinkName", "", "App::PropertyString", "BasicData", "Link to part by Name")
-            obj.setEditorMode("partLinkName", 2)  #(2 = hidden)
+            obj.setEditorMode("partLinkName", 1)  #(2 = hidden)
 
         # Type of the Object - (web/GE)
         addObjectProperty(obj, "Type", "-1", "App::PropertyString", "Node Type", "Type of node")
@@ -478,6 +478,9 @@ class _ViewProviderNode:
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
 
+        if NodeObj is None:
+            return
+
         # if node has been active - backup
         if NodeObj.IsActiveObj:
             NodeObj.Proxy.backupNodeData(NodeObj)
@@ -501,6 +504,8 @@ class _ViewProviderNode:
 
         # get Object using OBject name
         NodeObj = FreeCAD.ActiveDocument.getObject(NodeObjName)
+        if NodeObj is None:
+            return
 
         # update the nodeDataString at the NodeObj
         NodeObj.NodeDataString = nodeDataString

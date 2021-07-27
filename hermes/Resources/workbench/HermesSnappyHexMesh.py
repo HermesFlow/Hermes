@@ -5,9 +5,9 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
     import PySide
-    # from PySide import QtGui, QtCore
-    # from PySide.QtGui import *
-    # from PySide.QtCore import *
+    from PySide import QtGui, QtCore
+    from PySide.QtGui import *
+    from PySide.QtCore import *
 
 
 # python modules
@@ -441,7 +441,7 @@ class _CommandSnappyHexMeshObjSelection:
         # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
 
         return {'Pixmap': icon_path,
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshObjSelection", "SnappyHexMesh obj"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshObjSelection", "Export SnappyHexMesh obj"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("SnappyHexMeshObjSelection", "Export SnappyHexMesh Geometries as obj")}
 
@@ -474,29 +474,45 @@ class _CommandSnappyHexMeshObjSelection:
 
         # save file in wanted location
         self.save_mult_objs_file(objs)
+        # self.save_one_obj_file(objs)
 
         del objs
 
     def save_mult_objs_file(self, objs):
-        import Mesh
 
-        #get working directory
+        import Mesh
+        import re
+
+        # what the dialog open dir - path
+        # path = FreeCAD.ConfigGet("UserAppData")
         path = os.getcwd()
 
+        try:
+            SaveName = QFileDialog.getExistingDirectory(None, "Open Directory", path)  # PyQt4
+        #                          "here the text displayed on windows" "here the filter (extension)"
 
-        # loop all objects and export an .obj file to each one
-        for obj in objs:
-            SaveName = path + "/" + obj.Label
+        except Exception:
+            SaveName = QFileDialog.getExistingDirectory(None, "Open Directory", path)  # PyQt4
 
-            FreeCAD.Console.PrintMessage(
-                "Exporting file " + SaveName + ".obj" + "\n")
+        #       "here the text displayed on windows" "here the filter (extension)"
 
-            try:  # if error detected to export ...
-                outpath = u"" + SaveName + ".obj"
-                Mesh.export([obj], outpath)
-            except Exception:  # if error detected to write
-                FreeCAD.Console.PrintError(
-                        "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
+        if SaveName == "":  # if the name file are not selected then Abord process
+            FreeCAD.Console.PrintMessage("Export obj file aborted" + "\n")
+        else:  # if the name file are selected
+
+            # loop all objs, and export file to each one
+            for obj in objs:
+                SaveName = path + "/" + obj.Label
+
+                FreeCAD.Console.PrintMessage(
+                    "Exporting file " + SaveName + ".obj" + "\n")  # text displayed to Report view (Menu > View > Report view checked)
+                try:  # if error detected to export ...
+                    outpath = u"" + SaveName + ".obj"
+                    Mesh.export([obj], outpath)
+                    # must export list of object - typewise
+                except Exception:  # if error detected to write
+                    FreeCAD.Console.PrintError(
+                            "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
 
     def save_one_obj_file(self, objs):
         import Mesh
