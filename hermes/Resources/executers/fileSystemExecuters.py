@@ -62,8 +62,9 @@ class RunOsCommandExecuter(abstractExecuter):
     def run(self, **inputs):
         import stat,os
 
+        cwd = os.getcwd()
+
         if "changeDirTo" in inputs:
-            cwd = os.getcwd()
             os.chdir(os.path.abspath(inputs["changeDirTo"]))
 
         if inputs["Method"]=="batchFile":
@@ -81,7 +82,9 @@ class RunOsCommandExecuter(abstractExecuter):
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
                 if ret_val != 0:
-                    return None # failed run.
+                    ret = "Failed Run"
+                    break
+
                 ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.
@@ -98,12 +101,9 @@ class RunOsCommandExecuter(abstractExecuter):
         else:
             raise ValueError(f"Method must be 'batchFile', or 'Command list'. got {input['Method']}")
 
+        os.chdir(cwd)
 
-        if "changeDirTo" in inputs:
-            os.chdir(cwd)
-
-        return dict(RunOsCommand="RunOsCommand",
-                    commands=ret)
+        return dict(RunOsCommand="RunOsCommand",commands=ret)
 
 
 

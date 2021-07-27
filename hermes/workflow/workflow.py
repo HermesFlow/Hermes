@@ -72,7 +72,7 @@ class hermesWorkflow(dict):
     def taskRepresentations(self):
         return self._taskRepresentations
 
-    def __init__(self, workflowJSON,WD_path,Resources_path):
+    def __init__(self, workflowJSON,WD_path,Resources_path=""):
         """
                 Initiates the hermes workflow.
 
