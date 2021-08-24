@@ -320,53 +320,41 @@ class _HermesWorkflow:
         return
 
     # def updateLastNode(self, obj, nNodeId):
-    def updateLastNode(self, obj):
 
-        # backup LastNode data
+
+    def updateLastNode(self, obj):
+        ''' backup LastNode data '''
 
         # loop all objects in the document
         objsFC = FreeCAD.ActiveDocument.Objects
-        # check if it is root partent HemesWorkfloe
-        for o in objsFC:
-            if o == obj:
-                o.IsActiveObj = False
+        a = [o for o in objsFC if o != obj and o.Module == 'App' and o.IsActiveObj]
 
-            # make sure it is not a part
-            elif o.Module == 'App':
-            # find the obj object that "is active"
+        for o in a:
+            # FreeCAD.Console.PrintMessage("updateLastNode obj " + o.Name + "\n")
 
-                if o.IsActiveObj:
-                    # FreeCAD.Console.PrintMessage("updateLastNode obj " + o.Name + "\n")
+            # backup obj 'nodeDate'
+            o.Proxy.backupNodeData(o)
 
-                    # backup obj 'nodeDate'
-                    o.Proxy.backupNodeData(o)
+            # update the node active property to false
+            o.IsActiveObj = False
 
-                    # update the node active property to false
-                    o.IsActiveObj = False
+            # recompute all needed objects
+            FreeCAD.ActiveDocument.recompute()
+            parent = o.getParentGroup()
+            if parent != obj:
+                self.recomputeParents(obj, o.getParentGroup())
 
-                    FreeCAD.ActiveDocument.recompute()
 
-                    self.recomputeParents(obj, o.getParentGroup())
-                    # FreeCAD.ActiveDocument.recompute()
-                    # FreeCADGui.doCommand("FreeCAD.ActiveDocument.recompute()")
 
-        # Update the new 'nLastNodeId'
-        # self.nLastNodeId = nNodeId
-
-    def recomputeParents(self,HermesWorkflow, child):
-        if child == HermesWorkflow:
+    def recomputeParents(self,HermesWorkflow, parent):
+        if parent == HermesWorkflow:
             return
         else:
-            # marked the object as changed
-            child.touch()
+            # sign the parent to the updates list items for recompute
+            parent.touch()
+            # parent.purgeTouched()
 
-            # mark the object to tecompute
-            # child.enforceRecompute()
-
-            # FreeCADGui.doCommand("App.activeDocument().recompute()")
-            # FreeCAD.ActiveDocument.recompute()
-
-            self.recomputeParents(HermesWorkflow, child.getParentGroup())
+            self.recomputeParents(HermesWorkflow, parent.getParentGroup())
 
             return
 

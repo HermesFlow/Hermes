@@ -69,6 +69,7 @@ def makeNode(name, workflowObj, nodeId, nodeData):
         else:
             if FreeCAD.GuiUp:
                 _ViewProviderNode(obj.ViewObject)
+        FreeCAD.ActiveDocument.recompute()
 
     return obj
 
@@ -282,8 +283,6 @@ class _HermesNode(_SlotHandler):
 
     def doubleClickedNode(self, obj):
 
-
-
         # get "workflowObj" from been parent of the node obj
         workflowObj = self.getRootParent(obj)
 
@@ -465,6 +464,7 @@ class _ViewProviderNode:
 
     #    def onChanged(self,obj, vobj, prop):
     def onChanged(self, vobj, prop):
+
         # not in use, just an example
         if (str(prop) == 'Label' and len(str(vobj.Label)) > 0):
             vobj.Proxy.changeLabel()
@@ -473,7 +473,12 @@ class _ViewProviderNode:
     def doubleClicked(self, vobj):
         vobj.Object.Proxy.doubleClickedNode(vobj.Object)
 
+        # delay recompute of all objects, and return the touch to the current object
+        QtCore.QTimer.singleShot(350, FreeCAD.ActiveDocument.recompute)
+        QtCore.QTimer.singleShot(350, vobj.Object.touch)
+
     def __getstate__(self):
+        FreeCAD.Console.PrintMessage("_ViewProviderNode: def __getstate__ \n")
 
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
@@ -488,11 +493,15 @@ class _ViewProviderNode:
         # get the last updated NodeDataString
         getNodeString = NodeObj.NodeDataString
 
+        # FreeCAD.ActiveDocument.recompute()
+        # FreeCAD.Gui.SendMsgToActiveView('Refresh')
+
         # return an array with NodeObj name and the updated NodeDataString -
         # it will be recieved by "__setstate__" when opening the project
         return [self.NodeObjName, getNodeString]
 
     def __setstate__(self, state):
+        FreeCAD.Console.PrintMessage("_ViewProviderNode: def __setstate__ \n")
 
         #    #state - recieved from 'getstate', while saving the project "Hermesworkflow"
         #        type :array ,including 2 variebelles,
@@ -752,10 +761,14 @@ class _BCNode(_WebGuiNode):
     def getIconColor(self, obj):
         if len(obj.Group) == 0:
             self.iconColor = 'red'
-            return self.iconColor
+            return 'red'
 
-        colorList = [child.Proxy.iconColor for child in obj.Group]
+        # colorList = [child.Proxy.iconColor for child in obj.Group]
+        colorList = [child.Proxy.getIconColor(child) for child in obj.Group]
+
         # FreeCAD.Console.PrintMessage("BC.getIconColor: colorList = "+ str(colorList) + "\n")
+
+
         countRed = 0
         countGreen = 0
         for color in colorList:
@@ -764,17 +777,21 @@ class _BCNode(_WebGuiNode):
             if color == 'red':
                 countRed += 1
 
+        iconColor = ""
         if countGreen == len(colorList):
-            self.iconColor = "green"
+            iconColor = "green"
         elif countRed == len(colorList):
-            self.iconColor = "red"
+            iconColor = "red"
         else:
-            self.iconColor = "yellow"
+            iconColor = "yellow"
 
-        return self.iconColor
+        self.iconColor = iconColor
+        return iconColor
 
     def backupNodeData(self, obj):
         super().backupNodeData(obj)
+        # FreeCADGui.doCommand("FreeCAD.ActiveDocument.getObject('" + obj.Name + "').enforceRecompute()")
+        # FreeCADGui.doCommand("FreeCAD.ActiveDocument.getObject('" + obj.Name + "').recompute()")
 
 
 
@@ -814,9 +831,11 @@ class _BCGeometryNode(_WebGuiNode):
     def getIconColor(self, obj):
         if len(obj.Group) == 0:
             self.iconColor = 'red'
-            return self.iconColor
+            return 'red'
 
-        colorList = [child.Proxy.iconColor for child in obj.Group]
+        # colorList = [child.Proxy.iconColor for child in obj.Group]
+        colorList = [child.Proxy.getIconColor(child) for child in obj.Group]
+
         # FreeCAD.Console.PrintMessage("BCGeometryNode.getIconColor: colorList = "+ str(colorList) + "\n")
 
         countRed = 0
@@ -827,18 +846,20 @@ class _BCGeometryNode(_WebGuiNode):
             if color == 'red':
                 countRed += 1
 
+        iconColor = "red"
         if countGreen == len(colorList):
-            self.iconColor = "green"
+            iconColor = "green"
         elif countRed == len(colorList):
-            self.iconColor = "red"
+            iconColor = "red"
         else:
-            self.iconColor = "yellow"
+            iconColor = "yellow"
 
-        return self.iconColor
+        self.iconColor = iconColor
+        return iconColor
+
 
     def backupNodeData(self, obj):
         super().backupNodeData(obj)
-
 
     def onDocumentRestored(self, obj):
 
@@ -868,6 +889,7 @@ class _BCFieldNode(_WebGuiNode):
     def getIconColor(self, obj):
         webGui = obj.Proxy.nodeData["WebGui"]
         formData = webGui["formData"]
+        color = "red"
 
         if len(webGui["formData"]) == 0:
             self.iconColor = "red"
@@ -878,9 +900,10 @@ class _BCFieldNode(_WebGuiNode):
                 self.iconColor = "red"
                 return 'red'
             else:
-                self.iconColor = self.compareSchemeFormData(webGui)
+                color = self.compareSchemeFormData(webGui)
 
-        return self.iconColor
+        self.iconColor = color
+        return color
 
     def compareSchemeFormData(self,webGui):
         schema = webGui["Schema"]
@@ -890,7 +913,7 @@ class _BCFieldNode(_WebGuiNode):
         scheme_list = list(schema["properties"].keys())
 
         if "typeBC" not in formData:
-            return
+            return 'red'
 
         typeBC = formData["typeBC"]
         # take the properties keys from the dependencies
@@ -934,6 +957,7 @@ class _BCFieldNode(_WebGuiNode):
     def backupNodeData(self, obj):
         super().backupNodeData(obj)
 
+
     def onDocumentRestored(self, obj):
 
         workflowObj = obj.getParentGroup()
@@ -960,12 +984,14 @@ class _ViewProviderNodeBC(_ViewProviderNode):
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
-        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC.getIcon: self.NodeObjName = " + self.NodeObjName + "\n")
+
 
         obj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
 
         color = obj.Proxy.getIconColor(obj)
-        # FreeCAD.Console.PrintMessage("color = " + str(color) + "\n")
+
+        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC.getIcon: self.NodeObjName = " + self.NodeObjName + "; color = "+ color +"\n")
+
         if color == 'red':
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
         elif color == 'yellow':
@@ -976,6 +1002,7 @@ class _ViewProviderNodeBC(_ViewProviderNode):
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/blue_ball.png"
 
         # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC - getIcon \n")
+        # QtCore.QTimer.singleShot(1000, FreeCAD.ActiveDocument.recompute)
 
         return icon_path
 
