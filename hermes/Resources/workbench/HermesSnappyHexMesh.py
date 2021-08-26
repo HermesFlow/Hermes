@@ -44,8 +44,12 @@ class _SnappyHexMesh(_WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-        geometry_obj = HermesNode.makeNode("Geometry", obj, str(0), self.nodeData["Geometry"])
-        refinement_obj = HermesNode.makeNode("Refinement", obj, str(0), self.nodeData["Refinement"])
+        # geometry_obj = HermesNode.makeNode("Geometry", obj, str(0), self.nodeData["Geometry"])
+        # refinement_obj = HermesNode.makeNode("Refinement", obj, str(0), self.nodeData["Refinement"])
+
+        for key, val in self.nodeData.items():
+            if key != 'Type' and key != 'Properties' and key != 'WebGui':
+                node_obj = HermesNode.makeNode(key, obj, str(0), val)
 
 
         # create Geometry obj

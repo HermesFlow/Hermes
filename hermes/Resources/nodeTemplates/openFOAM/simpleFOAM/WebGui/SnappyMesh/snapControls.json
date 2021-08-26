@@ -1,48 +1,60 @@
 {
-    "nSmoothPatch":{
-        "type":"integer",
-        "title":"nSmoothPatch",
-        "description":"Number of smoothing iterations along the surface"
+  "Type": "WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"snapControls",
+      "description":"",
+      "type":"object",
+      "properties": {
+        "nSmoothPatch":{
+            "type":"integer",
+            "title":"nSmoothPatch",
+            "description":"Number of smoothing iterations along the surface"
+        },
+        "nSmoothInternal":{
+            "type":"integer",
+            "title":"nSmoothInternal",
+            "description":"Number of iterations for internal smoothing to reduce non-orthogonality at the face of refinement (effectively making the faces non-planar)."
+        },
+        "tolerance":{
+            "type":"number",
+            "title":"tolerance",
+            "description":"Multiplied by local cell-edge length specifies region along the surface within which the points are attracted by the surface."
+        },
+        "nSolveIter":{
+            "type":"integer",
+            "title":"nSolveIter",
+            "description":"Number of mesh displacement iterations"
+        },
+        "nRelaxIter":{
+            "type":"integer",
+            "title":"nRelaxIter",
+            "description":"Number of relaxation iterations during the snapping"
+        },
+        "nFeatureSnapIter":{
+            "type":"integer",
+            "title":"nFeatureSnapIter",
+            "description":"Number of relaxation iterations used for snapping onto the features"
+        },
+        "implicitFeatureSnap":{
+            "type":"boolean",
+            "title":"implicitFeatureSnap",
+            "description":"Switch turning on the implicit feature specification"
+        },
+        "explicitFeatureSnap":{
+            "type":"boolean",
+            "title":"explicitFeatureSnap",
+            "description":"Snap mesh onto the feature lines defined in eMesh file."
+        },
+        "multiRegionFeatureSnap":{
+            "type":"boolean",
+            "title":"multiRegionFeatureSnap",
+            "description":"When using explicitFeatureSnap and this switch is on, features between multiple surfaces will be captured. This is useful for multi-region meshing where the internal mesh must conform the region geometrical boundaries"
+        }
+      }
     },
-    "nSmoothInternal":{
-        "type":"integer",
-        "title":"nSmoothInternal",
-        "description":"Number of iterations for internal smoothing to reduce non-orthogonality at the face of refinement (effectively making the faces non-planar)."
-    },
-    "tolerance":{
-        "type":"number",
-        "title":"tolerance",
-        "description":"Multiplied by local cell-edge length specifies region along the surface within which the points are attracted by the surface."
-    },
-    "nSolveIter":{
-        "type":"integer",
-        "title":"nSolveIter",
-        "description":"Number of mesh displacement iterations"
-    },
-    "nRelaxIter":{
-        "type":"integer",
-        "title":"nRelaxIter",
-        "description":"Number of relaxation iterations during the snapping"
-    },
-    "nFeatureSnapIter":{
-        "type":"integer",
-        "title":"nFeatureSnapIter",
-        "description":"Number of relaxation iterations used for snapping onto the features"
-    },
-    "implicitFeatureSnap":{
-        "type":"boolean",
-        "title":"implicitFeatureSnap",
-        "description":"Switch turning on the implicit feature specification"
-    },
-    "explicitFeatureSnap":{
-        "type":"boolean",
-        "title":"explicitFeatureSnap",
-        "description":"Snap mesh onto the feature lines defined in eMesh file."
-    },
-    "multiRegionFeatureSnap":{
-        "type":"boolean",
-        "title":"multiRegionFeatureSnap",
-        "description":"When using explicitFeatureSnap and this switch is on, features between multiple surfaces will be captured. This is useful for multi-region meshing where the internal mesh must conform the region geometrical boundaries"
-    }
-    
+    "uiSchema":{},
+    "formData":{}
+  }
 }

@@ -1,0 +1,32 @@
+{
+
+        "castellatedMesh": {
+          "type": "boolean",
+          "title": "castellatedMesh",
+          "description": "To switch on creation of the castellated mesh"
+        },
+        "snap": {
+          "type": "boolean",
+          "title": "snap",
+          "description": "To switch on surface snapping stage"
+        },
+        "addLayers": {
+          "type": "boolean",
+          "title": "addLayers",
+          "description": "To switch on surface layer insertion"
+        },
+        "mergeTolerance": {
+          "title": "mergeTolerance",
+          "type": "number",
+          "default": 1e-6,
+          "description": "merge tolerance as fraction of bounding box of initial mesh"
+        },
+        "writeFlags":{
+          "type":"array",
+          "items":{
+            "type":"string"
+          }
+        }
+
+
+}

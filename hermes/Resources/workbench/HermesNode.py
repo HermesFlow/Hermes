@@ -478,7 +478,7 @@ class _ViewProviderNode:
         QtCore.QTimer.singleShot(350, vobj.Object.touch)
 
     def __getstate__(self):
-        FreeCAD.Console.PrintMessage("_ViewProviderNode: def __getstate__ \n")
+        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __getstate__ \n")
 
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
@@ -501,7 +501,7 @@ class _ViewProviderNode:
         return [self.NodeObjName, getNodeString]
 
     def __setstate__(self, state):
-        FreeCAD.Console.PrintMessage("_ViewProviderNode: def __setstate__ \n")
+        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __setstate__ \n")
 
         #    #state - recieved from 'getstate', while saving the project "Hermesworkflow"
         #        type :array ,including 2 variebelles,

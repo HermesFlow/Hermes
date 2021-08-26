@@ -3,106 +3,21 @@
         "title":"",
         "description":"",
         "type":"object",
-        "properties":{ 
-            "castellatedMesh":{ 
-                "type":"boolean",
-                "title":"castellatedMesh",
-                "description":"To switch on creation of the castellated mesh"
-            },
-            "snap":{ 
-                "type":"boolean",
-                "title":"snap",
-                "description":"To switch on surface snapping stage"
-            },
-            "addLayers":{ 
-                "type":"boolean",
-                "title":"addLayers",
-                "description":"To switch on surface layer insertion"
-            },
-            "mergeTolerance":{ 
-                "title":"mergeTolerance",
-                "type":"number",
-                "default":1e-6,
-                "description":"merge tolerance as fraction of bounding box of initial mesh"
-            },
-            "castellatedMeshControls":{     
-                "type":"object",
-                "title":"castellatedMeshControls",
-                "properties":{ 
-                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.castellatedMeshControls"
-                }
-            },
-            "snapControls":{ 
-                "type":"object",
-                "title":"snapControls",
-                "properties":{
-                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.snapControls"
-                }
-            },
-            "addLayersControls":{ 
-                "type":"object",
-                "title":"addLayersControls",
-                "properties":{
-                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.addLayersControls"
-                }
-            },
-            "meshQualityControls":{ 
-                "type":"object",
-                "title":"meshQualityControls",
-                "properties":{
-                    "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.meshQualityControls"
-                }
-            },
-            "writeFlags":{ 
-                "type":"array",
-                "items":{ 
-                    "type":"string"
+        "properties": {
+            "modules": {
+                "type": "object",
+                "title": "modules",
+                "properties": {
+                    "Template": "openFOAM.simpleFOAM.WebGui.SnappyMesh.modules"
                 }
             }
         }
     },
-    "uiSchema":{ 
-
-    },
-    "formData":{ 
+    "uiSchema":{},
+    "formData":{
         "castellatedMesh":true,
         "snap":false,
         "addLayers":true,
-        "castellatedMeshControls":{ 
-            "nCellsBetweenLevels":2,
-            "maxLocalCells":200000000,
-            "maxGlobalCells":200000000,
-            "locationInMesh":"(207000 738000 635)"
-        },
-        "snapControls":{ 
-            "explicitFeatureSnap":true,            
-            "implicitFeatureSnap":false
-        },
-        "addLayersControls":{ 
-            "relativeSizes":true,            
-            "expansionRatio":1,
-            "finalLayerThickness":0.3,
-            "minThickness":0.1,
-            "nGrow":0,
-            "featureAngle":60,
-            "slipFeatureAngle":30,
-            "nRelaxIter":3,
-            "nSmoothSurfaceNormals":1,
-            "nSmoothNormals":3,
-            "nSmoothThickness":10,
-            "maxFaceThicknessRatio":0.5,
-            "maxThicknessToMedialRatio":0.3,
-            "minMedianAxisAngle":90,
-            "nBufferCellsNoExtrude":0,
-            "nLayerIter":50
-        },
-        "meshQualityControls":{ 
-        },
-        "writeFlags":[ 
-            "scalarLevels",
-            "layerSets",
-            "layerFields"
-        ],
         "mergeTolerance":1e-06
     }
 }

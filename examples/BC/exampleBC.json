@@ -19,7 +19,7 @@
                 "Template": "BC.BC"
             },
             "ControlDict":{
-                "Template": "openFOAM.simpleFOAM.ControlDict"
+                "Template": "openFOAM.system.controlDict"
             }
         }
     }
