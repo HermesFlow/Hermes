@@ -5,13 +5,14 @@
       "modules": {
         "castellatedMesh": true,
         "snap": true,
-        "addLayers": true,
+        "layers": true,
         "mergeTolerance" : 1e-6
       },
       "geometry": {
         "objects": {},
         "refinementSurfaces": {},
-        "regions": {}
+        "regions": {},
+        "layers" : {"nSurfaceLayers" : 10}
       },
       "castellatedMeshControls": {
         "maxLocalCells": 100000,
@@ -38,6 +39,10 @@
         "implicitFeatureSnap": true
       },
       "addLayersControls": {
+        "relativeSizes" : true,
+        "expansionRatio" : 1.05,
+        "finalLayerThickness" : 0.9,
+        "minThickness" : 0.05,
         "featureAngle": 100,
         "slipFeatureAngle": 30,
         "nLayerIter": 50,
@@ -49,7 +54,7 @@
         "nSmoothThickness": 10,
         "maxFaceThicknessRatio": 0.5,
         "maxThicknessToMedialRatio": 0.3,
-        "minMedialAxisAngle": 90,
+        "minMedianAxisAngle": 90,
         "nMedialAxisIter": 10,
         "nBufferCellsNoExtrude": 0,
         "additionalReporting": false

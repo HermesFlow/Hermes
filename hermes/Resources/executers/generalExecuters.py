@@ -3,7 +3,7 @@ import os
 import errno
 import json
 
-class parameterExecuter(abstractExecuter):
+class caseParametersExecuter(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -15,8 +15,9 @@ class parameterExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(parameterExecuter="parameterExecuter")
-
+        ret = dict(transformTemplate="parameterExecuter")
+        ret.update(inputs)
+        return ret
 
 class transformTemplateExecuter(abstractExecuter):
 
@@ -30,7 +31,9 @@ class transformTemplateExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(transformTemplate="transformTemplate")
+        ret = dict(transformTemplate="transformTemplate")
+        ret.update(inputs)
+        return ret
 
 
 class FilesWriterExecuter(abstractExecuter):
@@ -51,16 +54,41 @@ class FilesWriterExecuter(abstractExecuter):
 
         path = inputs["casePath"]
         files = inputs["Files"]
-        for filename, file in files.items():
 
-            newPath = os.path.join(path, filename)
+        createdFiles = dict()
+        for groupName, groupData in files.items():
+            # make sure that the user input is regarded as a directory in case of input dict file.
+
+            fileContent = groupData['fileContent']
+            fileName    = groupData['fileName']
+
+            if isinstance(fileContent,dict) and fileName[-1] != '/':
+                fileName = f"{fileName}/"
+
+            newPath = os.path.join(path, fileName)
 
             if not os.path.exists(os.path.dirname(newPath)):
                 try:
-                    os.makedirs(os.path.dirname(newPath))
+                    os.makedirs(os.path.dirname(newPath),exist_ok=True)
                 except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
-            with open(newPath, "w") as newfile:
-                newfile.write(file)
 
+            if isinstance(fileContent,dict):
+                outputFiles =[]
+                for filenameItr,fileContent in fileContent.items():
+                    finalFileName = os.path.join(newPath,filenameItr)
+                    with open(finalFileName, "w") as newfile:
+                        newfile.write(fileContent)
+
+                    outputFiles.append(finalFileName)
+            else:
+                outputFiles = newPath
+                with open(newPath, "w") as newfile:
+                    newfile.write(fileContent)
+
+            createdFiles[groupName] = outputFiles
+
+
+        return dict(fileWriterTemplate="fileWriterTemplate",
+                    files=createdFiles)

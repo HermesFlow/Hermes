@@ -14,15 +14,15 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType {{values.simulationType}};
+simulationType {{simulationType}};
 
-RAS
+{{simulationType}}
 {
-    RASModel     {{values.RAS.RASModel}};
+    {{simulationType}}Model     {{Model}};
 
-    {{ 'turbulence   on;' if values.RAS.turbulence else 'turbulence    off;' }};
+    {{ 'turbulence   on;' if turbulence else 'turbulence    off;' }}
 
-    {{ 'printCoeffs  on;' if values.RAS.printCoeffs else 'printCoeffs   off;' }};
+    {{ 'printCoeffs  on;' if printCoeffs else 'printCoeffs   off;' }}
 
 }
 

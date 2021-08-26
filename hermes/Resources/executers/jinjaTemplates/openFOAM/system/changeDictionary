@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      dictionaryReplacement;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- for fieldName,fieldChangeData in fields.items() %}
+
+{{fieldName}}
+{
+    {% if 'internalField' in fieldChangeData %}
+        internalField {{fieldChangeData.internalField}};
+    {% endif %}
+
+
+    boundaryField
+    {
+        {% for patchName,patchData in fieldChangeData.boundaryField.items() %}
+        {{patchName}}
+        {
+            {% for itemName,itemData in patchData.items() %}
+                {{itemName}} {{itemData}};
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+}
+{% endfor %}
+
+
+
+// ************************************************************************* //

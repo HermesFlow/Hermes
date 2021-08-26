@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  7                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    note        "mesh decomposition control dictionary";
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+surfaces ("{{geometryData.objectName}}.{{geometryData.objectType}}");
+
+// Identify a feature when angle between faces < includedAngle
+includedAngle       {{includeAngle}};
+
+subsetFeatures
+{
+    // Keep nonManifold edges (edges with >2 connected faces)
+    nonManifoldEdges       {% if nonManifoldEdges %}no{%else%}yes{%endif%};
+
+    // Keep open edges (edges with 1 connected face)
+    openEdges       {% if openEdges %}no{%else%}yes{%endif%};
+}
+
+// ************************************************************************* //

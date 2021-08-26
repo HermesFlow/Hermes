@@ -46,7 +46,7 @@ from ...logging.loggingObject import loggedObject
 
 class abstractExecuter(loggedObject):
     """
-        An abstract executer that defines the general interfaces of the executers:
+        An abstract executer that defines the mesh interfaces of the executers:
 
         - Load webGUI from a file (in a relative webGUI directory).
         - List all inputs.

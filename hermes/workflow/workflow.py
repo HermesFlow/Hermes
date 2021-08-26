@@ -72,7 +72,7 @@ class hermesWorkflow(dict):
     def taskRepresentations(self):
         return self._taskRepresentations
 
-    def __init__(self, workflowJSON,WD_path,Resources_path):
+    def __init__(self, workflowJSON,WD_path,Resources_path=""):
         """
                 Initiates the hermes workflow.
 
@@ -113,6 +113,7 @@ class hermesWorkflow(dict):
         """
 
         requiredNodeList = hermesTaskWrapper.getRequiredTasks(taskJSON)
+
         for requirednode in requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
@@ -182,7 +183,7 @@ class hermesWorkflow(dict):
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(type="generalExecuters.parameter",
+                         Execution=dict(type="generalExecuters.caseParameters",
                                         input_parameters={}),
                          requires=[x for x in self._workflowJSON["workflow"]["nodes"]],
                          GUI=dict(TypeFC={}, Properties={}, WebGui={}))

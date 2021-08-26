@@ -47,8 +47,8 @@ class expandWorkflow():
         Parameters
         -----------
 
-            templateJSON: str
-                        The path of the workflow json
+            templateJSON: str, dict
+                        The path of the workflow json, a json str or a json obj
 
             parameters : dict
                         A dictionary that can overwrite the template defaults.
@@ -59,16 +59,24 @@ class expandWorkflow():
             Dict.
         """
 
-        with open(templateJSON, 'r') as myfile:
-            JsonObjectfromFile  = json.load(myfile)
+        if isinstance(templateJSON,str):
+            if os.path.exists(templateJSON):
 
+                with open(templateJSON, 'r') as myfile:
+                    JsonObjectfromFile  = json.load(myfile)
+            else:
+                JsonObjectfromFile = json.loads(templateJSON)
 
-        # define the current working directory - where the json file has been uploaded
-        self.cwd = os.path.dirname(templateJSON)
+            # define the current working directory - where the json file has been uploaded
+            self.cwd = os.path.dirname(templateJSON)
+        else:
+            JsonObjectfromFile = templateJSON
+
+            # define the current working directory as the current directory.
+            self.cwd = os.getcwd()
 
 
         # Create JsonObject will contain all the imported date from file/template
-
         JsonObject = JsonObjectfromFile.copy()
         workflow = JsonObject["workflow"]
 

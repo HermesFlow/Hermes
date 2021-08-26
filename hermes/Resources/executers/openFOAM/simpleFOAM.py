@@ -1,8 +1,4 @@
-import pydoc
-from hermes.Resources.executers.abstractExecuter import abstractExecuter
-from hermes.Resources.executers.jinjaExecuters import jinjaExecuter
-import pathlib
-import os
+from ..jinjaExecuters import jinjaExecuter
 
 class CopenFOAM():
     '''
@@ -41,29 +37,24 @@ class CopenFOAM():
 
         return openFOAMString
 
-class controlDict(abstractExecuter):
+
+class transportPropertiesExecuter(jinjaExecuter):
 
     def run(self, **inputs):
+        templateName = "openFOAM/simpleFOAM/transportProperties"
+        template = self._getTemplate(templateName)
 
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/controlDict",**inputs)}
+        effectiveInputs = inputs.get('values',inputs)
 
-class fvSchemes(abstractExecuter):
-
-    def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSchemes",**inputs)}
-
-class fvSolution(abstractExecuter):
-
-    def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/fvSolution",**inputs)}
+        output = template.render(**effectiveInputs)
+        return dict(openFOAMfile=output)
 
 
-class transportProperties(abstractExecuter):
+class turbulenceProperties(jinjaExecuter):
 
     def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/transportProperties",**inputs)}
-
-class turbulenceProperties(abstractExecuter):
-
-    def run(self, **inputs):
-        return {"file":jinjaExecuter("").run(template= "/openFOAM/simpleFOAM_batch/turbulenceProperties",**inputs)}
+        templateName = "openFOAM/simpleFOAM/turbulenceProperties"
+        template = self._getTemplate(templateName)
+        effectiveInputs = inputs.get('values',inputs)
+        output = template.render(**effectiveInputs)
+        return dict(openFOAMfile=output)

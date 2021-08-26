@@ -21,7 +21,7 @@ convertToMeters {{geometry.convertToMeters}};
 vertices
 (
     {%- for pnt in vertices %}
-        {{utils.toPoint(vertices)}}
+        {{utils.toPoint(pnt)}}
     {%- endfor %}
 );
 

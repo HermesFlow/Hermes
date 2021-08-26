@@ -1,0 +1,16 @@
+{
+  "Execution": {
+    "type": "openFOAM.systemExecuters.controlDict",
+    "input_parameters": {
+      "values": "{WebGui.formData}"
+    }
+  },
+  "GUI": {
+    "Type": "WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.WebGui.ControlDictWebGui"
+    }
+  }
+}

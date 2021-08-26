@@ -140,6 +140,14 @@
                     "type": "string",
                     "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
                 }
+		    },
+            "libs": {
+                "type": "array",
+                "title": "functions",
+                "items": {
+                    "type": "string",
+                    "description": "A list of libs to load. just the name, i.e  adds the lib and the .so --> lib{name}.so "
+                }
 		    }
         }
 	},
@@ -171,7 +179,9 @@
         "timeFormat": "general",
         "timePrecision": 6,
         "runTimeModifiable": "true",
+        "adjustTimeStep" : "true",
         "interpolate": "true",
+        "maxCo" : 0.5,
          "functions": []
 	}
 }
