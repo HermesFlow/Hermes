@@ -147,7 +147,6 @@ class utils(object):
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
-
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 ret[paramname] = self._parseAndEvaluatePath(parampath,params)
@@ -175,7 +174,6 @@ class utils(object):
                 ret[paramname] = param_ret
             else:
                 ret[paramname] = parampath
-
         return ret
 
 

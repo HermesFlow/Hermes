@@ -40,7 +40,7 @@ def handler_build(arguments):
 
 
     builder = "luigi"
-    flow = hermesWorkflow(newTemplate, WDPath,"")
+    flow = hermesWorkflow(newTemplate, WDPath)
     build = flow.build(builder)
     with open(newWorkflow, "w") as file:
         file.write(build)

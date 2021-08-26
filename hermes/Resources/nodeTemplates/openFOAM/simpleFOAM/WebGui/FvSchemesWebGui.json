@@ -79,6 +79,10 @@
                         "type":"string",
                         "title":"div(phi,omega)"
                     },
+                    "turbulence":{
+                        "type":"string",
+                        "title":"turbulence"
+                    },
                     "moreDivSchemesProperties":{
                         "type":"object",
                         "additionalProperties": {
@@ -160,6 +164,7 @@
                "divNuEff": "Gauss linear"
             },
             "default": "none",
+            "turbulence" : "bounded Gauss upwind",
             "divPhiU": "bounded Gauss upwind",
             "divPhiK": "bounded Gauss upwind",
             "divPhiEpsilon": "bounded Gauss upwind",

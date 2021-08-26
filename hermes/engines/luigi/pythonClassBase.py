@@ -37,7 +37,8 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         self._workflowJSON = {{taskwrapper.task_workflowJSON}}['workflow']
 
     def output(self):
-        return luigi.LocalTarget("outputsOriginal/{{taskwrapper.taskfullname}}.json")
+        targetBaseFile = os.path.abspath(__file__).split(".")[0]
+        return luigi.LocalTarget(os.path.join(f"{targetBaseFile}_targetFiles","{{taskwrapper.taskfullname}}.json"))
 
     def requires(self):
         return dict({% for (i,(rtaskname,rtask)) in enumerate(taskwrapper.requiredTasks.items()): %}

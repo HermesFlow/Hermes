@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         {{default.ddtScheme}};
+}
+
+gradSchemes
+{
+    {% if 'gradSchemes' in default -%}
+    default           {{default.gradSchemes.type}} {{default.gradSchemes.name}};
+    {% endif -%}
+
+    {% for fieldName,fieldData in fields.items() -%}
+        {%- if 'gradScheme' in fieldData -%}
+        {%- set gradSchemeDict = fieldData.gradScheme -%}
+        grad({{fieldName}}) {{field.gradScheme}}
+        {% endif -%}
+    {% endfor -%}
+}
+
+divSchemes
+{
+    {% if 'divSchemes' in default -%}
+    default               {{default.divSchemes.type}} {{default.divSchemes.name}} {{default.divSchemes.parameters}};
+    {% endif -%}
+
+{% for fieldName,fieldData in fields.items() -%}
+  {%- for divSchemeDict in fieldData.divSchemes -%}
+    {%- if divSchemeDict.noOfOperators == 0 -%}
+    {{fieldName}}  {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
+    {%- elif divSchemeDict.noOfOperators == 1 -%}
+    div({{fieldName}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
+    {%- else -%}
+    div({{divSchemeDict.phi}},{{fieldName}}) {{divSchemeDict.type}} {{divSchemeDict.name}} {{divSchemeDict.parameters}};
+    {% endif %}
+  {%- endfor -%}
+{% endfor -%}
+}
+
+laplacianSchemes
+{
+    {% if 'laplacianSchemes' in default -%}
+    default               {{default.laplacianSchemes.type}} {{default.laplacianSchemes.name}} {{default.laplacianSchemes.parameters}};
+    {% endif -%}
+{%- for fieldName,fieldData in fields.items() %}
+ {%- for laplacianSchemeDict  in fieldData.laplacianSchemes -%}
+{%- if laplacianSchemeDict.noOfOperators == 1 -%}
+    laplacian({{fieldName}})  {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
+{%- elif laplacianSchemeDict.noOfOperators == 2 -%}
+    laplacian({{laplacianSchemeDict.coefficient}},{{fieldName}}) {{laplacianSchemeDict.type}} {{laplacianSchemeDict.name}} {{laplacianSchemeDict.parameters}};
+  {% endif %}
+ {%- endfor -%}
+{%- endfor -%}
+}
+
+interpolationSchemes
+{
+    default         {{default.interpolationSchemes}};
+}
+
+snGradSchemes
+{
+    default       {{default.snGradSchemes}};
+}
+
+wallDist
+{
+    method      {{default.wallDist}};
+}
+
+fluxRequired
+{
+    default         no;
+    {% for fieldName,fieldData in fields.items() -%}
+        {%- if fieldData.fluxRequired -%} {{fieldName}} {%- endif -%}
+    {%- endfor %}
+}
+
+// ************************************************************************* //

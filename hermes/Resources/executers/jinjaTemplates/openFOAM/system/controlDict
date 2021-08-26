@@ -43,12 +43,24 @@ timeFormat      {{values.timeFormat}};
 
 timePrecision   {{values.timePrecision}};
 
-runTimeModifiable {{values.runTimeModifiable}};
+runTimeModifiable {%- if values.runTimeModifiable %} yes {% else %} no {%- endif %};
 
-// adjustTimeStep  yes;
+adjustTimeStep  {%- if values.adjustTimeStep %} yes {% else %} no {%- endif %};
 
-// maxCo           1;
+maxCo           {{values.maxCo}};
 
-interpolate     {{values.interpolate}};
+libs
+(
+    {%- for lib in values.libs -%}
+       "lib{{lib}}.so";
+    {%- endfor -%}
+);
 
-functions       {{values.functions}};
+functions
+{
+    {%- for function in values.functions -%}
+       {{function}};
+    {%- endfor -%}
+}
+
+

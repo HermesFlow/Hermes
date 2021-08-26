@@ -229,7 +229,7 @@ class HermesPart:
         # get the Vertices from the part
         listOfShapeVertices = self.partObj.Shape.Vertexes
 
-        # define general coordinates dict
+        # define mesh coordinates dict
         pos = {'x': None, 'y': None, 'z': None }
 
         # loop all vertices and save them and its coordinates

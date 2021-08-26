@@ -1,9 +1,9 @@
 {
   "Execution": {
-    "type": "jinjaExecuters.jinja",
+    "type": "openFOAM.constantExecuters.transportProperties",
     "input_parameters": {
-      "values": "{WebGui.formData}",
-      "template": "openFOAM/simpleFOAM/TransportProperties"
+      "transportModel" : "Newtonian",
+      "nu" : 1e-5
     }
   },
   "GUI": {
