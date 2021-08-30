@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type": "jinjaExecuters.BlockMesh",
+        "type": "openFOAM.meshExecuters.BlockMesh",
         "input_parameters": {
             "Properties": "{value.Properties}",
             "boundary": "{value.boundary}",

@@ -53,6 +53,9 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     if nodecls is None:
         nodecls = pydoc.locate("HermesSnappyHexMesh." + '_' + nodeData["Type"])
 
+
+
+
     #    # if the class is not exist, create a new class
     #    if nodecls is None:
     #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
@@ -371,12 +374,13 @@ class _ViewProviderNode:
         self.NodeObjName = vobj.Object.Name
         self.NodeObjType = vobj.Object.Type
 
+
     def getIcon(self):
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
 
-        if self.NodeObjType == "WebGuiNode":
+        if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh':
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
         elif self.NodeObjType == "GeometryDefinerNode":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
@@ -590,6 +594,9 @@ class _WebGuiNode(_HermesNode):
 
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
+
+    def jsonToJinja(self, obj):
+        return self.nodeData["WebGui"]["formData"]
 
 
 # =============================================================================
@@ -1526,6 +1533,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
 
         jinja = dict(geomerty=geometry, boundry=boundry, vertices=vertices)
-        FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
+        # FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
 
         return jinja

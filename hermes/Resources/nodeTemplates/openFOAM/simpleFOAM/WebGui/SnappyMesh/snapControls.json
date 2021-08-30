@@ -54,7 +54,26 @@
         }
       }
     },
-    "uiSchema":{},
-    "formData":{}
+    "uiSchema":{
+      "implicitFeatureSnap": {
+        "ui:widget": "radio"
+      },
+      "explicitFeatureSnap": {
+        "ui:widget": "radio"
+      },
+      "multiRegionFeatureSnap": {
+        "ui:widget": "radio"
+      }
+    },
+    "formData":{
+      "nSmoothPatch": 3,
+      "tolerance": 2.0,
+      "nSolveIter": 100,
+      "nRelaxIter": 5,
+      "nFeatureSnapIter": 10,
+      "explicitFeatureSnap": false,
+      "multiRegionFeatureSnap": false,
+      "implicitFeatureSnap": true
+    }
   }
 }

@@ -1,12 +1,12 @@
 {
-    "nameTSM":{
+    "objectNameTSM":{
         "type":"string",
-        "title":"Name",
+        "title":"objectName",
         "description":"Name to use to refer to this surface"
     },
-    "typeTSM":{ 
+    "objectTypeTSM":{
         "type":"string",
-        "title":"Type",
+        "title":"objectType",
         "enum": [
             "stl",
             "obj"
@@ -70,9 +70,12 @@
                                 ]
                             },
                             "levels": {
-                                "type": "string",
+                                "type": "array",
                                 "title": "Levels",
-                                "description": "Enter a list of 2 numbers:  distance and refinement level ((0.2 3) (1 2))"
+                                "description": "Enter a list of 2 numbers:  distance and refinement level (1 2)",
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     }
@@ -93,13 +96,13 @@
             "patch"
         ]
     },
-    "region": {
+    "regions": {
         "type": "array",
         "title": "Regions",
         "items": {
             "type": "object",
             "properties": {
-                "RegionName": {
+                "regionName": {
                     "type": "string",
                     "title": "Name"
                 },

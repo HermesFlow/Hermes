@@ -21,6 +21,11 @@
             "title":"finalLayerThickness",
             "description":"thickness of layer furthest from the wall, usually in combination with relative sizes according to the relativeSizes entry."
         },
+        "minThickness":{
+            "type":"number",
+            "title":"minThickness",
+            "description":"minimum thickness of cell layer, either relative or absolute"
+        },
         "firstLayerThickness":{
             "type":"number",
             "title":"firstLayerThickness",
@@ -30,16 +35,6 @@
             "type":"number",
             "title":"thickness",
             "description":"total thickness of all layers of cells, usually in combination with absolute sizes according to the relativeSizes entry"
-        },
-        "minThickness":{
-            "type":"number",
-            "title":"minThickness",
-            "description":"minimum thickness of cell layer, either relative or absolute"
-        },
-        "nGrow":{
-            "type":"integer",
-            "title":"nGrow",
-            "description":"number of layers of connected faces that are not grown if points do not get extruded"
         },
         "featureAngle":{
             "type":"number",
@@ -51,10 +46,25 @@
             "title":"slipFeatureAngle",
             "description":"At non-patched sides allow mesh to slip if extrusion direction makes angle larger than slipFeatureAngle"
         },
+        "nLayerIter":{
+            "type":"integer",
+            "title":"nLayerIter",
+            "description":"overall max number of layer addition iterations"
+        },
+        "nRelaxedIter":{
+            "type":"integer",
+            "title":"nRelaxedIter",
+            "description":"max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+        },
         "nRelaxIter":{
             "type":"integer",
             "title":"nRelaxIter",
             "description":"maximum number of snapping relaxation iterations"
+        },
+        "nGrow":{
+            "type":"integer",
+            "title":"nGrow",
+            "description":"number of layers of connected faces that are not grown if points do not get extruded"
         },
         "nSmoothSurfaceNormals":{
             "type":"integer",
@@ -86,24 +96,50 @@
             "title":"minMedianAxisAngle",
             "description":"angle used to pick up medial axis points"
         },
+        "nMedialAxisIter":{
+            "type":"number",
+            "title":"nMedialAxisIter",
+            "description":""
+        },
         "nBufferCellsNoExtrude":{
             "type":"integer",
             "title":"nBufferCellsNoExtrude",
             "description":"create buffer region for new layer terminations"
         },
-        "nLayerIter":{
-            "type":"integer",
-            "title":"nLayerIter",
-            "description":"overall max number of layer addition iterations"
-        },
-        "nRelaxedIter":{
-            "type":"integer",
-            "title":"nRelaxedIter",
-            "description":"max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+        "additionalReporting":{
+            "type":"boolean",
+            "title":"additionalReporting"
         }
       }
     },
-    "uiSchema":{},
-    "formData":{}
+    "uiSchema":{
+      "relativeSizes": {
+        "ui:widget": "radio"
+      },
+      "additionalReporting": {
+        "ui:widget": "radio"
+      }
+    },
+    "formData":{
+      "relativeSizes" : true,
+      "expansionRatio" : 1.05,
+      "finalLayerThickness" : 0.9,
+      "minThickness" : 0.05,
+      "featureAngle": 100,
+      "slipFeatureAngle": 30,
+      "nLayerIter": 50,
+      "nRelaxedIter": 20,
+      "nRelaxIter": 5,
+      "nGrow": 0,
+      "nSmoothSurfaceNormals": 1,
+      "nSmoothNormals": 3,
+      "nSmoothThickness": 10,
+      "maxFaceThicknessRatio": 0.5,
+      "maxThicknessToMedialRatio": 0.3,
+      "minMedianAxisAngle": 90,
+      "nMedialAxisIter": 10,
+      "nBufferCellsNoExtrude": 0,
+      "additionalReporting": false
+    }
   }
 }

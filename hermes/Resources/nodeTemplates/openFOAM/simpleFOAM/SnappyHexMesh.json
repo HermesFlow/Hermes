@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "jinjaExecuters.jinja",
+    "type": "openFOAM.meshExecuters.snappyHexMesh",
     "input_parameters": {
       "values": "{WebGui.formData}",
       "template": "openFOAM/simpleFOAM/SnappyHexMeshDict"
@@ -8,16 +8,7 @@
   },
   "GUI": {
     "Type": "SnappyHexMesh",
-    "Properties": {
-      "Property01": {
-        "prop": "locationInMesh",
-        "init_val": null,
-        "type": "App::PropertyLink",
-        "Heading": "Links",
-        "tooltip": "point of locationInMesh ",
-        "current_val": null
-      }
-    },
+    "Properties": {},
     "WebGui": {
       "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGuiNoGeometry"
     },
@@ -46,7 +37,7 @@
       }
     },
     "Refinement": {
-      "Type": "WebGuiNode",
+      "Type": "SnappyHexMeshRefinement",
       "Properties": {},
       "WebGui": {}
     }

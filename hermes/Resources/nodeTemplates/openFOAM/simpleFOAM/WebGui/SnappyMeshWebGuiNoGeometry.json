@@ -15,9 +15,11 @@
     },
     "uiSchema":{},
     "formData":{
-        "castellatedMesh":true,
-        "snap":false,
-        "addLayers":true,
-        "mergeTolerance":1e-06
+        "modules": {
+            "castellatedMesh": true,
+            "snap": true,
+            "addLayers": true,
+            "mergeTolerance": 1e-6
+        }
     }
 }

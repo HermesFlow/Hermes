@@ -27,20 +27,15 @@
             "title":"maxConcave",
             "description":"max concaveness allowed"
         },
-        "minFlatness":{
+        "minVol":{
             "type":"number",
-            "title":"minFlatness",
-            "description":"ratio of minimum projected area to actual area"
+            "title":"minVol",
+            "description":"minimum cell pyramid volume"
         },
         "minTetQuality":{
             "type":"number",
             "title":"minTetQuality",
             "description":"minimum quality of tetrahedral cells from cell decomposition"
-        },
-        "minVol":{
-            "type":"number",
-            "title":"minVol",
-            "description":"minimum cell pyramid volume"
         },
         "minArea":{
             "type":"number",
@@ -80,9 +75,21 @@
             "title":"errorReduction",
             "description":"amount to scale back displacement at error points"
         },
+        "minFlatness":{
+            "type":"number",
+            "title":"minFlatness",
+            "description":"ratio of minimum projected area to actual area"
+        },
         "relaxed":{
             "type":"object",
             "title":"relaxed",
+            "properties": {
+              "maxNonOrtho": {
+                "type": "number",
+                "title": "maxNonOrtho",
+                "description": ""
+              }
+            },
             "description":"sub-dictionary that can include modified values for the above keyword entries to be used when nRelaxedIter is exceeded in the layer addition process",
             "additionalProperties": {
                 "type": "string"
@@ -91,6 +98,24 @@
       }
     },
     "uiSchema":{},
-    "formData":{}
+    "formData":{
+      "maxNonOrtho": 65,
+      "maxBoundarySkewness": 20,
+      "maxInternalSkewness": 4,
+      "maxConcave": 80,
+      "minVol": 1e-13,
+      "minTetQuality": -1e30,
+      "minArea": -1,
+      "minTwist": 0.02,
+      "minDeterminant": 0.001,
+      "minFaceWeight": 0.05,
+      "minVolRatio": 0.01,
+      "minTriangleTwist": -1,
+      "nSmoothScale": 4,
+      "errorReduction": 0.75,
+      "relaxed": {
+        "maxNonOrtho": 75
+      }
+    }
   }
 }
