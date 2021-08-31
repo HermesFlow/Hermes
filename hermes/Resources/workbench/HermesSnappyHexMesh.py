@@ -344,28 +344,37 @@ class _SnappyHexMeshGeometryEntity(_WebGuiNode):
 
         # turn refinementRegions levels from string to arrays
         # for mode distance - list of string to list of arrays
-        if jinjaObj["refinementRegions"]["mode"] == "distance":
-            levels = list()
-            for level in jinjaObj["refinementRegions"]["levels"]:
-                levels.append(self.stringToArray(level))
-            jinjaObj["refinementRegions"]["levels"] = levels
-        else:
-            # for mode inside/outside just to strung to arr
-            jinjaObj["refinementRegions"]["levels"] = self.stringToArray(jinjaObj["refinementRegions"]["levels"])
+        if "refinementRegions" in jinjaObj.keys():
+            if len(jinjaObj["refinementRegions"]["mode"]) == 0:
+                pass
+            elif jinjaObj["refinementRegions"]["mode"] == "distance":
+                levels = list()
+                for level in jinjaObj["refinementRegions"]["levels"]:
+                    levels.append(self.stringToArray(level))
+                jinjaObj["refinementRegions"]["levels"] = levels
+            else:
+                # for mode inside/outside just to strung to arr
+                jinjaObj["refinementRegions"]["levels"] = self.stringToArray(jinjaObj["refinementRegions"]["levels"])
 
-        # turn refinementSurfaceLevels from string to arrays
-        jinjaObj["refinementSurfaceLevels"] = self.stringToArray(jinjaObj["refinementSurfaceLevels"])
+            # turn refinementSurfaceLevels from string to arrays
+            if "refinementSurfaceLevels" in jinjaObj.keys():
+                jinjaObj["refinementSurfaceLevels"] = self.stringToArray(jinjaObj["refinementSurfaceLevels"])
 
         # mv the regions from array to dict structure
-        new_regions = dict()
-        for reg in jinjaObj["regions"]:
-            new_regions[reg["regionName"]] = dict(name=reg["regionName"], type=reg["regionType"])
-        jinjaObj["regions"] = new_regions
+        if "regions" in jinjaObj.keys():
+            new_regions = dict()
+            for reg in jinjaObj["regions"]:
+                new_regions[reg["regionName"]] = dict(name=reg["regionName"], type=reg["regionType"])
+            jinjaObj["regions"] = new_regions
 
 
         return jinjaObj
 
     def stringToArray(self, stringObj):
+        if type(stringObj) is not str:
+            FreeCAD.Console.PrintMessage("stringObj is not string. stringObj = "+ str(stringObj) + "and its type is " + str(type(stringObj)) + "\n")
+            return
+
         l_stringObj = stringObj.split(",") if "," in stringObj else stringObj.split(" ")
         arr = list()
         for item in l_stringObj:

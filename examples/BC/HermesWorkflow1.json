@@ -11,7 +11,7 @@
         "nodes": {
             "BlockMesh": {
                 "Execution": {
-                    "type": "jinjaExecuters.BlockMesh",
+                    "type": "openFOAM.meshExecuters.BlockMesh",
                     "input_parameters": {
                         "geomerty": {
                             "convertToMeters": 1,
@@ -48,7 +48,7 @@
                         },
                         "boundry": [
                             {
-                                "name": "w1",
+                                "name": "w3",
                                 "type": "wall",
                                 "faces": [
                                     [
@@ -213,7 +213,7 @@
                     },
                     "boundary": [
                         {
-                            "Name": "w1",
+                            "Name": "w3",
                             "Type": "wall",
                             "Properties": {},
                             "faces": {
@@ -274,13 +274,13 @@
             },
             "SnappyHexMesh": {
                 "Execution": {
-                    "type": "jinjaExecuters.jinja",
+                    "type": "openFOAM.meshExecuters.snappyHexMesh",
                     "input_parameters": {
                         "modules": {
-                            "mergeTolerance": 1e-06,
                             "castellatedMesh": true,
+                            "snap": true,
                             "addLayers": true,
-                            "snap": false
+                            "mergeTolerance": 1e-06
                         },
                         "castellatedMeshControls": {
                             "maxLocalCells": 100000,
@@ -291,8 +291,8 @@
                             "resolveFeatureAngle": 30,
                             "allowFreeStandingZoneFaces": true,
                             "locationInMesh": [
-                                "0.45",
-                                "0.07",
+                                "0.00",
+                                "0.00",
                                 "0.00"
                             ]
                         },
@@ -350,18 +350,18 @@
                             "objects": {
                                 "Cylinder": {
                                     "refinementRegions": {
-                                        "mode": "inside",
+                                        "mode": "outside",
                                         "levels": [
                                             1.0,
                                             2.0
                                         ]
                                     },
                                     "objectName": "Cylinder",
-                                    "objectType": "stl",
+                                    "objectType": "obj",
                                     "levels": 2,
                                     "refinementSurfaceLevels": [
-                                        2.0,
-                                        2.0
+                                        3.0,
+                                        4.0
                                     ],
                                     "patchType": "wall",
                                     "regions": {
@@ -429,10 +429,10 @@
                         "uiSchema": {},
                         "formData": {
                             "modules": {
-                                "mergeTolerance": 1e-06,
                                 "castellatedMesh": true,
+                                "snap": true,
                                 "addLayers": true,
-                                "snap": false
+                                "mergeTolerance": 1e-06
                             }
                         }
                     },
@@ -506,7 +506,7 @@
                                 "nCellsBetweenLevels": 3,
                                 "resolveFeatureAngle": 30,
                                 "allowFreeStandingZoneFaces": true,
-                                "locationInMesh": "(0.45 0.07 0.00)"
+                                "locationInMesh": "(0.00 0.00 0.00)"
                             }
                         }
                     },
@@ -1126,13 +1126,13 @@
                                         "uiSchema": {},
                                         "formData": {
                                             "refinementRegionsTSM": {
-                                                "mode": "inside",
-                                                "levels": "1,2"
+                                                "mode": "outside",
+                                                "levels": "(1,2)"
                                             },
                                             "objectNameTSM": "Cylinder",
-                                            "objectTypeTSM": "stl",
+                                            "objectTypeTSM": "obj",
                                             "levelsTSM": 2,
-                                            "refinementSurfaceLevelsTSM": "2 2",
+                                            "refinementSurfaceLevelsTSM": "3,4",
                                             "patchTypeTSM": "wall",
                                             "regions": [
                                                 {
@@ -1161,8 +1161,26 @@
                 "Execution": {
                     "type": "jinjaExecuters.jinja",
                     "input_parameters": {
-                        "values": "{WebGui.formData}",
-                        "template": ""
+                        "fields": {
+                            "U": {
+                                "Cylinder": {
+                                    "type": "fixedValue",
+                                    "value": "3"
+                                },
+                                "w3": {
+                                    "type": "zeroGradient"
+                                }
+                            },
+                            "P": {
+                                "Cylinder": {
+                                    "type": "slip"
+                                },
+                                "w3": {
+                                    "type": "pressureInletOutletVelocity",
+                                    "value": "5"
+                                }
+                            }
+                        }
                     }
                 },
                 "GUI": {
@@ -1557,25 +1575,7 @@
                 "Execution": {
                     "type": "openFOAM.systemExecuters.controlDict",
                     "input_parameters": {
-                        "application": "simpleFoam",
-                        "startFrom": "startTime",
-                        "startTime": 0,
-                        "stopAt": "endTime",
-                        "endTime": 1000,
-                        "deltaT": 1,
-                        "writeControl": "timeStep",
-                        "writeInterval": 100,
-                        "purgeWrite": 0,
-                        "writeFormat": "ascii",
-                        "writePrecision": 7,
-                        "writeCompression": "false",
-                        "timeFormat": "general",
-                        "timePrecision": 6,
-                        "runTimeModifiable": "true",
-                        "adjustTimeStep": "true",
-                        "interpolate": "true",
-                        "maxCo": 0.5,
-                        "functions": []
+                        "values": "{WebGui.formData}"
                     }
                 },
                 "GUI": {
@@ -1583,14 +1583,10 @@
                     "Properties": {},
                     "WebGui": {
                         "Schema": {
-                            "title": "",
+                            "title": "ControlDict",
                             "description": "",
                             "type": "object",
                             "properties": {
-                                "application": {
-                                    "type": "string",
-                                    "title": "application"
-                                },
                                 "startFrom": {
                                     "type": "string",
                                     "enum": [
@@ -1641,6 +1637,36 @@
                                     "type": "integer",
                                     "description": "Scalar used in conjunction with writeControl described above."
                                 },
+                                "runTimeModifiable": {
+                                    "type": "boolean",
+                                    "title": "runTimeModifiable",
+                                    "description": "Switch for whether dictionaries, e.g. controlDict, are re-read during a simulation at the beginning of each time step, allowing the user to modify parameters during a simulation."
+                                },
+                                "interpolate": {
+                                    "type": "boolean",
+                                    "title": "interpolate"
+                                },
+                                "adjustTimeStep": {
+                                    "type": "boolean",
+                                    "title": "adjustTimeStep",
+                                    "description": "Switch used by some solvers to adjust the time step during the simulation, usually according to maxCo."
+                                },
+                                "functions": {
+                                    "type": "array",
+                                    "title": "functions",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
+                                    }
+                                },
+                                "libs": {
+                                    "type": "array",
+                                    "title": "libs",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "List of additional libraries (on $LD_LIBRARY_PATH) to be loaded at run-time"
+                                    }
+                                },
                                 "purgeWrite": {
                                     "title": "purgeWrite",
                                     "type": "integer",
@@ -1664,6 +1690,10 @@
                                     "title": "writeCompression",
                                     "description": "Switch to specify whether files are compressed with gzip"
                                 },
+                                "application": {
+                                    "type": "string",
+                                    "title": "application"
+                                },
                                 "timeFormat": {
                                     "type": "string",
                                     "enum": [
@@ -1678,11 +1708,6 @@
                                     "type": "integer",
                                     "description": "Integer used in conjunction with timeFormat described above"
                                 },
-                                "runTimeModifiable": {
-                                    "type": "boolean",
-                                    "title": "runTimeModifiable",
-                                    "description": "Switch for whether dictionaries, e.g. controlDict, are re-read during a simulation at the beginning of each time step, allowing the user to modify parameters during a simulation."
-                                },
                                 "graphFormat": {
                                     "type": "string",
                                     "enum": [
@@ -1694,35 +1719,10 @@
                                     ],
                                     "description": "Format for graph data written by an application."
                                 },
-                                "adjustTimeStep": {
-                                    "type": "boolean",
-                                    "title": "adjustTimeStep",
-                                    "description": "Switch used by some solvers to adjust the time step during the simulation, usually according to maxCo."
-                                },
                                 "maxCo": {
                                     "title": "maxCo",
                                     "type": "number",
                                     "description": "Maximum Courant number."
-                                },
-                                "interpolate": {
-                                    "type": "boolean",
-                                    "title": "interpolate"
-                                },
-                                "libs": {
-                                    "type": "array",
-                                    "title": "functions",
-                                    "items": {
-                                        "type": "string",
-                                        "description": "A list of libs to load. just the name, i.e  adds the lib and the .so --> lib{name}.so "
-                                    }
-                                },
-                                "functions": {
-                                    "type": "array",
-                                    "title": "functions",
-                                    "items": {
-                                        "type": "string",
-                                        "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
-                                    }
                                 }
                             }
                         },
@@ -1736,28 +1736,30 @@
                                 "items": {
                                     "ui:emptyValue": ""
                                 }
+                            },
+                            "runTimeModifiable": {
+                                "ui:widget": "radio"
+                            },
+                            "interpolate": {
+                                "ui:widget": "radio"
+                            },
+                            "adjustTimeStep": {
+                                "ui:widget": "radio"
                             }
                         },
                         "formData": {
-                            "application": "simpleFoam",
                             "startFrom": "startTime",
-                            "startTime": 0,
+                            "startTime": 13,
                             "stopAt": "endTime",
                             "endTime": 1000,
                             "deltaT": 1,
                             "writeControl": "timeStep",
                             "writeInterval": 100,
-                            "purgeWrite": 0,
-                            "writeFormat": "ascii",
-                            "writePrecision": 7,
-                            "writeCompression": "false",
-                            "timeFormat": "general",
-                            "timePrecision": 6,
-                            "runTimeModifiable": "true",
-                            "adjustTimeStep": "true",
-                            "interpolate": "true",
-                            "maxCo": 0.5,
-                            "functions": []
+                            "runTimeModifiable": true,
+                            "interpolate": true,
+                            "adjustTimeStep": true,
+                            "functions": [],
+                            "libs": []
                         }
                     }
                 }

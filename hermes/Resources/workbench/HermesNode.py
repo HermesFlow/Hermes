@@ -596,7 +596,10 @@ class _WebGuiNode(_HermesNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def jsonToJinja(self, obj):
-        return self.nodeData["WebGui"]["formData"]
+        if obj.Name == "ControlDict":
+            return dict(values="{WebGui.formData}")
+        else:
+            return self.nodeData["WebGui"]["formData"]
 
 
 # =============================================================================
@@ -817,6 +820,33 @@ class _BCNode(_WebGuiNode):
 
         if FreeCAD.GuiUp:
             _ViewProviderNodeBC(obj.ViewObject)
+
+    def jsonToJinja(self, obj):
+
+        HermesWorkflow = self.getRootParent(obj)
+        jinja = dict()
+        # loop all fields defined
+        for field in HermesWorkflow.CalculatedFields:
+            obj_field = dict()
+            # loop each geom and get its field BC data
+            for geom in obj.Group:
+                geom_fields = geom.Group
+                for cf in geom_fields:
+                    if field in cf.Name:
+                        part = FreeCAD.ActiveDocument.getObject(geom.partLinkName)
+                        formData = cf.Proxy.nodeData["WebGui"]["formData"]
+                        obj_jinja = dict()
+                        for key, value in formData.items():
+                            if "type" in key:
+                                obj_jinja["type"] = value
+                            else:
+                                obj_jinja[key] = value
+                        obj_field[part.Label] = obj_jinja
+
+            jinja[field] = copy.deepcopy(obj_field)
+
+        # FreeCAD.Console.PrintMessage("BC jinja = " + str(jinja) + "\n")
+        return dict(fields=jinja)
 
 # =============================================================================
 # _BCGeometryNode

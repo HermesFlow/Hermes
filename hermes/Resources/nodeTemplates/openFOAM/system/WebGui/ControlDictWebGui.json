@@ -1,13 +1,9 @@
 {
 	"Schema":{  
-		"title":"",
+		"title":"ControlDict",
 		"description":"",
 		"type":"object",
 		"properties":{
-            "application":{
-                "type":"string",
-                "title":"application"
-            },
             "startFrom":{
                 "type":"string",
                 "enum":[
@@ -58,6 +54,36 @@
                 "type": "integer",
                 "description":"Scalar used in conjunction with writeControl described above."
             },
+            "runTimeModifiable":{
+                "type": "boolean",
+                "title": "runTimeModifiable",
+                "description": "Switch for whether dictionaries, e.g. controlDict, are re-read during a simulation at the beginning of each time step, allowing the user to modify parameters during a simulation."
+            },
+            "interpolate":{
+                "type": "boolean",
+                "title": "interpolate"
+            },
+            "adjustTimeStep":{
+                "type": "boolean",
+                "title": "adjustTimeStep",
+                "description": "Switch used by some solvers to adjust the time step during the simulation, usually according to maxCo."
+            },
+            "functions": {
+                "type": "array",
+                "title": "functions",
+                "items": {
+                    "type": "string",
+                    "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
+                }
+		    },
+            "libs": {
+                "type": "array",
+                "title": "libs",
+                "items": {
+                    "type": "string",
+                    "description": "List of additional libraries (on $LD_LIBRARY_PATH) to be loaded at run-time"
+                }
+		    },
             "purgeWrite":{
                 "title": "purgeWrite",
                 "type": "integer",
@@ -81,6 +107,10 @@
                 "title": "writeCompression",
                 "description": "Switch to specify whether files are compressed with gzip"
             },
+          "application":{
+                "type":"string",
+                "title":"application"
+            },
             "timeFormat":{
                 "type":"string",
                 "enum":[
@@ -95,11 +125,6 @@
                 "type": "integer",
                 "description":"Integer used in conjunction with timeFormat described above"
             },
-            "runTimeModifiable":{
-                "type": "boolean",
-                "title": "runTimeModifiable",
-                "description": "Switch for whether dictionaries, e.g. controlDict, are re-read during a simulation at the beginning of each time step, allowing the user to modify parameters during a simulation."
-            },
             "graphFormat":{
                 "type":"string",
                 "enum":[
@@ -111,44 +136,11 @@
                 ],
                 "description":"Format for graph data written by an application."
             },
-            "adjustTimeStep":{
-                "type": "boolean",
-                "title": "adjustTimeStep",
-                "description": "Switch used by some solvers to adjust the time step during the simulation, usually according to maxCo."
-            },
             "maxCo":{
                 "title": "maxCo",
                 "type": "number",
                 "description":"Maximum Courant number."
-            },
-            "interpolate":{
-                "type": "boolean",
-                "title": "interpolate"
-            },
-            "libs": {
-                "type": "array",
-                "title": "libs",
-                "items": {
-                    "type": "string",
-                    "description": "List of additional libraries (on $LD_LIBRARY_PATH) to be loaded at run-time"
-                }
-		    },
-            "functions": {
-                "type": "array",
-                "title": "functions",
-                "items": {
-                    "type": "string",
-                    "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
-                }
-		    },
-            "libs": {
-                "type": "array",
-                "title": "functions",
-                "items": {
-                    "type": "string",
-                    "description": "A list of libs to load. just the name, i.e  adds the lib and the .so --> lib{name}.so "
-                }
-		    }
+            }
         }
 	},
 	"uiSchema":{ 
@@ -161,10 +153,18 @@
             "items": {
                 "ui:emptyValue": ""
             }
-        } 
-	},
+        },
+        "runTimeModifiable": {
+          "ui:widget": "radio"
+        },
+        "interpolate": {
+          "ui:widget": "radio"
+        },
+        "adjustTimeStep": {
+          "ui:widget": "radio"
+        }
+    },
 	"formData":{
-        "application": "simpleFoam",
         "startFrom": "startTime",
         "startTime": 0,
         "stopAt": "endTime",
@@ -172,16 +172,10 @@
         "deltaT": 1,
         "writeControl": "timeStep",
         "writeInterval": 100,
-        "purgeWrite": 0,
-        "writeFormat": "ascii",
-        "writePrecision": 7,
-        "writeCompression":"false",
-        "timeFormat": "general",
-        "timePrecision": 6,
-        "runTimeModifiable": "true",
-        "adjustTimeStep" : "true",
-        "interpolate": "true",
-        "maxCo" : 0.5,
-         "functions": []
+        "runTimeModifiable": true,
+        "interpolate": true,
+        "adjustTimeStep" : true,
+        "functions": [],
+        "libs": []
 	}
 }
