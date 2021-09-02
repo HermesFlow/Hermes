@@ -10,7 +10,8 @@
                     "SIMPLE",
                     "PIMPLE",
                     "PISO"
-                ]
+                ],
+                "default": "SIMPLE"
             }
         },
         "dependencies": {
@@ -66,11 +67,13 @@
         }
     },
 	"uiSchema":{
-        "algorithms": {
-            "momentumPredictor": {
+        "solverFields": {
+            "momentumPredictor":
+            {
                 "ui:widget": "radio"
             }
         }
+
     },
     "formData":{}
 }

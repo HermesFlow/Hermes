@@ -13,7 +13,7 @@
             "FvSchemes",
             "FvSolution",
             "TransportProperties",
-            "RASProperties",
+            "TurbulenceProperties",
             "FileWriter"
         ],
         "nodes": {
@@ -30,7 +30,7 @@
                 "Template": "GeometryDefiner.BlockMeshTemplate"
             },
             "SnappyHexMesh":{
-                "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
+                "Template": "openFOAM.mesh.snappyHexMesh"
             },
             "ControlDict":{
                 "Template": "openFOAM.system.controlDict"
@@ -44,7 +44,7 @@
             "TransportProperties":{
                 "Template": "openFOAM.constant.transportProperties"
             },
-            "RASProperties":{
+            "TurbulenceProperties":{
                 "Template": "openFOAM.constant.turbulenceProperties"
             },
             "FileWriter": {
@@ -59,7 +59,7 @@
                             "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
                             "system/fvSolution": "{FvSolution.output.openFOAMfile}",
                             "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
-                            "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
+                            "constant/turbulenceProperties": "{turbulenceProperties.output.openFOAMfile}"
                         }
                     }
                 },

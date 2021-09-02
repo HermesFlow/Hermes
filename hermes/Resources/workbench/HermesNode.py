@@ -380,7 +380,7 @@ class _ViewProviderNode:
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
 
-        if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh':
+        if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
         elif self.NodeObjType == "GeometryDefinerNode":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"

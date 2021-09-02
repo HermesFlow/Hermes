@@ -11,7 +11,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.TransportPropertiesWebGui"
+      "Template": "openFOAM.constant.WebGui.TransportPropertiesWebGui"
     }
   }
 }

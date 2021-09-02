@@ -1,0 +1,21 @@
+{
+	"Schema":{
+		"type":"object",
+		"properties":{
+            "transportModel":{
+                "type":"string",
+                "title":"transportModel"
+            },
+            "nu":{
+                "type":"string",
+                "title":"nu"
+            }
+        }
+    },
+	"uiSchema":{ 
+    },
+    "formData":{
+        "transportModel":"Newtonian",
+        "nu":"1e-5"
+    }
+}

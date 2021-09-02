@@ -13,7 +13,7 @@
             "FvSchemes",
             "FvSolution",
             "TransportProperties",
-            "RASProperties",
+            "TurbulenceProperties",
             "FileWriter"
         ],
         "nodes": {
@@ -1187,49 +1187,11 @@
                     "type": "openFOAM.systemExecuters.fvSchemes",
                     "input_parameters": {
                         "fields": {
-                            "U": {
-                                "fluxRequired": false,
-                                "divSchemes": [
-                                    {
-                                        "parameters": " ",
-                                        "noOfOperators": 2,
-                                        "phi": "phi",
-                                        "type": "Gauss",
-                                        "name": "linear"
-                                    }
-                                ],
-                                "laplacianSchemes": [
-                                    {
-                                        "noOfOperators": 2,
-                                        "coefficient": "nuEff",
-                                        "type": "Gauss",
-                                        "name": "linear",
-                                        "parameters": "uncorrected"
-                                    },
-                                    {
-                                        "noOfOperators": 2,
-                                        "coefficient": "AnisotropicDiffusion",
-                                        "type": "Gauss",
-                                        "name": "linear",
-                                        "parameters": "uncorrected"
-                                    }
-                                ]
-                            },
-                            "P": {
-                                "fluxRequired": true,
-                                "divSchemes": [],
-                                "laplacianSchemes": [
-                                    {
-                                        "noOfOperators": 2,
-                                        "coefficient": "(1|A(U))",
-                                        "type": "Gauss",
-                                        "name": "linear",
-                                        "parameters": "uncorrected"
-                                    }
-                                ]
-                            }
+                            "U": {},
+                            "P": {}
                         },
                         "default": {
+                            "ddtScheme": "Euler",
                             "gradSchemes": {
                                 "type": "Gauss",
                                 "name": "linear"
@@ -1237,9 +1199,8 @@
                             "divSchemes": {
                                 "type": "Gauss",
                                 "name": "linear",
-                                "parameters": " "
+                                "parameters": ""
                             },
-                            "ddtScheme": "Euler",
                             "interpolationSchemes": "linear",
                             "snGradSchemes": "uncorrected",
                             "wallDist": "meshWave"
@@ -1352,6 +1313,7 @@
                         },
                         "uiSchema": {},
                         "formData": {
+                            "ddtScheme": "Euler",
                             "gradSchemes": {
                                 "type": "Gauss",
                                 "name": "linear"
@@ -1359,9 +1321,8 @@
                             "divSchemes": {
                                 "type": "Gauss",
                                 "name": "linear",
-                                "parameters": " "
+                                "parameters": ""
                             },
-                            "ddtScheme": "Euler",
                             "interpolationSchemes": "linear",
                             "snGradSchemes": "uncorrected",
                             "wallDist": "meshWave"
@@ -1604,34 +1565,7 @@
                                             "ui:widget": "radio"
                                         }
                                     },
-                                    "formData": {
-                                        "fluxRequired": false,
-                                        "divSchemes": [
-                                            {
-                                                "parameters": " ",
-                                                "noOfOperators": 2,
-                                                "phi": "phi",
-                                                "type": "Gauss",
-                                                "name": "linear"
-                                            }
-                                        ],
-                                        "laplacianSchemes": [
-                                            {
-                                                "noOfOperators": 2,
-                                                "coefficient": "nuEff",
-                                                "type": "Gauss",
-                                                "name": "linear",
-                                                "parameters": "uncorrected"
-                                            },
-                                            {
-                                                "noOfOperators": 2,
-                                                "coefficient": "AnisotropicDiffusion",
-                                                "type": "Gauss",
-                                                "name": "linear",
-                                                "parameters": "uncorrected"
-                                            }
-                                        ]
-                                    }
+                                    "formData": {}
                                 }
                             },
                             "P": {
@@ -1750,19 +1684,7 @@
                                             "ui:widget": "radio"
                                         }
                                     },
-                                    "formData": {
-                                        "fluxRequired": true,
-                                        "divSchemes": [],
-                                        "laplacianSchemes": [
-                                            {
-                                                "noOfOperators": 2,
-                                                "coefficient": "(1|A(U))",
-                                                "type": "Gauss",
-                                                "name": "linear",
-                                                "parameters": "uncorrected"
-                                            }
-                                        ]
-                                    }
+                                    "formData": {}
                                 }
                             }
                         }
@@ -1777,7 +1699,15 @@
                             "U": {},
                             "P": {}
                         },
-                        "solverProperties": {},
+                        "solverProperties": {
+                            "algorithm": "SIMPLE",
+                            "solverFields": {
+                                "nNonOrthogonalCorrectors": 2,
+                                "momentumPredictor": true,
+                                "pRefCell": 0,
+                                "pRefValue": 1
+                            }
+                        },
                         "relaxationFactors": {
                             "fields": {},
                             "equations": {}
@@ -1799,7 +1729,8 @@
                                         "SIMPLE",
                                         "PIMPLE",
                                         "PISO"
-                                    ]
+                                    ],
+                                    "default": "SIMPLE"
                                 }
                             },
                             "dependencies": {
@@ -1921,13 +1852,21 @@
                             }
                         },
                         "uiSchema": {
-                            "algorithms": {
+                            "algorithm": {
                                 "momentumPredictor": {
                                     "ui:widget": "radio"
                                 }
                             }
                         },
-                        "formData": {}
+                        "formData": {
+                            "algorithm": "SIMPLE",
+                            "solverFields": {
+                                "nNonOrthogonalCorrectors": 2,
+                                "momentumPredictor": true,
+                                "pRefCell": 0,
+                                "pRefValue": 1
+                            }
+                        }
                     },
                     "fields": {
                         "template_webGui": {
@@ -2576,7 +2515,7 @@
                     "type": "openFOAM.constantExecuters.transportProperties",
                     "input_parameters": {
                         "transportModel": "Newtonian",
-                        "nu": "[0 2 -1 0 0 0 0] 1.5e-05"
+                        "nu": "1e-5"
                     }
                 },
                 "GUI": {
@@ -2599,21 +2538,19 @@
                         "uiSchema": {},
                         "formData": {
                             "transportModel": "Newtonian",
-                            "nu": "[0 2 -1 0 0 0 0] 1.5e-05"
+                            "nu": "1e-5"
                         }
                     }
                 }
             },
-            "RASProperties": {
+            "TurbulenceProperties": {
                 "Execution": {
                     "type": "openFOAM.constantExecuters.turbulenceProperties",
                     "input_parameters": {
                         "simulationType": "RAS",
-                        "RAS": {
-                            "RASModel": "kEpsilon",
-                            "turbulence": "true",
-                            "printCoeffs": "true"
-                        }
+                        "Model": "kEpsilon",
+                        "turbulence": true,
+                        "printCoeffs": false
                     }
                 },
                 "GUI": {
@@ -2627,63 +2564,70 @@
                                     "type": "string",
                                     "title": "simulationType"
                                 },
-                                "RAS": {
+                                "Model": {
+                                    "type": "string",
+                                    "title": "RASModel",
+                                    "enum": [
+                                        "LRR",
+                                        "LamBremhorstKE",
+                                        "LaunderSharmaKE",
+                                        "LienCubicKE",
+                                        "LienLeschziner",
+                                        "RNGkEpsilon",
+                                        "SSG",
+                                        "ShihQuadraticKE",
+                                        "SpalartAllmaras",
+                                        "kEpsilon",
+                                        "kOmega",
+                                        "kOmegaSST",
+                                        "kOmegaSSTLM",
+                                        "kOmegaSSTSAS",
+                                        "kkLOmega",
+                                        "qZeta",
+                                        "realizableKE",
+                                        "v2f"
+                                    ],
+                                    "description": "name of RAS turbulence model."
+                                },
+                                "turbulence": {
+                                    "type": "boolean",
+                                    "title": "turbulence",
+                                    "description": "switch to turn the solving of turbulence modelling on/off",
+                                    "enumNames": [
+                                        "on",
+                                        "off"
+                                    ]
+                                },
+                                "printCoeffs": {
+                                    "type": "boolean",
+                                    "title": "printCoeffs",
+                                    "description": "switch to print model coeffs to terminal at simulation start up.",
+                                    "enumNames": [
+                                        "on",
+                                        "off"
+                                    ]
+                                },
+                                "ModelCoeffs": {
                                     "type": "object",
-                                    "title": "RAS",
-                                    "properties": {
-                                        "RASModel": {
-                                            "type": "string",
-                                            "title": "RASModel",
-                                            "enum": [
-                                                "LRR",
-                                                "LamBremhorstKE",
-                                                "LaunderSharmaKE",
-                                                "LienCubicKE",
-                                                "LienLeschziner",
-                                                "RNGkEpsilon",
-                                                "SSG",
-                                                "ShihQuadraticKE",
-                                                "SpalartAllmaras",
-                                                "kEpsilon",
-                                                "kOmega",
-                                                "kOmegaSST",
-                                                "kOmegaSSTLM",
-                                                "kOmegaSSTSAS",
-                                                "kkLOmega",
-                                                "qZeta",
-                                                "realizableKE",
-                                                "v2f"
-                                            ],
-                                            "description": "name of RAS turbulence model."
-                                        },
-                                        "turbulence": {
-                                            "type": "boolean",
-                                            "title": "turbulence",
-                                            "description": "switch to turn the solving of turbulence modelling on/off"
-                                        },
-                                        "printCoeffs": {
-                                            "type": "boolean",
-                                            "title": "printCoeffs",
-                                            "description": "switch to print model coeffs to terminal at simulation start up."
-                                        },
-                                        "RASModelCoeffs": {
-                                            "type": "object",
-                                            "additionalProperties": {
-                                                "type": "string"
-                                            }
-                                        }
+                                    "additionalProperties": {
+                                        "type": "string"
                                     }
                                 }
                             }
                         },
-                        "uiSchema": {},
+                        "uiSchema": {
+                            "turbulence": {
+                                "ui:widget": "radio"
+                            },
+                            "printCoeffs": {
+                                "ui:widget": "radio"
+                            }
+                        },
                         "formData": {
                             "simulationType": "RAS",
-                            "RAS": {
-                                "RASModel": "kEpsilon",
-                                "turbulence": "true",
-                                "printCoeffs": "true"
-                            }
+                            "Model": "kEpsilon",
+                            "turbulence": true,
+                            "printCoeffs": false
                         }
                     }
                 }
@@ -2700,7 +2644,7 @@
                             "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
                             "system/fvSolution": "{FvSolution.output.openFOAMfile}",
                             "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
-                            "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
+                            "constant/turbulenceProperties": "{turbulenceProperties.output.openFOAMfile}"
                         }
                     }
                 },

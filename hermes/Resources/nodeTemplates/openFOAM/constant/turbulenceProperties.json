@@ -13,7 +13,7 @@
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.RASPropertiesWebGui"
+      "Template": "openFOAM.constant.WebGui.turbulencePropertiesWebGui"
     }
   }
 }

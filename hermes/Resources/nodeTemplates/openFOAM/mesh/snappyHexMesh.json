@@ -81,11 +81,39 @@
     }
   },
   "GUI": {
-    "Type": "WebGuiNode",
-    "Properties": {
-    },
+    "Type": "SnappyHexMesh",
+    "Properties": {},
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.SnappyMeshWebGui"
+      "Template": "openFOAM.mesh.WebGui.SnappyMeshWebGui"
+    },
+    "castellatedMeshControls":{
+      "Template":"openFOAM.mesh.WebGui.SnappyMesh.castellatedMeshControls"
+    },
+    "snapControls":{
+      "Template":"openFOAM.mesh.WebGui.SnappyMesh.snapControls"
+    },
+    "addLayersControls":{
+      "Template":"openFOAM.mesh.WebGui.SnappyMesh.addLayersControls"
+    },
+    "meshQualityControls":{
+      "Template":"openFOAM.mesh.WebGui.SnappyMesh.meshQualityControls"
+    },
+    "Geometry": {
+      "Type": "SnappyHexMeshGeometry",
+      "Properties": {},
+      "WebGui": {},
+      "Entities": {
+        "TemplateEntity": {
+          "Template":"openFOAM.mesh.WebGui.SnappyMesh.GeometryOFEntity"
+        },
+        "items": {
+        }
+      }
+    },
+    "Refinement": {
+      "Type": "SnappyHexMeshRefinement",
+      "Properties": {},
+      "WebGui": {}
     }
   }
 }

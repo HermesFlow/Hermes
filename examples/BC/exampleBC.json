@@ -13,7 +13,7 @@
                 "Template": "GeometryDefiner.BlockMeshTemplate"
             },
             "SnappyHexMesh": {
-                "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
+                "Template": "openFOAM.mesh.snappyHexMesh"
             },
             "BoundaryCondition":{
                 "Template": "BC.BC"

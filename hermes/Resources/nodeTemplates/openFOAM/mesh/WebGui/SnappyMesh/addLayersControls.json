@@ -1,0 +1,145 @@
+{
+  "Type": "WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"addLayersControls",
+      "description":"",
+      "type":"object",
+      "properties": {
+        "relativeSizes":{
+            "type":"boolean",
+            "title":"relativeSizes"
+        },
+        "expansionRatio":{
+            "type":"number",
+            "title":"expansionRatio",
+            "description":"expansion factor for layer mesh, increase in size from one layer to the next."
+        },
+        "finalLayerThickness":{
+            "type":"number",
+            "title":"finalLayerThickness",
+            "description":"thickness of layer furthest from the wall, usually in combination with relative sizes according to the relativeSizes entry."
+        },
+        "minThickness":{
+            "type":"number",
+            "title":"minThickness",
+            "description":"minimum thickness of cell layer, either relative or absolute"
+        },
+        "firstLayerThickness":{
+            "type":"number",
+            "title":"firstLayerThickness",
+            "description":"thickness of layer nearest the wall, usually in combination with absolute sizes according to the relativeSizes entry."
+        },
+        "thickness":{
+            "type":"number",
+            "title":"thickness",
+            "description":"total thickness of all layers of cells, usually in combination with absolute sizes according to the relativeSizes entry"
+        },
+        "featureAngle":{
+            "type":"number",
+            "title":"featureAngle",
+            "description":"angle above which surface is not extruded"
+        },
+        "slipFeatureAngle":{
+            "type":"number",
+            "title":"slipFeatureAngle",
+            "description":"At non-patched sides allow mesh to slip if extrusion direction makes angle larger than slipFeatureAngle"
+        },
+        "nLayerIter":{
+            "type":"integer",
+            "title":"nLayerIter",
+            "description":"overall max number of layer addition iterations"
+        },
+        "nRelaxedIter":{
+            "type":"integer",
+            "title":"nRelaxedIter",
+            "description":"max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+        },
+        "nRelaxIter":{
+            "type":"integer",
+            "title":"nRelaxIter",
+            "description":"maximum number of snapping relaxation iterations"
+        },
+        "nGrow":{
+            "type":"integer",
+            "title":"nGrow",
+            "description":"number of layers of connected faces that are not grown if points do not get extruded"
+        },
+        "nSmoothSurfaceNormals":{
+            "type":"integer",
+            "title":"nSmoothSurfaceNormals",
+            "description":"number of smoothing iterations of surface normals"
+        },
+        "nSmoothNormals":{
+            "type":"integer",
+            "title":"nSmoothNormals",
+            "description":"number of smoothing iterations of interior mesh movement direction"
+        },
+        "nSmoothThickness":{
+            "type":"integer",
+            "title":"nSmoothThickness",
+            "description":"smooth layer thickness over surface patches"
+        },
+        "maxFaceThicknessRatio":{
+            "type":"number",
+            "title":"maxFaceThicknessRatio",
+            "description":"stop layer growth on highly warped cells"
+        },
+        "maxThicknessToMedialRatio":{
+            "type":"number",
+            "title":"maxThicknessToMedialRatio",
+            "description":"reduce layer growth where ratio thickness to medial distance is large"
+        },
+        "minMedianAxisAngle":{
+            "type":"number",
+            "title":"minMedianAxisAngle",
+            "description":"angle used to pick up medial axis points"
+        },
+        "nMedialAxisIter":{
+            "type":"number",
+            "title":"nMedialAxisIter",
+            "description":""
+        },
+        "nBufferCellsNoExtrude":{
+            "type":"integer",
+            "title":"nBufferCellsNoExtrude",
+            "description":"create buffer region for new layer terminations"
+        },
+        "additionalReporting":{
+            "type":"boolean",
+            "title":"additionalReporting"
+        }
+      }
+    },
+    "uiSchema":{
+      "relativeSizes": {
+        "ui:widget": "radio"
+      },
+      "additionalReporting": {
+        "ui:widget": "radio"
+      }
+    },
+    "formData":{
+      "relativeSizes" : true,
+      "expansionRatio" : 1.05,
+      "finalLayerThickness" : 0.9,
+      "minThickness" : 0.05,
+      "featureAngle": 100,
+      "slipFeatureAngle": 30,
+      "nLayerIter": 50,
+      "nRelaxedIter": 20,
+      "nRelaxIter": 5,
+      "nGrow": 0,
+      "nSmoothSurfaceNormals": 1,
+      "nSmoothNormals": 3,
+      "nSmoothThickness": 10,
+      "maxFaceThicknessRatio": 0.5,
+      "maxThicknessToMedialRatio": 0.3,
+      "minMedianAxisAngle": 90,
+      "nMedialAxisIter": 10,
+      "nBufferCellsNoExtrude": 0,
+      "additionalReporting": false
+    }
+  }
+}

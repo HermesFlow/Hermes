@@ -18,7 +18,8 @@
         "momentumPredictor":{
             "type":"boolean",
             "title":"momentumPredictor",
-            "description":"switch that controls solving of the momentum predictor"
+            "description":"switch that controls solving of the momentum predictor",
+            "enumNames":["on", "off"]
         },
         "pRefCell":{
             "type":"number",
