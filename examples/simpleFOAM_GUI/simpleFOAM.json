@@ -16,28 +16,6 @@
             "RASProperties",
             "FileWriter"
         ],
-        "tagList": [
-            "copyDirectory",
-            "runPythonScript",
-            "runOsCommand",
-            "blockMesh",
-            "blockMeshEntity",
-            "geometryDefiner",
-            "snappyHexMesh",
-            "snappyHexMeshGeometry",
-            "snappyHexMeshRefinement",
-            "controlDict",
-            "fvSchemes",
-            "fvSolution",
-            "transportProperties",
-            "rasProperties",
-            "fileWriter",
-            "geometry",
-            "field",
-            "boundaryCondition",
-            "boundaryConditionGeometry",
-            "boundaryConditionGeometryField"
-        ],
         "nodes": {
             "CopyDirectory": {
                 "Template": "general.CopyDirectory"
@@ -51,26 +29,23 @@
             "BlockMesh":{
                 "Template": "GeometryDefiner.BlockMeshTemplate"
             },
-            "GeometryDefiner":{
-                "Template": "GeometryDefiner.GeometryDefinerTemplate"
-            },
             "SnappyHexMesh":{
                 "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
             },
             "ControlDict":{
-                "Template": "openFOAM.simpleFOAM.ControlDict"
+                "Template": "openFOAM.system.controlDict"
             },
             "FvSchemes":{
-                "Template": "openFOAM.simpleFOAM.FvSchemes"
+                "Template": "openFOAM.system.fvSchemes"
             },
             "FvSolution":{
-                "Template": "openFOAM.simpleFOAM.FvSolution"
+                "Template": "openFOAM.system.fvSolution"
             },
             "TransportProperties":{
-                "Template": "openFOAM.simpleFOAM.TransportProperties"
+                "Template": "openFOAM.constant.transportProperties"
             },
             "RASProperties":{
-                "Template": "openFOAM.simpleFOAM.RASProperties"
+                "Template": "openFOAM.constant.turbulenceProperties"
             },
             "FileWriter": {
                 "Execution": {

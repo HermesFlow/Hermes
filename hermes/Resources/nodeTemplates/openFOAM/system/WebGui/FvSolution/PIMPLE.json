@@ -1,0 +1,32 @@
+{
+
+        "nCorrectors":{
+            "type":"integer",
+            "title":"nCorrectors",
+            "description":"sets the number of times the algorithm solves the pressure equation and momentum corrector in each step"
+        },
+        "nNonOrthogonalCorrectors":{
+            "type":"number",
+            "title":"nNonOrthogonalCorrectors",
+            "description":"pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction"
+        },
+        "nOuterCorrectors":{
+            "type":"integer",
+            "title":"nOuterCorrectors",
+            "description":"it enables looping over the entire system of equations within on time step, representing the total number of times the system is solved"
+        },
+        "momentumPredictor":{
+            "type":"boolean",
+            "title":"momentumPredictor",
+            "description":"switch that controls solving of the momentum predictor"
+        },
+        "pRefCell":{
+            "type":"number",
+            "title":"pRefCell"
+        },
+        "pRefValue":{
+            "type":"number",
+            "title":"pRefValue"
+        }
+
+}

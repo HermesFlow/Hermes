@@ -1,0 +1,60 @@
+{
+	"Schema":{
+		"type":"object",
+        "title":"solvers",
+		"properties":{
+            "Template": "openFOAM.system.WebGui.FvSolution.field",
+            "final": {
+                "type": "object",
+                "title": "final",
+                "properties": {
+                    "Template": "openFOAM.system.WebGui.FvSolution.field"
+                }
+            },
+            "residualControl":{
+                "type":"number"
+            },
+            "relaxationFactors":{
+                "type":"object",
+                "title":"relaxationFactors",
+                "properties":{
+                    "Template":"openFOAM.system.WebGui.FvSolution.relaxationFactors"
+                }
+            },
+            "smoother":{
+                "type":"string",
+                "title":"smoother",
+                "enum":[
+                    "none",
+                    "GaussSeidel",
+                    "symGaussSeidel",
+                    "DIC",
+                    "DILU",
+                    "DICGaussSeidel"
+                ]
+            },
+            "GAMGproperties":{
+                "type":"array",
+                "title":"GAMG properties",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "Template": "openFOAM.system.WebGui.FvSolution.GAMGproperties"
+                    }
+                }
+            },
+            "SmoothProperties":{
+                "type":"array",
+                "title":"Smooth Properties",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "Template":"openFOAM.system.WebGui.FvSolution.SmoothProperties"
+                    }
+                }
+            }
+        }
+    },
+	"uiSchema":{},
+    "formData":{}
+}

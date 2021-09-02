@@ -103,11 +103,22 @@
     }
   },
   "GUI": {
-    "Type": "WebGuiNode",
+    "Type": "FvSolution",
     "Properties": {
     },
     "WebGui": {
-      "Template": "openFOAM.simpleFOAM.WebGui.FvSolutionWebGui"
+      "Template": "openFOAM.system.WebGui.FvSolutionWebGui_algorithm"
+    },
+    "fields": {
+      "template_webGui": {
+        "Type": "WebGuiNode",
+        "Properties": {
+        },
+        "WebGui": {
+          "Template": "openFOAM.system.WebGui.FvSolutionWebGui_field"
+        }
+      },
+      "items": {}
     }
   }
 }

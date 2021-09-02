@@ -1,0 +1,37 @@
+{
+	"Schema":{
+		"type":"object",
+        "title":"fields",
+		"properties":{
+            "fluxRequired":{
+                "type":"boolean"
+            },
+            "divSchemes": {
+                "type": "array",
+                "title": "divSchemes",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Template": "openFOAM.system.WebGui.FvSchemes.divSchemes"
+                    }
+                }
+            },
+            "laplacianSchemes":{
+                "type":"array",
+                "title":"laplacianSchemes",
+                "items":{
+                    "type": "object",
+                    "properties": {
+                        "Template": "openFOAM.system.WebGui.FvSchemes.laplacianSchemes"
+                    }
+                }
+            }
+        }
+    },
+	"uiSchema":{
+        "fluxRequired":{
+            "ui:widget": "radio"
+        }
+    },
+    "formData":{}
+}

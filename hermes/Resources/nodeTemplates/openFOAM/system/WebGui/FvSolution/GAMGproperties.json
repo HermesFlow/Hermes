@@ -1,0 +1,28 @@
+{
+    "cacheAgglomeration":{ 
+        "type":"boolean",
+        "title":"cacheAgglomeration",
+        "description":"switch specifying caching of the agglomeration strategy"
+    },
+    "agglomerator":{
+        "type":"string",
+        "title":"agglomerator"
+    },
+    "nCellsInCoarsestLevel":{ 
+        "type":"integer",
+        "title":"nCellsInCoarsestLevel",
+        "description":"approximate mesh size at the most coarse level in terms of the number of cells"
+    },
+    "directSolveCoarset":{ 
+        "type":"boolean",
+        "title":"directSolveCoarset",
+        "description":"use a direct solver at the coarsest level"
+    },
+    "mergeLevels":{ 
+        "type":"integer",
+        "title":"mergeLevels",
+        "description":"controls the speed at which coarsening or refinement is performed"
+    }
+
+}
+

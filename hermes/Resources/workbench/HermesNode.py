@@ -598,8 +598,10 @@ class _WebGuiNode(_HermesNode):
     def jsonToJinja(self, obj):
         if obj.Name == "ControlDict":
             return dict(values="{WebGui.formData}")
-        else:
+        elif "formData" in self.nodeData["WebGui"]:
             return self.nodeData["WebGui"]["formData"]
+        else:
+            return None
 
 
 # =============================================================================
@@ -1044,7 +1046,96 @@ class _ViewProviderNodeBC(_ViewProviderNode):
         return icon_path
 
 
+# =============================================================================
+# _FvSolution
+# =============================================================================
+class _FvSolution(_WebGuiNode):
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
 
+    def initializeFromJson(self, obj):
+        super().initializeFromJson(obj)
+
+        rootParent = self.getRootParent(obj.getParentGroup())
+        for field in rootParent.CalculatedFields:
+            fv_name = "fvSol_" + field
+            nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
+            nodeData["WebGui"]["Schema"]["title"] = fv_name
+            fvSolField_obj = makeNode(fv_name, obj, str(0), nodeData)
+
+    def backupNodeData(self, obj):
+        super().backupNodeData(obj)
+
+        # need to back up the child data in the main fv
+        for child in obj.Group:
+            field = child.Name.replace("fvSol_", "")
+            self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
+
+    def jsonToJinja(self, obj):
+        # need to create the jinja for fv
+
+        solverProperties = copy.deepcopy(self.nodeData["WebGui"]["formData"])
+
+        fields = {}
+        residualControl = {}
+        relaxationFactors = dict(fields={}, equations={})
+        for child in obj.Group:
+            field = child.Name.replace("fvSol_", "")
+            ch_fd = copy.deepcopy(child.Proxy.nodeData["WebGui"]["formData"])
+            if "relaxationFactors" in ch_fd:
+                relaxationFactors["fields"][field] = ch_fd["relaxationFactors"]["fields"]
+                relaxationFactors["equations"][field] = ch_fd["relaxationFactors"]["equations"]
+                ch_fd.pop("relaxationFactors")
+
+            if "residualControl" in ch_fd:
+                residualControl[field] = ch_fd["residualControl"]
+                ch_fd.pop("residualControl")
+                solverProperties["residualControl"] = residualControl
+
+
+            fields[field] = ch_fd
+
+
+        return dict(fields=fields, solverProperties=solverProperties, relaxationFactors=relaxationFactors)
+
+# =============================================================================
+# _FvSchemes
+# =============================================================================
+class _FvSchemes(_WebGuiNode):
+    def __init__(self, obj, nodeId, nodeData, name):
+        super().__init__(obj, nodeId, nodeData, name)
+
+    def initializeFromJson(self, obj):
+        super().initializeFromJson(obj)
+
+        rootParent = self.getRootParent(obj.getParentGroup())
+        for field in rootParent.CalculatedFields:
+            fv_name = "fvSch_" + field
+            nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
+            nodeData["WebGui"]["Schema"]["title"] = fv_name
+            fvSchField_obj = makeNode(fv_name, obj, str(0), nodeData)
+
+    def backupNodeData(self, obj):
+        super().backupNodeData(obj)
+
+        # need to back up the child data in the main fv
+        for child in obj.Group:
+            field = child.Name.replace("fvSch_", "")
+            self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
+
+    def jsonToJinja(self, obj):
+        # need to create the jinja for fv
+
+        default = copy.deepcopy(self.nodeData["WebGui"]["formData"])
+
+        fields = {}
+        for child in obj.Group:
+            field = child.Name.replace("fvSch_", "")
+            ch_fd = copy.deepcopy(child.Proxy.nodeData["WebGui"]["formData"])
+            fields[field] = ch_fd
+
+
+        return dict(fields=fields, default=default)
 
 # =============================================================================
 # #_GeometryDefinerNode

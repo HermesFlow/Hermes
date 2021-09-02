@@ -1,0 +1,118 @@
+{
+	"Schema":{
+		"type":"object",
+        "title":"default",
+		"properties":{
+            "ddtScheme":{
+                "type":"string",
+                "enum":[
+                    "steadyState",
+                    "Euler",
+                    "backward",
+                    "CrankNicolson",
+                    "localEuler"
+                ]
+            },
+            "gradSchemes": {
+                "type": "object",
+                "title": "gradSchemes",
+                "properties": {
+                    "type":{
+                        "type": "string",
+                        "enum": [
+                            "Gauss",
+                            "leastSquares",
+                            "Gauss cubic"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "enum": [
+                            "linear",
+                            "UMISTV",
+                            "linearUpwind",
+                            "LUST",
+                            "limitedLinear",
+                            "upwind",
+                            "limitedLinearV",
+                            "linearUpwindV"
+                        ]
+                    }
+                }
+            },
+            "divSchemes": {
+                "type": "object",
+                "title": "divSchemes",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "Gauss"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "enum": [
+                            "linear",
+                            "UMISTV",
+                            "linearUpwind",
+                            "LUST",
+                            "limitedLinear",
+                            "upwind",
+                            "limitedLinearV",
+                            "linearUpwindV"
+                        ]
+                    },
+                    "parameters": {
+                        "type": "string"
+                    }
+                }
+            },
+            "interpolationSchemes":{
+                "type":"string",
+                "title":"interpolationSchemes",
+                "description":"terms that are interpolations of values typically from cell centres to face centres",
+                "enum": [
+                    "linear",
+                    "UMISTV",
+                    "linearUpwind",
+                    "LUST",
+                    "limitedLinear",
+                    "upwind",
+                    "limitedLinearV",
+                    "linearUpwindV"
+                ]
+            },
+            "snGradSchemes":{
+                "type":"string",
+                "title":"snGradSchemes",
+                "description":"contains surface normal gradient terms",
+                "enum": [
+                    "uncorrected",
+                    "corrected",
+                    "orthogonal"
+                ]
+            },
+            "wallDist":{
+                "type":"string",
+                "title":"wallDist"
+            }
+        }
+    },
+	"uiSchema":{},
+    "formData":{
+        "ddtScheme": "Euler",
+        "gradSchemes": {
+            "type": "Gauss",
+            "name": "linear"
+        },
+        "divSchemes": {
+            "type": "Gauss",
+            "name": "linear",
+            "parameters": ""
+        },
+        "interpolationSchemes": "linear",
+        "snGradSchemes": "uncorrected",
+        "wallDist": "meshWave"
+    }
+}

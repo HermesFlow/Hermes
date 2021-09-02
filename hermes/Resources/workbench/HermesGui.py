@@ -378,7 +378,9 @@ class _HermesWorkflow:
 
             # if "BlockMesh" in nodename:
             # if "BoundaryCondition" not in nodename:
-            self.JsonObject["workflow"]["nodes"][nodename]["Execution"]["input_parameters"] = child.Proxy.jsonToJinja(child)
+            ch_jinja = child.Proxy.jsonToJinja(child)
+            if ch_jinja is not None:
+                self.JsonObject["workflow"]["nodes"][nodename]["Execution"]["input_parameters"] = ch_jinja
 
 
         return
