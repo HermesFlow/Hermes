@@ -1213,6 +1213,9 @@ class _GeometryDefinerNode(_HermesNode):
         geDialog.setCallingObject(obj.Name)
 
         # show the Dialog in FreeCAD
+        if FreeCADGui.Control.activeDialog():
+            FreeCADGui.Control.closeDialog()
+
         FreeCADGui.Control.showDialog(geDialog)
 
 
@@ -1432,7 +1435,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
         _HermesNode.initializeFromJson(self, obj)
 
         # additional initialization BlockMesh node
-        self.linkPartToBM(obj)
+        # ! not uploading parts at the moment !
+        # self.linkPartToBM(obj)
 
         # get Geometry Face types section from json
         GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
@@ -1467,6 +1471,52 @@ class _BlockMeshNode(_GeometryDefinerNode):
             # get BME type and update his Type property
             BMEType = boundary["Type"]
             BMENodeObj.Type = BMEType
+
+    def doubleClickedNode(self, obj):
+
+        partLink = getattr(obj, "partLink")
+
+        if partLink is not None:
+            # continue to usual GeometryDefiner
+            super().doubleClickedNode(obj)
+
+        else:
+            # open Dialog to define part Link - when it is not defined
+
+            # create CGEDialogPanel Object
+            blockMeshGeDialog = BlockMeshGeometryLinkDialogPanel(obj)
+
+            # get Parts from FC
+            Parts = [FCobj.Label for FCobj in FreeCAD.ActiveDocument.Objects if FCobj.Module == 'Part']
+
+            # in case part list is empty -> no need dialog
+            if len(Parts) == 0:
+                FreeCAD.Console.PrintWarning("There are no geometries in FreeCAD document, or all have been defined \n")
+                return
+
+            # add the part to options at the dialog
+            for part in Parts:
+                blockMeshGeDialog.addGemotry(part)
+
+            # update the first value to be shown in the comboBox
+            blockMeshGeDialog.setCurrentGeometry(Parts[0])
+
+            # add node Object name to the geDialog name
+            blockMeshGeDialog.setCallingObject(obj.Name)
+
+            # show the Dialog in FreeCAD
+            FreeCADGui.Control.showDialog(blockMeshGeDialog)
+
+
+
+
+
+    def BlockMeshGeDialogClosed(self, obj, geometryLabel):
+
+        geometryObj = FreeCAD.ActiveDocument.getObjectsByLabel(geometryLabel)[0]
+        setattr(obj, "partName", geometryObj.Name)
+        setattr(obj, "partLink", geometryObj)
+
 
     def linkPartToBM(self, obj):
 
@@ -1657,3 +1707,47 @@ class _BlockMeshNode(_GeometryDefinerNode):
         # FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
 
         return jinja
+
+# =============================================================================
+# BlockMeshGeometryLinkDialogPanel
+# =============================================================================
+# Path To GE UI
+blockMesh_ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
+path_to_blockMeshGe_ui = blockMesh_ResourceDir + "Mod/Hermes/Resources/ui/blockmeshgeometry.ui"
+
+class BlockMeshGeometryLinkDialogPanel:
+
+    def __init__(self, obj):
+        # Create widget from ui file
+        self.form = FreeCADGui.PySideUic.loadUi(path_to_blockMeshGe_ui)
+
+    def addGemotry(self, gemetry):
+        # add  geType to options at GE dialog
+        self.form.m_pGeometryBM.addItem(gemetry)
+
+    def setCurrentGeometry(self,GemetryName):
+        # update the current value in the comboBox
+        self.form.m_pGeometryBM.setCurrentText(GemetryName)
+
+    def setCallingObject(self, callingObjName):
+        # get obj Name, so in def 'accept' can call the obj
+        self.callingObjName = callingObjName
+
+    def accept(self):
+        # Happen when Close Dialog
+        # get the current GE type name from Dialog
+        Geometry = self.form.m_pGeometryBM.currentText()
+
+        # calling the nodeObj from name
+        callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
+
+        # calling the function that create the new GE Object
+        callingObject.Proxy.BlockMeshGeDialogClosed(callingObject, Geometry)
+
+        # # close the Dialog in FreeCAD
+        FreeCADGui.Control.closeDialog()
+
+
+    def reject(self):
+        # check if it reset choices
+        return True
