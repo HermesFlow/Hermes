@@ -1,5 +1,5 @@
 {
-  "Property01": {
+  "partName": {
     "prop": "partName",
     "init_val": "",
     "type": "App::PropertyString",
@@ -7,7 +7,7 @@
     "tooltip": "Name of tha part of the blockMesh node ",
     "current_val": ""
   },
-  "Property02": {
+  "partPath": {
     "prop": "partPath",
     "init_val": "",
     "type": "App::PropertyPath",
@@ -15,7 +15,7 @@
     "tooltip": "Path to tha part of the blockMesh node ",
     "current_val": ""
   },
-  "Property03": {
+  "convertToMeters": {
     "prop": "convertToMeters",
     "init_val": 1,
     "type": "App::PropertyFloat",
@@ -23,7 +23,7 @@
     "tooltip": "Link a part to the blockMesh node ",
     "current_val": 1
   },
-  "Property04": {
+  "NumberOfCells": {
     "prop": "NumberOfCells",
     "init_val": "1 2 3",
     "type": "App::PropertyString",
@@ -31,7 +31,7 @@
     "tooltip": "Numbers of cells in each direction ",
     "current_val": "1 2 3"
   },
-  "Property05": {
+  "simpleGradingX": {
     "prop": "simpleGradingX",
     "init_val": [
       "1"
@@ -43,7 +43,7 @@
       "1"
     ]
   },
-  "Property06": {
+  "simpleGradingY": {
     "prop": "simpleGradingY",
     "init_val": [
       "1"
@@ -57,7 +57,7 @@
       "0.2 0.3 0.25"
     ]
   },
-  "Property07": {
+  "simpleGradingZ": {
     "prop": "simpleGradingZ",
     "init_val": [
       "1"

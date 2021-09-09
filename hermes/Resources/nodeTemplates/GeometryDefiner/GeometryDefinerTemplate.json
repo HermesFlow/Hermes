@@ -6,7 +6,7 @@
     "GUI": {
         "Type":"GeometryDefinerNode",
         "Properties":{
-            "Property1":{
+            "IntegerProperty":{
                 "prop":"IntegerProperty",
                 "init_val":10,
                 "type":"App::PropertyInteger",

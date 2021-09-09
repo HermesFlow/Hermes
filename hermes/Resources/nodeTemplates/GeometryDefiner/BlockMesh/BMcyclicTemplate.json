@@ -1,6 +1,6 @@
 {
     "Properties":{
-        "Property01":{
+        "neighbourPatch":{
             "prop":"neighbourPatch",
             "init_val":["notSet"],
             "type":"App::PropertyEnumeration",

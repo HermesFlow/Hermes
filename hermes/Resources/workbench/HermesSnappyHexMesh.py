@@ -316,6 +316,7 @@ class _SnappyHexMeshGeometry(_HermesNode):
         bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
         if bcObj is not None:
             bcObj.Proxy.updateBCPartList(bcObj)
+            bcObj.touch()
 
         return
 

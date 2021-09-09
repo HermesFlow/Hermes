@@ -1,7 +1,7 @@
 {
   "Type": "SnappyHexMeshCastellatedMeshControls",
   "Properties": {
-      "Property01": {
+      "locationInMesh": {
         "prop": "locationInMesh",
         "init_val": null,
         "type": "App::PropertyLink",

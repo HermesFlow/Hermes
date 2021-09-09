@@ -1,6 +1,6 @@
 {
     "Properties":{
-        "Property01":{
+        "neighbour":{
             "prop":"neighbour",
             "init_val":"",
             "type":"App::PropertyString",
