@@ -1083,8 +1083,10 @@ class _FvSolution(_WebGuiNode):
             field = child.Name.replace("fvSol_", "")
             ch_fd = copy.deepcopy(child.Proxy.nodeData["WebGui"]["formData"])
             if "relaxationFactors" in ch_fd:
-                relaxationFactors["fields"][field] = ch_fd["relaxationFactors"]["fields"]
-                relaxationFactors["equations"][field] = ch_fd["relaxationFactors"]["equations"]
+                if "fields" in ch_fd["relaxationFactors"]:
+                    relaxationFactors["fields"][field] = ch_fd["relaxationFactors"]["fields"]
+                if "equations" in ch_fd["relaxationFactors"]:
+                    relaxationFactors["equations"][field] = ch_fd["relaxationFactors"]["equations"]
                 ch_fd.pop("relaxationFactors")
 
             if "residualControl" in ch_fd:

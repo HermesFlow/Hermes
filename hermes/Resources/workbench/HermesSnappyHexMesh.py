@@ -346,8 +346,8 @@ class _SnappyHexMeshGeometryEntity(_WebGuiNode):
         # turn refinementRegions levels from string to arrays
         # for mode distance - list of string to list of arrays
         if "refinementRegions" in jinjaObj.keys():
-            if len(jinjaObj["refinementRegions"]["mode"]) == 0:
-                pass
+            if "mode" not in jinjaObj["refinementRegions"]:
+                    pass
             elif jinjaObj["refinementRegions"]["mode"] == "distance":
                 levels = list()
                 for level in jinjaObj["refinementRegions"]["levels"]:

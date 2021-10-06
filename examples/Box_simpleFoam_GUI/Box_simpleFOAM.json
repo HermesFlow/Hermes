@@ -1,0 +1,77 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript",
+            "RunOsCommand",
+            "BlockMesh",
+            "SnappyHexMesh",
+            "BoundaryCondition",
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution",
+            "TransportProperties",
+            "TurbulenceProperties",
+            "FileWriter"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory"
+            },
+            "RunPythonScript": {
+                "Template": "general.RunPythonCode"
+            },
+            "RunOsCommand":{
+                "Template": "general.RunOsCommand"
+            },
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "SnappyHexMesh":{
+                "Template": "openFOAM.mesh.snappyHexMesh"
+            },
+            "BoundaryCondition": {
+                "Template": "BC.BC"
+            },
+            "ControlDict":{
+                "Template": "openFOAM.system.controlDict"
+            },
+            "FvSchemes":{
+                "Template": "openFOAM.system.fvSchemes"
+            },
+            "FvSolution":{
+                "Template": "openFOAM.system.fvSolution"
+            },
+            "TransportProperties":{
+                "Template": "openFOAM.constant.transportProperties"
+            },
+            "TurbulenceProperties":{
+                "Template": "openFOAM.constant.turbulenceProperties"
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/BlockMesh": "{BlockMesh.output.openFOAMfile}",
+                            "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
+                            "system/fvSolution": "{FvSolution.output.openFOAMfile}",
+                            "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
+                            "constant/turbulenceProperties": "{turbulenceProperties.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
+            }
+        }
+    }
+}
