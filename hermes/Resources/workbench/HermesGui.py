@@ -483,22 +483,22 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
     def updateWorkingDirectory(self, path):
         self.WD_path = path
 
-    def updateBCFields(self, fieldList, HermesObj):
+    def updateFields(self, fieldList, HermesObj):
         BCNode = None
         for child in HermesObj.Group:
-            if "BoundaryCondition" == child.Label:
-                BCNode = child
+            # if "BoundaryCondition" == child.Label:
+            #     BCNode = child
 
-        if BCNode is None:
-            return
+            if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
+                child.Proxy.updateNodeFields(fieldList, child)
 
-        for bcChild in BCNode.Group:
-            BCNode.Proxy.updateBCNodeFields(fieldList, bcChild)
+        # if BCNode is None:
+        #     return
+        #
+        # for bcChild in BCNode.Group:
+        #     BCNode.Proxy.updateNodeFields(fieldList, bcChild)
 
-        # FreeCAD.Console.PrintMessage("Calculated fields: ")
-        # for field in fieldList:
-        #     FreeCAD.Console.PrintMessage(field + ", ")
-        # FreeCAD.Console.PrintMessage("\n")
+
 
 
 
@@ -646,7 +646,7 @@ class _ViewProviderHermesWorkflow:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
     def _handle_CalculatedFields(self, obj):
-        obj.Proxy.updateBCFields(obj.CalculatedFields, obj)
+        obj.Proxy.updateFields(obj.CalculatedFields, obj)
 
 
     def onChanged(self, vobj, prop):

@@ -243,8 +243,9 @@ class _SnappyHexMeshGeometry(_HermesNode):
         # make sure part won't be chosen twice
         for child in obj.Group:
             part = FreeCAD.ActiveDocument.getObject(child.partLinkName)
-            if part.Label in Parts:
-                Parts.remove(part.Label)
+            if part is not None:
+                if part.Label in Parts:
+                    Parts.remove(part.Label)
 
         # try without Facebinder (BlockMesh entities) - any link of part give him a parent
         # it is ok for BlockMesh but what if there will be other links later?

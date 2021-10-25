@@ -558,12 +558,16 @@ class _WebGuiNode(_HermesNode):
             path = ResourceDir + 'Mod/Hermes/Resources/jsonReactWebGui.html?parameters='
             address = 'file:///' + path
 
+            # FreeCAD.Console.PrintMessage("path = " + path + "\n")
+            # FreeCAD.Console.PrintMessage("address = " + address + "\n")
+
+
             # str JSON 'nodeWebGUI' using "dumps"
             parameters = json.dumps(nodeWebGUI)
 
             # open the jsonReact html page using the following command
             browser = WebGui.openSingleBrowser(address + parameters)
-            sRegName = '0,' + self.name;
+            sRegName = '0,' + self.name
             browser.registerHandler(sRegName)
 
         return
@@ -624,50 +628,10 @@ class _BCNode(_WebGuiNode):
         super().selectNode(obj)
 
 
-    def updateBCNodeFields(self, fieldList, bcObj):
+    def updateNodeFields(self, fieldList, obj):
 
-        # get part from Name
-        part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
-
-        # get the Field name from the bc_field obj - remove the "part_" from obj label
-        # BCfieldList = [bcField.Label.replace(part.Label + '_', '') for bcField in bcObj.Group]
-        BCfieldList = list()
-        for bcField in bcObj.Group:
-            # remove the "part_" from obj label
-            field = bcField.Label.replace(part.Label + '_', '')
-            # remove spaces
-            field.replace(" ", "")
-
-            if len(field) > 0:
-                BCfieldList.append(field)
-
-        # remove spaces from Hermes field list
-        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
-
-        # create list of items need to be added or removed from webGui
-        add_list = [field for field in fieldList if field not in BCfieldList]
-        del_list = [field for field in BCfieldList if field not in fieldList]
-
-
-
-        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
-        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCField] = " + str(self.nodeData["Templates"]["BCField"]) + "\n")
-
-        # create a new bc geometry object
-        if len(add_list) > 0:
-            for field in add_list:
-                bc_field_obj = makeNode(part.Label + "_" + field, bcObj, str(0), copy.deepcopy(self.nodeData["Templates"]["BCField"]))
-
-                bc_field_nodeData = bc_field_obj.Proxy.nodeData
-                bc_field_nodeData["WebGui"]["Schema"]["title"] = field + " - " + part.Label
-                bc_field_nodeData["WebGui"]["Schema"]["description"] = "Defined " + field + " Boundary condition for the part."
-                bc_field_obj.Proxy.nodeData = bc_field_nodeData
-
-        # remove fields from webGui
-        for field in del_list:
-            for bcField in bcObj.Group:
-                if field in bcField.Label:
-                    bcObj.Document.removeObject(bcField.Name)
+        for bcObj in obj.Group:
+            bcObj.Proxy.updateNodeFields(fieldList, bcObj)
 
 
     def updateBCPartList(self, obj):
@@ -741,7 +705,7 @@ class _BCNode(_WebGuiNode):
                     FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
 
                 bc_part_obj.partLinkName = partName
-                self.updateBCNodeFields(workflowObj.CalculatedFields, bc_part_obj)
+                bc_part_obj.Proxy.updateNodeFields(workflowObj.CalculatedFields, bc_part_obj)
 
          # remove bc geometry objects
         if len(del_list) > 0:
@@ -915,6 +879,53 @@ class _BCGeometryNode(_WebGuiNode):
 
         if FreeCAD.GuiUp:
             _ViewProviderNodeBC(obj.ViewObject)
+
+    def updateNodeFields(self, fieldList, bcObj):
+
+        # get part from Name
+        part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
+
+        # get the Field name from the bc_field obj - remove the "part_" from obj label
+        # BCfieldList = [bcField.Label.replace(part.Label + '_', '') for bcField in bcObj.Group]
+        BCfieldList = list()
+        for bcField in bcObj.Group:
+            # remove the "part_" from obj label
+            field = bcField.Label.split('_')[-1]
+
+            # remove spaces
+            field.replace(" ", "")
+
+            if len(field) > 0:
+                BCfieldList.append(field)
+
+        # remove spaces from Hermes field list
+        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in BCfieldList]
+        del_list = [field for field in BCfieldList if field not in fieldList]
+
+
+        parent = bcObj.getParentGroup()
+
+        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCField] = " + str(self.nodeData["Templates"]["BCField"]) + "\n")
+
+        # create a new bc geometry object
+        if len(add_list) > 0:
+            for field in add_list:
+                bc_field_obj = makeNode(part.Label + "_" + field, bcObj, str(0), copy.deepcopy(parent.Proxy.nodeData["Templates"]["BCField"]))
+
+                bc_field_nodeData = bc_field_obj.Proxy.nodeData
+                bc_field_nodeData["WebGui"]["Schema"]["title"] = field + " - " + part.Label
+                bc_field_nodeData["WebGui"]["Schema"]["description"] = "Defined " + field + " Boundary condition for the part."
+                bc_field_obj.Proxy.nodeData = bc_field_nodeData
+
+        # remove fields from webGui
+        for field in del_list:
+            for bcField in bcObj.Group:
+                if field in bcField.Label:
+                    bcObj.Document.removeObject(bcField.Name)
 
 
 # =============================================================================
@@ -1100,6 +1111,47 @@ class _FvSolution(_WebGuiNode):
 
         return dict(fields=fields, solverProperties=solverProperties, relaxationFactors=relaxationFactors)
 
+    def updateNodeFields(self, fieldList, obj):
+
+        ObjfieldList = list()
+        for objField in obj.Group:
+            # get the field from obj label
+            field = objField.Label.split('_')[-1]
+
+            # remove spaces
+            field.replace(" ", "")
+
+            if len(field) > 0:
+                ObjfieldList.append(field)
+
+        # remove spaces from Hermes field list
+        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in ObjfieldList]
+        del_list = [field for field in ObjfieldList if field not in fieldList]
+
+
+
+        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][objField] = " + str(self.nodeData["Templates"]["objField"]) + "\n")
+
+        # create a new field object
+        if len(add_list) > 0:
+            for field in add_list:
+                fv_name = "fvSol_" + field
+                nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
+                nodeData["WebGui"]["Schema"]["title"] = fv_name
+                fvSolField_obj = makeNode(fv_name, obj, str(0), nodeData)
+
+        # remove fields from webGui
+        for field in del_list:
+            for objField in obj.Group:
+                if field in objField.Label:
+                    obj.Document.removeObject(objField.Name)
+
+
+
 # =============================================================================
 # _FvSchemes
 # =============================================================================
@@ -1138,6 +1190,45 @@ class _FvSchemes(_WebGuiNode):
 
 
         return dict(fields=fields, default=default)
+
+    def updateNodeFields(self, fieldList, obj):
+
+        ObjfieldList = list()
+        for objField in obj.Group:
+            # get the field from obj label
+            field = objField.Label.split('_')[-1]
+
+            # remove spaces
+            field.replace(" ", "")
+
+            if len(field) > 0:
+                ObjfieldList.append(field)
+
+        # remove spaces from Hermes field list
+        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in ObjfieldList]
+        del_list = [field for field in ObjfieldList if field not in fieldList]
+
+
+
+        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][objField] = " + str(self.nodeData["Templates"]["objField"]) + "\n")
+
+        # create a new field object
+        if len(add_list) > 0:
+            for field in add_list:
+                fv_name = "fvSch_" + field
+                nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
+                nodeData["WebGui"]["Schema"]["title"] = fv_name
+                fvSchField_obj = makeNode(fv_name, obj, str(0), nodeData)
+
+        # remove fields from webGui
+        for field in del_list:
+            for objField in obj.Group:
+                if field in objField.Label:
+                    obj.Document.removeObject(objField.Name)
 
 # =============================================================================
 # #_GeometryDefinerNode
