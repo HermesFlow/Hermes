@@ -64,7 +64,6 @@ class _HermesWorkflow:
         self.JsonObject = None
         self.JsonObjectString = ""
         self.Templates = None
-        # self.nLastNodeId = "-1"
         self.partPathListFromJson = []
         self.partNameListFromJson = []
         #        self.partPathExportList=[]
@@ -122,7 +121,6 @@ class _HermesWorkflow:
 
     def onDocumentRestored(self, obj):
 
-        # self.nLastNodeId = "-1"
 
         # when restored- initilaize properties
         self.initProperties(obj)

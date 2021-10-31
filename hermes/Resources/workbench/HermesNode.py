@@ -266,7 +266,6 @@ class _HermesNode(_SlotHandler):
     def onDocumentRestored(self, obj):
 
         workflowObj = obj.getParentGroup()
-        workflowObj.Proxy.nLastNodeId = "-1"
 
         # parse json data
         self.nodeData = json.loads(obj.NodeDataString)
@@ -289,7 +288,7 @@ class _HermesNode(_SlotHandler):
         # get "workflowObj" from been parent of the node obj
         workflowObj = self.getRootParent(obj)
 
-        # backup last node and update "nLastNodeId" in Hermes workflow
+        # backup last node
         workflowObj.Proxy.updateLastNode(workflowObj)
 
         # update is active
@@ -379,6 +378,8 @@ class _ViewProviderNode:
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
+        if self.NodeObjType is None:
+            return 
 
         if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
@@ -475,6 +476,9 @@ class _ViewProviderNode:
             return
 
     def doubleClicked(self, vobj):
+        if vobj is None:
+            return
+
         vobj.Object.Proxy.doubleClickedNode(vobj.Object)
 
         # delay recompute of all objects, and return the touch to the current object
@@ -774,7 +778,6 @@ class _BCNode(_WebGuiNode):
     def onDocumentRestored(self, obj):
 
         workflowObj = obj.getParentGroup()
-        workflowObj.Proxy.nLastNodeId = "-1"
 
         # parse json data
         self.nodeData = json.loads(obj.NodeDataString)
@@ -867,7 +870,6 @@ class _BCGeometryNode(_WebGuiNode):
     def onDocumentRestored(self, obj):
 
         workflowObj = obj.getParentGroup()
-        workflowObj.Proxy.nLastNodeId = "-1"
 
         # parse json data
         self.nodeData = json.loads(obj.NodeDataString)
@@ -1011,7 +1013,6 @@ class _BCFieldNode(_WebGuiNode):
     def onDocumentRestored(self, obj):
 
         workflowObj = obj.getParentGroup()
-        workflowObj.Proxy.nLastNodeId = "-1"
 
         # parse json data
         self.nodeData = json.loads(obj.NodeDataString)
