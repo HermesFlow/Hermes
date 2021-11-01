@@ -103,7 +103,7 @@
     }
   },
   "GUI": {
-    "Type": "HermesNode._FvSolution",
+    "Type": "openFOAM2.system.HermesFvSolution.FvSolution",
     "Properties": {
     },
     "WebGui": {
