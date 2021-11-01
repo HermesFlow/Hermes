@@ -1,5 +1,5 @@
 {
-  "Type": "SnappyHexMeshGeometryEntity",
+  "Type": "HermesSnappyHexMesh._SnappyHexMeshGeometryEntity",
   "Properties": {},
   "WebGui": {
     "Schema":{

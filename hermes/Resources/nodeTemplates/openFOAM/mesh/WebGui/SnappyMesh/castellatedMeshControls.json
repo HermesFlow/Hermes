@@ -1,5 +1,5 @@
 {
-  "Type": "SnappyHexMeshCastellatedMeshControls",
+  "Type": "HermesSnappyHexMesh._SnappyHexMeshCastellatedMeshControls",
   "Properties": {
       "locationInMesh": {
         "prop": "locationInMesh",

@@ -23,21 +23,13 @@ from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 import HermesPart
 import Draft
-from HermesBlockMesh import HermesBlockMesh
 
 
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
-    test = pydoc.locate('HermesNode._HermesNode')
-    # test = pydoc.locate('HermesGui._HermesNode')
-
-    if test is None:
-        FreeCAD.Console.PrintMessage("Not found\n")
-
     # Object with option to have children
     obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
-    # print ("HermesNode make node\n")
 
     #    # Object can not have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
@@ -48,17 +40,12 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
 
     # find the class of the node from the its type
-    # nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
-    nodecls = pydoc.locate("HermesNode." + '_' + nodeData["Type"])
+    # nodecls = pydoc.locate("HermesNode." + '_' + nodeData["Type"])
+    nodecls = pydoc.locate(nodeData["Type"])
     if nodecls is None:
-        nodecls = pydoc.locate("HermesSnappyHexMesh." + '_' + nodeData["Type"])
+        FreeCAD.Console.PrintWarning("Could not locate node name = " + name + ": ")
+        FreeCAD.Console.PrintWarning("nodeData['Type'] = " + nodeData["Type"] + "\n")
 
-
-
-
-    #    # if the class is not exist, create a new class
-    #    if nodecls is None:
-    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
 
     # call to the class
     if nodecls is not None:
@@ -66,12 +53,12 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         obj.Proxy.initializeFromJson(obj)
 
-        if (nodeData["Type"] == 'BCNode') or (nodeData["Type"] == 'BCGeometryNode') or (nodeData["Type"] == 'BCFieldNode'):
-            if FreeCAD.GuiUp:
+        if FreeCAD.GuiUp:
+            if (nodeData["Type"] in ['HermesNode._BCNode', 'HermesNode._BCGeometryNode', 'HermesNode._BCFieldNode']):
                 _ViewProviderNodeBC(obj.ViewObject)
-        else:
-            if FreeCAD.GuiUp:
+            else:
                 _ViewProviderNode(obj.ViewObject)
+
         FreeCAD.ActiveDocument.recompute()
 
     return obj
@@ -82,8 +69,6 @@ class _CommandHermesNodeSelection:
     """ CFD physics selection command definition """
 
     def GetResources(self):
-        # ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-        # icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
         icon_path = os.path.join(FreeCAD.getResourceDir(), "Mod", "Hermes", "Resources", "icons", "NewNode.png")
 
         return {'Pixmap': icon_path,
@@ -379,10 +364,10 @@ class _ViewProviderNode:
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
-
-        if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
+        # if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
+        if self.NodeObjType in ["HermesNode._WebGuiNode","HermesSnappyHexMesh._SnappyHexMesh", "HermesSnappyHexMesh._SnappyHexMeshCastellatedMeshControls", "HermesNode._FvSolution", "HermesNode._FvSchemes"]:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif self.NodeObjType == "GeometryDefinerNode":
+        elif self.NodeObjType == "HermesNode._GeometryDefinerNode":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
         else:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
@@ -482,8 +467,6 @@ class _ViewProviderNode:
         QtCore.QTimer.singleShot(350, vobj.Object.touch)
 
     def __getstate__(self):
-        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __getstate__ \n")
-
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
 
@@ -497,20 +480,15 @@ class _ViewProviderNode:
         # get the last updated NodeDataString
         getNodeString = NodeObj.NodeDataString
 
-        # FreeCAD.ActiveDocument.recompute()
-        # FreeCAD.Gui.SendMsgToActiveView('Refresh')
-
         # return an array with NodeObj name and the updated NodeDataString -
         # it will be recieved by "__setstate__" when opening the project
         return [self.NodeObjName, getNodeString]
 
     def __setstate__(self, state):
-        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __setstate__ \n")
-
-        #    #state - recieved from 'getstate', while saving the project "Hermesworkflow"
-        #        type :array ,including 2 variebelles,
-        #             state[0]= Name of the Node Object
-        #             state[1]= nodeDataString - the last uppdated Json string before saving.
+        ''' state - recieved from 'getstate', while saving the project "Hermesworkflow"
+                type :array ,including 2 variebelles,
+                     state[0]= Name of the Node Object
+                     state[1]= nodeDataString - the last uppdated Json string before saving.'''
 
         NodeObjName = state[0]
         nodeDataString = state[1]
@@ -530,17 +508,13 @@ class _ViewProviderNode:
 # #_WebGuiNode
 # =============================================================================
 class _WebGuiNode(_HermesNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
     def doubleClickedNode(self, obj):
         super().doubleClickedNode(obj)
-
         self.selectNode(obj)
-
 
     def selectNode(self, obj):
 
@@ -587,10 +561,7 @@ class _WebGuiNode(_HermesNode):
         # first update the node
         self.nodeData["WebGui"] = UpdateWebGUIJson
 
-        # formData = UpdateWebGUIJson["formData"]
-        # FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
-        # FreeCAD.Console.PrintMessage("backup--nodedata.webgui['formData']="+str(formData)+"\n")
-        # FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
+        # self.print_formData()
 
     def backupNodeData(self, obj):
         # backup the data of the last node pressed
@@ -607,6 +578,12 @@ class _WebGuiNode(_HermesNode):
         else:
             return None
 
+    def print_formData(self):
+        formData = self.nodeData["WebGui"]["formData"]
+        FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
+        FreeCAD.Console.PrintMessage("print_formData of node " + self.name +"\n")
+        FreeCAD.Console.PrintMessage("['formData']="+str(formData)+"\n")
+        FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
 
 # =============================================================================
 # _BCNode
@@ -1367,11 +1344,6 @@ class _GeometryDefinerNode(_HermesNode):
 
         # # update properties of the current node(before updated only the children)
         # super().UpdateNodePropertiesData(obj)
-
-        # workflowObj = obj.getParentGroup()
-        # if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
-        #     # update block mesh with its vertices and boundry
-        #     HermesBlockMesh().updateJson(obj)
 
     def geDialogClosed(self, obj, GEtype, GEname):
         # call when created new GE node

@@ -1,5 +1,5 @@
 {
-  "Type": "BCGeometryNode",
+  "Type": "HermesNode._BCGeometryNode",
   "Properties": {},
   "WebGui": {
     "Schema":{

@@ -24,7 +24,6 @@ from HermesTools import addObjectProperty
 import HermesGeometryDefinerNode
 import HermesPart
 import Draft
-from HermesBlockMesh import HermesBlockMesh
 
 # from hermes.Resources.workbench import _WebGuiNode
 # import _WebGuiNode

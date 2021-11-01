@@ -9,7 +9,7 @@
         }
     },
     "GUI": {
-        "Type":"BlockMeshNode",
+        "Type":"HermesNode._BlockMeshNode",
         "Properties":{
                 "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
 
