@@ -19,18 +19,12 @@ import sys
 import copy
 
 # Hermes modules
-import HermesTools
-from HermesTools import addObjectProperty
-import HermesGeometryDefinerNode
-import HermesPart
-import Draft
+from ... import HermesTools, HermesGeometryDefinerNode, HermesPart
+from ...HermesTools import addObjectProperty
 
-# from hermes.Resources.workbench import _WebGuiNode
-# import _WebGuiNode
-# sys.path.append(".")
-# from hermes.Resources.workbench.HermesNode import _WebGuiNode
-from HermesNode import _WebGuiNode, _HermesNode
-import HermesNode
+from ...HermesNode import _WebGuiNode, _HermesNode
+from ... import HermesNode
+
 
 
 # =============================================================================
@@ -502,8 +496,8 @@ class _CommandSnappyHexMeshPointSelection(Point):
         castellObj.locationInMesh = snappyPoint
 
 
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('SnappyHexMeshPointSelection', _CommandSnappyHexMeshPointSelection())
+# if FreeCAD.GuiUp:
+#     FreeCADGui.addCommand('SnappyHexMeshPointSelection', _CommandSnappyHexMeshPointSelection())
 
 # =============================================================================
 # #_CommandSnappyHexMeshObjSelection
@@ -627,5 +621,5 @@ class _CommandSnappyHexMeshObjSelection:
 
 
 
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('SnappyHexMeshObjSelection', _CommandSnappyHexMeshObjSelection())
+# if FreeCAD.GuiUp:
+#     FreeCADGui.addCommand('SnappyHexMeshObjSelection', _CommandSnappyHexMeshObjSelection())

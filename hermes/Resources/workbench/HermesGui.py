@@ -1,12 +1,12 @@
 ﻿
 # import FreeCAD modules
-import FreeCAD, FreeCADGui, WebGui
+import FreeCAD, FreeCADGui
 import HermesTools
 from HermesTools import addObjectProperty
 
 # python modules
 import sys
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtCore
 import os
 import json
 import Part
@@ -14,7 +14,6 @@ import Part
 # Hemes modules
 import HermesNode
 import HermesPart
-import HermesSnappyHexMesh
 
 # add hermes to paths
 HermesDirpath = os.getenv('HERMES_2_PATH')
@@ -539,7 +538,8 @@ class _CommandCreateHermesWorkflow:
         # Add HermesGENode object when HermesGui container is created
         FreeCADGui.addModule("HermesGeometryDefinerNode")
 
-        FreeCADGui.addModule("HermesSnappyHexMesh")
+        # FreeCADGui.addModule("HermesSnappyHexMesh")
+
 
 
         # Add fluid properties object when CfdAnalysis container is created

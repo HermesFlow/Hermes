@@ -1,5 +1,5 @@
 {
-  "Type": "HermesSnappyHexMesh._SnappyHexMeshCastellatedMeshControls",
+  "Type": "openFOAM2.mesh.HermesSnappyHexMesh._SnappyHexMeshCastellatedMeshControls",
   "Properties": {
       "locationInMesh": {
         "prop": "locationInMesh",

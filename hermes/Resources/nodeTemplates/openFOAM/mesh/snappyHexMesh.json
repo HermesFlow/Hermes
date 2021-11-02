@@ -81,7 +81,7 @@
     }
   },
   "GUI": {
-    "Type": "HermesSnappyHexMesh._SnappyHexMesh",
+    "Type": "openFOAM2.mesh.HermesSnappyHexMesh._SnappyHexMesh",
     "Properties": {},
     "WebGui": {
       "Template": "openFOAM.mesh.WebGui.SnappyMeshWebGui"
@@ -99,7 +99,7 @@
       "Template":"openFOAM.mesh.WebGui.SnappyMesh.meshQualityControls"
     },
     "Geometry": {
-      "Type": "HermesSnappyHexMesh._SnappyHexMeshGeometry",
+      "Type": "openFOAM2.mesh.HermesSnappyHexMesh._SnappyHexMeshGeometry",
       "Properties": {},
       "WebGui": {},
       "Entities": {
@@ -111,7 +111,7 @@
       }
     },
     "Refinement": {
-      "Type": "HermesSnappyHexMesh._SnappyHexMeshRefinement",
+      "Type": "openFOAM2.mesh.HermesSnappyHexMesh._SnappyHexMeshRefinement",
       "Properties": {},
       "WebGui": {}
     }
