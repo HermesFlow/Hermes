@@ -13,7 +13,9 @@ import Part
 
 # Hemes modules
 import HermesNode
-import HermesPart
+# from hermes.Resources.workbench.openFOAM2.mesh import HermesPart
+from openFOAM2.mesh import HermesPart
+# from openFOAM2.mesh import HermesGeometryDefinerEntity
 
 # add hermes to paths
 HermesDirpath = os.getenv('HERMES_2_PATH')
@@ -204,7 +206,8 @@ class _HermesWorkflow:
 
         # clear the nodes objects
         for child in obj.Group:
-            child.Proxy.RemoveNodeObj(child)
+            if child is not None:
+                child.Proxy.RemoveNodeObj(child)
             obj.Document.removeObject(child.Name)
 
         # clear the part Object from json
@@ -536,7 +539,7 @@ class _CommandCreateHermesWorkflow:
         # FreeCADGui.doCommand("hermes.addObject(HermesNode.makeNode())")
 
         # Add HermesGENode object when HermesGui container is created
-        FreeCADGui.addModule("HermesGeometryDefinerNode")
+        # FreeCADGui.addModule("HermesGeometryDefinerNode")
 
         # FreeCADGui.addModule("HermesSnappyHexMesh")
 

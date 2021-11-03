@@ -1,10 +1,8 @@
 
 # import FreeCAD modules
-import FreeCAD,FreeCADGui, WebGui
-import HermesTools
-from HermesTools import addObjectProperty
-
-from PyQt5 import QtGui,QtCore
+import FreeCAD,FreeCADGui
+from ... import HermesTools
+from ...HermesTools import addObjectProperty
 
 if FreeCAD.GuiUp:
     import FreeCADGui
@@ -14,10 +12,8 @@ import json
 
 import copy
 
-import HermesNode
-import HermesCfdFaceSelectWidget
-import HermesPart
-
+from . import HermesCfdFaceSelectWidget
+from hermes.Resources.workbench.openFOAM2.mesh import HermesPart
 
 import Draft
 from Draft import _Facebinder
@@ -50,7 +46,7 @@ class CGEDialogPanel:
 
         # Face list selection panel - modifies obj.References passed to it
         self.faceSelector = HermesCfdFaceSelectWidget.HermesCfdFaceSelectWidget(self.form.m_pFaceSelectWidget,
-                                                                    obj, True, False)
+                                                                                obj, True, False)
 
     def addGE(self, geType):
         # add  geType to options at GE dialog
@@ -570,6 +566,10 @@ class _HermesGE(_Facebinder):
         obj.EntityNodeDataString = json.dumps(self.EntityNodeData)
 
         return
+
+    def RemoveNodeObj(self, obj):
+        pass
+
 
 
 # =============================================================================

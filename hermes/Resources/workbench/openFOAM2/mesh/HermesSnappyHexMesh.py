@@ -1,26 +1,22 @@
 # import FreeCAD modules
-import FreeCAD, FreeCADGui, WebGui
+import FreeCAD
+
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
     import PySide
-    from PySide import QtGui, QtCore
     from PySide.QtGui import *
     from PySide.QtCore import *
 
 
 # python modules
-from PyQt5 import QtGui,QtCore
+from PyQt5 import QtCore
 import json
-import pydoc
 import os
-import sys
 import copy
 
 # Hermes modules
-from ... import HermesTools, HermesGeometryDefinerNode, HermesPart
-from ...HermesTools import addObjectProperty
 
 from ...HermesNode import _WebGuiNode, _HermesNode
 from ... import HermesNode
@@ -551,7 +547,6 @@ class _CommandSnappyHexMeshObjSelection:
     def save_mult_objs_file(self, objs):
 
         import Mesh
-        import re
 
         # what the dialog open dir - path
         # path = FreeCAD.ConfigGet("UserAppData")
@@ -623,3 +618,20 @@ class _CommandSnappyHexMeshObjSelection:
 
 # if FreeCAD.GuiUp:
 #     FreeCADGui.addCommand('SnappyHexMeshObjSelection', _CommandSnappyHexMeshObjSelection())
+
+# from HermesGeometryDefiner import _GeometryDefinerNode
+
+# # =============================================================================
+# # _BlockMeshNode
+# # =============================================================================
+# class _BlockMeshNode(_GeometryDefinerNode):
+#     '''
+#         the  class inherited from _GeometryDefinerNode -
+#             - use same functionality
+#             - update differnt structure of json
+#     '''
+#
+#     def __init__(self, obj, nodeId, nodeData, name):
+#         super().__init__(obj, nodeId, nodeData, name)
+#         self.initBMflag = False
+#         self.BMcount = 0

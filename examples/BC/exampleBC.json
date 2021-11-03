@@ -5,6 +5,7 @@
         "nodeList": [
             "BlockMesh",
             "SnappyHexMesh",
+            "GeometryDefiner",
             "BoundaryCondition",
             "ControlDict"
         ],
@@ -14,6 +15,9 @@
             },
             "SnappyHexMesh": {
                 "Template": "openFOAM.mesh.snappyHexMesh"
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
             },
             "BoundaryCondition":{
                 "Template": "BC.BC"

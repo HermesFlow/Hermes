@@ -4,7 +4,7 @@
         "input_parameters": {}
     },
     "GUI": {
-        "Type":"GeometryDefinerNode",
+        "Type":"openFOAM2.mesh.HermesGeometryDefiner._GeometryDefinerNode",
         "Properties":{
             "IntegerProperty":{
                 "prop":"IntegerProperty",
