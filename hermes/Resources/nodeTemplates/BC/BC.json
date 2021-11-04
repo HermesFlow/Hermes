@@ -7,7 +7,7 @@
     }
   },
   "GUI": {
-    "Type": "HermesNode._BCNode",
+    "Type": "BC.HermesBC._BCNode",
     "Properties": {
     },
     "WebGui": {
