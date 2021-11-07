@@ -31,6 +31,10 @@ class FvSolution(_WebGuiNode):
         super().__init__(obj, nodeId, nodeData, name)
 
     def initializeFromJson(self, obj):
+        '''
+            initialized like any other webGui node
+            add fields nodes from Hermes node list
+        '''
         super().initializeFromJson(obj)
 
         rootParent = self.getRootParent(obj.getParentGroup())
@@ -41,6 +45,7 @@ class FvSolution(_WebGuiNode):
             fvSolField_obj = HermesNode.makeNode(fv_name, obj, str(0), nodeData)
 
     def backupNodeData(self, obj):
+        ''' update the data from FreeCAD(node and children) to json, '''
         super().backupNodeData(obj)
 
         # need to back up the child data in the main fv
@@ -49,7 +54,7 @@ class FvSolution(_WebGuiNode):
             self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
 
     def jsonToJinja(self, obj):
-        # need to create the jinja for fv
+        ''' convert the json data to "inputParameters" structure '''
 
         solverProperties = copy.deepcopy(self.nodeData["WebGui"]["formData"])
 
@@ -78,6 +83,12 @@ class FvSolution(_WebGuiNode):
         return dict(fields=fields, solverProperties=solverProperties, relaxationFactors=relaxationFactors)
 
     def updateNodeFields(self, fieldList, obj):
+        '''
+            update the children nodes with the field of the problem
+            - take the list of field from HermesNode
+            - take the list of children nodes
+            - compare between the lists, and add/remove nodes
+        '''
 
         ObjfieldList = list()
         for objField in obj.Group:
@@ -108,7 +119,7 @@ class FvSolution(_WebGuiNode):
                 fv_name = "fvSol_" + field
                 nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
                 nodeData["WebGui"]["Schema"]["title"] = fv_name
-                fvSolField_obj = makeNode(fv_name, obj, str(0), nodeData)
+                fvSolField_obj = HermesNode.makeNode(fv_name, obj, str(0), nodeData)
 
         # remove fields from webGui
         for field in del_list:

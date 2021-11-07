@@ -21,11 +21,11 @@ import HermesTools
 from HermesTools import addObjectProperty
 # from BC.HermesBC import _ViewProviderNodeBC
 
-
+# ********************************************************************
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
-    # Object with option to have children
+    # Group object with option to have children
     obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
 
     #    # Object can not have children
@@ -37,7 +37,6 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     # ----------------dynamic find class--------------------
     nodecls = None
     # find the class of the node from the its type
-    # nodecls = pydoc.locate("HermesNode." + '_' + nodeData["Type"])
     try:
         nodecls = pydoc.locate(nodeData["Type"])
     except:
@@ -63,15 +62,12 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     if nodecls is not None:
         nodecls(obj, nodeId, nodeData, name)
 
-        # if name == "BlockMesh":
-        #     return
         obj.Proxy.initializeFromJson(obj)
 
         if FreeCAD.GuiUp:
             if "BC" in nodeData["Type"]:
                 BC_view = pydoc.locate("hermes.Resources.workbench.BC.HermesBC._ViewProviderNodeBC")
                 BC_view(obj.ViewObject)
-                # _ViewProviderNodeBC(obj.ViewObject)
             else:
                 _ViewProviderNode(obj.ViewObject)
 
@@ -85,7 +81,7 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
 # **********************************************************************
 class _CommandHermesNodeSelection:
-    """ CFD physics selection command definition """
+    """ Hermes Node selection command definition """
 
     def GetResources(self):
         icon_path = os.path.join(FreeCAD.getResourceDir(), "Mod", "Hermes", "Resources", "icons", "NewNode.png")
@@ -137,9 +133,7 @@ class _SlotHandler:
 class _HermesNode(_SlotHandler):
     """ The Hermes Node """
 
-    #    def __init__(self, obj, nodeId,nodeData):
     def __init__(self, obj, nodeId, nodeData, name):
-
         obj.Proxy = self
         self.nodeId = nodeId
         self.nodeData = nodeData
@@ -147,6 +141,10 @@ class _HermesNode(_SlotHandler):
         self.initProperties(obj)
 
     def initializeFromJson(self, obj):
+        '''
+            Takes the properties from JSON and update its value
+             at the FreeCAD object
+        '''
 
         # get list of properties from nodeData
         NodeProperties = self.nodeData["Properties"]
@@ -189,6 +187,11 @@ class _HermesNode(_SlotHandler):
                 obj.setEditorMode("Commands", 1)  # Make read-only
 
     def initProperties(self, obj):
+        '''
+            Creates the properties of the FreeCAD object
+            static properties  - basic properties for each node
+            dynamic properties - special properties defined at the JSON file
+        '''
 
         # ^^^ Constant properties ^^^
 
@@ -268,6 +271,10 @@ class _HermesNode(_SlotHandler):
             addObjectProperty(obj, prop, init_val, Type, Heading, tooltip)
 
     def onDocumentRestored(self, obj):
+        '''
+            When a FreeCAD document is restored (opened after been saving
+            as a FreeCAD file), it updates the following things in the Node
+        '''
 
         workflowObj = obj.getParentGroup()
         workflowObj.Proxy.nLastNodeId = "-1"
@@ -289,6 +296,11 @@ class _HermesNode(_SlotHandler):
         return
 
     def doubleClickedNode(self, obj):
+        '''
+            Activated when doubleClick on node
+            - updates its data
+            - turn the node Active
+        '''
 
         # get "workflowObj" from been parent of the node obj
         workflowObj = self.getRootParent(obj)
@@ -315,6 +327,9 @@ class _HermesNode(_SlotHandler):
         pass
 
     def UpdateNodePropertiesData(self, obj):
+        '''
+            Update the properties from FreeCAD node into the JSON
+        '''
         # update the properties in the "nodeData"
         # use this func before exporting Json
 
@@ -352,8 +367,10 @@ class _HermesNode(_SlotHandler):
         return
 
     def RemoveNodeObj(self, obj):
-        # remove NodeObj Children
-        # use when importing new json file
+        '''
+            remove NodeObj Children
+            use when importing new json file
+        '''
         for child in obj.Group:
             child.Proxy.RemoveNodeObj(child)
             obj.Document.removeObject(child.Name)
@@ -380,6 +397,9 @@ class _ViewProviderNode:
 
 
     def getIcon(self):
+        '''
+            Defines the icon in the combo tree
+        '''
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
@@ -403,37 +423,46 @@ class _ViewProviderNode:
         self.bubbles = None
 
     def updateData(self, obj, prop):
+        '''
+            When a FreeCAD object's property has been update,
+            it checks if any thing else need to be handle, and do so
+        '''
+
         # We get here when the object of Node changes
+        fname = "_handle_%s" % str(prop)
 
-        # Check if the JSONFile parameter changed and its not empty path
-        # =============================================================================
-        #         #not in use, just an example
-        #         if (str(prop) == 'Label' and len(str(obj.Label)) > 0):
-        #             obj.Proxy.changeLabel()
-        #             return
-        # =============================================================================
+        if hasattr(self, fname):
+            getattr(self, fname)(obj)
 
-        if (str(prop) == 'ExportNodeJSONFile' and len(str(obj.ExportNodeJSONFile)) > 0):
+    def _handle_ExportNodeJSONFile(self, obj):
+        ''' update the data into JSON var, then export it '''
+        if len(str(obj.ExportNodeJSONFile)) > 0:
             # get "workflowObj" from been parent of the node obj
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.prepareJsonVar(workflowObj, obj.Name)
             workflowObj.Proxy.saveJson(workflowObj, obj.ExportNodeJSONFile, obj.Label)
             obj.ExportNodeJSONFile = ''
 
-        if (str(prop) == 'RunNodeWorkflow' and (obj.RunNodeWorkflow)):
+    def _handle_RunNodeWorkflow(self, obj):
+        ''' update the data into JSON , then run workflow'''
+        if obj.RunNodeWorkflow:
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.prepareJsonVar(workflowObj, obj.Name)
             workflowObj.Proxy.RunworkflowCreation(workflowObj)
 
-        if (str(prop) == 'RunNodeLuigi' and (obj.RunNodeLuigi)):
+    def _handle_RunNodeLuigi(self, obj):
+        ''' make sure workflow is updated and run luigi '''
+        if obj.RunNodeLuigi and obj.RunNodeWorkflow:
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.RunLuigiScript()
 
-            # ----------------------------------------------------------------------------------
-
-        # edit properties RunOsCommand node
-        if str(prop) == "ChooseMethod" and obj.Name == "RunOsCommand":
-
+    def _handle_ChooseMethod(self, obj):
+        '''
+            update the method RunOsCommand works
+            - command list
+            - batchfile
+        '''
+        if obj.Name == "RunOsCommand":
             # get the choosen methon
             method = getattr(obj, "ChooseMethod")
 
@@ -442,39 +471,37 @@ class _ViewProviderNode:
                 obj.setEditorMode("batchFile", 1)  # Make read-only
                 obj.setEditorMode("Commands", 0)  # read/write
 
-
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
                 obj.setEditorMode("batchFile", 0)  # read/write
 
-                # ----------------------------------------------------------------------------------
-
+    def _handle_partLink(self, obj):
+        '''
+            update the partLink property of BlockMesh(and its References)
+        '''
         if obj.Label == 'BlockMesh':
-            if prop == "partLink":
+            # in case its initialized from Json stage, avoid overide data
+            if obj.Proxy.initBMflag and (not obj.Proxy.BMcount):
+                return
 
-                # in case its initialized from Json stage, avoid overide data
-                #
-                if obj.Proxy.initBMflag and (not obj.Proxy.BMcount):
-                    return
+            print("viewProvider, updateData")
+            # get the part object using prop
+            partobj = getattr(obj, "partLink")
 
-                print("viewProvider, updateData")
-                # get the part object using prop
-                partobj = getattr(obj, prop)
+            # set the BlockMesh partlink  at each child
+            for child in obj.Group:
+                setattr(child, "partLink", partobj)
+                setattr(child, "References", [])
 
-                # set the BlockMesh partlink  at each child
-                for child in obj.Group:
-                    setattr(child, prop, partobj)
-                    setattr(child, "References", [])
+            # also update part name in peoperties
+            if partobj is None:
+                setattr(obj, "partName", "")
+            else:
+                setattr(obj, "partName", partobj.Name)
 
-                # also update part name in peoperties
-                if partobj is None:
-                    setattr(obj, "partName", "")
-                else:
-                    setattr(obj, "partName", partobj.Name)
+            obj.Proxy.BMcount += 1
 
-                obj.Proxy.BMcount += 1
 
-    #    def onChanged(self,obj, vobj, prop):
     def onChanged(self, vobj, prop):
 
         # not in use, just an example
@@ -483,6 +510,11 @@ class _ViewProviderNode:
             return
 
     def doubleClicked(self, vobj):
+        '''
+            Activated when doubleClicking on the node
+            - call to the object handle doubleclicking function
+            - recompute in small delay for FreeCAD display
+        '''
         vobj.Object.Proxy.doubleClickedNode(vobj.Object)
 
         # delay recompute of all objects, and return the touch to the current object
@@ -490,6 +522,13 @@ class _ViewProviderNode:
         QtCore.QTimer.singleShot(350, vobj.Object.touch)
 
     def __getstate__(self):
+        '''
+            Activate when saving the document as FreeCAD file
+            saving the project "Hermesworkflow" in array ,including 2 variebelles,
+                state[0]= Name of the Node Object
+                state[1]= nodeDataString - the last uppdated Json string before saving.
+        '''
+
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
 
@@ -531,6 +570,9 @@ class _ViewProviderNode:
 # #_WebGuiNode
 # =============================================================================
 class _WebGuiNode(_HermesNode):
+    '''
+        handle the webGui nodes
+    '''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
@@ -540,6 +582,11 @@ class _WebGuiNode(_HermesNode):
         self.selectNode(obj)
 
     def selectNode(self, obj):
+        '''
+            send the data from node webGui data, to the jsonRecat -
+            'jsonReactWebGui.html' file. The a browser is opened in FreeCAD
+            and dislay the data
+        '''
 
         # get node WebGui- Scheme,uiScheme,FormData
         nodeWebGUI = self.nodeData["WebGui"]
@@ -570,6 +617,10 @@ class _WebGuiNode(_HermesNode):
         return
 
     def process(self, data):
+        '''
+            get the updated data from 'jsonReactWebGui.html', and save
+            it to the node webGui.formData
+        '''
 
         UpdateWebGUI = data
         #        FreeCAD.Console.PrintMessage("WebGUI Process Data\n" + str(data))
@@ -587,6 +638,9 @@ class _WebGuiNode(_HermesNode):
         # self.print_formData()
 
     def backupNodeData(self, obj):
+        '''
+            backup the data from FreeCAD object to its JSON
+        '''
         # backup the data of the last node pressed
         super().backupNodeData(obj)
 
@@ -594,6 +648,9 @@ class _WebGuiNode(_HermesNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def jsonToJinja(self, obj):
+        '''
+            update the Execution.input_parameters JSON data
+        '''
         if obj.Name == "ControlDict":
             return dict(values="{WebGui.formData}")
         elif "formData" in self.nodeData["WebGui"]:
@@ -602,6 +659,9 @@ class _WebGuiNode(_HermesNode):
             return None
 
     def print_formData(self):
+        '''
+            help funtion -> prints the formData of the node
+        '''
         formData = self.nodeData["WebGui"]["formData"]
         FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
         FreeCAD.Console.PrintMessage("print_formData of node " + self.name +"\n")

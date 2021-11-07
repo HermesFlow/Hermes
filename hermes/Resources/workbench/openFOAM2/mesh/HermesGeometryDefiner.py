@@ -21,14 +21,15 @@ from ...HermesNode import _HermesNode
 # #_GeometryDefinerNode
 # =============================================================================
 class _GeometryDefinerNode(_HermesNode):
-# class _GeometryDefinerNode():
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+    ''' Define the GeometryDefiner node'''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
     def initializeFromJson(self, obj):
+        '''
+            creates the GeometryDefiner entities from JSON
+        '''
         super().initializeFromJson(obj)
 
         # get Geometry Face types section from json
@@ -73,6 +74,10 @@ class _GeometryDefinerNode(_HermesNode):
             GENodeObj.Type = GEType
 
     def doubleClickedNode(self, obj):
+        '''
+            activeated on doubleclick
+            creates a new GeometryDefiner entity - open a dialog to so
+        '''
         super().doubleClickedNode(obj)
 
         from . import HermesGeometryDefinerEntity
@@ -109,6 +114,10 @@ class _GeometryDefinerNode(_HermesNode):
             child.Proxy.UpdateFacesInJson(child)
 
     def UpdateNodePropertiesData(self, obj):
+        '''
+            creates the list of geometryDefines entites, and update
+            in the JSON
+        '''
         super().UpdateNodePropertiesData(obj)
 
         # in case amount of GE has been changed
@@ -159,7 +168,11 @@ class _GeometryDefinerNode(_HermesNode):
         # super().UpdateNodePropertiesData(obj)
 
     def geDialogClosed(self, obj, GEtype, GEname):
-        # call when created new GE node
+        '''
+            Called when created new GE node and the dialog is closed
+            Get the data from dialog, creates the entity and
+            update the data at the entity and BC(if exist)
+        '''
 
         # Create basic structure of a GENodeData
         GENodeData = {
@@ -256,6 +269,10 @@ class _CommandGeometryDefinerSelection:
         del objs
 
     def save_obj_file(self, objs):
+        '''
+            a button that export .obj files
+            not in use at the moment
+        '''
         import Mesh
         import re
 

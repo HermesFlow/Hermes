@@ -34,33 +34,32 @@ path_to_ge_ui = ResourceDir + "Mod/Hermes/Resources/ui/gedialog.ui"
 
 
 class CGEDialogPanel:
+    '''
+        The class of the dialog panel of Geometry Definer Entity
+        (also the BlockMesh entity)
+    '''
 
     def __init__(self, obj):
         # Create widget from ui file
         self.form = FreeCADGui.PySideUic.loadUi(path_to_ge_ui)
-
-        # Connect Widgets' Buttons
-        # self.form.m_pOpenB.clicked.connect(self.browseJsonFile)
-
-        #        self.GEObjName=obj.Name
 
         # Face list selection panel - modifies obj.References passed to it
         self.faceSelector = HermesCfdFaceSelectWidget.HermesCfdFaceSelectWidget(self.form.m_pFaceSelectWidget,
                                                                                 obj, True, False)
 
     def addGE(self, geType):
-        # add  geType to options at GE dialog
+        '''add  geType to options at GE dialog'''
         self.form.m_pGETypeCB.addItem(geType)
 
     def setCurrentGE(self,GEType, GEName=""):
-        # update the current value in the comboBox
+        # update the current Type value in the comboBox
         self.form.m_pGETypeCB.setCurrentText(GEType)
 
-        # update the current value in the Name
+        # update the current Name value in the Name
         self.form.m_pGENameE.setText(GEName)
 
     def setCallingObject(self, callingObjName):
-        # get obj Name, so in def 'accept' can call the obj
+        '''  get obj Name, so in def 'accept' can call the obj '''
         self.callingObjName = callingObjName
 
     def readOnlytype(self):
@@ -68,8 +67,10 @@ class CGEDialogPanel:
         self.form.m_pGETypeCB.setEnabled(0)
 
     def accept(self):
-        # Happen when Close Dialog
-        # get the current GE type name from Dialog
+        '''
+            Happen when Close Dialog
+            get the current GE type name from Dialog and create the entity
+        '''
         GEtype = self.form.m_pGETypeCB.currentText()
 
         # get the current GE Name from Dialog
@@ -100,7 +101,11 @@ class CGEDialogPanel:
 # *****************************************************************************
 
 def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
-    """ Create a Hermes Geometry Entity object """
+    """
+        Create a Hermes Geometry Entity object
+        Geometry Definer or BlockMesh entity
+        type of faceBinder object
+    """
 
     #    # Object with option to have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
@@ -139,6 +144,12 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
 
 
 def mvRefToSel(obj):
+    '''
+        The HermesCfdFaceSelectWidget save the data in property called
+        References : [(partName,face),(partName,face)])
+        the function take the data from Refernces and save the data
+        as a facebinder selection : [(partObject,tupleFaces)]
+    '''
 
     partNameList = []
     partList = []
@@ -181,7 +192,7 @@ def mvRefToSel(obj):
 
 # ======================================================================
 class _CommandHermesGeNodeSelection:
-    """ CFD physics selection command definition """
+    """ HermesGeNode selection command definition """
 
     def GetResources(self):
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
@@ -233,6 +244,11 @@ class _HermesGE(_Facebinder):
         self.initProperties(obj)
 
     def initProperties(self, obj):
+        '''
+            Creates the properties of the FreeCAD object
+            static properties  - basic properties for each node
+            dynamic properties - special properties defined at the JSON file
+        '''
 
         # ^^^ Constant properties ^^^
 
@@ -284,6 +300,12 @@ class _HermesGE(_Facebinder):
             addObjectProperty(obj, prop, init_val, Type, Heading, tooltip)
 
     def UpdateFacesInJson(self, obj):
+        '''
+            Create from FreeCAD objects' Refrences, a list of parts and
+            their faces, that Geometry Definer created for them.
+            1. loop all References and save in structure
+            2. save into the objects json as faceList structure
+        '''
 
         # get workflowObj
         Nodeobj = obj.getParentGroup()
@@ -406,6 +428,10 @@ class _HermesGE(_Facebinder):
 
 
     def initFacesFromJson(self, obj):
+        '''
+            take the faceList structure and move the data from the json
+            to the objects References property
+        '''
 
         # get faceList attach to the GE from GEnodeData
         faceList = self.EntityNodeData["faceList"]
@@ -444,7 +470,8 @@ class _HermesGE(_Facebinder):
         return
 
     def setCurrentPropertyGE(self, obj, ListProperties):
-        # update the current value of all properties' GE object
+        ''' update the current value of all properties' GE object '''
+
         for x in ListProperties:
             # get property'num' object ; num =1,2,3 ...
             propertyNum = ListProperties[x]
@@ -459,7 +486,7 @@ class _HermesGE(_Facebinder):
             setattr(obj, prop, current_val)
 
     def onDocumentRestored(self, obj):
-        # when restored- initilaize properties
+        '''when restored- initilaize properties'''
 
         FreeCAD.Console.PrintMessage("onDocumentRestored " + obj.Label + " \n")
         self.TypeList = obj.Type
@@ -484,6 +511,12 @@ class _HermesGE(_Facebinder):
             _ViewProviderGE(obj.ViewObject)
 
     def doubleClickedGENode(self, obj):
+        '''
+            Creates the dialog, and allow editing:
+            - name  - name of geometry entity
+            - faces - faces realte to the geometry entity
+            the type  is read only
+        '''
 
         # create CGEDialogPanel Object
         geDialog = CGEDialogPanel(obj)
@@ -514,6 +547,8 @@ class _HermesGE(_Facebinder):
         return
 
     def geDialogClosed(self, obj, GEtype, GEName):
+        ''' update the data from dialog to FreeCAD object '''
+
         facesList = mvRefToSel(obj)
         obj.Faces = facesList
         FreeCAD.ActiveDocument.recompute()
@@ -531,8 +566,10 @@ class _HermesGE(_Facebinder):
 
 
     def UpdateGENodePropertiesData(self, obj):
-        # update the properties in the "GEnodeData"
-        # use this func before exporting Json
+        '''
+            update the properties in the "GEnodeData"
+            use this func before exporting Json
+        '''
 
         # get node List of properties
         ListProperties = self.EntityNodeData["Properties"]
@@ -639,14 +676,13 @@ class _HermesBME(_HermesGE):
             - use same functionality
             - update differnt structure of json
     '''
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
 
     def __init__(self, obj, TypeList, EntityNodeData):
         super().__init__(obj, TypeList, EntityNodeData)
         self.Properties = self.EntityNodeData["Properties"]
 
     def initProperties(self, obj):
+        ''' Add specific properties of BlockMesh '''
         super().initProperties(obj)
 
         Nodeobj = obj.getParentGroup()
@@ -690,6 +726,13 @@ class _HermesBME(_HermesGE):
 
 
     def UpdateFacesInJson(self,obj):
+        '''
+            Take the data from FreeCAD objects and save it as a json
+            1. take the part from "partLink" and get its data as faces and vertices
+            2. loop the References property
+                save the specific faces names and vertices of the specific ref
+                into the json
+        '''
 
         # create struct of face
         faceStruct = {"vertices": ""}
@@ -749,11 +792,11 @@ class _HermesBME(_HermesGE):
 
 
     def initFacesFromJson(self, obj):
+        ''' not in use at the moment - allow import part into FC
+            and update entity'''
         # get faceList attach to the GE from GEnodeData
         faceList = self.EntityNodeData["faces"]
-        print(faceList)
         PartObj = getattr(obj, "partLink")
-        print(PartObj)
 
         if PartObj is None:
             return
@@ -766,7 +809,7 @@ class _HermesBME(_HermesGE):
             obj.References.append(tmp)
 
     def UpdateBMENodePropertiesData(self, obj):
-        # use the part function to update the values of property
+        '''use the part function to update the values of property'''
         super().UpdateGENodePropertiesData(obj)
 
         # update the self var of proporties

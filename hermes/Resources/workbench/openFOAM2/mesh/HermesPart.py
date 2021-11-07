@@ -4,7 +4,7 @@ import FreeCAD
 class HermesPart:
     '''
     The HermesPart class will translate the FreeCAD part objects data,
-    into dictionary structure that will allow an eazy way to transfer data
+    into dictionary structure that will allow an easy way to transfer data
     into JSON
     '''
 

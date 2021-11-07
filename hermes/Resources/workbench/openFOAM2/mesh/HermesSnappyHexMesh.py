@@ -27,8 +27,7 @@ from ... import HermesNode
 # #_SnappyHexMesh
 # =============================================================================
 class _SnappyHexMesh(_WebGuiNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+    ''' The snappyHexMesh class'''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
@@ -48,7 +47,7 @@ class _SnappyHexMesh(_WebGuiNode):
 
 
     def backupNodeData(self, obj):
-        # backup the data of the last node pressed
+        ''' update the data from FreeCAD(node and children) to json '''
         super().backupNodeData(obj)
 
         for child in obj.Group:
@@ -59,6 +58,7 @@ class _SnappyHexMesh(_WebGuiNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def jsonToJinja(self, obj):
+        ''' convert the json data to "inputParameters" structure '''
         jinjaObj = dict()
 
         jinjaObj["modules"] = copy.deepcopy(self.nodeData["WebGui"]["formData"]["modules"])
@@ -85,6 +85,11 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
 
 
     def selectNode(self, obj):
+        '''
+            update the coordinates of snappy point from FreeCAD to webGui.formData
+            (if point exist)
+            then continue as any other webGui node when node is selected
+        '''
         # check point exist
         snappyPoint = [obj for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
         if len(snappyPoint) > 0:
@@ -102,6 +107,8 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
         super().selectNode(obj)
 
     def backupNodeData(self, obj):
+        ''' update the data from FreeCAD to json
+            also the point snappy object data from FreeCAD'''
         # backup the data of the last node pressed
         super().backupNodeData(obj)
 
@@ -115,23 +122,13 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
 
 
     def updatePointFromWebgui(self):
-
+        ''' update the coordinates of the snappy point from webGui.formDate into the
+            FreeCAD point object'''
         snappyPoint = [obj for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
         if len(snappyPoint) > 0:
             snappyPoint = snappyPoint[0]
         else:
             return
-
-        # locationString = self.nodeData["WebGui"]["formData"]["locationInMesh"]
-        # l_location = locationString.split(" ")
-        # coordinates = list()
-        # for item in l_location:
-        #     if "(" in item:
-        #         coordinates.append(item.replace("(", ""))
-        #     elif ")" in item:
-        #         coordinates.append(item.replace(")", ""))
-        #     else:
-        #         coordinates.append(item)
 
         coordinates = self.pointStringToArr()
 
@@ -145,19 +142,14 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
             snappyPoint.Z = coordinates[2]
 
     def jsonToJinja(self, obj):
-        # super().jsonToJinja(obj)
+        ''' convert the json data to "inputParameters" structure '''
         coordinates = self.pointStringToArr()
         jinjaObj = copy.deepcopy(self.nodeData["WebGui"]["formData"])
         jinjaObj['locationInMesh'] = coordinates
         return jinjaObj
 
     def pointStringToArr(self):
-        # snappyPoint = [obj for obj in FreeCAD.ActiveDocument.Objects if "locationInMesh" in obj.Label]
-        # if len(snappyPoint) > 0:
-        #     snappyPoint = snappyPoint[0]
-        # else:
-        #     return
-
+        ''' split and create a list of the coordinates from the string '''
         locationString = self.nodeData["WebGui"]["formData"]["locationInMesh"]
         l_location = locationString.split(" ")
         coordinates = list()
@@ -176,8 +168,7 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
 # #_SnappyHexMeshRefinement
 # =============================================================================
 class _SnappyHexMeshRefinement(_WebGuiNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+    ''' the class of Refinment - will be update in the future'''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
@@ -200,8 +191,7 @@ class _SnappyHexMeshRefinement(_WebGuiNode):
 # #_SnappyHexMeshGeometry
 # =============================================================================
 class _SnappyHexMeshGeometry(_HermesNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+    '''The snappy geometry class'''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
@@ -213,13 +203,13 @@ class _SnappyHexMeshGeometry(_HermesNode):
             l = len(obj.Group)
             GeoEntity_obj = HermesNode.makeNode(itemKey, obj, str(l), itemVal)
 
-
-
     def doubleClickedNode(self, obj):
+        '''
+            open dialog panel to create a new snappy geometry entity
+            choose part from FreeCAD parts list and create snappy
+            node that linked to the part
+        '''
         super().doubleClickedNode(obj)
-        # self.selectNode(obj)
-        # num = len(obj.Group)
-        # GeoEntity_obj = makeNode("GeoEntity_"+str(num), obj, str(num), copy.deepcopy(self.nodeData["Entities"]["TemplateEntity"]))
 
         # -------- panel dialog box  definitions --------------
 
@@ -236,17 +226,6 @@ class _SnappyHexMeshGeometry(_HermesNode):
                 if part.Label in Parts:
                     Parts.remove(part.Label)
 
-        # try without Facebinder (BlockMesh entities) - any link of part give him a parent
-        # it is ok for BlockMesh but what if there will be other links later?
-        # Parts = []
-        # for FCobj in FreeCAD.ActiveDocument.Objects:
-        #     if FCobj.Module == 'Part':
-        #         if FCobj.getParentGroup() is None:
-        #             Parts.append(FCobj.Name)
-        #         elif FCobj.getParentGroup().Module != 'App':
-        #             Parts.append(FCobj.Name)
-
-        # FreeCAD.Console.PrintMessage("Parts = " + str(Parts) + "\n")
 
         # in case part list is empty -> no need dialog
         if len(Parts) == 0:
@@ -268,7 +247,7 @@ class _SnappyHexMeshGeometry(_HermesNode):
 
 
     def backupNodeData(self, obj):
-        # backup the data of the last node pressed
+        ''' update the data from FreeCAD node to json '''
         super().backupNodeData(obj)
 
         items = {}
@@ -281,6 +260,12 @@ class _SnappyHexMeshGeometry(_HermesNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def SnappyGeDialogClosed(self, obj, geometryLabel):
+        '''
+            create a new snappy geometry entity node
+            update the data from dialog to FreeCAD object
+            also update the BC nodes with the new geometry
+        '''
+
         # call when created new GE node
         num = len(obj.Group)
 
@@ -311,6 +296,7 @@ class _SnappyHexMeshGeometry(_HermesNode):
         return
 
     def jsonToJinja(self, obj):
+        ''' convert the json data to "inputParameters" structure '''
         objects = {}
         for child in obj.Group:
             objects[child.partLinkName] = child.Proxy.jsonToJinja(child)
@@ -327,6 +313,7 @@ class _SnappyHexMeshGeometryEntity(_WebGuiNode):
 
 
     def jsonToJinja(self, obj):
+        ''' convert the json data to "inputParameters" structure '''
 
         jinjaObj = dict()
         for key,val in self.nodeData["WebGui"]["formData"].items():
@@ -362,6 +349,7 @@ class _SnappyHexMeshGeometryEntity(_WebGuiNode):
         return jinjaObj
 
     def stringToArray(self, stringObj):
+        ''' convert from string to array of numbers '''
         if type(stringObj) is not str:
             FreeCAD.Console.PrintMessage("stringObj is not string. stringObj = "+ str(stringObj) + "and its type is " + str(type(stringObj)) + "\n")
             return
@@ -436,7 +424,7 @@ from DraftTools import Point
 from DraftGui import todo
 
 class _CommandSnappyHexMeshPointSelection(Point):
-    """ Geometry Definer selection command definition """
+    """ Geometry Definer point selection command definition """
 
     def GetResources(self):
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
@@ -545,7 +533,7 @@ class _CommandSnappyHexMeshObjSelection:
         del objs
 
     def save_mult_objs_file(self, objs):
-
+        ''' save multiply snappy geometries as .obj files, in a wanted location'''
         import Mesh
 
         # what the dialog open dir - path
@@ -580,6 +568,7 @@ class _CommandSnappyHexMeshObjSelection:
                             "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
 
     def save_one_obj_file(self, objs):
+        ''' save 1 .obj file in wanted location'''
         import Mesh
         import re
 
@@ -615,23 +604,3 @@ class _CommandSnappyHexMeshObjSelection:
 
 
 
-
-# if FreeCAD.GuiUp:
-#     FreeCADGui.addCommand('SnappyHexMeshObjSelection', _CommandSnappyHexMeshObjSelection())
-
-# from HermesGeometryDefiner import _GeometryDefinerNode
-
-# # =============================================================================
-# # _BlockMeshNode
-# # =============================================================================
-# class _BlockMeshNode(_GeometryDefinerNode):
-#     '''
-#         the  class inherited from _GeometryDefinerNode -
-#             - use same functionality
-#             - update differnt structure of json
-#     '''
-#
-#     def __init__(self, obj, nodeId, nodeData, name):
-#         super().__init__(obj, nodeId, nodeData, name)
-#         self.initBMflag = False
-#         self.BMcount = 0

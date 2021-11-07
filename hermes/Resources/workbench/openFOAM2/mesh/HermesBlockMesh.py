@@ -43,6 +43,9 @@ class _BlockMeshNode(_GeometryDefinerNode):
         self.BMcount = 0
 
     def initializeFromJson(self, obj):
+        '''
+            Creates BlockMesh entities from json
+        '''
         _HermesNode.initializeFromJson(self, obj)
 
         # additional initialization BlockMesh node
@@ -85,6 +88,13 @@ class _BlockMeshNode(_GeometryDefinerNode):
             BMENodeObj.Type = BMEType
 
     def doubleClickedNode(self, obj):
+        '''
+            open one of 2 dialog panels:
+            1. in case partLink hasn't been defined - open a dialog that
+               give a list of FreeCAD parts, to choose one part.
+            2. partLink exist -> open the Geometry definer dialog,
+                allow only faces from the part that is linked
+        '''
 
         partLink = getattr(obj, "partLink")
 
@@ -124,6 +134,9 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
 
     def BlockMeshGeDialogClosed(self, obj, geometryLabel):
+        '''
+            update data from Dialog in FreeCAD object
+        '''
 
         geometryObj = FreeCAD.ActiveDocument.getObjectsByLabel(geometryLabel)[0]
         setattr(obj, "partName", geometryObj.Name)
@@ -131,6 +144,10 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
 
     def linkPartToBM(self, obj):
+        '''
+            not in use
+            if part was uploaded through json, allow to link it to the node
+        '''
 
         # get the part name and path
         partPath = getattr(obj, "partPath")
@@ -141,7 +158,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
             # Create full path of the part for Import
             pathPartStr = partPath + partName + ".stp" if list(partPath)[
                                                               -1] == '/' else partPath + "/" + partName + ".stp"
-
             # get workflow obj
             workflowObj = obj.getParentGroup()
 
@@ -175,6 +191,12 @@ class _BlockMeshNode(_GeometryDefinerNode):
             FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
 
     def backupNodeData(self, obj):
+        '''
+            update data from FreeCAD object to json
+            specific:
+            - vertices of the part that is linked to the node
+            - boundary: list of blockMesh entities
+        '''
         # super().backupNodeData(obj)
         for child in obj.Group:
             child.Proxy.UpdateFacesInJson(child)
@@ -209,6 +231,7 @@ class _BlockMeshNode(_GeometryDefinerNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def updateBoundry(self, obj):
+        ''' save the children(BlockMesh entities) nodes data into json'''
         # initialize boundry list
         boundryList = []
 
@@ -224,8 +247,8 @@ class _BlockMeshNode(_GeometryDefinerNode):
         self.nodeData['boundary'] = boundryList
 
     def updateVertices(self, vertices):
+        '''create a list of string vertices'''
 
-        # create a list of string vertices
         ListVertices = []
         for ver in vertices:
             # string = self.createVerticesString(vertices[ver])
@@ -252,6 +275,7 @@ class _BlockMeshNode(_GeometryDefinerNode):
         return string
 
     def UpdateNodePropertiesData(self, obj):
+        ''' update propertis data from FreeCAD to json, also children nodes'''
 
         # get workflow object
         workflowObj = obj.getParentGroup()
@@ -268,9 +292,11 @@ class _BlockMeshNode(_GeometryDefinerNode):
             child.Proxy.UpdateGENodePropertiesData(child)
 
     def jsonToJinja(self, obj):
+        '''
+            convert the json data to "inputParameters" structure
+        '''
 
         # geometry
-
         simpleGrading = []
         json_grading = [getattr(obj, "simpleGradingX"), getattr(obj, "simpleGradingY"), getattr(obj, "simpleGradingZ")]
         grading = []
@@ -329,6 +355,7 @@ blockMesh_ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir(
 path_to_blockMeshGe_ui = blockMesh_ResourceDir + "Mod/Hermes/Resources/ui/blockmeshgeometry.ui"
 
 class BlockMeshGeometryLinkDialogPanel:
+    ''' The dialog class allow to choose a part to link to BlockMesh node'''
 
     def __init__(self, obj):
         # Create widget from ui file

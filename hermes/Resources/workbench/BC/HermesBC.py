@@ -27,8 +27,7 @@ from ..HermesTools import addObjectProperty
 # _BCNode
 # =============================================================================
 class _BCNode(_WebGuiNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+    ''' The root of BoundaryCondition node'''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
@@ -44,12 +43,19 @@ class _BCNode(_WebGuiNode):
 
 
     def updateNodeFields(self, fieldList, obj):
-
+        ''' update the fields in the children nodes'''
         for bcObj in obj.Group:
             bcObj.Proxy.updateNodeFields(fieldList, bcObj)
 
 
     def updateBCPartList(self, obj):
+        '''
+            Creates and update the parts that BC need to be defined to
+            1. get the sources from 'GeometriesSource' property from JSON
+            2. get the nodes from the sources list
+            3. get the BC already exist nodes
+            4. compare list (2)&(3) and add/remove BC nodes accordingly
+        '''
 
         workflowObj = self.getRootParent(obj)
         nodesPartList = list()
@@ -104,10 +110,6 @@ class _BCNode(_WebGuiNode):
         del_list = [part for part in BCpartList if part not in nodesPartList]
 
 
-        # get Hermes workflow
-
-
-
         # for nodeGroup in nodesObjList:
             # create a new bc geometry object
         if len(add_list) > 0:
@@ -151,6 +153,13 @@ class _BCNode(_WebGuiNode):
         return None
 
     def getIconColor(self, obj):
+        '''
+            get the color of the icon of the node
+                depend on the color of the children nodes
+                green  - all children green
+                red    - all children red
+                yellow - 'else'
+        '''
         if len(obj.Group) == 0:
             self.iconColor = 'red'
             return 'red'
@@ -204,6 +213,11 @@ class _BCNode(_WebGuiNode):
             _ViewProviderNodeBC(obj.ViewObject)
 
     def jsonToJinja(self, obj):
+        '''
+            update the Execution.input_parameters JSON data
+            creates a dict sorted bt fields defined in the doc
+            each field has its geometries with its BC
+        '''
 
         HermesWorkflow = self.getRootParent(obj)
         jinja = dict()
@@ -248,6 +262,13 @@ class _BCGeometryNode(_WebGuiNode):
 
 
     def getIconColor(self, obj):
+        '''
+            get the color of the icon of the node
+                depend on the color of the children nodes
+                green  - all children green
+                red    - all children red
+                yellow - 'else'
+        '''
         if len(obj.Group) == 0:
             self.iconColor = 'red'
             return 'red'
@@ -297,6 +318,12 @@ class _BCGeometryNode(_WebGuiNode):
             _ViewProviderNodeBC(obj.ViewObject)
 
     def updateNodeFields(self, fieldList, bcObj):
+        '''
+            update the children nodes with the field of the problem
+            - take the list of field from HermesNode
+            - take the list of children nodes
+            - compare between the lists, and add/remove nodes
+        '''
 
         # get part from Name
         part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
@@ -353,6 +380,13 @@ class _BCFieldNode(_WebGuiNode):
         self.iconColor = "red"
 
     def getIconColor(self, obj):
+        '''
+            define the color of the icon of the node
+            - if not set = red
+            - else call a function that checks the form Data
+                filled / half filled / empty
+                green /    yellow   / red
+        '''
         webGui = obj.Proxy.nodeData["WebGui"]
         formData = webGui["formData"]
         color = "red"
@@ -372,6 +406,15 @@ class _BCFieldNode(_WebGuiNode):
         return color
 
     def compareSchemeFormData(self,webGui):
+        '''
+            function that checks the form Data is
+                filled / half filled / empty
+                green /    yellow   / red
+            compare the keys supposed to be from the webGui.schema
+            with the actually data filled webGui.formData
+            (the formData may have extra data because of the dynamic
+                type of the BC and its unique properties"
+        '''
         schema = webGui["Schema"]
         formData = copy.deepcopy(webGui["formData"])
 
