@@ -11,16 +11,16 @@ import json
 
 
 # Hermes modules
-from ...HermesNode import _HermesNode
+from ...HermesNode import HermesNode as C_HermesNode
 # from ... import HermesNode
 #
 # import HermesGeometryDefinerEntity
 # import HermesPart
 
 # =============================================================================
-# #_GeometryDefinerNode
+# #GeometryDefinerNode
 # =============================================================================
-class _GeometryDefinerNode(_HermesNode):
+class GeometryDefinerNode(C_HermesNode):
     ''' Define the GeometryDefiner node'''
 
     def __init__(self, obj, nodeId, nodeData, name):

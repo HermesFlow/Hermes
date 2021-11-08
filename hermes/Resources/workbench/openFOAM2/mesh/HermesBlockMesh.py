@@ -19,20 +19,21 @@ import sys
 import copy
 
 # Hermes modules
-# from hermes.Resources.workbench.HermesNode import _WebGuiNode
-from ...HermesNode import _WebGuiNode, _HermesNode
+# from hermes.Resources.workbench.HermesNode import WebGuiNode
+from ...HermesNode import WebGuiNode
+from ...HermesNode import HermesNode as C_HermesNode
 from ... import HermesNode
 
 # import HermesGeometryDefinerEntity
 # import HermesPart
-from .HermesGeometryDefiner import _GeometryDefinerNode
+from .HermesGeometryDefiner import GeometryDefinerNode
 
 # =============================================================================
-# _BlockMeshNode
+# BlockMeshNode
 # =============================================================================
-class _BlockMeshNode(_GeometryDefinerNode):
+class BlockMeshNode(GeometryDefinerNode):
     '''
-        the  class inherited from _GeometryDefinerNode -
+        the  class inherited from GeometryDefinerNode -
             - use same functionality
             - update differnt structure of json
     '''
@@ -46,7 +47,7 @@ class _BlockMeshNode(_GeometryDefinerNode):
         '''
             Creates BlockMesh entities from json
         '''
-        _HermesNode.initializeFromJson(self, obj)
+        C_HermesNode.initializeFromJson(self, obj)
 
         # additional initialization BlockMesh node
         # ! not uploading parts at the moment !
@@ -284,7 +285,7 @@ class _BlockMeshNode(_GeometryDefinerNode):
         setattr(obj, "partPath", workflowObj.ExportJSONFile)
 
         # update properties as parent
-        _HermesNode.UpdateNodePropertiesData(self, obj)
+        C_HermesNode.UpdateNodePropertiesData(self, obj)
 
         # update children propeties
         for child in obj.Group:

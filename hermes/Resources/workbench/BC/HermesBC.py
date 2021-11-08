@@ -19,14 +19,14 @@ import sys
 import copy
 
 # Hermes modules
-from ..HermesNode import _WebGuiNode, _ViewProviderNode
+from ..HermesNode import WebGuiNode, _ViewProviderNode
 from .. import HermesNode
 from ..HermesTools import addObjectProperty
 
 # =============================================================================
 # _BCNode
 # =============================================================================
-class _BCNode(_WebGuiNode):
+class _BCNode(WebGuiNode):
     ''' The root of BoundaryCondition node'''
 
     def __init__(self, obj, nodeId, nodeData, name):
@@ -247,7 +247,7 @@ class _BCNode(_WebGuiNode):
 # =============================================================================
 # _BCGeometryNode
 # =============================================================================
-class _BCGeometryNode(_WebGuiNode):
+class _BCGeometryNode(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
         self.iconColor = "red"
@@ -374,7 +374,7 @@ class _BCGeometryNode(_WebGuiNode):
 # =============================================================================
 # _BCFieldNode
 # =============================================================================
-class _BCFieldNode(_WebGuiNode):
+class _BCFieldNode(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
         self.iconColor = "red"

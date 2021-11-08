@@ -18,15 +18,16 @@ import copy
 
 # Hermes modules
 
-from ...HermesNode import _WebGuiNode, _HermesNode
+from ...HermesNode import WebGuiNode
+from ...HermesNode import HermesNode as C_HermesNode
 from ... import HermesNode
 
 
 
 # =============================================================================
-# #_SnappyHexMesh
+# #SnappyHexMesh
 # =============================================================================
-class _SnappyHexMesh(_WebGuiNode):
+class SnappyHexMesh(WebGuiNode):
     ''' The snappyHexMesh class'''
 
     def __init__(self, obj, nodeId, nodeData, name):
@@ -68,9 +69,9 @@ class _SnappyHexMesh(_WebGuiNode):
         return jinjaObj
 
 # =============================================================================
-# #_SnappyHexMeshCastellatedMeshControls
+# #SnappyHexMeshCastellatedMeshControls
 # =============================================================================
-class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
+class SnappyHexMeshCastellatedMeshControls(WebGuiNode):
     #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
     #    and add current class functionalites
 
@@ -165,9 +166,9 @@ class _SnappyHexMeshCastellatedMeshControls(_WebGuiNode):
 
 
 # =============================================================================
-# #_SnappyHexMeshRefinement
+# #SnappyHexMeshRefinement
 # =============================================================================
-class _SnappyHexMeshRefinement(_WebGuiNode):
+class SnappyHexMeshRefinement(WebGuiNode):
     ''' the class of Refinment - will be update in the future'''
 
     def __init__(self, obj, nodeId, nodeData, name):
@@ -188,9 +189,9 @@ class _SnappyHexMeshRefinement(_WebGuiNode):
     #     obj.NodeDataString = json.dumps(self.nodeData)
 
 # =============================================================================
-# #_SnappyHexMeshGeometry
+# #SnappyHexMeshGeometry
 # =============================================================================
-class _SnappyHexMeshGeometry(_HermesNode):
+class SnappyHexMeshGeometry(C_HermesNode):
     '''The snappy geometry class'''
 
     def __init__(self, obj, nodeId, nodeData, name):
@@ -304,9 +305,9 @@ class _SnappyHexMeshGeometry(_HermesNode):
         return dict(objects=objects)
 
 # =============================================================================
-# #_SnappyHexMeshGeometryEntity
+# #SnappyHexMeshGeometryEntity
 # =============================================================================
-class _SnappyHexMeshGeometryEntity(_WebGuiNode):
+class SnappyHexMeshGeometryEntity(WebGuiNode):
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)

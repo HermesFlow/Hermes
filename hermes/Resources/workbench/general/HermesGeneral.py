@@ -19,15 +19,15 @@ import sys
 import copy
 
 # Hermes modules
-# from hermes.Resources.workbench.HermesNode import _WebGuiNode
-from ..HermesNode import _WebGuiNode, _HermesNode
+# from hermes.Resources.workbench.HermesNode import WebGuiNode
+from ..HermesNode import WebGuiNode, HermesNode
 # from ... import HermesNode
 
 
 # =============================================================================
 # CopyDirectory
 # =============================================================================
-class CopyDirectory(_WebGuiNode):
+class CopyDirectory(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
@@ -44,7 +44,7 @@ class CopyDirectory(_WebGuiNode):
 # =============================================================================
 # CopyFile
 # =============================================================================
-class CopyFile(_WebGuiNode):
+class CopyFile(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
@@ -60,7 +60,7 @@ class CopyFile(_WebGuiNode):
 # =============================================================================
 # RunOsCommand
 # =============================================================================
-class RunOsCommand(_WebGuiNode):
+class RunOsCommand(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
@@ -99,7 +99,7 @@ class RunOsCommand(_WebGuiNode):
 # =============================================================================
 # RunPythonCode
 # =============================================================================
-class RunPythonCode(_WebGuiNode):
+class RunPythonCode(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 

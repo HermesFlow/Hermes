@@ -111,7 +111,7 @@
     },
     "fields": {
       "template_webGui": {
-        "Type": "HermesNode._WebGuiNode",
+        "Type": "HermesNode.WebGuiNode",
         "Properties": {
         },
         "WebGui": {

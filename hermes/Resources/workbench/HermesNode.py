@@ -98,7 +98,7 @@ class _CommandHermesNodeSelection:
         isPresent = False
         members = HermesTools.getActiveHermes().Group
         for i in members:
-            if isinstance(i.Proxy, _HermesNode):
+            if isinstance(i.Proxy, HermesNode):
                 FreeCADGui.activeDocument().setEdit(i.Name)
                 isPresent = True
 
@@ -130,7 +130,7 @@ class _SlotHandler:
 # =============================================================================
 # Hermes Node class
 # =============================================================================
-class _HermesNode(_SlotHandler):
+class HermesNode(_SlotHandler):
     """ The Hermes Node """
 
     def __init__(self, obj, nodeId, nodeData, name):
@@ -392,13 +392,13 @@ class _ViewProviderNode:
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
         # if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
-        if self.NodeObjType in ["HermesNode._WebGuiNode","HermesSnappyHexMesh._SnappyHexMesh", "HermesSnappyHexMesh._SnappyHexMeshCastellatedMeshControls"]:
+        if self.NodeObjType in ["HermesNode.WebGuiNode","HermesSnappyHexMesh.SnappyHexMesh", "HermesSnappyHexMesh.SnappyHexMeshCastellatedMeshControls"]:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
         elif "FvSolution" in self.NodeObjType:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
         elif "FvSchemes" in self.NodeObjType:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif self.NodeObjType == "HermesNode._GeometryDefinerNode":
+        elif self.NodeObjType == "HermesNode.GeometryDefinerNode":
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
         else:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
@@ -555,9 +555,9 @@ class _ViewProviderNode:
 
 
 # =============================================================================
-# #_WebGuiNode
+# #WebGuiNode
 # =============================================================================
-class _WebGuiNode(_HermesNode):
+class WebGuiNode(HermesNode):
     '''
         handle the webGui nodes
     '''

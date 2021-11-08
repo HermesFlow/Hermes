@@ -131,9 +131,9 @@ def makeEntityNode(name, TypeList, EntityNodeData, Nodeobj):
     # initialize propeties and so at the new GE obj
     # seperate between BlockMesh case to other geometry entities
     if Nodeobj.Name == 'BlockMesh':
-        _HermesBME(obj, TypeList, EntityNodeData)
+        HermesBME(obj, TypeList, EntityNodeData)
     else:
-        _HermesGE(obj, TypeList, EntityNodeData)
+        HermesGE(obj, TypeList, EntityNodeData)
 
     if FreeCAD.GuiUp:
         _ViewProviderGE(obj.ViewObject)
@@ -232,7 +232,7 @@ if FreeCAD.GuiUp:
 # =============================================================================
 # Hermes GE class
 # =============================================================================
-class _HermesGE(_Facebinder):
+class HermesGE(_Facebinder):
     """ The Hermes GE (Geometry Entity) """
 
     def __init__(self, obj, TypeList, EntityNodeData):
@@ -670,9 +670,9 @@ class _ViewProviderGE:
 # =============================================================================
 # Hermes BlockMesh Entity class
 # =============================================================================
-class _HermesBME(_HermesGE):
+class HermesBME(HermesGE):
     '''
-        the  class inherited from _HermesGE -
+        the  class inherited from HermesGE -
             - use same functionality
             - update differnt structure of json
     '''

@@ -1,5 +1,5 @@
 {
-  "Type": "openFOAM2.mesh.HermesSnappyHexMesh._SnappyHexMeshGeometryEntity",
+  "Type": "openFOAM2.mesh.HermesSnappyHexMesh.SnappyHexMeshGeometryEntity",
   "Properties": {},
   "WebGui": {
     "Schema":{

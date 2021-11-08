@@ -9,7 +9,7 @@
         }
     },
     "GUI": {
-        "Type":"openFOAM2.mesh.HermesBlockMesh._BlockMeshNode",
+        "Type":"openFOAM2.mesh.HermesBlockMesh.BlockMeshNode",
         "Properties":{
                 "Template":"GeometryDefiner.BlockMesh.BlockMeshProperties"
 

@@ -19,14 +19,14 @@ import sys
 import copy
 
 # Hermes modules
-# from hermes.Resources.workbench.HermesNode import _WebGuiNode
-from ...HermesNode import _WebGuiNode, _HermesNode
+# from hermes.Resources.workbench.HermesNode import WebGuiNode
+from ...HermesNode import WebGuiNode, HermesNode
 from ... import HermesNode
 
 # =============================================================================
 # FvSolution
 # =============================================================================
-class FvSolution(_WebGuiNode):
+class FvSolution(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
