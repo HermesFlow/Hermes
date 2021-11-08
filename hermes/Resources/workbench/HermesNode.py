@@ -391,18 +391,18 @@ class _ViewProviderNode:
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
-        # if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
-        if self.NodeObjType in ["HermesNode.WebGuiNode","HermesSnappyHexMesh.SnappyHexMesh", "HermesSnappyHexMesh.SnappyHexMeshCastellatedMeshControls"]:
+
+        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "copyFile", "RunOsCommand", "RunPythonCode"]
+        bool_webGuinodes = [True for node in webGuiNodes if node in self.NodeObjType]
+
+        if True in bool_webGuinodes:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif "FvSolution" in self.NodeObjType:
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif "FvSchemes" in self.NodeObjType:
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif self.NodeObjType == "HermesNode.GeometryDefinerNode":
+        elif "GeometryDefinerNode" in self.NodeObjType:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
         else:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
-        #
+
+
         return icon_path
 
     def attach(self, vobj):
