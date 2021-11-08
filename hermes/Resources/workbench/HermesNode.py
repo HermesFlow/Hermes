@@ -174,18 +174,6 @@ class _HermesNode(_SlotHandler):
             # get the current_val at the prop
             setattr(obj, prop, current_val)
 
-        # additional properties RunOsCommand node
-        if self.name == "RunOsCommand":
-
-            # get the choosen methon
-            method = getattr(obj, "ChooseMethod")
-
-            # make read only the property that hasnt been choosen
-            if method == "Commands list":
-                obj.setEditorMode("batchFile", 1)  # Make read-only
-            elif method == "batchFile":
-                obj.setEditorMode("Commands", 1)  # Make read-only
-
     def initProperties(self, obj):
         '''
             Creates the properties of the FreeCAD object
@@ -651,9 +639,9 @@ class _WebGuiNode(_HermesNode):
         '''
             update the Execution.input_parameters JSON data
         '''
-        if obj.Name == "ControlDict":
-            return dict(values="{WebGui.formData}")
-        elif "formData" in self.nodeData["WebGui"]:
+        # if obj.Name == "ControlDict":
+        #     return dict(values="{WebGui.formData}")
+        if "formData" in self.nodeData["WebGui"]:
             return self.nodeData["WebGui"]["formData"]
         else:
             return None

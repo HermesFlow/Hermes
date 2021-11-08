@@ -9,7 +9,7 @@
         }
     },
     "GUI": {
-        "Type": "HermesNode._WebGuiNode",
+        "Type": "general.HermesGeneral.RunPythonCode",
         "Properties": {
             "ModulePath": {
                 "prop": "ModulePath",
