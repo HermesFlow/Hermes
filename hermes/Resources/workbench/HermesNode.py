@@ -53,9 +53,6 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     if nodecls is None:
         nodecls = pydoc.locate("HermesSnappyHexMesh." + '_' + nodeData["Type"])
 
-
-
-
     #    # if the class is not exist, create a new class
     #    if nodecls is None:
     #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
@@ -375,6 +372,8 @@ class _ViewProviderNode:
         self.NodeObjType = vobj.Object.Type
 
 
+
+
     def getIcon(self):
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
@@ -553,13 +552,13 @@ class _WebGuiNode(_HermesNode):
         # Check if webGui is empty
         if not ((len(nodeWebGUI) == 0)):
             # define web address & pararmeters
-            ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
-                                                          -1] == '/' else FreeCAD.getResourceDir() + "/"
+            ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
             path = ResourceDir + 'Mod/Hermes/Resources/jsonReactWebGui.html?parameters='
             address = 'file:///' + path
 
             # str JSON 'nodeWebGUI' using "dumps"
             parameters = json.dumps(nodeWebGUI)
+            FreeCAD.Console.PrintMessage(address + parameters)
 
             # open the jsonReact html page using the following command
             browser = WebGui.openSingleBrowser(address + parameters)
@@ -722,11 +721,7 @@ class _BCNode(_WebGuiNode):
         # compare the list - check if need to delete or add objects
         add_list = [part for part in nodesPartList if part not in BCpartList]
         del_list = [part for part in BCpartList if part not in nodesPartList]
-
-
         # get Hermes workflow
-
-
 
         # for nodeGroup in nodesObjList:
             # create a new bc geometry object
@@ -1508,10 +1503,6 @@ class _BlockMeshNode(_GeometryDefinerNode):
 
             # show the Dialog in FreeCAD
             FreeCADGui.Control.showDialog(blockMeshGeDialog)
-
-
-
-
 
     def BlockMeshGeDialogClosed(self, obj, geometryLabel):
 

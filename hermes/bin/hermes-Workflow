@@ -4,15 +4,14 @@ from hermes import expandWorkflow,hermesWorkflow
 import json
 import os
 import pathlib
-
+import shutil
 
 
 def handler_expand(arguments):
     exapnder = expandWorkflow()
 
-
-    templateFileName = arguments.args[0]
-    expandedWorkflow = f"{arguments.args[1].split('.')[0]}.json"
+    templateFileName = f"{arguments.workflow.split('.')[0]}.json"
+    expandedWorkflow = f"{arguments.caseName.split('.')[0]}.json"
     newTemplate = exapnder.expand(templateJSON=templateFileName)
 
     with open(expandedWorkflow, 'w') as fp:
@@ -21,8 +20,8 @@ def handler_expand(arguments):
 def handler_build(arguments):
     exapnder = expandWorkflow()
 
-    templateFile = arguments.args[0]
-    newWorkflow = f"{arguments.args[1].split('.')[0]}.py"
+    templateFile = f"{arguments.workflow.split('.')[0]}.json"
+    newWorkflow = f"{arguments.caseName.split('.')[0]}.py"
 
     expandedWorkflow = f"{newWorkflow.split('.')[0]}.json"
 
@@ -37,8 +36,6 @@ def handler_build(arguments):
 
     WDPath = os.getcwd()
 
-
-
     builder = "luigi"
     flow = hermesWorkflow(newTemplate, WDPath)
     build = flow.build(builder)
@@ -52,7 +49,7 @@ def handler_execute(arguments):
     :return:
     """
 
-    pythonPath = arguments.args[0].split(".")[0]
+    pythonPath = arguments.caseName.split(".")[0]
 
 
     #cwd = pathlib.Path().absolute()
@@ -63,24 +60,63 @@ def handler_execute(arguments):
     os.system(executionStr)
     #os.chdir(cwd)
 
+
+def handler_runWorkflow(arguments):
+
+    if not arguments.force:
+        # check if there is old expanded json, or python.
+        # also if there are old runfiles it will not rerun.
+
+        expnded = f"{arguments.caseName.split('.')[0]}.json"
+        newWorkflow = f"{arguments.caseName.split('.')[0]}.py"
+
+        if os.path.exists(expnded):
+            print(f"Expended file {expnded} exists. Delete or run with --force flag.")
+            exit()
+        elif os.path.exists(newWorkflow):
+            print(f"Python execution file {newWorkflow} exists. Delete or run with --force flag.")
+            exit()
+
+
+    handler_expand(arguments)
+    arguments.workflow = arguments.caseName
+    arguments.parameters = None
+    handler_build(arguments)
+
+    if arguments.force:
+        # delete the run files if exist.
+        executionfileDir = f"{arguments.caseName.split('.')[0]}_targetFiles"
+
+        shutil.rmtree(executionfileDir, ignore_errors=True)
+    handler_execute(arguments)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help',dest="subparser_name")
 
     parser_expandWorkflow = subparsers.add_parser('expand',
                                                   help='Expands the workflow JSON with the default values of the nodes')
+    parser_expandWorkflow.add_argument('workflow', type=str, help="base workflow")
+    parser_expandWorkflow.add_argument('caseName', type=str, help="the name of the case to run")
+
     parser_buildExecuter = subparsers.add_parser('build',
                                                  help='Builds the python execution file for the execution engine ')
+    parser_buildExecuter.add_argument('workflow', type=str, help="base workflow")
+    parser_buildExecuter.add_argument('caseName', type=str, help="the name of the case to run")
+    parser_buildExecuter.add_argument('--parameters', type=str, default=None, required=False,
+                                      help="A path to paremeters file (optional)")
+
     parser_execute = subparsers.add_parser('execute',
-                                       help='Runs the python execution file with the appropriate execution engine')
-
-    parser_expandWorkflow.add_argument('args', nargs=2, type=str, help="[template file] [workflow file]")
-
-    parser_buildExecuter.add_argument('args', nargs=2, type=str, help="[workflow template] [workflow]")
-    parser_buildExecuter.add_argument('--parameters', type=str, default=None,required=False, help="A path to paremeters file (optional)")
+                                         help='Runs the python execution file with the appropriate execution engine')
+    parser_execute.add_argument('caseName', type=str, help="the name of the case to run")
+    #parser_execute.add_argument('executter', default="luigi", type=str, help="Execution engine: luigi")
 
 
-    parser_execute.add_argument('args', nargs=1, type=str, help="[executer]")
+    parser_runWorkflow = subparsers.add_parser('runWorkflow', help='Expands, builds and executes the workflow JSON')
+    parser_runWorkflow.add_argument('workflow', type=str, help="base workflow")
+    parser_runWorkflow.add_argument('caseName', type=str, help="the name of the case to run")
+    parser_runWorkflow.add_argument('--force',dest="force", default=False, action="store_true", help="If exist, delete the execution files first")
+
 
     args = parser.parse_args()
 
