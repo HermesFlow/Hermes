@@ -25,7 +25,6 @@ docker run -it --rm \
 -v "$fc_workbench":/mnt/workbench \
 -v "$fc_build_files/bashrc_dev":/root/.bashrc:ro \
 -v "$wd/dot_local":/root/.local:ro \
--v "$other_files":/mnt/files \
 -v "$PWD":/mnt/pwd \
 $* \
 -e "DISPLAY" -e "QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
