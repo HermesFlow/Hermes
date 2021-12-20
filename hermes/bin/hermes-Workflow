@@ -70,10 +70,7 @@ def handler_runWorkflow(arguments):
         expnded = f"{arguments.caseName.split('.')[0]}.json"
         newWorkflow = f"{arguments.caseName.split('.')[0]}.py"
 
-        if os.path.exists(expnded):
-            print(f"Expended file {expnded} exists. Delete or run with --force flag.")
-            exit()
-        elif os.path.exists(newWorkflow):
+        if os.path.exists(newWorkflow):
             print(f"Python execution file {newWorkflow} exists. Delete or run with --force flag.")
             exit()
 
@@ -86,8 +83,8 @@ def handler_runWorkflow(arguments):
     if arguments.force:
         # delete the run files if exist.
         executionfileDir = f"{arguments.caseName.split('.')[0]}_targetFiles"
-
         shutil.rmtree(executionfileDir, ignore_errors=True)
+
     handler_execute(arguments)
 
 if __name__ == "__main__":
@@ -116,7 +113,6 @@ if __name__ == "__main__":
     parser_runWorkflow.add_argument('workflow', type=str, help="base workflow")
     parser_runWorkflow.add_argument('caseName', type=str, help="the name of the case to run")
     parser_runWorkflow.add_argument('--force',dest="force", default=False, action="store_true", help="If exist, delete the execution files first")
-
 
     args = parser.parse_args()
 

@@ -125,7 +125,6 @@ class utils(object):
             if ispath:
                 try:
                     value.append(self._evaluate_path(token, params))
-
                 except IndexError:
                     errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
                     print(errMsg)
