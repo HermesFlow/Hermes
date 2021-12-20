@@ -344,6 +344,7 @@ class _HermesNode(_SlotHandler):
         # Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
+
         return
 
     def RemoveNodeObj(self, obj):
@@ -559,7 +560,7 @@ class _WebGuiNode(_HermesNode):
             # define web address & pararmeters
             ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                           -1] == '/' else FreeCAD.getResourceDir() + "/"
-            path = ResourceDir + 'Mod/Hermes/Resources/jsonReactWebGui.html?parameters='
+            path = ResourceDir + 'Mod/Hermes/Resources/web/jsonReactWebGui.html?parameters='
             address = 'file:///' + path
 
             # FreeCAD.Console.PrintMessage("path = " + path + "\n")
