@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import argparse
-from hermes import expandWorkflow,hermesWorkflow
+from hermes import expandWorkflow,workflow
 import json
 import os
 import pathlib
@@ -37,7 +37,7 @@ def handler_build(arguments):
     WDPath = os.getcwd()
 
     builder = "luigi"
-    flow = hermesWorkflow(newTemplate, WDPath)
+    flow = workflow(newTemplate, WDPath)
     build = flow.build(builder)
     with open(newWorkflow, "w") as file:
         file.write(build)

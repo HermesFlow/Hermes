@@ -7,7 +7,7 @@ from itertools import product
 from hermes.engines import builders
 from hermes.taskwrapper import hermesTaskWrapper
 
-class hermesWorkflow(dict):
+class workflow(dict):
     """
         The role of the workflow task is to load all the tasks and build a network
         of taskWrapper out of a workflow JSON that will actually be initiated in the task engine.
@@ -72,7 +72,7 @@ class hermesWorkflow(dict):
     def taskRepresentations(self):
         return self._taskRepresentations
 
-    def __init__(self, workflowJSON,WD_path,Resources_path=""):
+    def __init__(self, workflowJSON,WD_path=None,Resources_path=""):
         """
                 Initiates the hermes workflow.
 
@@ -90,7 +90,7 @@ class hermesWorkflow(dict):
             workflowJSON = json.load(workflowJSON)
 
 
-        self.WD_path=WD_path
+        self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
         self._workflowJSON = workflowJSON
         self._hermes_task_wrapper_home = hermes_task_wrapper_home
@@ -163,7 +163,6 @@ class hermesWorkflow(dict):
     def _getTaskJSON(self, nodeName):
         return self._workflowJSON["workflow"]["nodes"][nodeName]
 
-
     def _createFinalNode(self):
         """
             Adds a final node that depends on all nodes in the workflow.
@@ -203,9 +202,170 @@ class hermesWorkflow(dict):
                 ret += str(stask) + "\n"
         return ret
 
-
     def build(self,buildername):
-
+        """
+            Builds the python code that executes this workflow
+        :param buildername:
+        :return:
+        """
         return builders[buildername.lower()].buildWorkflow(self)
 
+    @property
+    def _workflowJSON(self):
+        return self._workflowJSON["workflow"]
 
+    @property
+    def nodeList(self):
+        return self._workflowJSON['nodeList']
+
+    @property
+    def nodes(self):
+        return self._workflowJSON['nodes']
+
+
+
+    def __getitem__(self, item):
+        """
+            Returns a node.
+        Parameters
+        ----------
+        item: str
+            The node name
+
+        Returns
+        -------
+            A node object of the requested node.
+
+        """
+        nodeJSON = self._workflowJSON['nodes'][item]
+        return hermesNode(item,nodeJSON)
+
+
+    def __delitem__(self, key):
+        """
+            Removes a node from the workflow.
+            Raises ValueError if node not found.
+
+        Parameters
+        ----------
+        key: The name of the node
+
+        Returns
+        -------
+            None
+
+        """
+
+        # 1. Remove the node from the nodelist in key: "workflow.nodeList"
+        try:
+            self.nodeList.remove(key)
+
+            # 2. Remove the node from the nodes. "workflow.nodes"
+            del self._workflowJSON['nodes'][key]
+
+        except ValueError:
+            raise ValueError(f"{key} node is not found. Found nodes: {','.join(self.nodeList)}")
+
+
+    def getNodeValue(self,jsonpath):
+        """
+            Returns a value from the JSON path.
+            The search is relative to the 'nodes' node in the workflow.
+
+        Parameters
+        ----------
+        jsonpath: str
+            The path to obtain.
+
+        Returns
+        -------
+            List
+            jsonpath DatumInContext object with the query results.
+        """
+        jsonexpr = jsonpath.parse(jsonpath)
+        return jsonexpr.find(self._workflowJSON['nodes'])
+
+
+    def updateNodeValue(self,jsonpath,value):
+        """
+
+            Returns a value from the JSON path.
+            The search is relative to the 'nodes' node in the workflow.
+
+        Parameters
+        ----------
+        jsonpath: str
+            The path to obtain.
+
+        value: str
+            The new value.
+
+        Returns
+        -------
+            None
+        """
+        jsonexpr = jsonpath.parse(jsonpath)
+        jsonexpr.update(self._workflowJSON['nodes'],value)
+
+
+    def write(self,filename,overwrite=False):
+        """
+            writes the new workflow to the file.
+        Parameters
+        ----------
+        filename : str
+            The file name
+
+        overwrite: bool
+            If true, the writes over existing file. Otherwise raises an exception.
+
+        Returns
+        -------
+
+        """
+        self.logger.info("-- Start --")
+        if not overwrite:
+            if os.path.exists(filename):
+                err = f"{filename} alread exists. Use overwrite=True to overwite it"
+                self.logger.error(err)
+                raise FileExistsError(err)
+
+        with open(filename,'w') as outputFile:
+            json.dump(self._workflow,outputFile)
+
+        self.logger.info("-- End --")
+
+class hermesNode:
+    """
+        An interface to the JSON of an hermes workflow.
+    """
+    _nodeJSON= None
+    _nodeName = None
+
+    def __init__(self,nodeName,nodeJSON):
+        self._nodeJSON =nodeJSON
+        self._nodeName = nodeName
+
+    @property
+    def name(self):
+        return self._nodeName
+
+    @property
+    def parameters(self):
+        return self._nodeJSON['Execution']['input_parameters']
+
+
+    def __setitem__(self, item,value):
+        self._nodeJSON['Execution']['input_parameters'][item] = value
+
+    def __getitem__(self, item):
+        return self._nodeJSON['Execution']['input_parameters'][item]
+
+    def keys(self):
+        return self._nodeJSON['Execution']['input_parameters'].keys()
+
+    def values(self):
+        return self._nodeJSON['Execution']['input_parameters'].values()
+
+    def items(self):
+        return self._nodeJSON['Execution']['input_parameters'].items()

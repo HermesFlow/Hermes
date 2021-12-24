@@ -404,10 +404,10 @@ class _HermesWorkflow:
         os.chdir(current_dir)
 
         # import hermesWorkflow
-        from hermes import hermesWorkflow
+        from hermes import workflow
 
         # call hermes workflow and keep its result in var
-        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+        wf = workflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
 
         print(wf)
         print("===================================")

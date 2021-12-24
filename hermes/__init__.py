@@ -1,7 +1,8 @@
 __version__=(1,2,0)
 
 """
-
+    - extended the wrapper to the workflow 
+    - Added the jijnaTemplate node. 
     - Changes the target file directory execution to the name of the class. 
     - Changes to the controldict and snappyhexmesh templates.
     - Added location of execution to the tot he run os command node.  
@@ -44,7 +45,7 @@ __version__=(1,2,0)
 """
 
 
-from .workflow.workflow import hermesWorkflow
+from .workflow.workflow import workflow
 from .taskwrapper import hermesTaskWrapper
 from .Resources.nodeTemplates.templateCenter import templateCenter
 from .workflow.expandWorkflow import expandWorkflow

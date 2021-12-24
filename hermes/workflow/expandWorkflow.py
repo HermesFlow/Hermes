@@ -10,8 +10,7 @@ import json
 import os
 import collections.abc
 
-
-class expandWorkflow():
+class expandWorkflow:
     """ this class is taking a json with reference
       to other files , end inject the data from those other
       files into that json """
