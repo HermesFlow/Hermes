@@ -1,0 +1,64 @@
+{#-#############################################-#}
+{#-#############################################-#}
+
+{#-        A marco for the a patch interaction         -#}
+{#-  ========================================= -#}
+{%- macro patchInteraction(patchInteractionData) -%}
+{%  if patchInteractionData.interactionType =='StandardWallInteraction' %}
+{{StandardWallInteraction(patchInteractionData)}}
+{%  elif patchInteractionData.interactionType =='none' %}
+{{NoneInteraction(patchInteractionData)}}
+{%  else %}
+    UNKNOWN Injector, must be manualInjection
+{% endif %}
+{%- endmacro %}
+
+
+{#- patch interaction: A macro for the StandardWallInteraction  -#}
+{#- -----------------------------------------  -#}
+{%- macro StandardWallInteraction(patchInteractionData) -%}
+        patchInteractionModel StandardWallInteraction;
+
+        StandardWallInteractionCoeffs
+        {
+            type            {{patchInteractionData.type}};
+        }
+{%- endmacro %}
+
+
+{#- patch interaction: A macro for the none (no interaction)  -#}
+{#- -----------------------------------------  -#}
+{%- macro NoneInteraction(patchInteractionData) -%}
+        patchInteractionModel none;
+{%- endmacro %}
+
+{#- patch interaction: A macro for the local  -#}
+{#- -----------------------------------------  -#}
+{%- macro StandardWallInteraction(patchInteractionData) -%}
+        patchInteractionModel StandardWallInteraction;
+
+        StandardWallInteractionCoeffs
+        {
+            type            {{patchInteractionData.type}};
+        }
+{%- endmacro %}
+
+
+{#- patch interaction: A macro for the local  -#}
+{#- -----------------------------------------  -#}
+{%- macro LocalInteraction(patchInteractionData) -%}
+        patchInteractionModel LocalInteraction;
+
+        LocalInteractionCoeffs
+        {
+            patches
+            (
+                {%- for patchName,patchType in patchInteractionData.patches.items() %-}
+                        {{patchName}}
+                        {
+                            type {{patchType}};
+                        }
+                {%- endfor -%}
+            )
+        }
+{%- endmacro %}

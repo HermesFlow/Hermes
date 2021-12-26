@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      kinematicCloudProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "injectorModels.jinja" as solvers %}
+{%- import "patchInteractionModels.jinja" as solvers %}
+
+solution
+{
+    active          {{active}};
+    coupled         false;
+    transient       yes;
+    cellValueSourceCorrection off;
+    maxCo           0.3;
+
+    interpolationSchemes
+    {
+        rho             cell;
+        U_0_Interpolated               cellPoint;
+        mu              cell;
+    }
+
+    integrationSchemes
+    {
+        U               Euler;
+    }
+    model {{model}};
+    passive_tracer {passiveTrace};
+}
+
+constantProperties
+{
+    rho0            964;
+    youngsModulus   6e8;
+    poissonsRatio   0.35;
+}
+
+subModels
+{
+    particleForces
+    {
+  //      sphereDrag;
+  //     gravity;
+    }
+
+    injectionModels
+    {
+        {% for injectorName,injectorData in injectors.items() -%}
+            {% injectors(injectorName,injectorData) %}
+        {%- endfor -%}
+
+    }
+
+    dispersionModel none;
+
+    {%- patchInteraction(injectors.patchInteraction) -%}
+
+
+    surfaceFilmModel none;
+
+    stochasticCollisionModel none;
+
+    collisionModel none;
+
+    wallModel    none;
+
+    }
+}
+
+
+cloudFunctions
+{}
+
+
+// ************************************************************************* //
+
