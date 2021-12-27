@@ -1,11 +1,14 @@
 from _io import TextIOWrapper
 import os
 import json
+
+import pandas.io.json
 from hermes.taskwrapper import hermes_task_wrapper_home
 from hermes.taskwrapper import hermesTaskWrapper
 from itertools import product
 from hermes.engines import builders
 from hermes.taskwrapper import hermesTaskWrapper
+from hermes.workflow.expandWorkflow import expandWorkflow
 
 class workflow(dict):
     """
@@ -63,6 +66,8 @@ class workflow(dict):
 
     """
 
+    BUILDER_LUIGI = "luigi"
+
     _taskRepresentations = None # A map with nodeName->list of TaskWrappers.
     _workflowJSON = None
 
@@ -92,6 +97,8 @@ class workflow(dict):
 
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
+
+        workflowJSON = expandWorkflow().expand(workflowJSON)
         self._workflowJSON = workflowJSON
         self._hermes_task_wrapper_home = hermes_task_wrapper_home
         self._buildNetwork()
@@ -211,18 +218,16 @@ class workflow(dict):
         return builders[buildername.lower()].buildWorkflow(self)
 
     @property
-    def _workflowJSON(self):
+    def workflowJSON(self):
         return self._workflowJSON["workflow"]
 
     @property
     def nodeList(self):
-        return self._workflowJSON['nodeList']
+        return self.workflowJSON['nodeList']
 
     @property
     def nodes(self):
-        return self._workflowJSON['nodes']
-
-
+        return self.workflowJSON['nodes']
 
     def __getitem__(self, item):
         """
@@ -237,7 +242,7 @@ class workflow(dict):
             A node object of the requested node.
 
         """
-        nodeJSON = self._workflowJSON['nodes'][item]
+        nodeJSON = self.workflowJSON['nodes'][item]
         return hermesNode(item,nodeJSON)
 
 
@@ -261,7 +266,7 @@ class workflow(dict):
             self.nodeList.remove(key)
 
             # 2. Remove the node from the nodes. "workflow.nodes"
-            del self._workflowJSON['nodes'][key]
+            del self.workflowJSON['nodes'][key]
 
         except ValueError:
             raise ValueError(f"{key} node is not found. Found nodes: {','.join(self.nodeList)}")
@@ -286,11 +291,44 @@ class workflow(dict):
         return jsonexpr.find(self._workflowJSON['nodes'])
 
 
+    def updateNodes(self,parameters : dict):
+        """
+            Updates the input_parameters of a specific node.
+
+        Parameters
+        -----------
+        parameters: dict
+                A dictionary with the parameters to override the default parameters of the workflow.
+                The structure of the dict is :
+
+                {
+                    <node name> : {
+                            "parameter path 1(eg. a.b.c)" : value,
+                            "parameter path 2(eg. a.b.c)" : value
+                            .
+                            .
+                            .
+                    }
+                }
+        :return:
+            None
+        """
+        for nodeName,parameterData in parameters.items():
+            if nodeName not in self.nodeList:
+                raise ValueError(f"The node {nodeName} is not part of the current nodes. The current nodes are {','.join(self.nodeList)}")
+
+            basePath = f"workflow.nodes.{nodeName}.Execution.input_parameters"
+            for parameterPath,parameterValue in parameterData.items():
+                fullPath = f"{basePath}.{parameterPath}"
+                self.updateNodeValue(fullPath,parameterValue)
+
     def updateNodeValue(self,jsonpath,value):
         """
 
-            Returns a value from the JSON path.
-            The search is relative to the 'nodes' node in the workflow.
+            Updates the parametrs in the workflow according to the path.
+            Note that a complete path is required.
+
+            To update the input_parameters of a specific node use updateNodes
 
         Parameters
         ----------
@@ -307,7 +345,6 @@ class workflow(dict):
         jsonexpr = jsonpath.parse(jsonpath)
         jsonexpr.update(self._workflowJSON['nodes'],value)
 
-
     def write(self,filename,overwrite=False):
         """
             writes the new workflow to the file.
@@ -323,17 +360,31 @@ class workflow(dict):
         -------
 
         """
-        self.logger.info("-- Start --")
         if not overwrite:
             if os.path.exists(filename):
                 err = f"{filename} alread exists. Use overwrite=True to overwite it"
-                self.logger.error(err)
                 raise FileExistsError(err)
 
         with open(filename,'w') as outputFile:
-            json.dump(self._workflow,outputFile)
+            json.dump(self.workflowJSON,outputFile)
 
-        self.logger.info("-- End --")
+
+    def getNodesParametersTable(self):
+        """
+            A pandas (table) of  the parameters from all the nodes.
+            Returned in a long format. ie.
+
+            nodeName parametersName parameter Value.
+
+        :return:
+            pandas.
+        """
+        paramsList = []
+        for nodeName in self.nodeList:
+            paramsList.append(self[nodeName].parametersTable)
+
+        return pandas.concat(paramsList)
+
 
 class hermesNode:
     """
@@ -346,6 +397,12 @@ class hermesNode:
         self._nodeJSON =nodeJSON
         self._nodeName = nodeName
 
+    def __str__(self):
+        return f"Node {self.name} | parameters: \n {json.dumps(self.parameters,indent=4)}"
+
+    def __repr__(self):
+        return f"Node {self.name} | parameters: {','.join(self.keys())}"
+
     @property
     def name(self):
         return self._nodeName
@@ -353,6 +410,14 @@ class hermesNode:
     @property
     def parameters(self):
         return self._nodeJSON['Execution']['input_parameters']
+
+    @property
+    def parametersTable(self):
+        return pandas.json_normalize(self._nodeJSON['Execution']['input_parameters'])\
+            .T\
+            .reset_index()\
+            .rename(columns={'index':'parameterName',0:'value'})\
+            .assign(nodeName=self.name)
 
 
     def __setitem__(self, item,value):

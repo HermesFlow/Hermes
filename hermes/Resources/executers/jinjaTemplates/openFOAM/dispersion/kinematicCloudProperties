@@ -15,12 +15,12 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-{%- import "injectorModels.jinja" as solvers %}
-{%- import "patchInteractionModels.jinja" as solvers %}
+{%- import "openFOAM/dispersion/injectorModels.jinja" as solvers %}
+{%- import "openFOAM/dispersion/patchInteractionModels.jinja" as solvers %}
 
 solution
 {
-    active          {{active}};
+    active          {{activeCloud}};
     coupled         false;
     transient       yes;
     cellValueSourceCorrection off;
@@ -37,8 +37,8 @@ solution
     {
         U               Euler;
     }
-    model {{model}};
-    passive_tracer {passiveTrace};
+    model {{stochasticTurbulenceModel}};
+    passive_tracer {%- if passiveTrace%}true{%- else%}false{%endif%};
 }
 
 constantProperties
@@ -66,7 +66,7 @@ subModels
 
     dispersionModel none;
 
-    {%- patchInteraction(injectors.patchInteraction) -%}
+    {%- patchInteraction(patchInteraction) -%}
 
 
     surfaceFilmModel none;

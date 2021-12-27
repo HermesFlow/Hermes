@@ -8,6 +8,8 @@
 {{StandardWallInteraction(patchInteractionData)}}
 {%  elif patchInteractionData.interactionType =='none' %}
 {{NoneInteraction(patchInteractionData)}}
+{%  elif patchInteractionData.interactionType =='LocalInteraction' %}
+{{LocalInteraction(patchInteractionData)}}
 {%  else %}
     UNKNOWN Injector, must be manualInjection
 {% endif %}
@@ -53,10 +55,10 @@
         {
             patches
             (
-                {%- for patchName,patchType in patchInteractionData.patches.items() %-}
+                {%- for patchName,patchData in patchInteractionData.patches.items() %-}
                         {{patchName}}
                         {
-                            type {{patchType}};
+                            type {{patchData.type}};
                         }
                 {%- endfor -%}
             )

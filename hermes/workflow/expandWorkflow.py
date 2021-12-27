@@ -60,7 +60,6 @@ class expandWorkflow:
 
         if isinstance(templateJSON,str):
             if os.path.exists(templateJSON):
-
                 with open(templateJSON, 'r') as myfile:
                     JsonObjectfromFile  = json.load(myfile)
             else:

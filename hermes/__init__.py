@@ -1,6 +1,8 @@
 __version__=(1,2,0)
 
 """
+    - Updating the workflow object to provede services needed in the 
+      running.
     - extended the wrapper to the workflow 
     - Added the jijnaTemplate node. 
     - Changes the target file directory execution to the name of the class. 
