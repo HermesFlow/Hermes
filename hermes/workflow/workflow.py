@@ -1,11 +1,10 @@
 from _io import TextIOWrapper
 import os
 import json
-
+from itertools import product
 import pandas.io.json
 from hermes.taskwrapper import hermes_task_wrapper_home
 from hermes.taskwrapper import hermesTaskWrapper
-from itertools import product
 from hermes.engines import builders
 from hermes.taskwrapper import hermesTaskWrapper
 from hermes.workflow.expandWorkflow import expandWorkflow
@@ -119,9 +118,9 @@ class workflow(dict):
         :return:
         """
 
-        requiredNodeList = hermesTaskWrapper.getRequiredTasks(taskJSON)
+        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not x.startswith("#")]
 
-        for requirednode in requiredNodeList:
+        for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
@@ -366,7 +365,7 @@ class workflow(dict):
                 raise FileExistsError(err)
 
         with open(filename,'w') as outputFile:
-            json.dump(self.workflowJSON,outputFile)
+            json.dump(self._workflowJSON,outputFile)  # write with the workflow node.
 
 
     def getNodesParametersTable(self):
@@ -385,6 +384,21 @@ class workflow(dict):
 
         return pandas.concat(paramsList)
 
+    @property
+    def parametersJSON(self):
+        """
+            Returns a json with only the parameters of the nodes.
+            Used to query the db.
+        :return:
+            dict
+
+        """
+        retdict = dict()
+        for node in self.nodeList:
+            hermesNode = self[node]
+            retdict[node] = hermesNode.parameters
+
+        return retdict
 
 class hermesNode:
     """

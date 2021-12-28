@@ -63,6 +63,9 @@ def handler_execute(arguments):
 
 def handler_runWorkflow(arguments):
 
+
+    arguments.caseName = arguments.workflow
+
     if not arguments.force:
         # check if there is old expanded json, or python.
         # also if there are old runfiles it will not rerun.
@@ -111,7 +114,7 @@ if __name__ == "__main__":
 
     parser_runWorkflow = subparsers.add_parser('runWorkflow', help='Expands, builds and executes the workflow JSON')
     parser_runWorkflow.add_argument('workflow', type=str, help="base workflow")
-    parser_runWorkflow.add_argument('caseName', type=str, help="the name of the case to run")
+#    parser_runWorkflow.add_argument('caseName', default=None, type=str, help="the name of the case to run. If None, use the workflow base name")
     parser_runWorkflow.add_argument('--force',dest="force", default=False, action="store_true", help="If exist, delete the execution files first")
 
     args = parser.parse_args()

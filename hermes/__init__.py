@@ -1,6 +1,9 @@
 __version__=(1,2,0)
 
 """
+    - Adding the special handler {#<token>} in the parsing of the configuration file. 
+      The current implementations is: 
+            - moduleName that return the name of the current luigi module (i.e workflow name).   
     - Fixed the areference to the old simpleFOAM for the snappy objects. 
     - Updating the workflow object to provede services needed in the 
       running.

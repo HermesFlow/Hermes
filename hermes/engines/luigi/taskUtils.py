@@ -1,6 +1,9 @@
+import os.path
 from collections.abc import Iterable
 import json
 import jsonpath_rw_ext as jp
+import sys
+
 
 import hermes
 class utils(object):
@@ -117,12 +120,21 @@ class utils(object):
     def _handle_value(self,parameterPath, params):
         return params.get(".".join(parameterPath[1:]),{})
 
+    def _handle_token_moduleName(self):
+        return sys.argv[2]
 
     def _parseAndEvaluatePath(self, paramPath,params):
         value = []
         tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
         for token, ispath in tokenList:
-            if ispath:
+            if token.startswith("#"):
+                try:
+                    tknval_func = getattr(self,f"_handle_token_{token[1:]}")
+                    value.append(tknval_func())
+                except AttributeError:
+                    existingTokens = ",".join([x for x in dir(self) if x.startswith("_handle_token_")])
+                    raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
+            elif ispath:
                 try:
                     value.append(self._evaluate_path(token, params))
                 except IndexError:
