@@ -1,6 +1,7 @@
 __version__=(1,2,0)
 
 """
+    - Fixed the areference to the old simpleFOAM for the snappy objects. 
     - Updating the workflow object to provede services needed in the 
       running.
     - extended the wrapper to the workflow 

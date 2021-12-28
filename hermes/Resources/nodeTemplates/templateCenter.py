@@ -46,8 +46,7 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
-        #import pdb
-        #pdb.set_trace()
+
 
         print(jsonPath)
         try:
