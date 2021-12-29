@@ -41,7 +41,7 @@ solvers
     {% for field,fieldValue in solverProperties.solverFields.items() -%}
         {{field}} {{fieldValue}};
     {% endfor %}
-    }
+
 }
 
 relaxationFactors
