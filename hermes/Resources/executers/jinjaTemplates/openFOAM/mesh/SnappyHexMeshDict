@@ -28,6 +28,7 @@ geometry
     {
         type triSurfaceMesh;
         name {{geometryName}};
+        {%- if 'regions' in geometryData %}
         {%- set objRegions=geometryData.regions %}
         regions {
             {%- for regionName,regionData in objRegions.items()  %}
@@ -40,7 +41,7 @@ geometry
                 }
             {%- endfor %}
         }
-
+        {%- endif %}
     }
     {%- endfor %}
 
@@ -86,13 +87,28 @@ castellatedMeshControls
             level {{utils.toPoint(geometryData.refinementSurfaceLevels)}};
             patchInfo { type {{geometryData.patchType}}; }
 
+            {%- if 'regions' in geometryData %}
+            {%- set objRegions=geometryData.regions %}
+            regions {
+
+            {%- for regionName,regionData in objRegions.items()  %}
+                {%- if 'refinementSurfaceLevels' in regionData.keys() %}
+
+                {{regionData.name}}
+                {
+                        level {{utils.toPoint(regionData.refinementSurfaceLevels)}};
+                }
+                {%- endif %}
+            {%- endfor %}
+            }
+            {%- endif %}
         }
     {%- endfor %}
     }
 
     refinementRegions
     {
-        {%- for geometryName,geometryData in geometry.objects.items() %}
+    {%- for geometryName,geometryData in geometry.objects.items() %}
         {%  set refinementRegions =  geometryData.refinementRegions %}
         {% if 'mode' in geometryData.refinementRegions %}
         {{geometryName}}
@@ -105,13 +121,33 @@ castellatedMeshControls
                     {% for pnt in refinementRegions.levels %} {{utils.toPoint(pnt)}} {% endfor %}
                 {% else %}
                     Invalid mode {{refinementRegions.levels}}, must be inside, outside or distance.
-                {% endif %});
+                {% endif %}
+            );
         }
         {% endif %}
-
-        {% endfor %}
+        {%- if 'regions' in geometryData %}
+            {%- set objRegions=geometryData.regions %}
+            {%- for regionName,regionData in objRegions.items()  %}
+                {%- if 'refinementRegions' in regionData.keys() %}
+                    {%- set regionRefinementRegions = regionData.refinementRegions %}
+        {{regionData.name}}
+        {
+            mode {{regionRefinementRegions.mode}};
+            levels (
+                {%- if (regionRefinementRegions.mode == 'inside') or (regionRefinementRegions.mode == 'outside') -%}
+                {{utils.toPoint(regionRefinementRegions.levels)}}
+                {%- elif (regionRefinementRegions.mode == 'distance') -%}
+                    {% for pnt in regionRefinementRegions.levels %} {{utils.toPoint(pnt)}} {% endfor %}
+                {%- else -%}
+                    Invalid mode {{regionRefinementRegions.levels}}, must be inside, outside or distance.
+                {%- endif -%}
+            );
+        }
+                {% endif %}
+            {%- endfor %}
+        {%- endif %}
+    {% endfor %}
     }
-}
 
 snapControls
 {
