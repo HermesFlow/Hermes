@@ -148,7 +148,7 @@ castellatedMeshControls
         {%- endif %}
     {% endfor %}
     }
-
+}
 snapControls
 {
     nSmoothPatch    {{snapControls.nSmoothPatch}};
