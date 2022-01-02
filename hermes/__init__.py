@@ -1,6 +1,7 @@
 __version__=(1,2,0)
 
 """
+    - hermes workflow: Solving the problem of weak-ref in the mongoDB object
     - Adding the special handler {#<token>} in the parsing of the configuration file. 
       The current implementations is: 
             - moduleName that return the name of the current luigi module (i.e workflow name).   

@@ -9,7 +9,14 @@ from hermes.engines import builders
 from hermes.taskwrapper import hermesTaskWrapper
 from hermes.workflow.expandWorkflow import expandWorkflow
 
-class workflow(dict):
+try:
+    import mongoengine.base.datastructures as mongoDataStructures
+    loadedMongo = True
+except ImportError:
+    loadedMongo = False
+
+
+class workflow:
     """
         The role of the workflow task is to load all the tasks and build a network
         of taskWrapper out of a workflow JSON that will actually be initiated in the task engine.
@@ -84,6 +91,13 @@ class workflow(dict):
                 a json of the workflow.
 
         """
+        if (loadedMongo):
+            # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
+            # Here, we catch that object and then severe it from the DB by pronting it to str and reading it again...
+            # a bit ugly but works.
+            if isinstance(workflowJSON,mongoDataStructures.BaseDict):
+                workflowJSON = json.loads(json.dumps(workflowJSON))
+
         if isinstance(workflowJSON,str):
             if os.path.exists(workflowJSON):
                 with open(workflowJSON,"r") as infile:
@@ -217,6 +231,10 @@ class workflow(dict):
         return builders[buildername.lower()].buildWorkflow(self)
 
     @property
+    def json(self):
+        return self._workflowJSON
+
+    @property
     def workflowJSON(self):
         return self._workflowJSON["workflow"]
 
@@ -227,6 +245,17 @@ class workflow(dict):
     @property
     def nodes(self):
         return self.workflowJSON['nodes']
+
+    def keys(self):
+        return self.workflowJSON['nodes'].keys()
+
+    def items(self):
+        for ndeName in self.workflowJSON['nodes'].keys():
+            yield  (ndeName,self[ndeName])
+
+    def values(self):
+        for ndeName in self.workflowJSON['nodes'].keys():
+            yield  self[ndeName]
 
     def __getitem__(self, item):
         """
