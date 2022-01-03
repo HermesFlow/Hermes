@@ -1,22 +1,13 @@
-{#-###########################  -#}
-{#-         Utilities           -#}
-{#-###########################  -#}
-
-{%- macro toVector(vertices) -%}
-  ({%- for coord in vertices %} {{ coord }} {%- endfor %})
-{%- endmacro %}
-
 {#-#############################################-#}
 {#-#############################################-#}
-
-{#-        A marco for the a injectors         -#}
-{#-  ========================================= -#}
-{%- macro injectors(injectorName,injectorData) -%}
-{%  if injectorData.type =='manualInjection' %}
+{#-        A marco for the injectors            -#}
+{#-  =========================================  -#}
+{%- macro injectors(injectorName,injectorData)  -%}
+{%      if injectorData.type =='manualInjection' %}
 {{ManualInjection(injectorName,injectorData)}}
-{%  else %}
+{%      else %}
     UNKNOWN Injector, must be manualInjection
-{% endif %}
+{%      endif %}
 {%- endmacro %}
 
 {#- Injector: A marco for the Manual injection  -#}
@@ -29,11 +20,11 @@
             parcelBasisType {{injectorData.parcelBasisType}};
             nParticle       {{injectorData.nParticle}};
             SOI             {{injectorData.StartOfInjection}};
-            positionsFile   {{injectorData.StartOfInjection}};
+            positionsFile   {{injectorData.positionsFile}};
             U0              {{toVector(injectorData.U0)}};
             sizeDistribution
             {
-                {{sizedistribution(sizeDistribution)}}
+                {{sizedistribution(injectorData.sizeDistribution)}}
             }
         }
     }
@@ -44,14 +35,21 @@
 {#-         A marco for the size distributions       -#}
 {#-  ========================================= -#}
 {%- macro sizedistribution(sizeDistributionData) -%}
-{%  if sizeDistributionData.type =='fixedValue' %}
+{%      if sizeDistributionData.type =='fixedValue' %}
                 type        fixedValue;
                 fixedValueDistribution
                 {
-                    value   {{sizeDistributionData}};
+                    value   {{sizeDistributionData.diameter}};
                 }
-{%  else %}
+{%      else %}
     UNKNOWN sizeDistrubtion, must be fixedValue
-{% endif %}
+{%      endif %}
 {%- endmacro %}
 
+{#-###########################  -#}
+{#-         Utilities           -#}
+{#-###########################  -#}
+
+{%- macro toVector(vertices) -%}
+  ({%- for coord in vertices %} {{ coord }} {%- endfor %})
+{%- endmacro %}

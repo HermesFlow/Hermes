@@ -55,12 +55,13 @@
         {
             patches
             (
-                {%- for patchName,patchData in patchInteractionData.patches.items() %-}
+                {% for patchName,patchData in patchInteractionData.patches.items() %}
                         {{patchName}}
                         {
                             type {{patchData.type}};
                         }
-                {%- endfor -%}
+
+                {%- endfor %}
             )
         }
 {%- endmacro %}
