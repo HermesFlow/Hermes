@@ -15,6 +15,26 @@ examples="$wd/Hermes_git/examples"
 projects="$wd/projects"
 fc_workbench="$wd/Hermes_git/hermes/Resources/workbench"
 
+
+IFACES=$(ifconfig | egrep -e "^en|^eth" | cut -d: -f1)
+[ "$IFACES" ] || \
+    usage "Cannot find a network interface for DISPLAY with ifconfig" \
+          "Please report an issue at http://bugs.openfoam.org" \
+          "    providing the output of the command: ifconfig"
+
+for I in $IFACES
+do
+    IP=$(ifconfig "$I" | grep inet | awk '$1=="inet" {print $2}')
+    [ "$IP" ] && break
+done
+
+[ "$IP" ] || \
+    usage "Cannot find a network IP for DISPLAY with ifconfig" \
+          "Please report an issue at http://bugs.openfoam.org" \
+          "    providing the output of the command: ifconfig"
+
+xhost + "$IP"
+
 docker run -it --rm \
 -v "$fc_build":/mnt/build \
 -v "$examples":/mnt/examples \
