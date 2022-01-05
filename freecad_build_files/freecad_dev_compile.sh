@@ -10,11 +10,12 @@ wd=`dirname "$me"`
 
 fc_source="$wd/source"
 fc_build="$wd/build"
+fc_build_files="$wd/Hermes_git/freecad_build_files/"
+fc_resources="$wd/Hermes_git/freecad_Resources/"
+fc_workbench="$wd/Hermes_git/hermes/Resources/workbench"
 hermes="$wd/Hermes_git/hermes"
 examples="$wd/Hermes_git/examples"
 projects="$wd/projects"
-fc_build_files="$wd/Hermes_git/freecad_build_files/"
-fc_workbench="$wd/Hermes_git/hermes/Resources/workbench"
 
 
 IFACES=$(ifconfig | egrep -e "^en|^eth" | cut -d: -f1)
@@ -39,6 +40,7 @@ xhost + "$IP"
 docker run -it --rm \
 -v "$fc_source":/mnt/source \
 -v "$fc_build":/mnt/build \
+-v "$fc_resources":/mnt/build/data/Mod/Hermes/Resources \
 -v "$examples":/mnt/examples \
 -v "$hermes":/mnt/build/hermes \
 -v "$projects":/mnt/projects \
