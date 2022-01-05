@@ -110,7 +110,7 @@ setup_docker() {
 #Docker launch scripts
 setup_docker_launch() {
     res=0
-    for dockerscript in docker.sh docker_dev.sh docker_dev_compile.sh; do
+    for dockerscript in freecad.sh freecad_dev.sh freecad_dev_compile.sh; do
         cat "$DESTINATION_FULL/Hermes_git/freecad_build_files/$dockerscript"   | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DESTINATION_FULL/$dockerscript" || res=1
         if [ ! $res -eq 0 ]; then
             echo "Docker launch script \"$dockerscript\" creation failed"
@@ -296,9 +296,9 @@ FREECAD_SOURCE_PATCH="$DESTINATION_FULL/Hermes_git/freecad_5a352ea63_git.diff"
 mkdir -p "$DESTINATION_FULL"
 cd "$DESTINATION_FULL"
 
-DOCKER="$DESTINATION_FULL/docker.sh"
-DOCKER_DEV="$DESTINATION_FULL/docker_dev.sh"
-DOCKER_DEV_COMPILE="$DESTINATION_FULL/docker_dev_compile.sh"
+DOCKER="$DESTINATION_FULL/freecad.sh"
+DOCKER_DEV="$DESTINATION_FULL/freecad_dev.sh"
+DOCKER_DEV_COMPILE="$DESTINATION_FULL/freecad_dev_compile.sh"
 
 git_pull "$HERMES_REPO" Hermes_git || myexit
 
