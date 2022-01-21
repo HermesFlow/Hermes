@@ -49,9 +49,9 @@
 {#- patch interaction: A macro for the local  -#}
 {#- -----------------------------------------  -#}
 {%- macro LocalInteraction(patchInteractionData) -%}
-        patchInteractionModel LocalInteraction;
+        patchInteractionModel localInteraction;
 
-        LocalInteractionCoeffs
+        localInteractionCoeffs
         {
             patches
             (
@@ -62,6 +62,6 @@
                         }
 
                 {%- endfor %}
-            )
+            );
         }
 {%- endmacro %}

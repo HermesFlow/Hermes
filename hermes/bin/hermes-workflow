@@ -68,8 +68,7 @@ def handler_execute(arguments):
     #os.chdir(cwd)
 
 
-def handler_runWorkflow(arguments):
-
+def handler_buildExecute(arguments):
 
     arguments.caseName = arguments.workflow
 
@@ -121,7 +120,7 @@ if __name__ == "__main__":
     #parser_execute.add_argument('executter', default="luigi", type=str, help="Execution engine: luigi")
 
 
-    parser_runWorkflow = subparsers.add_parser('runWorkflow', help='Expands, builds and executes the workflow JSON')
+    parser_runWorkflow = subparsers.add_parser('buildExecute', help='Expands, builds and executes the workflow JSON')
     parser_runWorkflow.add_argument('workflow', type=str, help="base workflow")
 #    parser_runWorkflow.add_argument('caseName', default=None, type=str, help="the name of the case to run. If None, use the workflow base name")
     parser_runWorkflow.add_argument('--force',dest="force", default=False, action="store_true", help="If exist, delete the execution files first")

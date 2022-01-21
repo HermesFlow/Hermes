@@ -1,0 +1,20 @@
+{
+  "Execution": {
+    "type": "openFOAM.constantExecuters.g",
+    "input_parameters": {
+      "g" : {
+        "x" : 0,
+        "y" : 0,
+        "z" : -9.81
+      }
+    }
+  },
+  "GUI": {
+    "Type": "WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.constant.WebGui.turbulencePropertiesWebGui"
+    }
+  }
+}

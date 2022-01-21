@@ -1,30 +1,31 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
+    version     7.0;
     format      ascii;
     class       dictionary;
-    object      RASProperties;
+    location    "system";
+    object      Neutral2018Dict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType {{simulationType}};
+C0              [0 0 0 0 0 0 0] {{C0}};
 
-{% if simulationType !='laminar' %}
-{{simulationType}}
-{
-    {{simulationType}}Model     {{Model}};
+_g              [0 1 -2 0 0 0 0] {{g}};
 
-    {{ 'turbulence   on;' if turbulence else 'turbulence    off;' }}
+fc          	[0 0 -1 0 0 0 0] {{coriolisFactor}};
 
-    {{ 'printCoeffs  on;' if printCoeffs else 'printCoeffs   off;' }}
+zd              [0 1 0 0 0 0 0] {{zd}};
 
-}
-{% endif %}
+Qh              [0 -1 1 1 0 0 0] {{Qh}};
+
+T0              [0 0 0 1 0 0 0] {{T0}};
+
+stable {% if stable %}false {% else %} true{% endif %};
 // ************************************************************************* //
