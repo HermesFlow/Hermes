@@ -7,7 +7,7 @@
         }
     },
     "GUI": {
-        "Type": "WebGuiNode",
+        "Type": "general.HermesGeneral.RunOsCommand",
         "Properties": {
             "ChooseMethod": {
                 "prop": "ChooseMethod",

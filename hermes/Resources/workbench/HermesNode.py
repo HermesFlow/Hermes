@@ -5,13 +5,12 @@ if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
-    import PySide
     # from PySide import QtGui, QtCore
     # from PySide.QtGui import *
     # from PySide.QtCore import *
 
 # python modules
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtCore
 import json
 import pydoc
 import os
@@ -20,24 +19,14 @@ import copy
 # Hermes modules
 import HermesTools
 from HermesTools import addObjectProperty
-import HermesGeometryDefinerNode
-import HermesPart
-import Draft
-from HermesBlockMesh import HermesBlockMesh
+# from BC.HermesBC import _ViewProviderNodeBC
 
-
+# ********************************************************************
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
-    test = pydoc.locate('HermesNode._HermesNode')
-    # test = pydoc.locate('HermesGui._HermesNode')
-
-    if test is None:
-        FreeCAD.Console.PrintMessage("Not found\n")
-
-    # Object with option to have children
+    # Group object with option to have children
     obj = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroupPython", name)
-    # print ("HermesNode make node\n")
 
     #    # Object can not have children
     #    obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython", name)
@@ -46,19 +35,28 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     workflowObj.addObject(obj)
 
     # ----------------dynamic find class--------------------
-
+    nodecls = None
     # find the class of the node from the its type
-    # nodecls = pydoc.locate("HermesGui." + nodeData["Type"])
-    nodecls = pydoc.locate("HermesNode." + '_' + nodeData["Type"])
-    if nodecls is None:
-        nodecls = pydoc.locate("HermesSnappyHexMesh." + '_' + nodeData["Type"])
+    try:
+        nodecls = pydoc.locate(nodeData["Type"])
+    except:
+        # in case pydoc couldn't find the class, try with another method
+        import importlib
+        workbencj_path = "hermes.Resources.workbench"
+        path = nodeData["Type"]
 
+        # join and make sure path with '.'
+        path = os.path.join(workbencj_path, path)
+        path = path.replace("/", ".")
 
+        module_name, class_name = path.rsplit(".", 1)
+        try:
+            # FreeCAD.Console.PrintMessage("module_name = " + module_name + "\n")
+            # FreeCAD.Console.PrintMessage("class_name = " + class_name + "\n")
+            nodecls = getattr(importlib.import_module(module_name), class_name)
+        except Exception:  # if error detected to write
+            FreeCAD.Console.PrintError("Error locating class" + class_name + "\n")
 
-
-    #    # if the class is not exist, create a new class
-    #    if nodecls is None:
-    #        nodecls = pydoc.locate("HermesGui.%s" % nodeData["Type"])
 
     # call to the class
     if nodecls is not None:
@@ -66,24 +64,26 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         obj.Proxy.initializeFromJson(obj)
 
-        if (nodeData["Type"] == 'BCNode') or (nodeData["Type"] == 'BCGeometryNode') or (nodeData["Type"] == 'BCFieldNode'):
-            if FreeCAD.GuiUp:
-                _ViewProviderNodeBC(obj.ViewObject)
-        else:
-            if FreeCAD.GuiUp:
+        if FreeCAD.GuiUp:
+            if "BC" in nodeData["Type"]:
+                BC_view = pydoc.locate("hermes.Resources.workbench.BC.HermesBC._ViewProviderNodeBC")
+                BC_view(obj.ViewObject)
+            else:
                 _ViewProviderNode(obj.ViewObject)
+
         FreeCAD.ActiveDocument.recompute()
+    else:
+        FreeCAD.Console.PrintWarning("Could not locate node name = " + name + ": ")
+        FreeCAD.Console.PrintWarning("nodeData['Type'] = " + nodeData["Type"] + "\n")
 
     return obj
 
 
 # **********************************************************************
 class _CommandHermesNodeSelection:
-    """ CFD physics selection command definition """
+    """ Hermes Node selection command definition """
 
     def GetResources(self):
-        # ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-        # icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
         icon_path = os.path.join(FreeCAD.getResourceDir(), "Mod", "Hermes", "Resources", "icons", "NewNode.png")
 
         return {'Pixmap': icon_path,
@@ -98,7 +98,7 @@ class _CommandHermesNodeSelection:
         isPresent = False
         members = HermesTools.getActiveHermes().Group
         for i in members:
-            if isinstance(i.Proxy, _HermesNode):
+            if isinstance(i.Proxy, HermesNode):
                 FreeCADGui.activeDocument().setEdit(i.Name)
                 isPresent = True
 
@@ -130,12 +130,10 @@ class _SlotHandler:
 # =============================================================================
 # Hermes Node class
 # =============================================================================
-class _HermesNode(_SlotHandler):
+class HermesNode(_SlotHandler):
     """ The Hermes Node """
 
-    #    def __init__(self, obj, nodeId,nodeData):
     def __init__(self, obj, nodeId, nodeData, name):
-
         obj.Proxy = self
         self.nodeId = nodeId
         self.nodeData = nodeData
@@ -143,6 +141,10 @@ class _HermesNode(_SlotHandler):
         self.initProperties(obj)
 
     def initializeFromJson(self, obj):
+        '''
+            Takes the properties from JSON and update its value
+             at the FreeCAD object
+        '''
 
         # get list of properties from nodeData
         NodeProperties = self.nodeData["Properties"]
@@ -172,19 +174,12 @@ class _HermesNode(_SlotHandler):
             # get the current_val at the prop
             setattr(obj, prop, current_val)
 
-        # additional properties RunOsCommand node
-        if self.name == "RunOsCommand":
-
-            # get the choosen methon
-            method = getattr(obj, "ChooseMethod")
-
-            # make read only the property that hasnt been choosen
-            if method == "Commands list":
-                obj.setEditorMode("batchFile", 1)  # Make read-only
-            elif method == "batchFile":
-                obj.setEditorMode("Commands", 1)  # Make read-only
-
     def initProperties(self, obj):
+        '''
+            Creates the properties of the FreeCAD object
+            static properties  - basic properties for each node
+            dynamic properties - special properties defined at the JSON file
+        '''
 
         # ^^^ Constant properties ^^^
 
@@ -264,6 +259,10 @@ class _HermesNode(_SlotHandler):
             addObjectProperty(obj, prop, init_val, Type, Heading, tooltip)
 
     def onDocumentRestored(self, obj):
+        '''
+            When a FreeCAD document is restored (opened after been saving
+            as a FreeCAD file), it updates the following things in the Node
+        '''
 
         workflowObj = obj.getParentGroup()
 
@@ -284,6 +283,11 @@ class _HermesNode(_SlotHandler):
         return
 
     def doubleClickedNode(self, obj):
+        '''
+            Activated when doubleClick on node
+            - updates its data
+            - turn the node Active
+        '''
 
         # get "workflowObj" from been parent of the node obj
         workflowObj = self.getRootParent(obj)
@@ -310,6 +314,9 @@ class _HermesNode(_SlotHandler):
         pass
 
     def UpdateNodePropertiesData(self, obj):
+        '''
+            Update the properties from FreeCAD node into the JSON
+        '''
         # update the properties in the "nodeData"
         # use this func before exporting Json
 
@@ -348,8 +355,10 @@ class _HermesNode(_SlotHandler):
         return
 
     def RemoveNodeObj(self, obj):
-        # remove NodeObj Children
-        # use when importing new json file
+        '''
+            remove NodeObj Children
+            use when importing new json file
+        '''
         for child in obj.Group:
             child.Proxy.RemoveNodeObj(child)
             obj.Document.removeObject(child.Name)
@@ -376,18 +385,25 @@ class _ViewProviderNode:
 
 
     def getIcon(self):
+        '''
+            Defines the icon in the combo tree
+        '''
         # Define Resource dir end with ','
         ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
                                                       -1] == '/' else FreeCAD.getResourceDir() + "/"
         if self.NodeObjType is None:
             return 
 
-        if self.NodeObjType == "WebGuiNode" or self.NodeObjType == "SnappyHexMeshCastellatedMeshControls" or self.NodeObjType == 'SnappyHexMesh' or self.NodeObjType == "FvSolution" or self.NodeObjType == "FvSchemes":
+        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "copyFile", "RunOsCommand", "RunPythonCode"]
+        bool_webGuinodes = [True for node in webGuiNodes if node in self.NodeObjType]
+
+        if True in bool_webGuinodes:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/Web.png"
-        elif self.NodeObjType == "GeometryDefinerNode":
+        elif "GeometryDefinerNode" in self.NodeObjType:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
         else:
             icon_path = ResourceDir + "Mod/Hermes/Resources/icons/NewNode.png"
+
 
         return icon_path
 
@@ -397,37 +413,46 @@ class _ViewProviderNode:
         self.bubbles = None
 
     def updateData(self, obj, prop):
+        '''
+            When a FreeCAD object's property has been update,
+            it checks if any thing else need to be handle, and do so
+        '''
+
         # We get here when the object of Node changes
+        fname = "_handle_%s" % str(prop)
 
-        # Check if the JSONFile parameter changed and its not empty path
-        # =============================================================================
-        #         #not in use, just an example
-        #         if (str(prop) == 'Label' and len(str(obj.Label)) > 0):
-        #             obj.Proxy.changeLabel()
-        #             return
-        # =============================================================================
+        if hasattr(self, fname):
+            getattr(self, fname)(obj)
 
-        if (str(prop) == 'ExportNodeJSONFile' and len(str(obj.ExportNodeJSONFile)) > 0):
+    def _handle_ExportNodeJSONFile(self, obj):
+        ''' update the data into JSON var, then export it '''
+        if len(str(obj.ExportNodeJSONFile)) > 0:
             # get "workflowObj" from been parent of the node obj
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.prepareJsonVar(workflowObj, obj.Name)
             workflowObj.Proxy.saveJson(workflowObj, obj.ExportNodeJSONFile, obj.Label)
             obj.ExportNodeJSONFile = ''
 
-        if (str(prop) == 'RunNodeWorkflow' and (obj.RunNodeWorkflow)):
+    def _handle_RunNodeWorkflow(self, obj):
+        ''' update the data into JSON , then run workflow'''
+        if obj.RunNodeWorkflow:
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.prepareJsonVar(workflowObj, obj.Name)
             workflowObj.Proxy.RunworkflowCreation(workflowObj)
 
-        if (str(prop) == 'RunNodeLuigi' and (obj.RunNodeLuigi)):
+    def _handle_RunNodeLuigi(self, obj):
+        ''' make sure workflow is updated and run luigi '''
+        if obj.RunNodeLuigi and obj.RunNodeWorkflow:
             workflowObj = obj.getParentGroup()
             workflowObj.Proxy.RunLuigiScript()
 
-            # ----------------------------------------------------------------------------------
-
-        # edit properties RunOsCommand node
-        if str(prop) == "ChooseMethod" and obj.Name == "RunOsCommand":
-
+    def _handle_ChooseMethod(self, obj):
+        '''
+            update the method RunOsCommand works
+            - command list
+            - batchfile
+        '''
+        if obj.Name == "RunOsCommand":
             # get the choosen methon
             method = getattr(obj, "ChooseMethod")
 
@@ -436,39 +461,37 @@ class _ViewProviderNode:
                 obj.setEditorMode("batchFile", 1)  # Make read-only
                 obj.setEditorMode("Commands", 0)  # read/write
 
-
             elif method == "batchFile":
                 obj.setEditorMode("Commands", 1)  # Make read-only
                 obj.setEditorMode("batchFile", 0)  # read/write
 
-                # ----------------------------------------------------------------------------------
-
+    def _handle_partLink(self, obj):
+        '''
+            update the partLink property of BlockMesh(and its References)
+        '''
         if obj.Label == 'BlockMesh':
-            if prop == "partLink":
+            # in case its initialized from Json stage, avoid overide data
+            if obj.Proxy.initBMflag and (not obj.Proxy.BMcount):
+                return
 
-                # in case its initialized from Json stage, avoid overide data
-                #
-                if obj.Proxy.initBMflag and (not obj.Proxy.BMcount):
-                    return
+            print("viewProvider, updateData")
+            # get the part object using prop
+            partobj = getattr(obj, "partLink")
 
-                print("viewProvider, updateData")
-                # get the part object using prop
-                partobj = getattr(obj, prop)
+            # set the BlockMesh partlink  at each child
+            for child in obj.Group:
+                setattr(child, "partLink", partobj)
+                setattr(child, "References", [])
 
-                # set the BlockMesh partlink  at each child
-                for child in obj.Group:
-                    setattr(child, prop, partobj)
-                    setattr(child, "References", [])
+            # also update part name in peoperties
+            if partobj is None:
+                setattr(obj, "partName", "")
+            else:
+                setattr(obj, "partName", partobj.Name)
 
-                # also update part name in peoperties
-                if partobj is None:
-                    setattr(obj, "partName", "")
-                else:
-                    setattr(obj, "partName", partobj.Name)
+            obj.Proxy.BMcount += 1
 
-                obj.Proxy.BMcount += 1
 
-    #    def onChanged(self,obj, vobj, prop):
     def onChanged(self, vobj, prop):
 
         # not in use, just an example
@@ -477,6 +500,12 @@ class _ViewProviderNode:
             return
 
     def doubleClicked(self, vobj):
+        '''
+            Activated when doubleClicking on the node
+            - call to the object handle doubleclicking function
+            - recompute in small delay for FreeCAD display
+        '''
+
         if vobj is None:
             return
 
@@ -487,7 +516,12 @@ class _ViewProviderNode:
         QtCore.QTimer.singleShot(350, vobj.Object.touch)
 
     def __getstate__(self):
-        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __getstate__ \n")
+        '''
+            Activate when saving the document as FreeCAD file
+            saving the project "Hermesworkflow" in array ,including 2 variebelles,
+                state[0]= Name of the Node Object
+                state[1]= nodeDataString - the last uppdated Json string before saving.
+        '''
 
         # Create NodeObj using Object name
         NodeObj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
@@ -502,20 +536,15 @@ class _ViewProviderNode:
         # get the last updated NodeDataString
         getNodeString = NodeObj.NodeDataString
 
-        # FreeCAD.ActiveDocument.recompute()
-        # FreeCAD.Gui.SendMsgToActiveView('Refresh')
-
         # return an array with NodeObj name and the updated NodeDataString -
         # it will be recieved by "__setstate__" when opening the project
         return [self.NodeObjName, getNodeString]
 
     def __setstate__(self, state):
-        # FreeCAD.Console.PrintMessage("_ViewProviderNode: def __setstate__ \n")
-
-        #    #state - recieved from 'getstate', while saving the project "Hermesworkflow"
-        #        type :array ,including 2 variebelles,
-        #             state[0]= Name of the Node Object
-        #             state[1]= nodeDataString - the last uppdated Json string before saving.
+        ''' state - recieved from 'getstate', while saving the project "Hermesworkflow"
+                type :array ,including 2 variebelles,
+                     state[0]= Name of the Node Object
+                     state[1]= nodeDataString - the last uppdated Json string before saving.'''
 
         NodeObjName = state[0]
         nodeDataString = state[1]
@@ -532,22 +561,26 @@ class _ViewProviderNode:
 
 
 # =============================================================================
-# #_WebGuiNode
+# #WebGuiNode
 # =============================================================================
-class _WebGuiNode(_HermesNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
+class WebGuiNode(HermesNode):
+    '''
+        handle the webGui nodes
+    '''
 
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
     def doubleClickedNode(self, obj):
         super().doubleClickedNode(obj)
-
         self.selectNode(obj)
 
-
     def selectNode(self, obj):
+        '''
+            send the data from node webGui data, to the jsonRecat -
+            'jsonReactWebGui.html' file. The a browser is opened in FreeCAD
+            and dislay the data
+        '''
 
         # get node WebGui- Scheme,uiScheme,FormData
         nodeWebGUI = self.nodeData["WebGui"]
@@ -578,6 +611,10 @@ class _WebGuiNode(_HermesNode):
         return
 
     def process(self, data):
+        '''
+            get the updated data from 'jsonReactWebGui.html', and save
+            it to the node webGui.formData
+        '''
 
         UpdateWebGUI = data
         #        FreeCAD.Console.PrintMessage("WebGUI Process Data\n" + str(data))
@@ -592,12 +629,12 @@ class _WebGuiNode(_HermesNode):
         # first update the node
         self.nodeData["WebGui"] = UpdateWebGUIJson
 
-        # formData = UpdateWebGUIJson["formData"]
-        # FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
-        # FreeCAD.Console.PrintMessage("backup--nodedata.webgui['formData']="+str(formData)+"\n")
-        # FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
+        # self.print_formData()
 
     def backupNodeData(self, obj):
+        '''
+            backup the data from FreeCAD object to its JSON
+        '''
         # backup the data of the last node pressed
         super().backupNodeData(obj)
 
@@ -605,1244 +642,24 @@ class _WebGuiNode(_HermesNode):
         obj.NodeDataString = json.dumps(self.nodeData)
 
     def jsonToJinja(self, obj):
-        if obj.Name == "ControlDict":
-            return dict(values="{WebGui.formData}")
-        elif "formData" in self.nodeData["WebGui"]:
+        '''
+            update the Execution.input_parameters JSON data
+        '''
+        # if obj.Name == "ControlDict":
+        #     return dict(values="{WebGui.formData}")
+        if "formData" in self.nodeData["WebGui"]:
             return self.nodeData["WebGui"]["formData"]
         else:
             return None
 
+    def print_formData(self):
+        '''
+            help funtion -> prints the formData of the node
+        '''
+        formData = self.nodeData["WebGui"]["formData"]
+        FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
+        FreeCAD.Console.PrintMessage("print_formData of node " + self.name +"\n")
+        FreeCAD.Console.PrintMessage("['formData']="+str(formData)+"\n")
+        FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
 
-# =============================================================================
-# _BCNode
-# =============================================================================
-class _BCNode(_WebGuiNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
 
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-        self.iconColor = "red"
-
-        workflowObj = self.getRootParent(obj)
-
-        # self.updateBCNodeFields(workflowObj.CalculatedFields, obj)
-
-    def selectNode(self, obj):
-        self.updateBCPartList(obj)
-        super().selectNode(obj)
-
-
-    def updateNodeFields(self, fieldList, obj):
-
-        for bcObj in obj.Group:
-            bcObj.Proxy.updateNodeFields(fieldList, bcObj)
-
-
-    def updateBCPartList(self, obj):
-
-        workflowObj = self.getRootParent(obj)
-        nodesPartList = list()
-        nodesObjList = list()
-
-        # create bc nodes to these geometries
-        # get each node geometries
-        for node in self.nodeData["GeometriesSource"]:
-            split_node = node.split('.')
-
-            # case it is first order node
-            if len(split_node) == 1:
-                nodeGroup = FreeCAD.ActiveDocument.getObject(node)
-            # case of inner node holding the geometries
-            elif len(split_node) > 1:
-                treeObjList = [FreeCAD.ActiveDocument.getObject(node) for node in split_node]
-                treeObjList.reverse()
-                i = 0
-                while len(treeObjList) > 1:
-                    if treeObjList[i] in treeObjList[i + 1].Group:
-                        if i == 0:
-                            nodeGroup = treeObjList[i]
-
-                        treeObjList.remove(treeObjList[i])
-                    else:
-                        FreeCAD.Console.PrintWarning("node " + node + "has not been found \n")
-                    i = i + 1
-
-
-            nodePartList = list()
-            # get node and BC part list
-            for nodeObj in nodeGroup.Group:
-                if nodeObj.Module == 'Part':
-                    # nodePartList.append(nodeObj)
-                    nodePartList.append(nodeObj.Name)
-                else:
-                    # part = FreeCAD.ActiveDocument.getObject(nodeObj.partLinkName)
-                    part = nodeObj.partLinkName
-                    # if part is not None:
-                    if len(part) > 0:
-                        nodePartList.append(part)
-
-            nodesPartList += nodePartList
-            nodesObjList.append(nodeGroup)
-
-        # BCpartList = [FreeCAD.ActiveDocument.getObject(BCobj.partLinkName) for BCobj in obj.Group if len(BCobj.partLinkName) > 0]
-        BCpartList = [BCobj.partLinkName for BCobj in obj.Group if len(BCobj.partLinkName) > 0]
-
-        # compare the list - check if need to delete or add objects
-        add_list = [part for part in nodesPartList if part not in BCpartList]
-        del_list = [part for part in BCpartList if part not in nodesPartList]
-
-
-        # get Hermes workflow
-
-
-
-        # for nodeGroup in nodesObjList:
-            # create a new bc geometry object
-        if len(add_list) > 0:
-            for partName in add_list:
-                # part = FreeCAD.ActiveDocument.getObject(partName)
-
-                # bc_part_name = "bc_" + self.getNodeLabel(part, nodeGroup)
-                bc_part_name = "bc_" + self.getNodeLabel(partName, nodesObjList)
-                bc_part_obj = makeNode(bc_part_name, obj, str(0), copy.deepcopy(self.nodeData["Templates"]["BCGeometry"]))
-                if bc_part_obj is None:
-                    FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
-
-                bc_part_obj.partLinkName = partName
-                bc_part_obj.Proxy.updateNodeFields(workflowObj.CalculatedFields, bc_part_obj)
-
-         # remove bc geometry objects
-        if len(del_list) > 0:
-            for partName in del_list:
-                for bcPart in BCpartList:
-                    if bcPart == partName:
-
-                        bcPartObj = self.getDelNode(partName, obj)
-                        for child in bcPartObj.Group:
-                            obj.Document.removeObject(child.Name)
-                        obj.Document.removeObject(bcPartObj.Name)
-
-    def getNodeLabel(self, partName, nodeGroupList):
-        for nodeGroup in nodeGroupList:
-            for node in nodeGroup.Group:
-                if node.Name == partName:
-                    return node.Label
-                elif 'partLinkName' in node.PropertiesList:
-                    if partName == node.partLinkName:
-                        return node.Label
-        return None
-
-    def getDelNode(self, partName, obj):
-        for child in obj.Group:
-            if child.partLinkName == partName:
-                return child
-        return None
-
-    def getIconColor(self, obj):
-        if len(obj.Group) == 0:
-            self.iconColor = 'red'
-            return 'red'
-
-        # colorList = [child.Proxy.iconColor for child in obj.Group]
-        colorList = [child.Proxy.getIconColor(child) for child in obj.Group]
-
-        # FreeCAD.Console.PrintMessage("BC.getIconColor: colorList = "+ str(colorList) + "\n")
-
-
-        countRed = 0
-        countGreen = 0
-        for color in colorList:
-            if color == 'green':
-                countGreen += 1
-            if color == 'red':
-                countRed += 1
-
-        iconColor = ""
-        if countGreen == len(colorList):
-            iconColor = "green"
-        elif countRed == len(colorList):
-            iconColor = "red"
-        else:
-            iconColor = "yellow"
-
-        self.iconColor = iconColor
-        return iconColor
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-        # FreeCADGui.doCommand("FreeCAD.ActiveDocument.getObject('" + obj.Name + "').enforceRecompute()")
-        # FreeCADGui.doCommand("FreeCAD.ActiveDocument.getObject('" + obj.Name + "').recompute()")
-
-
-
-    def onDocumentRestored(self, obj):
-
-        workflowObj = obj.getParentGroup()
-
-        # parse json data
-        self.nodeData = json.loads(obj.NodeDataString)
-
-        # when restored- initilaize properties
-        self.initProperties(obj)
-
-        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
-
-        if FreeCAD.GuiUp:
-            _ViewProviderNodeBC(obj.ViewObject)
-
-    def jsonToJinja(self, obj):
-
-        HermesWorkflow = self.getRootParent(obj)
-        jinja = dict()
-        # loop all fields defined
-        for field in HermesWorkflow.CalculatedFields:
-            obj_field = dict()
-            # loop each geom and get its field BC data
-            for geom in obj.Group:
-                geom_fields = geom.Group
-                for cf in geom_fields:
-                    if field in cf.Name:
-                        part = FreeCAD.ActiveDocument.getObject(geom.partLinkName)
-                        formData = cf.Proxy.nodeData["WebGui"]["formData"]
-                        obj_jinja = dict()
-                        for key, value in formData.items():
-                            if "type" in key:
-                                obj_jinja["type"] = value
-                            else:
-                                obj_jinja[key] = value
-                        obj_field[part.Label] = obj_jinja
-
-            jinja[field] = copy.deepcopy(obj_field)
-
-        # FreeCAD.Console.PrintMessage("BC jinja = " + str(jinja) + "\n")
-        return dict(fields=jinja)
-
-# =============================================================================
-# _BCGeometryNode
-# =============================================================================
-class _BCGeometryNode(_WebGuiNode):
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-        self.iconColor = "red"
-
-    def initProperties(self, obj):
-        super().initProperties(obj)
-
-        # Is Avtive property- Boolean -keep if obj has been activated (douuble clicked get active)
-        addObjectProperty(obj, "colorFlag", False, "App::PropertyBool", "", "update color flag")
-        obj.setEditorMode("colorFlag", 2)  # Make read-only (2 = hidden)
-
-
-
-    def getIconColor(self, obj):
-        if len(obj.Group) == 0:
-            self.iconColor = 'red'
-            return 'red'
-
-        # colorList = [child.Proxy.iconColor for child in obj.Group]
-        colorList = [child.Proxy.getIconColor(child) for child in obj.Group]
-
-        # FreeCAD.Console.PrintMessage("BCGeometryNode.getIconColor: colorList = "+ str(colorList) + "\n")
-
-        countRed = 0
-        countGreen = 0
-        for color in colorList:
-            if color == 'green':
-                countGreen += 1
-            if color == 'red':
-                countRed += 1
-
-        iconColor = "red"
-        if countGreen == len(colorList):
-            iconColor = "green"
-        elif countRed == len(colorList):
-            iconColor = "red"
-        else:
-            iconColor = "yellow"
-
-        self.iconColor = iconColor
-        return iconColor
-
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-
-    def onDocumentRestored(self, obj):
-
-        workflowObj = obj.getParentGroup()
-
-        # parse json data
-        self.nodeData = json.loads(obj.NodeDataString)
-
-        # when restored- initilaize properties
-        self.initProperties(obj)
-
-        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
-
-        if FreeCAD.GuiUp:
-            _ViewProviderNodeBC(obj.ViewObject)
-
-    def updateNodeFields(self, fieldList, bcObj):
-
-        # get part from Name
-        part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
-
-        # get the Field name from the bc_field obj - remove the "part_" from obj label
-        # BCfieldList = [bcField.Label.replace(part.Label + '_', '') for bcField in bcObj.Group]
-        BCfieldList = list()
-        for bcField in bcObj.Group:
-            # remove the "part_" from obj label
-            field = bcField.Label.split('_')[-1]
-
-            # remove spaces
-            field.replace(" ", "")
-
-            if len(field) > 0:
-                BCfieldList.append(field)
-
-        # remove spaces from Hermes field list
-        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
-
-        # create list of items need to be added or removed from webGui
-        add_list = [field for field in fieldList if field not in BCfieldList]
-        del_list = [field for field in BCfieldList if field not in fieldList]
-
-
-        parent = bcObj.getParentGroup()
-
-        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
-        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCField] = " + str(self.nodeData["Templates"]["BCField"]) + "\n")
-
-        # create a new bc geometry object
-        if len(add_list) > 0:
-            for field in add_list:
-                bc_field_obj = makeNode(part.Label + "_" + field, bcObj, str(0), copy.deepcopy(parent.Proxy.nodeData["Templates"]["BCField"]))
-
-                bc_field_nodeData = bc_field_obj.Proxy.nodeData
-                bc_field_nodeData["WebGui"]["Schema"]["title"] = field + " - " + part.Label
-                bc_field_nodeData["WebGui"]["Schema"]["description"] = "Defined " + field + " Boundary condition for the part."
-                bc_field_obj.Proxy.nodeData = bc_field_nodeData
-
-        # remove fields from webGui
-        for field in del_list:
-            for bcField in bcObj.Group:
-                if field in bcField.Label:
-                    bcObj.Document.removeObject(bcField.Name)
-
-
-# =============================================================================
-# _BCFieldNode
-# =============================================================================
-class _BCFieldNode(_WebGuiNode):
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-        self.iconColor = "red"
-
-    def getIconColor(self, obj):
-        webGui = obj.Proxy.nodeData["WebGui"]
-        formData = webGui["formData"]
-        color = "red"
-
-        if len(webGui["formData"]) == 0:
-            self.iconColor = "red"
-            return 'red'
-        else:
-            typeBC = formData["typeBC"]
-            if typeBC == "notSet":
-                self.iconColor = "red"
-                return 'red'
-            else:
-                color = self.compareSchemeFormData(webGui)
-
-        self.iconColor = color
-        return color
-
-    def compareSchemeFormData(self,webGui):
-        schema = webGui["Schema"]
-        formData = copy.deepcopy(webGui["formData"])
-
-        # take the properties keys from the schemes - in case there will be more properties but typeBC
-        scheme_list = list(schema["properties"].keys())
-
-        if "typeBC" not in formData:
-            return 'red'
-
-        typeBC = formData["typeBC"]
-        # take the properties keys from the dependencies
-        dependencies = schema["dependencies"]
-        for depend in dependencies["typeBC"]["oneOf"]:
-            if depend["properties"]["typeBC"]["enum"][0] == typeBC:
-                depend_list = list(depend["properties"].keys())
-                lenDependList = len(depend_list)
-                scheme_list += depend_list
-
-        # remove duplication from list
-        scheme_list = list(dict.fromkeys(scheme_list))
-
-        # remove typeBC from both scheme_list and formData
-        scheme_list.remove("typeBC")
-        formData.pop("typeBC")
-
-        # FreeCAD.Console.PrintMessage("compareSchemeFormData: scheme_list = " + str(scheme_list) + "\n")
-        # FreeCAD.Console.PrintMessage("compareSchemeFormData: formData = " + str(list(formData.keys())) + "\n")
-
-
-        # take only the keys in both formData and scheme
-        # (the formData keep all extra properties added from specific typeBC Enum. In case of changing the enum it will display former fill in)
-        # diff_scheme = [key for key in scheme_list if key in formData]
-        same_formData = [key for key in formData if key in scheme_list]
-        # diff_formData = [key for key in formData if key not in scheme_list]
-
-        # FreeCAD.Console.PrintMessage("compareSchemeFormData: same_formData = " + str(same_formData) + "\n")
-
-        if lenDependList == 1:
-            return 'green'
-        elif len(same_formData) == len(scheme_list):
-            return 'green'
-        elif len(same_formData) < len(scheme_list):
-            return 'yellow'
-
-        FreeCAD.Console.PrintMessage("compareSchemeFormData - got to the last return")
-
-        return 'red'
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-
-
-    def onDocumentRestored(self, obj):
-
-        workflowObj = obj.getParentGroup()
-
-        # parse json data
-        self.nodeData = json.loads(obj.NodeDataString)
-
-        # when restored- initilaize properties
-        self.initProperties(obj)
-
-        FreeCAD.Console.PrintMessage("Node " + obj.Name + " onDocumentRestored\n")
-
-        if FreeCAD.GuiUp:
-            _ViewProviderNodeBC(obj.ViewObject)
-
-
-# =============================================================================
-#      "_ViewProviderNodeBC" class
-# =============================================================================
-class _ViewProviderNodeBC(_ViewProviderNode):
-
-    def getIcon(self):
-        # Define Resource dir end with ','
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
-                                                      -1] == '/' else FreeCAD.getResourceDir() + "/"
-
-
-        obj = FreeCAD.ActiveDocument.getObject(self.NodeObjName)
-
-        color = obj.Proxy.getIconColor(obj)
-
-        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC.getIcon: self.NodeObjName = " + self.NodeObjName + "; color = "+ color +"\n")
-
-        if color == 'red':
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/red_ball.png"
-        elif color == 'yellow':
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/yellow_ball.png"
-        elif color == 'green':
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/green_ball.png"
-        else:
-            icon_path = ResourceDir + "Mod/Hermes/Resources/icons/blue_ball.png"
-
-        # FreeCAD.Console.PrintMessage("_ViewProviderNodeBC - getIcon \n")
-        # QtCore.QTimer.singleShot(1000, FreeCAD.ActiveDocument.recompute)
-
-        return icon_path
-
-
-# =============================================================================
-# _FvSolution
-# =============================================================================
-class _FvSolution(_WebGuiNode):
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-
-    def initializeFromJson(self, obj):
-        super().initializeFromJson(obj)
-
-        rootParent = self.getRootParent(obj.getParentGroup())
-        for field in rootParent.CalculatedFields:
-            fv_name = "fvSol_" + field
-            nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
-            nodeData["WebGui"]["Schema"]["title"] = fv_name
-            fvSolField_obj = makeNode(fv_name, obj, str(0), nodeData)
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-
-        # need to back up the child data in the main fv
-        for child in obj.Group:
-            field = child.Name.replace("fvSol_", "")
-            self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
-
-    def jsonToJinja(self, obj):
-        # need to create the jinja for fv
-
-        solverProperties = copy.deepcopy(self.nodeData["WebGui"]["formData"])
-
-        fields = {}
-        residualControl = {}
-        relaxationFactors = dict(fields={}, equations={})
-        for child in obj.Group:
-            field = child.Name.replace("fvSol_", "")
-            ch_fd = copy.deepcopy(child.Proxy.nodeData["WebGui"]["formData"])
-            if "relaxationFactors" in ch_fd:
-                if "fields" in ch_fd["relaxationFactors"]:
-                    relaxationFactors["fields"][field] = ch_fd["relaxationFactors"]["fields"]
-                if "equations" in ch_fd["relaxationFactors"]:
-                    relaxationFactors["equations"][field] = ch_fd["relaxationFactors"]["equations"]
-                ch_fd.pop("relaxationFactors")
-
-            if "residualControl" in ch_fd:
-                residualControl[field] = ch_fd["residualControl"]
-                ch_fd.pop("residualControl")
-                solverProperties["residualControl"] = residualControl
-
-
-            fields[field] = ch_fd
-
-
-        return dict(fields=fields, solverProperties=solverProperties, relaxationFactors=relaxationFactors)
-
-    def updateNodeFields(self, fieldList, obj):
-
-        ObjfieldList = list()
-        for objField in obj.Group:
-            # get the field from obj label
-            field = objField.Label.split('_')[-1]
-
-            # remove spaces
-            field.replace(" ", "")
-
-            if len(field) > 0:
-                ObjfieldList.append(field)
-
-        # remove spaces from Hermes field list
-        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
-
-        # create list of items need to be added or removed from webGui
-        add_list = [field for field in fieldList if field not in ObjfieldList]
-        del_list = [field for field in ObjfieldList if field not in fieldList]
-
-
-
-        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
-        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][objField] = " + str(self.nodeData["Templates"]["objField"]) + "\n")
-
-        # create a new field object
-        if len(add_list) > 0:
-            for field in add_list:
-                fv_name = "fvSol_" + field
-                nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
-                nodeData["WebGui"]["Schema"]["title"] = fv_name
-                fvSolField_obj = makeNode(fv_name, obj, str(0), nodeData)
-
-        # remove fields from webGui
-        for field in del_list:
-            for objField in obj.Group:
-                if field in objField.Label:
-                    obj.Document.removeObject(objField.Name)
-
-
-
-# =============================================================================
-# _FvSchemes
-# =============================================================================
-class _FvSchemes(_WebGuiNode):
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-
-    def initializeFromJson(self, obj):
-        super().initializeFromJson(obj)
-
-        rootParent = self.getRootParent(obj.getParentGroup())
-        for field in rootParent.CalculatedFields:
-            fv_name = "fvSch_" + field
-            nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
-            nodeData["WebGui"]["Schema"]["title"] = fv_name
-            fvSchField_obj = makeNode(fv_name, obj, str(0), nodeData)
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-
-        # need to back up the child data in the main fv
-        for child in obj.Group:
-            field = child.Name.replace("fvSch_", "")
-            self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
-
-    def jsonToJinja(self, obj):
-        # need to create the jinja for fv
-
-        default = copy.deepcopy(self.nodeData["WebGui"]["formData"])
-
-        fields = {}
-        for child in obj.Group:
-            field = child.Name.replace("fvSch_", "")
-            ch_fd = copy.deepcopy(child.Proxy.nodeData["WebGui"]["formData"])
-            fields[field] = ch_fd
-
-
-        return dict(fields=fields, default=default)
-
-    def updateNodeFields(self, fieldList, obj):
-
-        ObjfieldList = list()
-        for objField in obj.Group:
-            # get the field from obj label
-            field = objField.Label.split('_')[-1]
-
-            # remove spaces
-            field.replace(" ", "")
-
-            if len(field) > 0:
-                ObjfieldList.append(field)
-
-        # remove spaces from Hermes field list
-        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
-
-        # create list of items need to be added or removed from webGui
-        add_list = [field for field in fieldList if field not in ObjfieldList]
-        del_list = [field for field in ObjfieldList if field not in fieldList]
-
-
-
-        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
-        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][objField] = " + str(self.nodeData["Templates"]["objField"]) + "\n")
-
-        # create a new field object
-        if len(add_list) > 0:
-            for field in add_list:
-                fv_name = "fvSch_" + field
-                nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
-                nodeData["WebGui"]["Schema"]["title"] = fv_name
-                fvSchField_obj = makeNode(fv_name, obj, str(0), nodeData)
-
-        # remove fields from webGui
-        for field in del_list:
-            for objField in obj.Group:
-                if field in objField.Label:
-                    obj.Document.removeObject(objField.Name)
-
-# =============================================================================
-# #_GeometryDefinerNode
-# =============================================================================
-class _GeometryDefinerNode(_HermesNode):
-    #    super().funcName(var1,var,2..) - allow to use the function of the Parent,
-    #    and add current class functionalites
-
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-
-    def initializeFromJson(self, obj):
-        super().initializeFromJson(obj)
-
-        # get Geometry Face types section from json
-        GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
-
-        # get the list of available Geometry Face types
-        TypeList = GeometryFaceTypes["TypeList"]
-
-        # get the list of Geometry Entities that has been saved
-        # GeometryEntityList = self.nodeData["GeometryEntityList"]
-        # To make sure entities are not uploaded from json
-        GeometryEntityList = []
-
-        # Loop all the Geometry Entities that has been saved (GE = GeometryEntity )
-        for y in GeometryEntityList:
-            # get GE'num' object ; num =1,2,3 ...
-            GEnum = GeometryEntityList[y]
-
-            # get Name,Type and Properties of the GE
-            GEName = GEnum["Name"]
-            GEType = GEnum["Type"]
-
-            # Create the GE node
-            GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GEnum, obj)
-            if GENodeObj is None:
-                return None
-
-            # get the GE properties, and update their current value
-            GEProperties = GEnum["Properties"]
-            GENodeObj.Proxy.setCurrentPropertyGE(GENodeObj, GEProperties)
-
-            # Update the faces attach to the GE (also create the parts)
-            GENodeObj.Proxy.initFacesFromJson(GENodeObj)
-
-            # get GE Name and update his Label property
-            GEName = GEnum["Name"]
-            GENodeObj.Label = GEName
-
-            # get GE type and update his Type property
-            GEType = GEnum["Type"]
-            GENodeObj.Type = GEType
-
-    def doubleClickedNode(self, obj):
-        super().doubleClickedNode(obj)
-
-        # create CGEDialogPanel Object
-        geDialog = HermesGeometryDefinerNode.CGEDialogPanel(obj)
-
-        # get GEtypes section from json
-        GETypes = self.nodeData["GeometryFaceTypes"]
-
-        # get the list of available GE types from GEtypes section
-        TypeList = GETypes["TypeList"]
-
-        # add the GE types to options at GE dialog
-        for types in TypeList:
-            geDialog.addGE(types)
-
-        # update the first value to be showen in the comboBox
-        geDialog.setCurrentGE(types[0])
-
-        # add node Object name to the geDialog name
-        geDialog.setCallingObject(obj.Name)
-
-        # show the Dialog in FreeCAD
-        if FreeCADGui.Control.activeDialog():
-            FreeCADGui.Control.closeDialog()
-
-        FreeCADGui.Control.showDialog(geDialog)
-
-
-    def backupNodeData(self, obj):
-        super().backupNodeData(obj)
-        # Update faceList in GeometryEntityList section to each Geometry Entity node
-        for child in obj.Group:
-            child.Proxy.UpdateFacesInJson(child)
-
-    def UpdateNodePropertiesData(self, obj):
-        super().UpdateNodePropertiesData(obj)
-
-        # in case amount of GE has been changed
-        # Create basic structure of a GeometryEntityList (string) in the length of Children's obj amount
-        # structure example:
-        # -- "GeometryEntityList":{
-        # --     "GE1":{ },
-        # --     "GE2":{ },
-        # --     "GE3":{ }
-        # --  }
-        x = 1
-        GEListStr = "{"
-        for child in obj.Group:
-            if (x > 1):
-                GEListStr += ','
-            childStr = '"GE' + str(x) + '":{}'
-            GEListStr += childStr
-            x = x + 1
-        GEListStr += "}"
-
-        # convert structure from string to json
-        GeometryEntityList = json.loads(GEListStr)
-
-        # loop all GE(Geometry Entities) objects in Nodeobj
-        x = 1
-        for child in obj.Group:
-            # update current properties value of the GE-child
-            child.Proxy.UpdateGENodePropertiesData(child)
-
-            # get GE-child nodeDate from EntityNodeDataString property
-            GEnodeData = json.loads(child.EntityNodeDataString)
-
-            # get GE'node' object ; node =1,2,3 ...
-            GEnode = 'GE' + str(x)
-
-            # update the GE-child nodeDate in the Geometry Entity List section
-            GeometryEntityList[GEnode] = GEnodeData
-
-            x = x + 1
-
-        # update the Geometry Entity List section data in nodeData
-        self.nodeData['GeometryEntityList'] = GeometryEntityList
-
-        # Update nodeData  at the NodeDataString by converting from json to string
-        obj.NodeDataString = json.dumps(self.nodeData)
-
-        # # update properties of the current node(before updated only the children)
-        # super().UpdateNodePropertiesData(obj)
-
-        # workflowObj = obj.getParentGroup()
-        # if "BlockMesh" in workflowObj.Proxy.JsonObject["workflow"]["nodes"]:
-        #     # update block mesh with its vertices and boundry
-        #     HermesBlockMesh().updateJson(obj)
-
-    def geDialogClosed(self, obj, GEtype, GEname):
-        # call when created new GE node
-
-        # Create basic structure of a GENodeData
-        GENodeData = {
-            "Name": "",
-            "Type": "",
-            "Properties": {}
-        }
-
-        # get the GE Type available from Json, and their list of properties
-        GETypes = self.nodeData["GeometryFaceTypes"]
-        TypeList = GETypes["TypeList"]
-        TypeProperties = GETypes["TypeProperties"]
-
-        # take the properties of the choosen GEtype from dialog
-        GEJsonType = TypeProperties[GEtype]
-        GEProperties = GEJsonType["Properties"]
-
-        # update values in GENodeData structure
-        GENodeData["Name"] = GEname  # meaningful name is thr type
-        GENodeData["Type"] = GEtype
-        GENodeData["Properties"] = GEProperties
-
-        # Create the GEObject
-        GENodeObj = HermesGeometryDefinerNode.makeEntityNode('GEtemp', TypeList, GENodeData, obj)
-        if GENodeObj is None:
-            return None
-
-        # get the References from the parent node to the the new GE child
-        GENodeObj.References = obj.References
-        GENodeObj.Proxy.geDialogClosed(GENodeObj, GEtype, GEname)
-
-        # Empty the parent node References for further use
-        obj.References = []
-
-        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
-        if bcObj is not None:
-            bcObj.Proxy.updateBCPartList(bcObj)
-
-        return
-
-
-# =============================================================================
-# #_CommandGeometryDefinerSelection
-# =============================================================================
-class _CommandGeometryDefinerSelection:
-    """ Geometry Definer selection command definition """
-
-    def GetResources(self):
-        ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[
-                                                      -1] == '/' else FreeCAD.getResourceDir() + "/"
-        icon_path = ResourceDir + "Mod/Hermes/Resources/icons/GeometryDefiner.png"
-        # icon_path = os.path.join(CfdTools.get_module_path(), "Gui", "Resources", "icons", "physics.png")
-
-        return {'Pixmap': icon_path,
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer"),
-                'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("GeometryDefinerSelection", "Export Geometry Definer as obj")}
-
-    def IsActive(self):
-        GD = FreeCAD.ActiveDocument.getObjectsByLabel("GeometryDefiner")[0]
-        if GD is not None:
-            children = GD.Group
-            if len(children) > 0:
-                return True
-            else:
-                return False
-        return False
-
-    def Activated(self):
-        FreeCAD.ActiveDocument.openTransaction("Choose export")
-
-        # get GeometryDefiner FreeCAD object
-        GD = FreeCAD.ActiveDocument.getObjectsByLabel("GeometryDefiner")[0]
-
-        # add all GeometryDefiner objects to a list
-        objs = []
-        for child in GD.Group:
-            objs.append(child)
-
-        # create help cube
-        h_cube = FreeCAD.ActiveDocument.addObject("Part::Box", "NoNameCube")
-        # h_cube.Label = "NoNameCube"
-        FreeCAD.ActiveDocument.recompute()
-        # Add to objs list -> in case of 1 object will still exports in names
-        objs.append(h_cube)
-
-        # save file in wanted location
-        self.save_obj_file(objs)
-
-        #  remove help object
-        FreeCAD.ActiveDocument.removeObject("NoNameCube")
-
-        del objs
-
-    def save_obj_file(self, objs):
-        import Mesh
-        import re
-
-        # what the dialog open dir - path
-        # path = FreeCAD.ConfigGet("UserAppData")
-        path = os.getcwd()
-
-        try:
-            SaveName = QFileDialog.getSaveFileName(None, QString.fromLocal8Bit("Save Geometry Definer as obj file"),
-                                                   path,
-                                                   "*.obj")  # PyQt4
-        #                          "here the text displayed on windows" "here the filter (extension)"
-
-        except Exception:
-            SaveName, Filter = PySide.QtGui.QFileDialog.getSaveFileName(None, "Save Geometry Definer as obj file", path,
-                                                                        "*.obj")  # PySide
-        #       "here the text displayed on windows" "here the filter (extension)"
-
-        if SaveName == "":  # if the name file are not selected then Abord process
-            FreeCAD.Console.PrintMessage("Export obj file aborted" + "\n")
-        else:  # if the name file are selected
-            # remove unnecessary suffix if user added it
-            if SaveName.endswith(".obj"):
-                SaveName = re.sub('\.obj$', '', SaveName)
-
-            FreeCAD.Console.PrintMessage(
-                "Exporting file " + SaveName + ".obj" + "\n")  # text displayed to Report view (Menu > View > Report view checked)
-            try:  # if error detected to export ...
-                outpath = u"" + SaveName + ".obj"
-                Mesh.export(objs, outpath)
-            except Exception:  # if error detected to write
-                FreeCAD.Console.PrintError(
-                    "Error Exporting file " + "\n")  # detect error ... display the text in red (PrintError)
-
-
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('GeometryDefinerSelection', _CommandGeometryDefinerSelection())
-
-
-# =============================================================================
-# #_BlockMeshNode
-# =============================================================================
-class _BlockMeshNode(_GeometryDefinerNode):
-    '''
-        the  class inherited from _GeometryDefinerNode -
-            - use same functionality
-            - update differnt structure of json
-    '''
-
-    def __init__(self, obj, nodeId, nodeData, name):
-        super().__init__(obj, nodeId, nodeData, name)
-        self.initBMflag = False
-        self.BMcount = 0
-
-    def initializeFromJson(self, obj):
-        _HermesNode.initializeFromJson(self, obj)
-
-        # additional initialization BlockMesh node
-        # ! not uploading parts at the moment !
-        # self.linkPartToBM(obj)
-
-        # get Geometry Face types section from json
-        GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
-
-        # get the list of available Geometry Face types
-        TypeList = GeometryFaceTypes["TypeList"]
-
-        # get the list of Geometry Entities that has been saved
-        # boundaryList = self.nodeData["boundary"]
-        # to make sure entities are not uploaded from json
-        boundaryList = []
-
-        # Loop all the Geometry Entities that has been saved (BME = BlockMeshEntity )
-        for boundary in boundaryList:
-
-            # Create the BME node
-            BMENodeObj = HermesGeometryDefinerNode.makeEntityNode('BME', TypeList, boundary, obj)
-            if BMENodeObj is None:
-                return None
-
-            # get the GE properties, and update their current value
-            GEProperties = boundary["Properties"]
-            BMENodeObj.Proxy.setCurrentPropertyGE(BMENodeObj, GEProperties)
-
-            # Update the faces attach to the BME (also create the parts)
-            BMENodeObj.Proxy.initFacesFromJson(BMENodeObj)
-
-            # get BME Name and update his Label property
-            BMEName = boundary["Name"]
-            BMENodeObj.Label = BMEName
-
-            # get BME type and update his Type property
-            BMEType = boundary["Type"]
-            BMENodeObj.Type = BMEType
-
-    def doubleClickedNode(self, obj):
-
-        partLink = getattr(obj, "partLink")
-
-        if partLink is not None:
-            # continue to usual GeometryDefiner
-            super().doubleClickedNode(obj)
-
-        else:
-            # open Dialog to define part Link - when it is not defined
-
-            # create CGEDialogPanel Object
-            blockMeshGeDialog = BlockMeshGeometryLinkDialogPanel(obj)
-
-            # get Parts from FC
-            Parts = [FCobj.Label for FCobj in FreeCAD.ActiveDocument.Objects if FCobj.Module == 'Part']
-
-            # in case part list is empty -> no need dialog
-            if len(Parts) == 0:
-                FreeCAD.Console.PrintWarning("There are no geometries in FreeCAD document, or all have been defined \n")
-                return
-
-            # add the part to options at the dialog
-            for part in Parts:
-                blockMeshGeDialog.addGemotry(part)
-
-            # update the first value to be shown in the comboBox
-            blockMeshGeDialog.setCurrentGeometry(Parts[0])
-
-            # add node Object name to the geDialog name
-            blockMeshGeDialog.setCallingObject(obj.Name)
-
-            # show the Dialog in FreeCAD
-            FreeCADGui.Control.showDialog(blockMeshGeDialog)
-
-
-
-
-
-    def BlockMeshGeDialogClosed(self, obj, geometryLabel):
-
-        geometryObj = FreeCAD.ActiveDocument.getObjectsByLabel(geometryLabel)[0]
-        setattr(obj, "partName", geometryObj.Name)
-        setattr(obj, "partLink", geometryObj)
-
-
-    def linkPartToBM(self, obj):
-
-        # get the part name and path
-        partPath = getattr(obj, "partPath")
-        partName = getattr(obj, "partName")
-
-        if len(partPath) != 0 and len(partName) != 0:
-
-            # Create full path of the part for Import
-            pathPartStr = partPath + partName + ".stp" if list(partPath)[
-                                                              -1] == '/' else partPath + "/" + partName + ".stp"
-
-            # get workflow obj
-            workflowObj = obj.getParentGroup()
-
-            # create the part
-            # partNameFC = workflowObj.Proxy.loadPart(workflowObj, pathPartStr)
-            partNameFC = ""
-
-            # make sure part imported
-            if len(partNameFC) != 0:
-
-                # get part by its name in FC
-                partObj = FreeCAD.ActiveDocument.getObject(partNameFC)
-
-                # update the part Name at the BlockMesh node properties
-                setattr(obj, "partName", partNameFC)
-
-                # link the part to thr BlockMesh node
-                setattr(obj, "partLink", partObj)
-
-                # flag for linking from json
-                self.initBMflag = True
-
-                # link the part to BM children
-                for child in obj.Group:
-                    # set the BlockMesh partlink  at each child
-                    setattr(child, "partLink", partObj)
-            else:
-                FreeCAD.Console.PrintWarning(
-                    'BlockMesh part has not been uploaded - check path and/or name of the part\n')
-        else:
-            FreeCAD.Console.PrintWarning('path or name of the BlockMesh part is missing\n')
-
-    def backupNodeData(self, obj):
-        # super().backupNodeData(obj)
-        for child in obj.Group:
-            child.Proxy.UpdateFacesInJson(child)
-
-        # get workflow object
-        workflowObj = obj.getParentGroup()
-
-        # get part object
-        partObj = getattr(obj, "partLink")
-        if partObj is not None:
-            # get the part dictionary with and vertices data
-            partName = partObj.Name
-
-            # if partName not in workflowObj.Proxy.partList:
-            workflowObj.Proxy.partList[partName] = HermesPart.HermesPart(partName).getpartDict()
-
-            partDict = workflowObj.Proxy.partList[partName]
-            vertices = partDict["Vertices"]["openFoam"]
-
-            # export BM partand json - do no export part here
-            # remove connection part
-            # workflowObj.Proxy.ExportPart(partName)
-
-            # update vertices in nodedata
-            self.updateVertices(vertices)
-
-        # update boundry in nodedata
-        self.updateBoundry(obj)
-
-        # Update nodeData  at the NodeDataString by converting from json to string
-        obj.NodeDataString = json.dumps(self.nodeData)
-
-    def updateBoundry(self, obj):
-        # initialize boundry list
-        boundryList = []
-
-        # loop all objects in Nodeobj
-        for child in obj.Group:
-            # get GE-child nodeDate from EntityNodeDataString property
-            BMEnodeData = json.loads(child.EntityNodeDataString)
-
-            # update the GE-child nodeDate in the Geometry Entity List section
-            boundryList.append(BMEnodeData)
-
-        # update the Geometry Entity List section data in nodeData
-        self.nodeData['boundary'] = boundryList
-
-    def updateVertices(self, vertices):
-
-        # create a list of string vertices
-        ListVertices = []
-        for ver in vertices:
-            # string = self.createVerticesString(vertices[ver])
-            # ListVertices.append(string)
-
-            listVer = self.createVerticesList(vertices[ver])
-            ListVertices.append(listVer)
-
-        # push the list to the form data
-        self.nodeData['vertices'] = ListVertices
-
-    def createVerticesList(self,ver):
-        listVer = list()
-        for cor in ver['coordinates']:
-            listVer.append(ver['coordinates'][cor])
-
-        return listVer
-
-    def createVerticesString(self, ver):
-        string = ""
-        for cor in ver['coordinates']:
-            string += str(ver['coordinates'][cor]) + " "
-
-        return string
-
-    def UpdateNodePropertiesData(self, obj):
-
-        # get workflow object
-        workflowObj = obj.getParentGroup()
-
-        # update part path
-        setattr(obj, "partPath", workflowObj.ExportJSONFile)
-
-        # update properties as parent
-        _HermesNode.UpdateNodePropertiesData(self, obj)
-
-        # update children propeties
-        for child in obj.Group:
-            # update current properties value of the GE-child
-            child.Proxy.UpdateGENodePropertiesData(child)
-
-    def jsonToJinja(self, obj):
-
-        # geometry
-
-        simpleGrading = []
-        json_grading = [getattr(obj, "simpleGradingX"), getattr(obj, "simpleGradingY"), getattr(obj, "simpleGradingZ")]
-        grading = []
-        for cor in json_grading:
-            sg_list = []
-            for sg in cor:
-                if len(sg.split()) == 1:
-                    item = float(sg)
-                    sg_list.append(item)
-                else:
-                    item = [float(e) for e in sg.split()]
-                    sg_list.append(item)
-
-            grading.append(sg_list)
-
-        # FreeCAD.Console.PrintMessage("grading = " + str(grading) + "\n")
-
-        cellCount = [int(c) for c in getattr(obj, "NumberOfCells").split()]
-        convertToMeters = int(getattr(obj, "convertToMeters"))
-
-        geometry = dict(convertToMeters=convertToMeters, cellCount=cellCount, grading=grading)
-
-        # vertices
-        vertices = self.nodeData["vertices"]
-        # json_vertices = self.nodeData["vertices"]
-        # vertices = list()
-        # for ver in json_vertices:
-        #     l_ver = ver.split()
-        #     vertices.append(l_ver)
-
-        # boundary
-        json_boundary = self.nodeData["boundary"]
-        boundry = list()
-        for bn in json_boundary:
-            bn_dict = dict()
-            bn_dict["name"] = bn["Name"]
-            bn_dict["type"] = bn["Type"]
-            bn_dict["faces"] = [bn["faces"][face]["vertices"] for face in bn["faces"]]
-            if bn["Type"] == "cyclic":
-                bn_dict["neighbourPatch"] = bn["Properties"]["Property01"]["current_val"]
-
-            boundry.append(copy.deepcopy(bn_dict))
-
-
-
-        jinja = dict(geomerty=geometry, boundry=boundry, vertices=vertices)
-        # FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
-
-        return jinja
-
-# =============================================================================
-# BlockMeshGeometryLinkDialogPanel
-# =============================================================================
-# Path To GE UI
-blockMesh_ResourceDir = FreeCAD.getResourceDir() if list(FreeCAD.getResourceDir())[-1] == '/' else FreeCAD.getResourceDir() + "/"
-path_to_blockMeshGe_ui = blockMesh_ResourceDir + "Mod/Hermes/Resources/ui/blockmeshgeometry.ui"
-
-class BlockMeshGeometryLinkDialogPanel:
-
-    def __init__(self, obj):
-        # Create widget from ui file
-        self.form = FreeCADGui.PySideUic.loadUi(path_to_blockMeshGe_ui)
-
-    def addGemotry(self, gemetry):
-        # add  geType to options at GE dialog
-        self.form.m_pGeometryBM.addItem(gemetry)
-
-    def setCurrentGeometry(self,GemetryName):
-        # update the current value in the comboBox
-        self.form.m_pGeometryBM.setCurrentText(GemetryName)
-
-    def setCallingObject(self, callingObjName):
-        # get obj Name, so in def 'accept' can call the obj
-        self.callingObjName = callingObjName
-
-    def accept(self):
-        # Happen when Close Dialog
-        # get the current GE type name from Dialog
-        Geometry = self.form.m_pGeometryBM.currentText()
-
-        # calling the nodeObj from name
-        callingObject = FreeCAD.ActiveDocument.getObject(self.callingObjName)
-
-        # calling the function that create the new GE Object
-        callingObject.Proxy.BlockMeshGeDialogClosed(callingObject, Geometry)
-
-        # # close the Dialog in FreeCAD
-        FreeCADGui.Control.closeDialog()
-
-
-    def reject(self):
-        # check if it reset choices
-        return True

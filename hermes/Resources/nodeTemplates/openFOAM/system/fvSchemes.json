@@ -104,7 +104,7 @@
     }
   },
   "GUI": {
-    "Type": "FvSchemes",
+    "Type": "openFOAM2.system.HermesFvSchemes.FvSchemes",
     "Properties": {
     },
     "WebGui": {
@@ -112,7 +112,7 @@
     },
     "fields": {
       "template_webGui": {
-        "Type": "WebGuiNode",
+        "Type": "HermesNode.WebGuiNode",
         "Properties": {
         },
         "WebGui": {

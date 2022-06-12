@@ -3,7 +3,7 @@
     "type": "generalExecuters.FilesWriter"
   },
   "GUI": {
-    "Type": "WebGuiNode",
+    "Type": "HermesNode.WebGuiNode",
     "Properties": {},
     "WebGui": {}
   }

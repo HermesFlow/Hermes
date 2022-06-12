@@ -67,7 +67,7 @@
                     }
                 },
                 "GUI": {
-                    "Type": "WebGuiNode",
+                    "Type": "HermesNode.WebGuiNode",
                     "Properties": {},
                     "WebGui": {}
                 }

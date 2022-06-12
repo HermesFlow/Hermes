@@ -1,20 +1,21 @@
 ﻿
 # import FreeCAD modules
-import FreeCAD, FreeCADGui, WebGui
+import FreeCAD, FreeCADGui
 import HermesTools
 from HermesTools import addObjectProperty
 
 # python modules
 import sys
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtCore
 import os
 import json
 import Part
 
 # Hemes modules
 import HermesNode
-import HermesPart
-import HermesSnappyHexMesh
+# from hermes.Resources.workbench.openFOAM2.mesh import HermesPart
+from openFOAM2.mesh import HermesPart
+# from openFOAM2.mesh import HermesGeometryDefinerEntity
 
 # add hermes to paths
 HermesDirpath = os.getenv('HERMES_2_PATH')
@@ -86,6 +87,7 @@ class _HermesWorkflow:
 
 
     def initProperties(self, obj):
+        ''' defined the properties of the Hermes Workflow '''
 
         # ImportJSONFile propert- get the file path of the wanted json file
         addObjectProperty(obj, "ImportJSONFile", "", "App::PropertyFile", "IO", "Browse JSON File")
@@ -121,6 +123,10 @@ class _HermesWorkflow:
 
     def onDocumentRestored(self, obj):
 
+        '''
+            When a FreeCAD document is restored (opened after been saving
+            as a FreeCAD file), it updates the following things in the Node
+        '''
 
         # when restored- initilaize properties
         self.initProperties(obj)
@@ -134,7 +140,10 @@ class _HermesWorkflow:
     #        self.JsonObject = json.loads(obj.JSONString)
 
     def prepareJsonVar(self, obj, rootVal):
-
+        '''
+            - update the json var with data from FreeCAD nodes
+            - update the root node
+        '''
         self.updateJsonBeforeExport(obj)
 
         if rootVal == "null":
@@ -169,7 +178,8 @@ class _HermesWorkflow:
 
         # ^^^Export Part-files
 
-        doc = obj.Document;
+        # export FreeCAD parts
+        doc = obj.Document
 
         # loop all the objects
         for y in range(len(self.partNameExportList)):
@@ -191,6 +201,12 @@ class _HermesWorkflow:
         self.partNameExportList = []
 
     def readJson(self, obj):
+        '''
+            1. gets JSON file, expand it (in case of refrences to data),
+               and save into json var.
+            2. clear all parts and nodes from FreeCAD
+            3. set the data from the JSON into FreeCAD
+        '''
         # get json file full path
         jsonFilePath = obj.ImportJSONFile
 
@@ -203,7 +219,8 @@ class _HermesWorkflow:
 
         # clear the nodes objects
         for child in obj.Group:
-            child.Proxy.RemoveNodeObj(child)
+            if child is not None:
+                child.Proxy.RemoveNodeObj(child)
             obj.Document.removeObject(child.Name)
 
         # clear the part Object from json
@@ -223,6 +240,7 @@ class _HermesWorkflow:
         # create node objects based on json data
 
     def setJson(self, obj):
+        ''' set the JSON into FreeCAD '''
         # todo: is needed? why not calling directly to 'updateNodeList'
         self.updateNodeList(obj)
         #        self.selectNode(obj,"1")
@@ -230,7 +248,10 @@ class _HermesWorkflow:
         return
 
     def loadPart(self, obj, partPath):
-
+        '''
+            not in use at moment
+            Allow upload part to FreeCAD from dir
+        '''
 
         partIndex = -1
         os.chdir(self.WD_path)
@@ -287,6 +308,10 @@ class _HermesWorkflow:
             return ""
 
     def ExportPart(self, partObjName):
+        '''
+            not in use at moment
+            Exports part to FreeCAD to dir
+        '''
 
         if partObjName in self.partNameExportList:
             return
@@ -298,7 +323,7 @@ class _HermesWorkflow:
     # =============================================================================
 
     def updateNodeList(self, obj):
-
+        ''' creates nodes from JSON in FreeCAD '''
         x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
         for node in nodes:
@@ -321,7 +346,11 @@ class _HermesWorkflow:
 
 
     def updateLastNode(self, obj):
-        ''' backup LastNode data '''
+        '''
+            backup LastNode data
+            find the node that is activated and update it json from FreeCAD.
+            change to not active
+        '''
 
         # loop all objects in the document
         objsFC = FreeCAD.ActiveDocument.Objects
@@ -345,6 +374,9 @@ class _HermesWorkflow:
 
 
     def recomputeParents(self,HermesWorkflow, parent):
+        '''
+            update the display of the parents of the nodes
+        '''
         if parent == HermesWorkflow:
             return
         else:
@@ -357,6 +389,10 @@ class _HermesWorkflow:
             return
 
     def updateJsonBeforeExport(self, obj):
+        '''
+            update the main JSON var
+            loop all nodes and update each node data in the main JSON var
+        '''
 
         # loop all children in HermesWorkflow
         for child in obj.Group:
@@ -384,6 +420,10 @@ class _HermesWorkflow:
         return
 
     def RunworkflowCreation(self, obj):
+        '''
+            Run the workflow script -
+            send the JSON and creates the file that needed to run luigi
+        '''
 
         # save the current work directory before it changed
         currentDirFC = os.getcwd()
@@ -429,7 +469,10 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         os.chdir(currentDirFC)
 
     def RunLuigiScript(self):
-
+        '''
+            Run Luigi script -
+            take the exports from run workflow and run luigi
+        '''
         import shutil
         import os
         #        os.system("echo HI > /tmp/outputs_path.txt")
@@ -482,6 +525,11 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
         self.WD_path = path
 
     def updateFields(self, fieldList, HermesObj):
+        '''
+            when the field list of the problem is changed, it
+            updates the field nodes in BoundaryCondition, FvSchemes,
+            FvSolution
+        '''
         BCNode = None
         for child in HermesObj.Group:
             # if "BoundaryCondition" == child.Label:
@@ -489,14 +537,6 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
 
             if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
                 child.Proxy.updateNodeFields(fieldList, child)
-
-        # if BCNode is None:
-        #     return
-        #
-        # for bcChild in BCNode.Group:
-        #     BCNode.Proxy.updateNodeFields(fieldList, bcChild)
-
-
 
 
 
@@ -535,9 +575,10 @@ class _CommandCreateHermesWorkflow:
         # FreeCADGui.doCommand("hermes.addObject(HermesNode.makeNode())")
 
         # Add HermesGENode object when HermesGui container is created
-        FreeCADGui.addModule("HermesGeometryDefinerNode")
+        # FreeCADGui.addModule("HermesGeometryDefinerNode")
 
-        FreeCADGui.addModule("HermesSnappyHexMesh")
+        # FreeCADGui.addModule("HermesSnappyHexMesh")
+
 
 
         # Add fluid properties object when CfdAnalysis container is created
@@ -574,45 +615,16 @@ class _ViewProviderHermesWorkflow:
         """
             We get here when the object of HermesWorkflow changes
             For this moment, we consider only the JSONFile parameter
-
-        :param obj:
-
-        :param prop:
-
-        :return:
         """
-
         fname = "_handle_%s" % str(prop)
 
         if hasattr(self, fname):
             getattr(self, fname)(obj)
 
-
-        # # Check if the JSONFile parameter changed and its not empty path
-        # if (str(prop) == 'ImportJSONFile' and len(str(obj.ImportJSONFile)) > 0):
-        #     obj.Proxy.readJson(obj)
-        #     # seperate file and dir, and define dir as workingDir
-        #     Dirpath = os.path.dirname(obj.ImportJSONFile)
-        #     # update workind directory to self of hermes class
-        #     obj.Proxy.updateWorkingDirectory(Dirpath)
-        #     # update workind directory to the hermes obj
-        #     obj.WorkingDirectory = Dirpath
-        #     obj.ImportJSONFile = ''
-        # if (str(prop) == 'ExportJSONFile' and len(str(obj.ExportJSONFile)) > 0):
-        #     obj.Proxy.prepareJsonVar(obj, "null")
-        #     obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
-        #     obj.ExportJSONFile = ''
-        # if (str(prop) == 'RunWorkflow' and (obj.RunWorkflow)):
-        #     obj.Proxy.prepareJsonVar(obj, "null")
-        #     obj.Proxy.RunworkflowCreation(obj)
-        #
-        # if (str(prop) == 'RunLuigi' and (obj.RunLuigi)):
-        #     obj.Proxy.RunLuigiScript()
-        #
-        # if (str(prop) == 'WorkingDirectory' and len(str(obj.WorkingDirectory)) > 0):
-        #     obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
-
     def _handle_ImportJSONFile(self, obj):
+        '''
+            take the path of the JSON and send to function that import it
+        '''
         if len(str(obj.ImportJSONFile)) > 0:
             # seperate file and dir, and define dir as workingDir
             Dirpath = os.path.dirname(obj.ImportJSONFile)
@@ -624,12 +636,18 @@ class _ViewProviderHermesWorkflow:
             obj.ImportJSONFile = ''
 
     def _handle_ExportJSONFile(self, obj):
+        '''
+            take the path and
+            - update JSON
+            - Export JSON to the path choosen
+        '''
         if len(str(obj.ExportJSONFile)) > 0:
             obj.Proxy.prepareJsonVar(obj, "null")
             obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
             obj.ExportJSONFile = ''
 
     def _handle_RunWorkflow(self, obj):
+        ''' update the JSON and call the function that run the workflow'''
         if obj.Proxy.JsonObject is not None:
             if obj.RunWorkflow:
                 obj.Proxy.prepareJsonVar(obj, "null")
@@ -644,6 +662,7 @@ class _ViewProviderHermesWorkflow:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
     def _handle_CalculatedFields(self, obj):
+        ''' updated the fields in the doc'''
         obj.Proxy.updateFields(obj.CalculatedFields, obj)
 
 
