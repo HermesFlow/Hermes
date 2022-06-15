@@ -37,7 +37,7 @@ writeFormat     {{values.writeFormat}};
 
 writePrecision  {{values.writePrecision}};
 
-writeCompression {{values.writeCompression}};
+writeCompression {%- if values.writeCompression %} yes {% else %} no {%- endif %};
 
 timeFormat      {{values.timeFormat}};
 

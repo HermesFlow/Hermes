@@ -10,8 +10,7 @@ import json
 import os
 import collections.abc
 
-
-class expandWorkflow():
+class expandWorkflow:
     """ this class is taking a json with reference
       to other files , end inject the data from those other
       files into that json """
@@ -61,7 +60,6 @@ class expandWorkflow():
 
         if isinstance(templateJSON,str):
             if os.path.exists(templateJSON):
-
                 with open(templateJSON, 'r') as myfile:
                     JsonObjectfromFile  = json.load(myfile)
             else:

@@ -5,63 +5,63 @@
          "type":"object",
          "title":"Box",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Box"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Box"
          }
       },
       { 
          "type":"object",
          "title":"Cone",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Cone"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Cone"
          }
       },
       { 
          "type":"object",
          "title":"Cylinder",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Cylinder"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Cylinder"
          }
       },
       { 
          "type":"object",
          "title":"Disk",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Disk"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Disk"
          }
       },
       { 
          "type":"object",
          "title":"ExtrudedCircle",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.ExtrudedCircle"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.ExtrudedCircle"
          }
       },
       { 
          "type":"object",
          "title":"Plane",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Plane"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Plane"
          }
       },
       { 
          "type":"object",
          "title":"Plate",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Plate"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Plate"
          }
       },
       { 
          "type":"object",
          "title":"RotatedBox",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.RotatedBox"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.RotatedBox"
          }
       },
       { 
          "type":"object",
          "title":"Sphere",
          "properties":{
-            "Template":"openFOAM.simpleFOAM.WebGui.SnappyMesh.objects.Sphere"
+            "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.Sphere"
          }
       }
    ]

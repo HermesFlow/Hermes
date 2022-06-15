@@ -16,6 +16,7 @@ FoamFile
 
 simulationType {{simulationType}};
 
+{% if simulationType !='laminar' %}
 {{simulationType}}
 {
     {{simulationType}}Model     {{Model}};
@@ -25,5 +26,5 @@ simulationType {{simulationType}};
     {{ 'printCoeffs  on;' if printCoeffs else 'printCoeffs   off;' }}
 
 }
-
+{% endif %}
 // ************************************************************************* //

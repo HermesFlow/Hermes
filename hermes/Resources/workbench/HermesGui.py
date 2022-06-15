@@ -1,4 +1,4 @@
-﻿
+
 # import FreeCAD modules
 import FreeCAD, FreeCADGui
 import HermesTools

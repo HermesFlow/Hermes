@@ -20,3 +20,12 @@ class turbulencePropertiesExecuter(jinjaExecuter):
         effectiveInputs = inputs.get('values',inputs)
         output = template.render(**effectiveInputs)
         return dict(openFOAMfile=output)
+
+
+class gExecuter(jinjaExecuter):
+
+    def run(self, **inputs):
+        template = self._getTemplate("openFOAM/constant/g")
+        output = template.render(**inputs)
+        return dict(openFOAMfile=output)
+

@@ -1,29 +1,31 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
+|  \\    /   O peration     | Version:  dev                                   |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
+    version     7.0;
     format      ascii;
     class       dictionary;
-    object      RASProperties;
+    location    "system";
+    object      Neutral2018Dict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType {{values.simulationType}};
+C0              [0 0 0 0 0 0 0] {{C0}};
 
-RAS
-{
-    RASModel     {{values.RAS.RASModel}};
+_g              [0 1 -2 0 0 0 0] {{g}};
 
-    {{ 'turbulence   on;' if values.RAS.turbulence else 'turbulence    off;' }};
+fc          	[0 0 -1 0 0 0 0] {{coriolisFactor}};
 
-    {{ 'printCoeffs  on;' if values.RAS.printCoeffs else 'printCoeffs   off;' }};
+zd              [0 1 0 0 0 0 0] {{zd}};
 
-}
+Qh              [0 -1 1 1 0 0 0] {{Qh}};
 
+T0              [0 0 0 1 0 0 0] {{T0}};
+
+stable {% if stable %}false {% else %} true{% endif %};
 // ************************************************************************* //

@@ -77,8 +77,7 @@ class hermesTaskWrapper(object):
         _getPaths(taskJSON['Execution']['input_parameters'],typesList)
 
         # append nodes list in the 'dependent_tasks'
-        typesList.append(numpy.atleast_1d(taskJSON.get('requires',[])))
-
+        typesList.append(numpy.atleast_1d(taskJSON['Execution'].get('requires',[])))
         typesList = [*set([x for x in chain(*typesList)])]
         ret =[x for x in typesList if x not in notNodeTypes]
         return ret

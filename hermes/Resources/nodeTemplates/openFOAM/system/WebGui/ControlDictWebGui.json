@@ -175,6 +175,13 @@
         "runTimeModifiable": true,
         "interpolate": true,
         "adjustTimeStep" : true,
+        "purgeWrite"  : 0,
+        "writeFormat" : "ascii",
+        "writePrecision" : 7,
+        "writeCompression" : false,
+        "timeFormat" : "general",
+        "timePrecision" : 6,
+        "maxCo" : 0.5,
         "functions": [],
         "libs": []
 	}

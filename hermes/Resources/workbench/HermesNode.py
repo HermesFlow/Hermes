@@ -661,5 +661,3 @@ class WebGuiNode(HermesNode):
         FreeCAD.Console.PrintMessage("print_formData of node " + self.name +"\n")
         FreeCAD.Console.PrintMessage("['formData']="+str(formData)+"\n")
         FreeCAD.Console.PrintMessage("----------------------------------------------------------------\n")
-
-

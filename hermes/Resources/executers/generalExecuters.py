@@ -1,7 +1,7 @@
 from .abstractExecuter import abstractExecuter
 import os
 import errno
-import json
+
 
 class caseParametersExecuter(abstractExecuter):
 
