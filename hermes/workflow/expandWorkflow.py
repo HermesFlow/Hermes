@@ -8,43 +8,73 @@
 from ..Resources.nodeTemplates.templateCenter import templateCenter
 import json
 import os
+import collections.abc
 
-
-class expandWorkflow():
+class expandWorkflow:
     """ this class is taking a json with reference
       to other files , end inject the data from those other
       files into that json """
+
+    def updateMap(self,d, u):
+        for k, v in u.items():
+            if isinstance(v, collections.abc.Mapping):
+                d[k] = self.updateMap(d.get(k, {}), v)
+            else:
+                d[k] = v
+        return d
+
+
+    @property
+    def templateCenter(self):
+        return self._templateCenter
 
     def __init__(self):
         self.getFromTemplate = "Template"
         self.importJsonfromfile = "importJsonfromfile"
 
+        paths = None
+        self._templateCenter = templateCenter(paths)
+
+
         self.cwd = ""
         self.WD_path = ""
 
-    def expand(self, jsonFilePath):
+    def expand(self, templateJSON, parameters={}):
         """
         Expands a workflow by imbedding the template node to the workflow.
 
         Parameters
         -----------
 
-            jsonFilePath: str
-                        The path of the workflow json
+            templateJSON: str, dict
+                        The path of the workflow json, a json str or a json obj
+
+            parameters : dict
+                        A dictionary that can overwrite the template defaults.
+                        Adds the values to the dictionary if necessary
 
         Returns
         --------
             Dict.
         """
 
-        JsonObjectfromFile = self.loadJsonFromfile(jsonFilePath)
+        if isinstance(templateJSON,str):
+            if os.path.exists(templateJSON):
+                with open(templateJSON, 'r') as myfile:
+                    JsonObjectfromFile  = json.load(myfile)
+            else:
+                JsonObjectfromFile = json.loads(templateJSON)
 
-        # define the current working directory - where the json file has been uploaded
-        self.cwd = os.path.dirname(jsonFilePath)
+            # define the current working directory - where the json file has been uploaded
+            self.cwd = os.path.dirname(templateJSON)
+        else:
+            JsonObjectfromFile = templateJSON
+
+            # define the current working directory as the current directory.
+            self.cwd = os.getcwd()
 
 
         # Create JsonObject will contain all the imported date from file/template
-
         JsonObject = JsonObjectfromFile.copy()
         workflow = JsonObject["workflow"]
 
@@ -71,7 +101,9 @@ class expandWorkflow():
         workflow["nodes"] = new_nodes
         JsonObject["workflow"] = workflow
 
-        return JsonObject
+        ret = self.updateMap(JsonObject,parameters)
+
+        return ret
 
     def getImportedJson(self, jsonObjStruct):
 
@@ -164,8 +196,10 @@ class expandWorkflow():
                     UpdatedJsonStruct[subStructKey] = UpdatedJsonList
 
 
-                # dont apply on values that are not dict - (str/int/doubke etc.)
+
+                # dont apply on values that are not dict - (str/int/double etc.)
                 elif type(subtructVal) is dict:
+
 
                     # call 'getImportedJson' in case there are nested files that need to be imported
                     openKeyData = self.getImportedJson(subtructVal)
@@ -192,11 +226,11 @@ class expandWorkflow():
     def overidaDataFunc(self, overideData, UpdatedJsonStruct):
 
         # loop all the overide data
+
         for dataKey, dataVal in overideData.items():
 
             # check for each key, if exsist in UpdatedJsonStruct
             if dataKey in UpdatedJsonStruct:
-
                 # type is dictionary
                 if type(dataVal) is dict:
 
@@ -208,37 +242,17 @@ class expandWorkflow():
 
                     else:
                         # recursion of override on the dict
-                        UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        if isinstance(UpdatedJsonStruct[dataKey],dict):
+                            UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
+                        else:
+                            UpdatedJsonStruct[dataKey] = dataVal
 
-                # type is 'list'
-                elif type(dataVal) is list:
-
-                    # check if 'dataKey' in the structure is empty
-                    if len(UpdatedJsonStruct[dataKey]) == 0:
-
-                        # take all the data in dataVal and insert to 'dataKey' place in the structure
-                        UpdatedJsonStruct[dataKey] = dataVal
-
-                    # add items to the existing list
-                    else:
-
-                        # loop all items in the list
-                        for i in range(len(dataVal)):
-
-                            # if item not in structure list
-                            if not (dataVal[i] in UpdatedJsonStruct[dataKey]):
-                                # add the item from overide data
-                                UpdatedJsonStruct[dataKey].append(dataVal[i])
-
-                # any other type (int,boolean..)
+                # type is any other data type.
                 else:
-                    # update its data from overide
                     UpdatedJsonStruct[dataKey] = dataVal
-
 
             # dataKey not exist in UpdatedJsonStruct
             else:
-
                 # add to the dictionary
                 UpdatedJsonStruct[dataKey] = dataVal
 
@@ -355,10 +369,8 @@ class expandWorkflow():
 
         # Open JsonFile & Read
         with open(filePath, 'r') as myfile:
-            data = myfile.read()
+            dataParsed = json.load(myfile)
 
-        # parse data and return it
-        dataParsed = json.loads(data)
 
         # No split the 'entryInFile' and get the data from that path
         if (len(entryInFile) == 0):

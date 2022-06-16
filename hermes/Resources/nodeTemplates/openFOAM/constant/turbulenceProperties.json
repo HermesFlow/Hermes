@@ -1,0 +1,19 @@
+{
+  "Execution": {
+    "type": "openFOAM.constantExecuters.turbulenceProperties",
+    "input_parameters": {
+      "simulationType" : "RAS",
+      "Model" : "kEpsilon",
+      "turbulence" : true,
+      "printCoeffs" : false
+    }
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.constant.WebGui.turbulencePropertiesWebGui"
+    }
+  }
+}

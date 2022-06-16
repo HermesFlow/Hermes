@@ -1057,16 +1057,16 @@ def setActiveHermes(hermes):
     from HermesGui import _HermesWorkflow
     for obj in FreeCAD.ActiveDocument.Objects:
         if hasattr(obj, 'Proxy') and isinstance(obj.Proxy, _HermesWorkflow):
-            obj.IsActiveWorkflow = False
+            obj.IsActiveObj = False
  
-    hermes.IsActiveWorkflow = True
+    hermes.IsActiveObj = True
  
  
 def getActiveHermes():
     from HermesGui import _HermesWorkflow
     for obj in FreeCAD.ActiveDocument.Objects:
         if hasattr(obj, 'Proxy') and isinstance(obj.Proxy, _HermesWorkflow):
-            if obj.IsActiveWorkflow:
+            if obj.IsActiveObj:
                 return obj
     return None
  

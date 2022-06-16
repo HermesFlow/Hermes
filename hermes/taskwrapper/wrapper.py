@@ -58,22 +58,29 @@ class hermesTaskWrapper(object):
             :return:
                     A list of nodes that this nodes depends on.
         """
-        notNodeTypes = ["workflowJSON","value","output","Properties","WebGui"]
+
+        def _getPaths(jsonNode,typesList):
+            if isinstance(jsonNode,str):
+                typesList.append([x[0].split(".")[0] for x in cls.parsePath(jsonNode) if x[1]])
+            elif isinstance(jsonNode,dict):
+                for vals in jsonNode.values():
+                    _getPaths(vals,typesList)
+            elif isinstance(jsonNode,list):
+                for vals in jsonNode:
+                    _getPaths(vals,typesList)
+            else: # int or something else, does not hold other values or nodes .
+                pass
+
+        notNodeTypes = ["workflowJSON", "value", "output", "Properties", "WebGui"]
 
         typesList = []
-        for param_path in taskJSON['Execution']['input_parameters'].values():
-            if type(param_path)==dict:
-                for param_p in param_path.values():
-                    typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_p) if x[1]])
-            else:
-                typesList.append([x[0].split(".")[0] for x in cls.parsePath(param_path) if x[1]])
-
+        _getPaths(taskJSON['Execution']['input_parameters'],typesList)
 
         # append nodes list in the 'dependent_tasks'
-        typesList.append(numpy.atleast_1d(taskJSON.get('requires',[])))
-
+        typesList.append(numpy.atleast_1d(taskJSON['Execution'].get('requires',[])))
         typesList = [*set([x for x in chain(*typesList)])]
-        return [x for x in typesList if x not in notNodeTypes]
+        ret =[x for x in typesList if x not in notNodeTypes]
+        return ret
 
 
     @classmethod
@@ -108,6 +115,7 @@ class hermesTaskWrapper(object):
             a list with tokens and a flag that indicates if its a path or not.
         """
         retList = []
+
         for pot_token in parameter.split("{"):
             if "}" not in pot_token:
                 if pot_token != '':

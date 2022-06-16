@@ -21,7 +21,7 @@ class templateCenter:
                 [path].[filename]
 
             for example:
-                general.CopyDirectory.
+                mesh.CopyDirectory.
 
             The class will search in all the repositories and return the first match.
 
@@ -46,8 +46,7 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
-        #import pdb
-        #pdb.set_trace()
+
 
         print(jsonPath)
         try:

@@ -1,0 +1,11 @@
+{
+  "Type": "BC.HermesBC._BCFieldNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "Template": "BC.BCList"
+    },
+    "uiSchema":{},
+    "formData":{}
+  }
+}

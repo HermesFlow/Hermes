@@ -1,0 +1,25 @@
+{ 
+    "Schema":{ 
+        "title":"",
+        "description":"",
+        "type":"object",
+        "properties": {
+            "modules": {
+                "type": "object",
+                "title": "modules",
+                "properties": {
+                    "Template": "openFOAM.mesh.WebGui.SnappyMesh.modules"
+                }
+            }
+        }
+    },
+    "uiSchema":{},
+    "formData":{
+        "modules": {
+            "castellatedMesh": true,
+            "snap": true,
+            "addLayers": true,
+            "mergeTolerance": 1e-6
+        }
+    }
+}

@@ -42,10 +42,11 @@ Example executers:
 
 """
 import abc
+from ...logging.loggingObject import loggedObject
 
-class abstractExecuter(object):
+class abstractExecuter(loggedObject):
     """
-        An abstract executer that defines the general interfaces of the executers:
+        An abstract executer that defines the mesh interfaces of the executers:
 
         - Load webGUI from a file (in a relative webGUI directory).
         - List all inputs.
@@ -62,7 +63,7 @@ class abstractExecuter(object):
         :param JSON:
             the json that overrides the default parameters.
         """
-
+        super().__init__()
         defaultparameters = self._defaultParameters()
         self._parameters  = defaultparameters.update(JSON)
 

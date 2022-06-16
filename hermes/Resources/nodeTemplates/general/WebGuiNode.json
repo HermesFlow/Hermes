@@ -5,7 +5,7 @@
         }
     },
     "GUI": {
-        "Type": "WebGuiNode",
+        "Type": "HermesNode.WebGuiNode",
         "Properties": {
             "generalProperty": {
                 "prop": "generalProperty",

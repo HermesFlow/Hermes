@@ -1,12 +1,12 @@
 {
     "Execution": {
-        "type": "pythonExecuters.python",
+        "type": "jinjaExecuters.GeometryDefiner",
         "input_parameters": {}
     },
     "GUI": {
-        "Type":"GeometryDefinerNode",
+        "Type":"openFOAM2.mesh.HermesGeometryDefiner.GeometryDefinerNode",
         "Properties":{
-            "Property1":{
+            "IntegerProperty":{
                 "prop":"IntegerProperty",
                 "init_val":10,
                 "type":"App::PropertyInteger",

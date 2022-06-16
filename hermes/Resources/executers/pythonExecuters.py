@@ -3,8 +3,19 @@ import os
 from hermes.Resources.executers.abstractExecuter import abstractExecuter
 import errno
 import json
+import pydoc
+
+
 
 class pythonExecuter(abstractExecuter):
+    """
+        Executes the function in the class.
+
+        inputs:
+            classpath : str, The class path string to the class
+            funcName  : str, The name of the function to run .
+            parameters : dict, The parameters for the function.
+    """
 
     def _defaultParameters(self):
         return dict(
@@ -16,32 +27,28 @@ class pythonExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(pythonExecuter="pythonExecuter")
 
-class RunPythonScriptExecuter(abstractExecuter):
+        # newobj = pydoc.locate(inputs['classpath'])()
+        # func   = getattr(newobj,input["funcName"])
+        # ret = func(**inputs['parameters'])
+        self.logger.info("Starting run of run python script")
 
-    def _defaultParameters(self):
-        return dict(
-            output=["status"],
-            inputs=["classpath", "function"],
-            webGUI=dict(JSONSchema="webGUI/RunPythonScript_JSONchema.json",
-                        UISchema="webGUI/RunPythonScript_UISchema.json"),
-            parameters={}
-        )
+        try:
+            modulecls = pydoc.locate(inputs['ModulePath'])
 
-    def run(self, **inputs):
-        print("===============================")
-        print("-----got to RunPythonScript----")
-        print("===============================")
+            if modulecls is None:
+                print(f"Error loading module {inputs['ModulePath']}")
+                raise RuntimeError(f"Error loading module {inputs['ModulePath']}")
 
-        ModulePath = inputs["ModulePath"]
-        MethodName = inputs["MethodName"]
-        Parameters = inputs["Parameters"]
+        except pydoc.ErrorDuringImport as e:
+            self.logger.critical(f"Error loading module {inputs['ModulePath']}")
+            raise(e)
 
-
-        return dict(RunPythonScript="ModulePath")
-
-
+        objcls = getattr(modulecls, inputs["ClassName"])
+        newobj = objcls()
+        func   = getattr(newobj,inputs["MethodName"])
+        ret = func(**inputs)
+        return dict(pythonExecuter="pythonExecuter",Return=ret)
 
 
 

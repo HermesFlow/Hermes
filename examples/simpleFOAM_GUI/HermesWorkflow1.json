@@ -1,0 +1,2659 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript",
+            "RunOsCommand",
+            "BlockMesh",
+            "GeometryDefiner",
+            "SnappyHexMesh",
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution",
+            "TransportProperties",
+            "TurbulenceProperties",
+            "FileWriter"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Execution": {
+                    "type": "fileSystemExecuters.copyDirectory",
+                    "input_parameters": {
+                        "Source": "{Properties.Source.current_val}",
+                        "Target": "{Properties.Target.current_val}",
+                        "dirs_exist_ok": true
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {
+                        "Source": {
+                            "prop": "Source",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "Parameters",
+                            "tooltip": "The source directory",
+                            "current_val": ""
+                        },
+                        "Target": {
+                            "prop": "Target",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "Parameters",
+                            "tooltip": "The target directory",
+                            "current_val": ""
+                        }
+                    },
+                    "WebGui": {}
+                }
+            },
+            "RunPythonScript": {
+                "Execution": {
+                    "type": "pythonExecuters.python",
+                    "input_parameters": {}
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {
+                        "ModulePath": {
+                            "prop": "ModulePath",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "PythonNodule",
+                            "tooltip": "The path to the python module directory",
+                            "current_val": ""
+                        },
+                        "ClassName": {
+                            "prop": "ClassName",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "PythonNodule",
+                            "tooltip": "The name of the class to load",
+                            "current_val": ""
+                        },
+                        "MethodName": {
+                            "prop": "MethodName",
+                            "init_val": "",
+                            "type": "App::PropertyString",
+                            "Heading": "PythonNodule",
+                            "tooltip": "The python module name",
+                            "current_val": ""
+                        }
+                    },
+                    "WebGui": {
+                        "formData": {}
+                    }
+                }
+            },
+            "RunOsCommand": {
+                "Execution": {
+                    "type": "fileSystemExecuters.RunOsCommand",
+                    "input_parameters": {
+                        "Method": "{Properties.ChooseMethod.current_val}",
+                        "Command": "{Properties.Commands.current_val}"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {
+                        "ChooseMethod": {
+                            "prop": "ChooseMethod",
+                            "init_val": [
+                                "Commands list",
+                                "batchFile"
+                            ],
+                            "type": "App::PropertyEnumeration",
+                            "Heading": "Parameters",
+                            "tooltip": "True-commands, False-file",
+                            "current_val": "Commands list"
+                        },
+                        "Commands": {
+                            "prop": "Commands",
+                            "init_val": [],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Parameters",
+                            "tooltip": "The OS commands to execute",
+                            "current_val": [
+                                "echo 'Here is an example of a shell script'",
+                                "echo '1a. File listing'",
+                                "ls",
+                                "echo ''"
+                            ]
+                        },
+                        "batchFile": {
+                            "prop": "batchFile",
+                            "init_val": "Text",
+                            "type": "App::PropertyFile",
+                            "Heading": "Parameters",
+                            "tooltip": "File containing all the OS commands to execute",
+                            "current_val": ""
+                        }
+                    },
+                    "WebGui": {}
+                }
+            },
+            "BlockMesh": {
+                "Execution": {
+                    "type": "openFOAM.meshExecuters.BlockMesh",
+                    "input_parameters": {
+                        "geomerty": {
+                            "convertToMeters": 1,
+                            "cellCount": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "grading": [
+                                [
+                                    1.0
+                                ],
+                                [
+                                    [
+                                        0.2,
+                                        0.3,
+                                        4.0
+                                    ],
+                                    [
+                                        0.6,
+                                        0.4,
+                                        1.0
+                                    ],
+                                    [
+                                        0.2,
+                                        0.3,
+                                        0.25
+                                    ]
+                                ],
+                                [
+                                    1.0
+                                ]
+                            ]
+                        },
+                        "boundry": [],
+                        "vertices": []
+                    }
+                },
+                "GUI": {
+                    "Type": "BlockMeshNode",
+                    "Properties": {
+                        "Property01": {
+                            "prop": "partName",
+                            "init_val": "",
+                            "type": "App::PropertyString",
+                            "Heading": "BasicData",
+                            "tooltip": "Name of tha part of the blockMesh node ",
+                            "current_val": ""
+                        },
+                        "Property02": {
+                            "prop": "partPath",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "BasicData",
+                            "tooltip": "Path to tha part of the blockMesh node ",
+                            "current_val": "/mnt/examples/simpleFOAM_GUI"
+                        },
+                        "Property03": {
+                            "prop": "convertToMeters",
+                            "init_val": 1,
+                            "type": "App::PropertyFloat",
+                            "Heading": "BasicData",
+                            "tooltip": "Link a part to the blockMesh node ",
+                            "current_val": 1.0
+                        },
+                        "Property04": {
+                            "prop": "NumberOfCells",
+                            "init_val": "1 2 3",
+                            "type": "App::PropertyString",
+                            "Heading": "Block",
+                            "tooltip": "Numbers of cells in each direction ",
+                            "current_val": "1 2 3"
+                        },
+                        "Property05": {
+                            "prop": "simpleGradingX",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in x direction ",
+                            "current_val": [
+                                "1"
+                            ]
+                        },
+                        "Property06": {
+                            "prop": "simpleGradingY",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in y direction ",
+                            "current_val": [
+                                "0.2 0.3 4",
+                                "0.6 0.4 1",
+                                "0.2 0.3 0.25"
+                            ]
+                        },
+                        "Property07": {
+                            "prop": "simpleGradingZ",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in z direction ",
+                            "current_val": [
+                                "1"
+                            ]
+                        }
+                    },
+                    "GeometryFaceTypes": {
+                        "TypeList": [
+                            "wall",
+                            "symmetry",
+                            "patch",
+                            "cyclic"
+                        ],
+                        "TypeProperties": {
+                            "wall": {
+                                "Properties": {}
+                            },
+                            "symmetry": {
+                                "Properties": {}
+                            },
+                            "patch": {
+                                "Properties": {}
+                            },
+                            "cyclic": {
+                                "Properties": {
+                                    "Property01": {
+                                        "prop": "neighbourPatch",
+                                        "init_val": [
+                                            "notSet"
+                                        ],
+                                        "type": "App::PropertyEnumeration",
+                                        "Heading": "Neighbour",
+                                        "tooltip": "Neight face name",
+                                        "current_val": "notSet"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "boundary": [],
+                    "vertices": []
+                }
+            },
+            "SnappyHexMesh": {
+                "Execution": {
+                    "type": "openFOAM.meshExecuters.snappyHexMesh",
+                    "input_parameters": {
+                        "modules": {
+                            "castellatedMesh": true,
+                            "snap": true,
+                            "addLayers": true,
+                            "mergeTolerance": 1e-06
+                        },
+                        "castellatedMeshControls": {
+                            "maxLocalCells": 100000,
+                            "maxGlobalCells": 100000000,
+                            "minRefinementCells": 10,
+                            "maxLoadUnbalance": 0.1,
+                            "nCellsBetweenLevels": 3,
+                            "resolveFeatureAngle": 30,
+                            "allowFreeStandingZoneFaces": true,
+                            "locationInMesh": [
+                                "0.00",
+                                "0.00",
+                                "0.00"
+                            ]
+                        },
+                        "snapControls": {
+                            "nSmoothPatch": 3,
+                            "tolerance": 2.0,
+                            "nSolveIter": 100,
+                            "nRelaxIter": 5,
+                            "nFeatureSnapIter": 10,
+                            "explicitFeatureSnap": false,
+                            "multiRegionFeatureSnap": false,
+                            "implicitFeatureSnap": true
+                        },
+                        "addLayersControls": {
+                            "relativeSizes": true,
+                            "expansionRatio": 1.05,
+                            "finalLayerThickness": 0.9,
+                            "minThickness": 0.05,
+                            "featureAngle": 100,
+                            "slipFeatureAngle": 30,
+                            "nLayerIter": 50,
+                            "nRelaxedIter": 20,
+                            "nRelaxIter": 5,
+                            "nGrow": 0,
+                            "nSmoothSurfaceNormals": 1,
+                            "nSmoothNormals": 3,
+                            "nSmoothThickness": 10,
+                            "maxFaceThicknessRatio": 0.5,
+                            "maxThicknessToMedialRatio": 0.3,
+                            "minMedianAxisAngle": 90,
+                            "nMedialAxisIter": 10,
+                            "nBufferCellsNoExtrude": 0,
+                            "additionalReporting": false
+                        },
+                        "meshQualityControls": {
+                            "maxNonOrtho": 65,
+                            "maxBoundarySkewness": 20,
+                            "maxInternalSkewness": 4,
+                            "maxConcave": 80,
+                            "minVol": 1e-13,
+                            "minTetQuality": -1e+30,
+                            "minArea": -1,
+                            "minTwist": 0.02,
+                            "minDeterminant": 0.001,
+                            "minFaceWeight": 0.05,
+                            "minVolRatio": 0.01,
+                            "minTriangleTwist": -1,
+                            "nSmoothScale": 4,
+                            "errorReduction": 0.75,
+                            "relaxed": {
+                                "maxNonOrtho": 75
+                            }
+                        },
+                        "Geometry": {
+                            "objects": {}
+                        },
+                        "Refinement": {
+                            "regions": {}
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "SnappyHexMesh",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "title": "",
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "modules": {
+                                    "type": "object",
+                                    "title": "modules",
+                                    "properties": {
+                                        "castellatedMesh": {
+                                            "type": "boolean",
+                                            "title": "castellatedMesh",
+                                            "description": "To switch on creation of the castellated mesh"
+                                        },
+                                        "snap": {
+                                            "type": "boolean",
+                                            "title": "snap",
+                                            "description": "To switch on surface snapping stage"
+                                        },
+                                        "addLayers": {
+                                            "type": "boolean",
+                                            "title": "addLayers",
+                                            "description": "To switch on surface layer insertion"
+                                        },
+                                        "mergeTolerance": {
+                                            "title": "mergeTolerance",
+                                            "type": "number",
+                                            "default": 1e-06,
+                                            "description": "merge tolerance as fraction of bounding box of initial mesh"
+                                        },
+                                        "writeFlags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "uiSchema": {},
+                        "formData": {
+                            "modules": {
+                                "castellatedMesh": true,
+                                "snap": true,
+                                "addLayers": true,
+                                "mergeTolerance": 1e-06
+                            }
+                        }
+                    },
+                    "castellatedMeshControls": {
+                        "Type": "SnappyHexMeshCastellatedMeshControls",
+                        "Properties": {
+                            "Property01": {
+                                "prop": "locationInMesh",
+                                "init_val": null,
+                                "type": "App::PropertyLink",
+                                "Heading": "Links",
+                                "tooltip": "point of locationInMesh ",
+                                "current_val": null
+                            }
+                        },
+                        "WebGui": {
+                            "Schema": {
+                                "title": "castellatedMeshControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "locationInMesh": {
+                                        "type": "string",
+                                        "title": "locationInMesh",
+                                        "format": "vector",
+                                        "description": "location vector inside the region to be meshed; vector must not coincide with a cell face either before or during refinement"
+                                    },
+                                    "maxLocalCells": {
+                                        "type": "number",
+                                        "title": "maxLocalCells",
+                                        "description": "max number of cells per processor during refinement."
+                                    },
+                                    "maxGlobalCells": {
+                                        "type": "number",
+                                        "title": "maxGlobalCells",
+                                        "description": "overall cell limit during refinement"
+                                    },
+                                    "minRefinementCells": {
+                                        "type": "number",
+                                        "title": "minRefinementCells",
+                                        "description": "if minRefinementCells bigger/equal than number of cells to be refined, surface refinement stops"
+                                    },
+                                    "maxLoadUnbalance": {
+                                        "type": "number",
+                                        "title": "maxLoadUnbalance",
+                                        "description": ""
+                                    },
+                                    "nCellsBetweenLevels": {
+                                        "type": "number",
+                                        "title": "nCellsBetweenLevels",
+                                        "description": "number of buffer layers of cells between successive levels of refinement"
+                                    },
+                                    "resolveFeatureAngle": {
+                                        "type": "number",
+                                        "title": "resolveFeatureAngle",
+                                        "description": "applies maximum level of refinement to cells that can see intersections whose angle exceeds resolveFeatureAngle"
+                                    },
+                                    "allowFreeStandingZoneFaces": {
+                                        "type": "boolean",
+                                        "title": "allowFreeStandingZoneFaces",
+                                        "description": ""
+                                    }
+                                }
+                            },
+                            "uiSchema": {},
+                            "formData": {
+                                "maxLocalCells": 100000,
+                                "maxGlobalCells": 100000000,
+                                "minRefinementCells": 10,
+                                "maxLoadUnbalance": 0.1,
+                                "nCellsBetweenLevels": 3,
+                                "resolveFeatureAngle": 30,
+                                "allowFreeStandingZoneFaces": true,
+                                "locationInMesh": "(0.00 0.00 0.00)"
+                            }
+                        }
+                    },
+                    "snapControls": {
+                        "Type": "WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "snapControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "nSmoothPatch": {
+                                        "type": "integer",
+                                        "title": "nSmoothPatch",
+                                        "description": "Number of smoothing iterations along the surface"
+                                    },
+                                    "nSmoothInternal": {
+                                        "type": "integer",
+                                        "title": "nSmoothInternal",
+                                        "description": "Number of iterations for internal smoothing to reduce non-orthogonality at the face of refinement (effectively making the faces non-planar)."
+                                    },
+                                    "tolerance": {
+                                        "type": "number",
+                                        "title": "tolerance",
+                                        "description": "Multiplied by local cell-edge length specifies region along the surface within which the points are attracted by the surface."
+                                    },
+                                    "nSolveIter": {
+                                        "type": "integer",
+                                        "title": "nSolveIter",
+                                        "description": "Number of mesh displacement iterations"
+                                    },
+                                    "nRelaxIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxIter",
+                                        "description": "Number of relaxation iterations during the snapping"
+                                    },
+                                    "nFeatureSnapIter": {
+                                        "type": "integer",
+                                        "title": "nFeatureSnapIter",
+                                        "description": "Number of relaxation iterations used for snapping onto the features"
+                                    },
+                                    "implicitFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "implicitFeatureSnap",
+                                        "description": "Switch turning on the implicit feature specification"
+                                    },
+                                    "explicitFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "explicitFeatureSnap",
+                                        "description": "Snap mesh onto the feature lines defined in eMesh file."
+                                    },
+                                    "multiRegionFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "multiRegionFeatureSnap",
+                                        "description": "When using explicitFeatureSnap and this switch is on, features between multiple surfaces will be captured. This is useful for multi-region meshing where the internal mesh must conform the region geometrical boundaries"
+                                    }
+                                }
+                            },
+                            "uiSchema": {
+                                "implicitFeatureSnap": {
+                                    "ui:widget": "radio"
+                                },
+                                "explicitFeatureSnap": {
+                                    "ui:widget": "radio"
+                                },
+                                "multiRegionFeatureSnap": {
+                                    "ui:widget": "radio"
+                                }
+                            },
+                            "formData": {
+                                "nSmoothPatch": 3,
+                                "tolerance": 2.0,
+                                "nSolveIter": 100,
+                                "nRelaxIter": 5,
+                                "nFeatureSnapIter": 10,
+                                "explicitFeatureSnap": false,
+                                "multiRegionFeatureSnap": false,
+                                "implicitFeatureSnap": true
+                            }
+                        }
+                    },
+                    "addLayersControls": {
+                        "Type": "WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "addLayersControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "relativeSizes": {
+                                        "type": "boolean",
+                                        "title": "relativeSizes"
+                                    },
+                                    "expansionRatio": {
+                                        "type": "number",
+                                        "title": "expansionRatio",
+                                        "description": "expansion factor for layer mesh, increase in size from one layer to the next."
+                                    },
+                                    "finalLayerThickness": {
+                                        "type": "number",
+                                        "title": "finalLayerThickness",
+                                        "description": "thickness of layer furthest from the wall, usually in combination with relative sizes according to the relativeSizes entry."
+                                    },
+                                    "minThickness": {
+                                        "type": "number",
+                                        "title": "minThickness",
+                                        "description": "minimum thickness of cell layer, either relative or absolute"
+                                    },
+                                    "firstLayerThickness": {
+                                        "type": "number",
+                                        "title": "firstLayerThickness",
+                                        "description": "thickness of layer nearest the wall, usually in combination with absolute sizes according to the relativeSizes entry."
+                                    },
+                                    "thickness": {
+                                        "type": "number",
+                                        "title": "thickness",
+                                        "description": "total thickness of all layers of cells, usually in combination with absolute sizes according to the relativeSizes entry"
+                                    },
+                                    "featureAngle": {
+                                        "type": "number",
+                                        "title": "featureAngle",
+                                        "description": "angle above which surface is not extruded"
+                                    },
+                                    "slipFeatureAngle": {
+                                        "type": "number",
+                                        "title": "slipFeatureAngle",
+                                        "description": "At non-patched sides allow mesh to slip if extrusion direction makes angle larger than slipFeatureAngle"
+                                    },
+                                    "nLayerIter": {
+                                        "type": "integer",
+                                        "title": "nLayerIter",
+                                        "description": "overall max number of layer addition iterations"
+                                    },
+                                    "nRelaxedIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxedIter",
+                                        "description": "max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+                                    },
+                                    "nRelaxIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxIter",
+                                        "description": "maximum number of snapping relaxation iterations"
+                                    },
+                                    "nGrow": {
+                                        "type": "integer",
+                                        "title": "nGrow",
+                                        "description": "number of layers of connected faces that are not grown if points do not get extruded"
+                                    },
+                                    "nSmoothSurfaceNormals": {
+                                        "type": "integer",
+                                        "title": "nSmoothSurfaceNormals",
+                                        "description": "number of smoothing iterations of surface normals"
+                                    },
+                                    "nSmoothNormals": {
+                                        "type": "integer",
+                                        "title": "nSmoothNormals",
+                                        "description": "number of smoothing iterations of interior mesh movement direction"
+                                    },
+                                    "nSmoothThickness": {
+                                        "type": "integer",
+                                        "title": "nSmoothThickness",
+                                        "description": "smooth layer thickness over surface patches"
+                                    },
+                                    "maxFaceThicknessRatio": {
+                                        "type": "number",
+                                        "title": "maxFaceThicknessRatio",
+                                        "description": "stop layer growth on highly warped cells"
+                                    },
+                                    "maxThicknessToMedialRatio": {
+                                        "type": "number",
+                                        "title": "maxThicknessToMedialRatio",
+                                        "description": "reduce layer growth where ratio thickness to medial distance is large"
+                                    },
+                                    "minMedianAxisAngle": {
+                                        "type": "number",
+                                        "title": "minMedianAxisAngle",
+                                        "description": "angle used to pick up medial axis points"
+                                    },
+                                    "nMedialAxisIter": {
+                                        "type": "number",
+                                        "title": "nMedialAxisIter",
+                                        "description": ""
+                                    },
+                                    "nBufferCellsNoExtrude": {
+                                        "type": "integer",
+                                        "title": "nBufferCellsNoExtrude",
+                                        "description": "create buffer region for new layer terminations"
+                                    },
+                                    "additionalReporting": {
+                                        "type": "boolean",
+                                        "title": "additionalReporting"
+                                    }
+                                }
+                            },
+                            "uiSchema": {
+                                "relativeSizes": {
+                                    "ui:widget": "radio"
+                                },
+                                "additionalReporting": {
+                                    "ui:widget": "radio"
+                                }
+                            },
+                            "formData": {
+                                "relativeSizes": true,
+                                "expansionRatio": 1.05,
+                                "finalLayerThickness": 0.9,
+                                "minThickness": 0.05,
+                                "featureAngle": 100,
+                                "slipFeatureAngle": 30,
+                                "nLayerIter": 50,
+                                "nRelaxedIter": 20,
+                                "nRelaxIter": 5,
+                                "nGrow": 0,
+                                "nSmoothSurfaceNormals": 1,
+                                "nSmoothNormals": 3,
+                                "nSmoothThickness": 10,
+                                "maxFaceThicknessRatio": 0.5,
+                                "maxThicknessToMedialRatio": 0.3,
+                                "minMedianAxisAngle": 90,
+                                "nMedialAxisIter": 10,
+                                "nBufferCellsNoExtrude": 0,
+                                "additionalReporting": false
+                            }
+                        }
+                    },
+                    "meshQualityControls": {
+                        "Type": "WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "meshQualityControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "maxNonOrtho": {
+                                        "type": "number",
+                                        "title": "maxNonOrtho",
+                                        "description": "maximum non-orthogonality allowed"
+                                    },
+                                    "maxBoundarySkewness": {
+                                        "type": "number",
+                                        "title": "maxBoundarySkewness",
+                                        "description": "max boundary face skewness allowed"
+                                    },
+                                    "maxInternalSkewness": {
+                                        "type": "number",
+                                        "title": "maxInternalSkewness",
+                                        "description": "max internal face skewness allowed"
+                                    },
+                                    "maxConcave": {
+                                        "type": "number",
+                                        "title": "maxConcave",
+                                        "description": "max concaveness allowed"
+                                    },
+                                    "minVol": {
+                                        "type": "number",
+                                        "title": "minVol",
+                                        "description": "minimum cell pyramid volume"
+                                    },
+                                    "minTetQuality": {
+                                        "type": "number",
+                                        "title": "minTetQuality",
+                                        "description": "minimum quality of tetrahedral cells from cell decomposition"
+                                    },
+                                    "minArea": {
+                                        "type": "number",
+                                        "title": "minArea",
+                                        "default": -1,
+                                        "description": "minimum face area"
+                                    },
+                                    "minTwist": {
+                                        "type": "number",
+                                        "title": "minTwist",
+                                        "description": "minimum face twist"
+                                    },
+                                    "minDeterminant": {
+                                        "type": "number",
+                                        "title": "minDeterminant",
+                                        "description": "minimum normalised cell determinant"
+                                    },
+                                    "minFaceWeight": {
+                                        "type": "number",
+                                        "title": "minFaceWeight"
+                                    },
+                                    "minVolRatio": {
+                                        "type": "number",
+                                        "title": "minVolRatio"
+                                    },
+                                    "minTriangleTwist": {
+                                        "type": "number",
+                                        "title": "minTriangleTwist"
+                                    },
+                                    "nSmoothScale": {
+                                        "type": "integer",
+                                        "title": "nSmoothScale",
+                                        "description": "number of error distribution iterations"
+                                    },
+                                    "errorReduction": {
+                                        "type": "number",
+                                        "title": "errorReduction",
+                                        "description": "amount to scale back displacement at error points"
+                                    },
+                                    "minFlatness": {
+                                        "type": "number",
+                                        "title": "minFlatness",
+                                        "description": "ratio of minimum projected area to actual area"
+                                    },
+                                    "relaxed": {
+                                        "type": "object",
+                                        "title": "relaxed",
+                                        "properties": {
+                                            "maxNonOrtho": {
+                                                "type": "number",
+                                                "title": "maxNonOrtho",
+                                                "description": ""
+                                            }
+                                        },
+                                        "description": "sub-dictionary that can include modified values for the above keyword entries to be used when nRelaxedIter is exceeded in the layer addition process",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "uiSchema": {},
+                            "formData": {
+                                "maxNonOrtho": 65,
+                                "maxBoundarySkewness": 20,
+                                "maxInternalSkewness": 4,
+                                "maxConcave": 80,
+                                "minVol": 1e-13,
+                                "minTetQuality": -1e+30,
+                                "minArea": -1,
+                                "minTwist": 0.02,
+                                "minDeterminant": 0.001,
+                                "minFaceWeight": 0.05,
+                                "minVolRatio": 0.01,
+                                "minTriangleTwist": -1,
+                                "nSmoothScale": 4,
+                                "errorReduction": 0.75,
+                                "relaxed": {
+                                    "maxNonOrtho": 75
+                                }
+                            }
+                        }
+                    },
+                    "Geometry": {
+                        "Type": "SnappyHexMeshGeometry",
+                        "Properties": {},
+                        "WebGui": {},
+                        "Entities": {
+                            "TemplateEntity": {
+                                "Type": "SnappyHexMeshGeometryEntity",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "title": "SnappyHexMesh Geometry",
+                                        "description": "",
+                                        "type": "object",
+                                        "properties": {
+                                            "objectNameTSM": {
+                                                "type": "string",
+                                                "title": "objectName",
+                                                "description": "Name to use to refer to this surface"
+                                            },
+                                            "objectTypeTSM": {
+                                                "type": "string",
+                                                "title": "objectType",
+                                                "enum": [
+                                                    "stl",
+                                                    "obj"
+                                                ]
+                                            },
+                                            "levelsTSM": {
+                                                "type": "number",
+                                                "title": "Levels",
+                                                "description": ""
+                                            },
+                                            "refinementRegionsTSM": {
+                                                "type": "object",
+                                                "title": "refinementRegions",
+                                                "properties": {
+                                                    "mode": {
+                                                        "type": "string",
+                                                        "title": "Mode",
+                                                        "enum": [
+                                                            "inside",
+                                                            "outside",
+                                                            "distance"
+                                                        ]
+                                                    }
+                                                },
+                                                "dependencies": {
+                                                    "mode": {
+                                                        "oneOf": [
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "inside"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "string",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter 2 numbers: (1 2)"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "outside"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "string",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter 2 numbers: (1 2)"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "distance"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "array",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter a list of 2 numbers:  distance and refinement level (1 2)",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "refinementSurfaceLevelsTSM": {
+                                                "type": "string",
+                                                "title": "refinementSurfaceLevels",
+                                                "description": "Enter 2 numbers: refinement on the X and on the Y dimensions"
+                                            },
+                                            "patchTypeTSM": {
+                                                "type": "string",
+                                                "title": "patchType",
+                                                "enum": [
+                                                    "wall",
+                                                    "patch"
+                                                ]
+                                            },
+                                            "regions": {
+                                                "type": "array",
+                                                "title": "Regions",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "regionName": {
+                                                            "type": "string",
+                                                            "title": "Name"
+                                                        },
+                                                        "regionType": {
+                                                            "type": "string",
+                                                            "title": "Type",
+                                                            "enum": [
+                                                                "wall",
+                                                                "patch"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {},
+                                    "formData": {}
+                                }
+                            },
+                            "items": {}
+                        }
+                    },
+                    "Refinement": {
+                        "Type": "SnappyHexMeshRefinement",
+                        "Properties": {},
+                        "WebGui": {}
+                    }
+                }
+            },
+            "ControlDict": {
+                "Execution": {
+                    "type": "openFOAM.systemExecuters.controlDict",
+                    "input_parameters": {
+                        "values": "{WebGui.formData}"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "title": "ControlDict",
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "startFrom": {
+                                    "type": "string",
+                                    "enum": [
+                                        "firstTime",
+                                        "startTime",
+                                        "latestTime"
+                                    ],
+                                    "description": "Controls the start time of the simulation."
+                                },
+                                "startTime": {
+                                    "title": "startTime",
+                                    "type": "number",
+                                    "description": "Start time for the simulation with startFrom startTime"
+                                },
+                                "stopAt": {
+                                    "type": "string",
+                                    "enum": [
+                                        "endTime",
+                                        "writeNow",
+                                        "noWriteNow",
+                                        "nextwrite"
+                                    ],
+                                    "description": "Controls the end time of the simulation."
+                                },
+                                "endTime": {
+                                    "title": "endTime",
+                                    "type": "number",
+                                    "description": "End time for the simulation when stopAt endTime; is specified."
+                                },
+                                "deltaT": {
+                                    "title": "deltaT",
+                                    "type": "number",
+                                    "description": "Time step of the simulation."
+                                },
+                                "writeControl": {
+                                    "type": "string",
+                                    "enum": [
+                                        "timeStep",
+                                        "runTime",
+                                        "adjustableRunTime",
+                                        "cpuTime",
+                                        "clockTime"
+                                    ],
+                                    "description": "Controls the timing of write output to file."
+                                },
+                                "writeInterval": {
+                                    "title": "writeInterval",
+                                    "type": "integer",
+                                    "description": "Scalar used in conjunction with writeControl described above."
+                                },
+                                "runTimeModifiable": {
+                                    "type": "boolean",
+                                    "title": "runTimeModifiable",
+                                    "description": "Switch for whether dictionaries, e.g. controlDict, are re-read during a simulation at the beginning of each time step, allowing the user to modify parameters during a simulation."
+                                },
+                                "interpolate": {
+                                    "type": "boolean",
+                                    "title": "interpolate"
+                                },
+                                "adjustTimeStep": {
+                                    "type": "boolean",
+                                    "title": "adjustTimeStep",
+                                    "description": "Switch used by some solvers to adjust the time step during the simulation, usually according to maxCo."
+                                },
+                                "functions": {
+                                    "type": "array",
+                                    "title": "functions",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Dictionary of functions, e.g.  probes to be loaded at run-time"
+                                    }
+                                },
+                                "libs": {
+                                    "type": "array",
+                                    "title": "libs",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "List of additional libraries (on $LD_LIBRARY_PATH) to be loaded at run-time"
+                                    }
+                                },
+                                "purgeWrite": {
+                                    "title": "purgeWrite",
+                                    "type": "integer",
+                                    "description": "Integer representing a limit on the number of time directories that are stored by overwriting time directories on a cyclic basis."
+                                },
+                                "writeFormat": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ascii",
+                                        "binary"
+                                    ],
+                                    "description": "Specifies the format of the data files."
+                                },
+                                "writePrecision": {
+                                    "title": "writePrecision",
+                                    "type": "integer",
+                                    "description": "Integer used in conjunction with writeFormat described above."
+                                },
+                                "writeCompression": {
+                                    "type": "boolean",
+                                    "title": "writeCompression",
+                                    "description": "Switch to specify whether files are compressed with gzip"
+                                },
+                                "application": {
+                                    "type": "string",
+                                    "title": "application"
+                                },
+                                "timeFormat": {
+                                    "type": "string",
+                                    "enum": [
+                                        "fixed",
+                                        "scientific",
+                                        "general"
+                                    ],
+                                    "description": "Controls the timing of write output to file."
+                                },
+                                "timePrecision": {
+                                    "title": "timePrecision",
+                                    "type": "integer",
+                                    "description": "Integer used in conjunction with timeFormat described above"
+                                },
+                                "graphFormat": {
+                                    "type": "string",
+                                    "enum": [
+                                        "no graph",
+                                        "raw",
+                                        "gnuplot",
+                                        "xmgr",
+                                        "jplot"
+                                    ],
+                                    "description": "Format for graph data written by an application."
+                                },
+                                "maxCo": {
+                                    "title": "maxCo",
+                                    "type": "number",
+                                    "description": "Maximum Courant number."
+                                }
+                            }
+                        },
+                        "uiSchema": {
+                            "listOfStrings": {
+                                "items": {
+                                    "ui:emptyValue": ""
+                                }
+                            },
+                            "functions": {
+                                "items": {
+                                    "ui:emptyValue": ""
+                                }
+                            },
+                            "runTimeModifiable": {
+                                "ui:widget": "radio"
+                            },
+                            "interpolate": {
+                                "ui:widget": "radio"
+                            },
+                            "adjustTimeStep": {
+                                "ui:widget": "radio"
+                            }
+                        },
+                        "formData": {
+                            "startFrom": "startTime",
+                            "startTime": 0,
+                            "stopAt": "endTime",
+                            "endTime": 1000,
+                            "deltaT": 1,
+                            "writeControl": "timeStep",
+                            "writeInterval": 100,
+                            "runTimeModifiable": true,
+                            "interpolate": true,
+                            "adjustTimeStep": true,
+                            "functions": [],
+                            "libs": []
+                        }
+                    }
+                }
+            },
+            "FvSchemes": {
+                "Execution": {
+                    "type": "openFOAM.systemExecuters.fvSchemes",
+                    "input_parameters": {
+                        "fields": {
+                            "U": {},
+                            "P": {}
+                        },
+                        "default": {
+                            "ddtScheme": "Euler",
+                            "gradSchemes": {
+                                "type": "Gauss",
+                                "name": "linear"
+                            },
+                            "divSchemes": {
+                                "type": "Gauss",
+                                "name": "linear",
+                                "parameters": ""
+                            },
+                            "interpolationSchemes": "linear",
+                            "snGradSchemes": "uncorrected",
+                            "wallDist": "meshWave"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "FvSchemes",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "type": "object",
+                            "title": "default",
+                            "properties": {
+                                "ddtScheme": {
+                                    "type": "string",
+                                    "enum": [
+                                        "steadyState",
+                                        "Euler",
+                                        "backward",
+                                        "CrankNicolson",
+                                        "localEuler"
+                                    ]
+                                },
+                                "gradSchemes": {
+                                    "type": "object",
+                                    "title": "gradSchemes",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Gauss",
+                                                "leastSquares",
+                                                "Gauss cubic"
+                                            ]
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "enum": [
+                                                "linear",
+                                                "UMISTV",
+                                                "linearUpwind",
+                                                "LUST",
+                                                "limitedLinear",
+                                                "upwind",
+                                                "limitedLinearV",
+                                                "linearUpwindV"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "divSchemes": {
+                                    "type": "object",
+                                    "title": "divSchemes",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Gauss"
+                                            ]
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "enum": [
+                                                "linear",
+                                                "UMISTV",
+                                                "linearUpwind",
+                                                "LUST",
+                                                "limitedLinear",
+                                                "upwind",
+                                                "limitedLinearV",
+                                                "linearUpwindV"
+                                            ]
+                                        },
+                                        "parameters": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "interpolationSchemes": {
+                                    "type": "string",
+                                    "title": "interpolationSchemes",
+                                    "description": "terms that are interpolations of values typically from cell centres to face centres",
+                                    "enum": [
+                                        "linear",
+                                        "UMISTV",
+                                        "linearUpwind",
+                                        "LUST",
+                                        "limitedLinear",
+                                        "upwind",
+                                        "limitedLinearV",
+                                        "linearUpwindV"
+                                    ]
+                                },
+                                "snGradSchemes": {
+                                    "type": "string",
+                                    "title": "snGradSchemes",
+                                    "description": "contains surface normal gradient terms",
+                                    "enum": [
+                                        "uncorrected",
+                                        "corrected",
+                                        "orthogonal"
+                                    ]
+                                },
+                                "wallDist": {
+                                    "type": "string",
+                                    "title": "wallDist"
+                                }
+                            }
+                        },
+                        "uiSchema": {},
+                        "formData": {
+                            "ddtScheme": "Euler",
+                            "gradSchemes": {
+                                "type": "Gauss",
+                                "name": "linear"
+                            },
+                            "divSchemes": {
+                                "type": "Gauss",
+                                "name": "linear",
+                                "parameters": ""
+                            },
+                            "interpolationSchemes": "linear",
+                            "snGradSchemes": "uncorrected",
+                            "wallDist": "meshWave"
+                        }
+                    },
+                    "fields": {
+                        "template_webGui": {
+                            "Type": "WebGuiNode",
+                            "Properties": {},
+                            "WebGui": {
+                                "Schema": {
+                                    "type": "object",
+                                    "title": "fields",
+                                    "properties": {
+                                        "fluxRequired": {
+                                            "type": "boolean"
+                                        },
+                                        "divSchemes": {
+                                            "type": "array",
+                                            "title": "divSchemes",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "noOfOperators": {
+                                                        "type": "number"
+                                                    },
+                                                    "phi": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "phi"
+                                                        ]
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "Gauss"
+                                                        ]
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "linear",
+                                                            "UMISTV",
+                                                            "linearUpwind",
+                                                            "LUST",
+                                                            "limitedLinear",
+                                                            "upwind",
+                                                            "limitedLinearV",
+                                                            "linearUpwindV"
+                                                        ]
+                                                    },
+                                                    "parameters": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            " ",
+                                                            "uncorrected",
+                                                            "corrected",
+                                                            "orthogonal"
+                                                        ],
+                                                        "default": " "
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "laplacianSchemes": {
+                                            "type": "array",
+                                            "title": "laplacianSchemes",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "noOfOperators": {
+                                                        "type": "number"
+                                                    },
+                                                    "coefficient": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "(1|A(U))",
+                                                            "nuEff",
+                                                            "AnisotropicDiffusion",
+                                                            "DkEff",
+                                                            "DepsilonEff"
+                                                        ]
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "Gauss"
+                                                        ]
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "linear",
+                                                            "UMISTV",
+                                                            "linearUpwind",
+                                                            "LUST",
+                                                            "limitedLinear",
+                                                            "upwind",
+                                                            "limitedLinearV",
+                                                            "linearUpwindV"
+                                                        ]
+                                                    },
+                                                    "parameters": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            " ",
+                                                            "uncorrected",
+                                                            "corrected",
+                                                            "orthogonal"
+                                                        ],
+                                                        "default": " "
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "uiSchema": {
+                                    "fluxRequired": {
+                                        "ui:widget": "radio"
+                                    }
+                                },
+                                "formData": {}
+                            }
+                        },
+                        "items": {
+                            "U": {
+                                "Type": "WebGuiNode",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "type": "object",
+                                        "title": "fvSch_U",
+                                        "properties": {
+                                            "fluxRequired": {
+                                                "type": "boolean"
+                                            },
+                                            "divSchemes": {
+                                                "type": "array",
+                                                "title": "divSchemes",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "noOfOperators": {
+                                                            "type": "number"
+                                                        },
+                                                        "phi": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "phi"
+                                                            ]
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "Gauss"
+                                                            ]
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "linear",
+                                                                "UMISTV",
+                                                                "linearUpwind",
+                                                                "LUST",
+                                                                "limitedLinear",
+                                                                "upwind",
+                                                                "limitedLinearV",
+                                                                "linearUpwindV"
+                                                            ]
+                                                        },
+                                                        "parameters": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                " ",
+                                                                "uncorrected",
+                                                                "corrected",
+                                                                "orthogonal"
+                                                            ],
+                                                            "default": " "
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "laplacianSchemes": {
+                                                "type": "array",
+                                                "title": "laplacianSchemes",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "noOfOperators": {
+                                                            "type": "number"
+                                                        },
+                                                        "coefficient": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "(1|A(U))",
+                                                                "nuEff",
+                                                                "AnisotropicDiffusion",
+                                                                "DkEff",
+                                                                "DepsilonEff"
+                                                            ]
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "Gauss"
+                                                            ]
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "linear",
+                                                                "UMISTV",
+                                                                "linearUpwind",
+                                                                "LUST",
+                                                                "limitedLinear",
+                                                                "upwind",
+                                                                "limitedLinearV",
+                                                                "linearUpwindV"
+                                                            ]
+                                                        },
+                                                        "parameters": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                " ",
+                                                                "uncorrected",
+                                                                "corrected",
+                                                                "orthogonal"
+                                                            ],
+                                                            "default": " "
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {
+                                        "fluxRequired": {
+                                            "ui:widget": "radio"
+                                        }
+                                    },
+                                    "formData": {}
+                                }
+                            },
+                            "P": {
+                                "Type": "WebGuiNode",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "type": "object",
+                                        "title": "fvSch_P",
+                                        "properties": {
+                                            "fluxRequired": {
+                                                "type": "boolean"
+                                            },
+                                            "divSchemes": {
+                                                "type": "array",
+                                                "title": "divSchemes",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "noOfOperators": {
+                                                            "type": "number"
+                                                        },
+                                                        "phi": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "phi"
+                                                            ]
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "Gauss"
+                                                            ]
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "linear",
+                                                                "UMISTV",
+                                                                "linearUpwind",
+                                                                "LUST",
+                                                                "limitedLinear",
+                                                                "upwind",
+                                                                "limitedLinearV",
+                                                                "linearUpwindV"
+                                                            ]
+                                                        },
+                                                        "parameters": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                " ",
+                                                                "uncorrected",
+                                                                "corrected",
+                                                                "orthogonal"
+                                                            ],
+                                                            "default": " "
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "laplacianSchemes": {
+                                                "type": "array",
+                                                "title": "laplacianSchemes",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "noOfOperators": {
+                                                            "type": "number"
+                                                        },
+                                                        "coefficient": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "(1|A(U))",
+                                                                "nuEff",
+                                                                "AnisotropicDiffusion",
+                                                                "DkEff",
+                                                                "DepsilonEff"
+                                                            ]
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "Gauss"
+                                                            ]
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "linear",
+                                                                "UMISTV",
+                                                                "linearUpwind",
+                                                                "LUST",
+                                                                "limitedLinear",
+                                                                "upwind",
+                                                                "limitedLinearV",
+                                                                "linearUpwindV"
+                                                            ]
+                                                        },
+                                                        "parameters": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                " ",
+                                                                "uncorrected",
+                                                                "corrected",
+                                                                "orthogonal"
+                                                            ],
+                                                            "default": " "
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {
+                                        "fluxRequired": {
+                                            "ui:widget": "radio"
+                                        }
+                                    },
+                                    "formData": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "FvSolution": {
+                "Execution": {
+                    "type": "openFOAM.systemExecuters.fvSolution",
+                    "input_parameters": {
+                        "fields": {
+                            "U": {},
+                            "P": {}
+                        },
+                        "solverProperties": {
+                            "algorithm": "SIMPLE",
+                            "solverFields": {
+                                "nNonOrthogonalCorrectors": 2,
+                                "momentumPredictor": true,
+                                "pRefCell": 0,
+                                "pRefValue": 1
+                            }
+                        },
+                        "relaxationFactors": {
+                            "fields": {},
+                            "equations": {}
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "FvSolution",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "type": "object",
+                            "title": "General",
+                            "properties": {
+                                "algorithm": {
+                                    "title": "algorithm",
+                                    "type": "string",
+                                    "enum": [
+                                        "SIMPLE",
+                                        "PIMPLE",
+                                        "PISO"
+                                    ],
+                                    "default": "SIMPLE"
+                                }
+                            },
+                            "dependencies": {
+                                "algorithm": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "algorithm": {
+                                                    "enum": [
+                                                        "SIMPLE"
+                                                    ]
+                                                },
+                                                "solverFields": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nNonOrthogonalCorrectors": {
+                                                            "type": "number",
+                                                            "title": "nNonOrthogonalCorrectors",
+                                                            "description": "pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction"
+                                                        },
+                                                        "momentumPredictor": {
+                                                            "type": "boolean",
+                                                            "title": "momentumPredictor",
+                                                            "description": "switch that controls solving of the momentum predictor"
+                                                        },
+                                                        "pRefCell": {
+                                                            "type": "number",
+                                                            "title": "pRefCell"
+                                                        },
+                                                        "pRefValue": {
+                                                            "type": "number",
+                                                            "title": "pRefValue"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "algorithm": {
+                                                    "enum": [
+                                                        "PIMPLE"
+                                                    ]
+                                                },
+                                                "solverFields": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nCorrectors": {
+                                                            "type": "integer",
+                                                            "title": "nCorrectors",
+                                                            "description": "sets the number of times the algorithm solves the pressure equation and momentum corrector in each step"
+                                                        },
+                                                        "nNonOrthogonalCorrectors": {
+                                                            "type": "number",
+                                                            "title": "nNonOrthogonalCorrectors",
+                                                            "description": "pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction"
+                                                        },
+                                                        "nOuterCorrectors": {
+                                                            "type": "integer",
+                                                            "title": "nOuterCorrectors",
+                                                            "description": "it enables looping over the entire system of equations within on time step, representing the total number of times the system is solved"
+                                                        },
+                                                        "momentumPredictor": {
+                                                            "type": "boolean",
+                                                            "title": "momentumPredictor",
+                                                            "description": "switch that controls solving of the momentum predictor"
+                                                        },
+                                                        "pRefCell": {
+                                                            "type": "number",
+                                                            "title": "pRefCell"
+                                                        },
+                                                        "pRefValue": {
+                                                            "type": "number",
+                                                            "title": "pRefValue"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "algorithm": {
+                                                    "enum": [
+                                                        "PISO"
+                                                    ]
+                                                },
+                                                "solverFields": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nCorrectors": {
+                                                            "type": "integer",
+                                                            "title": "nCorrectors",
+                                                            "description": "sets the number of times the algorithm solves the pressure equation and momentum corrector in each step"
+                                                        },
+                                                        "nNonOrthogonalCorrectors": {
+                                                            "type": "number",
+                                                            "title": "nNonOrthogonalCorrectors",
+                                                            "description": "pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction"
+                                                        },
+                                                        "momentumPredictor": {
+                                                            "type": "boolean",
+                                                            "title": "momentumPredictor",
+                                                            "description": "switch that controls solving of the momentum predictor"
+                                                        },
+                                                        "pRefCell": {
+                                                            "type": "number",
+                                                            "title": "pRefCell"
+                                                        },
+                                                        "pRefValue": {
+                                                            "type": "number",
+                                                            "title": "pRefValue"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "uiSchema": {
+                            "algorithm": {
+                                "momentumPredictor": {
+                                    "ui:widget": "radio"
+                                }
+                            }
+                        },
+                        "formData": {
+                            "algorithm": "SIMPLE",
+                            "solverFields": {
+                                "nNonOrthogonalCorrectors": 2,
+                                "momentumPredictor": true,
+                                "pRefCell": 0,
+                                "pRefValue": 1
+                            }
+                        }
+                    },
+                    "fields": {
+                        "template_webGui": {
+                            "Type": "WebGuiNode",
+                            "Properties": {},
+                            "WebGui": {
+                                "Schema": {
+                                    "type": "object",
+                                    "title": "solvers",
+                                    "properties": {
+                                        "solver": {
+                                            "type": "string",
+                                            "title": "solver",
+                                            "enum": [
+                                                "PCG",
+                                                "PBiCGStab",
+                                                "PBiCG",
+                                                "smoothSolver",
+                                                "GAMG",
+                                                "diagonal"
+                                            ]
+                                        },
+                                        "preconditioner": {
+                                            "type": "string",
+                                            "title": "preconditioner",
+                                            "enum": [
+                                                "none",
+                                                "DIC",
+                                                "DILU",
+                                                "FDIC",
+                                                "diagonal",
+                                                "GAMG"
+                                            ]
+                                        },
+                                        "tolerance": {
+                                            "type": "number",
+                                            "title": "tolerance",
+                                            "description": "the solver tolerance"
+                                        },
+                                        "relTol": {
+                                            "type": "number",
+                                            "title": "relTol",
+                                            "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                        },
+                                        "maxIter": {
+                                            "type": "number",
+                                            "title": "maxIter",
+                                            "description": "the number of iterations exceeds a maximum number of iterations"
+                                        },
+                                        "final": {
+                                            "type": "object",
+                                            "title": "final",
+                                            "properties": {
+                                                "solver": {
+                                                    "type": "string",
+                                                    "title": "solver",
+                                                    "enum": [
+                                                        "PCG",
+                                                        "PBiCGStab",
+                                                        "PBiCG",
+                                                        "smoothSolver",
+                                                        "GAMG",
+                                                        "diagonal"
+                                                    ]
+                                                },
+                                                "preconditioner": {
+                                                    "type": "string",
+                                                    "title": "preconditioner",
+                                                    "enum": [
+                                                        "none",
+                                                        "DIC",
+                                                        "DILU",
+                                                        "FDIC",
+                                                        "diagonal",
+                                                        "GAMG"
+                                                    ]
+                                                },
+                                                "tolerance": {
+                                                    "type": "number",
+                                                    "title": "tolerance",
+                                                    "description": "the solver tolerance"
+                                                },
+                                                "relTol": {
+                                                    "type": "number",
+                                                    "title": "relTol",
+                                                    "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                                },
+                                                "maxIter": {
+                                                    "type": "number",
+                                                    "title": "maxIter",
+                                                    "description": "the number of iterations exceeds a maximum number of iterations"
+                                                }
+                                            }
+                                        },
+                                        "residualControl": {
+                                            "type": "number"
+                                        },
+                                        "relaxationFactors": {
+                                            "type": "object",
+                                            "title": "relaxationFactors",
+                                            "properties": {
+                                                "fields": {
+                                                    "type": "number",
+                                                    "title": "fields"
+                                                },
+                                                "equations": {
+                                                    "type": "object",
+                                                    "title": "relaxationFactors-equations",
+                                                    "properties": {
+                                                        "factor": {
+                                                            "type": "number"
+                                                        },
+                                                        "final": {
+                                                            "type": "number"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "smoother": {
+                                            "type": "string",
+                                            "title": "smoother",
+                                            "enum": [
+                                                "none",
+                                                "GaussSeidel",
+                                                "symGaussSeidel",
+                                                "DIC",
+                                                "DILU",
+                                                "DICGaussSeidel"
+                                            ]
+                                        },
+                                        "GAMGproperties": {
+                                            "type": "array",
+                                            "title": "GAMG properties",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cacheAgglomeration": {
+                                                        "type": "boolean",
+                                                        "title": "cacheAgglomeration",
+                                                        "description": "switch specifying caching of the agglomeration strategy"
+                                                    },
+                                                    "agglomerator": {
+                                                        "type": "string",
+                                                        "title": "agglomerator"
+                                                    },
+                                                    "nCellsInCoarsestLevel": {
+                                                        "type": "integer",
+                                                        "title": "nCellsInCoarsestLevel",
+                                                        "description": "approximate mesh size at the most coarse level in terms of the number of cells"
+                                                    },
+                                                    "directSolveCoarset": {
+                                                        "type": "boolean",
+                                                        "title": "directSolveCoarset",
+                                                        "description": "use a direct solver at the coarsest level"
+                                                    },
+                                                    "mergeLevels": {
+                                                        "type": "integer",
+                                                        "title": "mergeLevels",
+                                                        "description": "controls the speed at which coarsening or refinement is performed"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "SmoothProperties": {
+                                            "type": "array",
+                                            "title": "Smooth Properties",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "nPreSweeps": {
+                                                        "type": "integer",
+                                                        "title": "nPreSweeps",
+                                                        "description": "number of sweeps as the algorithm is coarsening"
+                                                    },
+                                                    "preSweepsLevelMultiplier": {
+                                                        "type": "integer",
+                                                        "title": "preSweepsLevelMultiplier",
+                                                        "description": "multiplier for the the number of sweeps between each coarsening level"
+                                                    },
+                                                    "maxPreSweeps": {
+                                                        "type": "integer",
+                                                        "title": "maxPreSweeps",
+                                                        "description": "maximum number of sweeps as the algorithm is coarsening"
+                                                    },
+                                                    "nPostSweeps": {
+                                                        "type": "integer",
+                                                        "title": "nPostSweeps",
+                                                        "description": "number of sweeps as the algorithm is refining"
+                                                    },
+                                                    "postSweepsLevelMultiplier": {
+                                                        "type": "integer",
+                                                        "title": "postSweepsLevelMultiplier",
+                                                        "description": "multiplier for the the number of sweeps between each refinement level"
+                                                    },
+                                                    "maxPostSweeps": {
+                                                        "type": "integer",
+                                                        "title": "maxPostSweeps",
+                                                        "description": "maximum number of sweeps as the algorithm is refining"
+                                                    },
+                                                    "nFinestSweeps": {
+                                                        "type": "integer",
+                                                        "title": "nFinestSweeps",
+                                                        "description": "number of sweeps at finest level"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "uiSchema": {},
+                                "formData": {}
+                            }
+                        },
+                        "items": {
+                            "U": {
+                                "Type": "WebGuiNode",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "type": "object",
+                                        "title": "fvSol_U",
+                                        "properties": {
+                                            "solver": {
+                                                "type": "string",
+                                                "title": "solver",
+                                                "enum": [
+                                                    "PCG",
+                                                    "PBiCGStab",
+                                                    "PBiCG",
+                                                    "smoothSolver",
+                                                    "GAMG",
+                                                    "diagonal"
+                                                ]
+                                            },
+                                            "preconditioner": {
+                                                "type": "string",
+                                                "title": "preconditioner",
+                                                "enum": [
+                                                    "none",
+                                                    "DIC",
+                                                    "DILU",
+                                                    "FDIC",
+                                                    "diagonal",
+                                                    "GAMG"
+                                                ]
+                                            },
+                                            "tolerance": {
+                                                "type": "number",
+                                                "title": "tolerance",
+                                                "description": "the solver tolerance"
+                                            },
+                                            "relTol": {
+                                                "type": "number",
+                                                "title": "relTol",
+                                                "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                            },
+                                            "maxIter": {
+                                                "type": "number",
+                                                "title": "maxIter",
+                                                "description": "the number of iterations exceeds a maximum number of iterations"
+                                            },
+                                            "final": {
+                                                "type": "object",
+                                                "title": "final",
+                                                "properties": {
+                                                    "solver": {
+                                                        "type": "string",
+                                                        "title": "solver",
+                                                        "enum": [
+                                                            "PCG",
+                                                            "PBiCGStab",
+                                                            "PBiCG",
+                                                            "smoothSolver",
+                                                            "GAMG",
+                                                            "diagonal"
+                                                        ]
+                                                    },
+                                                    "preconditioner": {
+                                                        "type": "string",
+                                                        "title": "preconditioner",
+                                                        "enum": [
+                                                            "none",
+                                                            "DIC",
+                                                            "DILU",
+                                                            "FDIC",
+                                                            "diagonal",
+                                                            "GAMG"
+                                                        ]
+                                                    },
+                                                    "tolerance": {
+                                                        "type": "number",
+                                                        "title": "tolerance",
+                                                        "description": "the solver tolerance"
+                                                    },
+                                                    "relTol": {
+                                                        "type": "number",
+                                                        "title": "relTol",
+                                                        "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                                    },
+                                                    "maxIter": {
+                                                        "type": "number",
+                                                        "title": "maxIter",
+                                                        "description": "the number of iterations exceeds a maximum number of iterations"
+                                                    }
+                                                }
+                                            },
+                                            "residualControl": {
+                                                "type": "number"
+                                            },
+                                            "relaxationFactors": {
+                                                "type": "object",
+                                                "title": "relaxationFactors",
+                                                "properties": {
+                                                    "fields": {
+                                                        "type": "number",
+                                                        "title": "fields"
+                                                    },
+                                                    "equations": {
+                                                        "type": "object",
+                                                        "title": "relaxationFactors-equations",
+                                                        "properties": {
+                                                            "factor": {
+                                                                "type": "number"
+                                                            },
+                                                            "final": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "smoother": {
+                                                "type": "string",
+                                                "title": "smoother",
+                                                "enum": [
+                                                    "none",
+                                                    "GaussSeidel",
+                                                    "symGaussSeidel",
+                                                    "DIC",
+                                                    "DILU",
+                                                    "DICGaussSeidel"
+                                                ]
+                                            },
+                                            "GAMGproperties": {
+                                                "type": "array",
+                                                "title": "GAMG properties",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "cacheAgglomeration": {
+                                                            "type": "boolean",
+                                                            "title": "cacheAgglomeration",
+                                                            "description": "switch specifying caching of the agglomeration strategy"
+                                                        },
+                                                        "agglomerator": {
+                                                            "type": "string",
+                                                            "title": "agglomerator"
+                                                        },
+                                                        "nCellsInCoarsestLevel": {
+                                                            "type": "integer",
+                                                            "title": "nCellsInCoarsestLevel",
+                                                            "description": "approximate mesh size at the most coarse level in terms of the number of cells"
+                                                        },
+                                                        "directSolveCoarset": {
+                                                            "type": "boolean",
+                                                            "title": "directSolveCoarset",
+                                                            "description": "use a direct solver at the coarsest level"
+                                                        },
+                                                        "mergeLevels": {
+                                                            "type": "integer",
+                                                            "title": "mergeLevels",
+                                                            "description": "controls the speed at which coarsening or refinement is performed"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "SmoothProperties": {
+                                                "type": "array",
+                                                "title": "Smooth Properties",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nPreSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nPreSweeps",
+                                                            "description": "number of sweeps as the algorithm is coarsening"
+                                                        },
+                                                        "preSweepsLevelMultiplier": {
+                                                            "type": "integer",
+                                                            "title": "preSweepsLevelMultiplier",
+                                                            "description": "multiplier for the the number of sweeps between each coarsening level"
+                                                        },
+                                                        "maxPreSweeps": {
+                                                            "type": "integer",
+                                                            "title": "maxPreSweeps",
+                                                            "description": "maximum number of sweeps as the algorithm is coarsening"
+                                                        },
+                                                        "nPostSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nPostSweeps",
+                                                            "description": "number of sweeps as the algorithm is refining"
+                                                        },
+                                                        "postSweepsLevelMultiplier": {
+                                                            "type": "integer",
+                                                            "title": "postSweepsLevelMultiplier",
+                                                            "description": "multiplier for the the number of sweeps between each refinement level"
+                                                        },
+                                                        "maxPostSweeps": {
+                                                            "type": "integer",
+                                                            "title": "maxPostSweeps",
+                                                            "description": "maximum number of sweeps as the algorithm is refining"
+                                                        },
+                                                        "nFinestSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nFinestSweeps",
+                                                            "description": "number of sweeps at finest level"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {},
+                                    "formData": {}
+                                }
+                            },
+                            "P": {
+                                "Type": "WebGuiNode",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "type": "object",
+                                        "title": "fvSol_P",
+                                        "properties": {
+                                            "solver": {
+                                                "type": "string",
+                                                "title": "solver",
+                                                "enum": [
+                                                    "PCG",
+                                                    "PBiCGStab",
+                                                    "PBiCG",
+                                                    "smoothSolver",
+                                                    "GAMG",
+                                                    "diagonal"
+                                                ]
+                                            },
+                                            "preconditioner": {
+                                                "type": "string",
+                                                "title": "preconditioner",
+                                                "enum": [
+                                                    "none",
+                                                    "DIC",
+                                                    "DILU",
+                                                    "FDIC",
+                                                    "diagonal",
+                                                    "GAMG"
+                                                ]
+                                            },
+                                            "tolerance": {
+                                                "type": "number",
+                                                "title": "tolerance",
+                                                "description": "the solver tolerance"
+                                            },
+                                            "relTol": {
+                                                "type": "number",
+                                                "title": "relTol",
+                                                "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                            },
+                                            "maxIter": {
+                                                "type": "number",
+                                                "title": "maxIter",
+                                                "description": "the number of iterations exceeds a maximum number of iterations"
+                                            },
+                                            "final": {
+                                                "type": "object",
+                                                "title": "final",
+                                                "properties": {
+                                                    "solver": {
+                                                        "type": "string",
+                                                        "title": "solver",
+                                                        "enum": [
+                                                            "PCG",
+                                                            "PBiCGStab",
+                                                            "PBiCG",
+                                                            "smoothSolver",
+                                                            "GAMG",
+                                                            "diagonal"
+                                                        ]
+                                                    },
+                                                    "preconditioner": {
+                                                        "type": "string",
+                                                        "title": "preconditioner",
+                                                        "enum": [
+                                                            "none",
+                                                            "DIC",
+                                                            "DILU",
+                                                            "FDIC",
+                                                            "diagonal",
+                                                            "GAMG"
+                                                        ]
+                                                    },
+                                                    "tolerance": {
+                                                        "type": "number",
+                                                        "title": "tolerance",
+                                                        "description": "the solver tolerance"
+                                                    },
+                                                    "relTol": {
+                                                        "type": "number",
+                                                        "title": "relTol",
+                                                        "description": "the ratio of current to initial residuals falls below the solver relative tolerance"
+                                                    },
+                                                    "maxIter": {
+                                                        "type": "number",
+                                                        "title": "maxIter",
+                                                        "description": "the number of iterations exceeds a maximum number of iterations"
+                                                    }
+                                                }
+                                            },
+                                            "residualControl": {
+                                                "type": "number"
+                                            },
+                                            "relaxationFactors": {
+                                                "type": "object",
+                                                "title": "relaxationFactors",
+                                                "properties": {
+                                                    "fields": {
+                                                        "type": "number",
+                                                        "title": "fields"
+                                                    },
+                                                    "equations": {
+                                                        "type": "object",
+                                                        "title": "relaxationFactors-equations",
+                                                        "properties": {
+                                                            "factor": {
+                                                                "type": "number"
+                                                            },
+                                                            "final": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "smoother": {
+                                                "type": "string",
+                                                "title": "smoother",
+                                                "enum": [
+                                                    "none",
+                                                    "GaussSeidel",
+                                                    "symGaussSeidel",
+                                                    "DIC",
+                                                    "DILU",
+                                                    "DICGaussSeidel"
+                                                ]
+                                            },
+                                            "GAMGproperties": {
+                                                "type": "array",
+                                                "title": "GAMG properties",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "cacheAgglomeration": {
+                                                            "type": "boolean",
+                                                            "title": "cacheAgglomeration",
+                                                            "description": "switch specifying caching of the agglomeration strategy"
+                                                        },
+                                                        "agglomerator": {
+                                                            "type": "string",
+                                                            "title": "agglomerator"
+                                                        },
+                                                        "nCellsInCoarsestLevel": {
+                                                            "type": "integer",
+                                                            "title": "nCellsInCoarsestLevel",
+                                                            "description": "approximate mesh size at the most coarse level in terms of the number of cells"
+                                                        },
+                                                        "directSolveCoarset": {
+                                                            "type": "boolean",
+                                                            "title": "directSolveCoarset",
+                                                            "description": "use a direct solver at the coarsest level"
+                                                        },
+                                                        "mergeLevels": {
+                                                            "type": "integer",
+                                                            "title": "mergeLevels",
+                                                            "description": "controls the speed at which coarsening or refinement is performed"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "SmoothProperties": {
+                                                "type": "array",
+                                                "title": "Smooth Properties",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "nPreSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nPreSweeps",
+                                                            "description": "number of sweeps as the algorithm is coarsening"
+                                                        },
+                                                        "preSweepsLevelMultiplier": {
+                                                            "type": "integer",
+                                                            "title": "preSweepsLevelMultiplier",
+                                                            "description": "multiplier for the the number of sweeps between each coarsening level"
+                                                        },
+                                                        "maxPreSweeps": {
+                                                            "type": "integer",
+                                                            "title": "maxPreSweeps",
+                                                            "description": "maximum number of sweeps as the algorithm is coarsening"
+                                                        },
+                                                        "nPostSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nPostSweeps",
+                                                            "description": "number of sweeps as the algorithm is refining"
+                                                        },
+                                                        "postSweepsLevelMultiplier": {
+                                                            "type": "integer",
+                                                            "title": "postSweepsLevelMultiplier",
+                                                            "description": "multiplier for the the number of sweeps between each refinement level"
+                                                        },
+                                                        "maxPostSweeps": {
+                                                            "type": "integer",
+                                                            "title": "maxPostSweeps",
+                                                            "description": "maximum number of sweeps as the algorithm is refining"
+                                                        },
+                                                        "nFinestSweeps": {
+                                                            "type": "integer",
+                                                            "title": "nFinestSweeps",
+                                                            "description": "number of sweeps at finest level"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {},
+                                    "formData": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "TransportProperties": {
+                "Execution": {
+                    "type": "openFOAM.constantExecuters.transportProperties",
+                    "input_parameters": {
+                        "transportModel": "Newtonian",
+                        "nu": "1e-5"
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "type": "object",
+                            "properties": {
+                                "transportModel": {
+                                    "type": "string",
+                                    "title": "transportModel"
+                                },
+                                "nu": {
+                                    "type": "string",
+                                    "title": "nu"
+                                }
+                            }
+                        },
+                        "uiSchema": {},
+                        "formData": {
+                            "transportModel": "Newtonian",
+                            "nu": "1e-5"
+                        }
+                    }
+                }
+            },
+            "TurbulenceProperties": {
+                "Execution": {
+                    "type": "openFOAM.constantExecuters.turbulenceProperties",
+                    "input_parameters": {
+                        "simulationType": "RAS",
+                        "Model": "kEpsilon",
+                        "turbulence": true,
+                        "printCoeffs": false
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "type": "object",
+                            "properties": {
+                                "simulationType": {
+                                    "type": "string",
+                                    "title": "simulationType"
+                                },
+                                "Model": {
+                                    "type": "string",
+                                    "title": "RASModel",
+                                    "enum": [
+                                        "LRR",
+                                        "LamBremhorstKE",
+                                        "LaunderSharmaKE",
+                                        "LienCubicKE",
+                                        "LienLeschziner",
+                                        "RNGkEpsilon",
+                                        "SSG",
+                                        "ShihQuadraticKE",
+                                        "SpalartAllmaras",
+                                        "kEpsilon",
+                                        "kOmega",
+                                        "kOmegaSST",
+                                        "kOmegaSSTLM",
+                                        "kOmegaSSTSAS",
+                                        "kkLOmega",
+                                        "qZeta",
+                                        "realizableKE",
+                                        "v2f"
+                                    ],
+                                    "description": "name of RAS turbulence model."
+                                },
+                                "turbulence": {
+                                    "type": "boolean",
+                                    "title": "turbulence",
+                                    "description": "switch to turn the solving of turbulence modelling on/off",
+                                    "enumNames": [
+                                        "on",
+                                        "off"
+                                    ]
+                                },
+                                "printCoeffs": {
+                                    "type": "boolean",
+                                    "title": "printCoeffs",
+                                    "description": "switch to print model coeffs to terminal at simulation start up.",
+                                    "enumNames": [
+                                        "on",
+                                        "off"
+                                    ]
+                                },
+                                "ModelCoeffs": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "uiSchema": {
+                            "turbulence": {
+                                "ui:widget": "radio"
+                            },
+                            "printCoeffs": {
+                                "ui:widget": "radio"
+                            }
+                        },
+                        "formData": {
+                            "simulationType": "RAS",
+                            "Model": "kEpsilon",
+                            "turbulence": true,
+                            "printCoeffs": false
+                        }
+                    }
+                }
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/BlockMesh": "{BlockMesh.output.openFOAMfile}",
+                            "system/snappyHexMeshDict": "{SnappyHexMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}",
+                            "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
+                            "system/fvSolution": "{FvSolution.output.openFOAMfile}",
+                            "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
+                            "constant/turbulenceProperties": "{turbulenceProperties.output.openFOAMfile}"
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "WebGuiNode",
+                    "Properties": {},
+                    "WebGui": {}
+                }
+            }
+        }
+    }
+}

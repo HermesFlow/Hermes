@@ -1,0 +1,1 @@
+cp -r freecad_Resources/ui/ ../build/data/Mod/Hermes/Resources/

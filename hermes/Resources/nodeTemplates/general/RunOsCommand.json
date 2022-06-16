@@ -3,12 +3,11 @@
         "type": "fileSystemExecuters.RunOsCommand",
         "input_parameters": {
             "Method": "{Properties.ChooseMethod.current_val}",
-            "Commands": "{Properties.Commands.current_val}",
-            "batchFile": "{Properties.batchFile.current_val}"
+            "Command": "{Properties.Commands.current_val}"
         }
     },
     "GUI": {
-        "Type": "WebGuiNode",
+        "Type": "general.HermesGeneral.RunOsCommand",
         "Properties": {
             "ChooseMethod": {
                 "prop": "ChooseMethod",
@@ -34,14 +33,15 @@
                     "echo ''"
                 ]
             },
-            "batchFile": {
-                "prop": "batchFile",
-                "init_val": "Text",
-                "type": "App::PropertyFile",
-                "Heading": "Parameters",
-                "tooltip": "File containing all the OS commands to execute",
-                "current_val": ""
+            "batchFile":{
+                "prop":"batchFile",
+                "init_val":"Text",
+                "type":"App::PropertyFile",
+                "Heading":"Parameters",
+                "tooltip":"File containing all the OS commands to execute",
+                "current_val":""
             }
+
         },
         "WebGui": {
         }

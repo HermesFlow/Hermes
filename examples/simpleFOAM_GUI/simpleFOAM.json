@@ -13,7 +13,7 @@
             "FvSchemes",
             "FvSolution",
             "TransportProperties",
-            "RASProperties",
+            "TurbulenceProperties",
             "FileWriter"
         ],
         "nodes": {
@@ -21,7 +21,7 @@
                 "Template": "general.CopyDirectory"
             },
             "RunPythonScript": {
-                "Template": "general.RunPythonScript"
+                "Template": "general.RunPythonCode"
             },
             "RunOsCommand":{
                 "Template": "general.RunOsCommand"
@@ -29,26 +29,23 @@
             "BlockMesh":{
                 "Template": "GeometryDefiner.BlockMeshTemplate"
             },
-            "GeometryDefiner":{
-                "Template": "GeometryDefiner.GeometryDefinerTemplate"
-            },
             "SnappyHexMesh":{
-                "Template": "openFOAM.simpleFOAM.SnappyHexMesh"
+                "Template": "openFOAM.mesh.snappyHexMesh"
             },
             "ControlDict":{
-                "Template": "openFOAM.simpleFOAM.ControlDict"
+                "Template": "openFOAM.system.controlDict"
             },
             "FvSchemes":{
-                "Template": "openFOAM.simpleFOAM.FvSchemes"
+                "Template": "openFOAM.system.fvSchemes"
             },
             "FvSolution":{
-                "Template": "openFOAM.simpleFOAM.FvSolution"
+                "Template": "openFOAM.system.fvSolution"
             },
             "TransportProperties":{
-                "Template": "openFOAM.simpleFOAM.TransportProperties"
+                "Template": "openFOAM.constant.transportProperties"
             },
-            "RASProperties":{
-                "Template": "openFOAM.simpleFOAM.RASProperties"
+            "TurbulenceProperties":{
+                "Template": "openFOAM.constant.turbulenceProperties"
             },
             "FileWriter": {
                 "Execution": {
@@ -62,7 +59,7 @@
                             "system/fvSchemes": "{FvSchemes.output.openFOAMfile}",
                             "system/fvSolution": "{FvSolution.output.openFOAMfile}",
                             "constant/transportProperties": "{TransportProperties.output.openFOAMfile}",
-                            "constant/turbulenceProperties": "{RASProperties.output.openFOAMfile}"
+                            "constant/turbulenceProperties": "{turbulenceProperties.output.openFOAMfile}"
                         }
                     }
                 },

@@ -1,0 +1,50 @@
+{
+  "workflow": {
+    "root": null,
+    "Templates": {},
+    "nodeList": [
+      "copyDirectory",
+      "RunOs_blockMesh",
+      "runOS_CellCenters"
+    ],
+    "nodes": {
+      "copyDirectory": {
+        "Template": "general.CopyDirectory",
+        "GUI": {
+          "Properties": {
+            "Source": {
+              "current_val": "/home/davidg/Projects/2020/OpenFoam/simulations/LESDrops/OF_Templates/spongeRuns"
+            },
+            "Target": {
+              "current_val": "/home/davidg/Projects/2020/runOS/Target"
+            }
+          }
+        }
+      },
+      "RunOs_blockMesh": {
+        "Template": "general.RunOsCommand",
+        "Execution": {
+          "type": "fileSystemExecuters.RunOsCommand",
+          "input_parameters": {
+            "Method": "command",
+            "Commands": "blockMesh -case {copyDirectory.output.Target}"
+          },
+          "GUI": {
+          }
+        }
+      },
+      "runOS_CellCenters": {
+        "Template": "general.RunOsCommand",
+        "Execution": {
+          "type": "fileSystemExecuters.RunOsCommand",
+          "input_parameters": {
+            "Method": "command",
+            "Commands": "postProcess -func writeCellCentres -case {RunOs_blockMesh.copyDirectory.output.Target}"
+          },
+          "GUI": {
+          }
+        }
+      }
+    }
+  }
+}

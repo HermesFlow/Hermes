@@ -51,11 +51,10 @@ class LuigiBuilder(object):
 
     def _getTransformaer(self, tasktype):
         taskName = tasktype.split('.')[-1]
-        path = ("hermes.engines.luigi.luigi%s.default%s.transform" % (taskName, taskName))
         try:
-            defaultClass = pydoc.locate(path)()
+            defaultClass = pydoc.locate(f"hermes.engines.luigi.pythonClass{taskName}.transform")()
         except:
-            defaultClass = pydoc.locate("hermes.engines.luigi.default.transform")()
+            defaultClass = pydoc.locate("hermes.engines.luigi.pythonClassBase.transform")()
 
         return defaultClass
 

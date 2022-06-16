@@ -1,0 +1,12 @@
+{
+  "Execution": {
+    "type": "generalExecuters.caseParameters"
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {},
+    "WebGui": {
+        "formData" : {}
+    }
+  }
+}

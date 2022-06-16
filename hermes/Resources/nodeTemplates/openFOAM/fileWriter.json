@@ -1,0 +1,10 @@
+{
+  "Execution": {
+    "type": "generalExecuters.FilesWriter"
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {},
+    "WebGui": {}
+  }
+}

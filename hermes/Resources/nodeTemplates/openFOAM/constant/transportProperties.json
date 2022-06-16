@@ -1,0 +1,17 @@
+{
+  "Execution": {
+    "type": "openFOAM.constantExecuters.transportProperties",
+    "input_parameters": {
+      "transportModel" : "Newtonian",
+      "nu" : 1e-5
+    }
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.constant.WebGui.TransportPropertiesWebGui"
+    }
+  }
+}

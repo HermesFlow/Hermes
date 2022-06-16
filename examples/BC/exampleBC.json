@@ -1,0 +1,30 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "SnappyHexMesh",
+            "GeometryDefiner",
+            "BoundaryCondition",
+            "ControlDict"
+        ],
+        "nodes": {
+            "BlockMesh":{
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "SnappyHexMesh": {
+                "Template": "openFOAM.mesh.snappyHexMesh"
+            },
+            "GeometryDefiner":{
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            },
+            "BoundaryCondition":{
+                "Template": "BC.BC"
+            },
+            "ControlDict":{
+                "Template": "openFOAM.system.controlDict"
+            }
+        }
+    }
+}

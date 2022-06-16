@@ -2,7 +2,7 @@
     "Name":"symmetry",
     "Type":"symmetry",
     "Properties":{
-        "Property01":{
+        "P0":{
             "prop":"P0",
             "init_val":"10 Pa",
             "type":"App::PropertyPressure",

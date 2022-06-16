@@ -1,0 +1,18 @@
+{
+    "fields":{
+        "type":"number",
+        "title":"fields"
+    },
+    "equations":{
+        "type":"object",
+        "title":"relaxationFactors-equations",
+        "properties": {
+            "factor": {
+                "type": "number"
+            },
+            "final": {
+                "type": "number"
+            }
+        }
+    }
+}

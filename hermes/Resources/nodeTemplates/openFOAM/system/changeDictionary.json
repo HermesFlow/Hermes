@@ -1,0 +1,18 @@
+{
+  "Execution": {
+    "type": "openFOAM.systemExecuters.changeDictionary",
+    "input_parameters": {
+      "fields" : {
+
+      }
+    }
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.WebGui.ControlDictWebGui"
+    }
+  }
+}

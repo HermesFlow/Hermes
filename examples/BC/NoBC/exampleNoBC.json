@@ -1,0 +1,34 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "BlockMesh",
+            "GeometryDefiner",
+            "ControlDict"
+        ],
+        "nodes": {
+            "BlockMesh": {
+                "Template": "GeometryDefiner.BlockMeshTemplate"
+            },
+            "GeometryDefiner": {
+                "Template": "GeometryDefiner.GeometryDefinerTemplate"
+            },
+            "ControlDict": {
+                "Template": "openFOAM.simpleFOAM.ControlDict"
+            },
+            "FileWriter": {
+                "Execution": {
+                    "type": "generalExecuters.FilesWriter",
+                    "input_parameters": {
+                        "casePath": "OpenFOAMfiles/",
+                        "Files": {
+                            "system/BlockMesh": "{BlockMesh.output.openFOAMfile}",
+                            "system/controlDict": "{ControlDict.output.openFOAMfile}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "Type": "openFOAM2.mesh.HermesSnappyHexMesh.SnappyHexMeshGeometryEntity",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"SnappyHexMesh Geometry",
+      "description":"",
+      "type":"object",
+      "properties": {
+        "Template":"openFOAM.mesh.WebGui.SnappyMesh.objects.triSurfaceMesh"
+      }
+    },
+    "uiSchema":{},
+    "formData":{}
+  }
+}

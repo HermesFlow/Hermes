@@ -1,6 +1,6 @@
 {
     "Properties":{
-        "Property01":{
+        "Ux":{
             "prop":"Ux",
             "init_val":"0 m/s",
             "type":"App::PropertySpeed",
@@ -8,7 +8,7 @@
             "tooltip":"Velocity in x direction ",
             "current_val":"0 m/s"
         },
-        "Property02":{
+        "Uy":{
             "prop":"Uy",
             "init_val":"0 m/s",
             "type":"App::PropertySpeed",

@@ -1,0 +1,25 @@
+{
+    "Execution": {
+        "type":"jinjaExecuters.jinja",
+        "input_parameters": {
+            "template": "{Properties.TemplateName.current_val}",
+            "path" : [],
+            "parameters" : {}
+        }
+    },
+    "GUI": {
+        "Type": "WebGuiNode",
+        "Properties": {
+            "TemplateName": {
+                "prop": "TemplateName",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "Parameters",
+                "tooltip": "The source directory",
+                "current_val": ""
+            }
+        },
+        "WebGui": {
+        }
+    }
+}
