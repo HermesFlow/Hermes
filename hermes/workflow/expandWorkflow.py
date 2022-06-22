@@ -10,6 +10,9 @@ import json
 import os
 import collections.abc
 
+import FreeCAD
+
+
 class expandWorkflow:
     """ this class is taking a json with reference
       to other files , end inject the data from those other
@@ -38,6 +41,20 @@ class expandWorkflow:
 
         self.cwd = ""
         self.WD_path = ""
+
+    def expandBatch(self, templateJSON, parameters={}):
+        '''
+        Expamd workflow and remove the GUI part
+        '''
+        JsonObjectBatch = self.expand(templateJSON,parameters)
+        for nodeKey, nodeVal in JsonObjectBatch["workflow"]["nodes"].items():
+            if "GUI" in nodeVal.keys():
+                nodeVal.pop("GUI")
+
+        ret = self.updateMap(JsonObjectBatch, parameters)
+
+        return ret
+
 
     def expand(self, templateJSON, parameters={}):
         """
@@ -88,11 +105,19 @@ class expandWorkflow:
 
             # check if the node from list is in the dictionary list
             if node in nodes:
+                templatepath = ""
+
                 # get the current node
                 currentNode = nodes[node]
 
+                if self.getFromTemplate in currentNode.keys():
+                    templatepath = currentNode[self.getFromTemplate]
+
                 # update the data in the nodes from file/templates to concrete data
                 updatedCurrentNode = self.getImportedJson(currentNode)
+
+                if len(templatepath) > 0:
+                    updatedCurrentNode[self.getFromTemplate] = templatepath
 
                 # add the data into 'new_nodes'
                 new_nodes[node] = updatedCurrentNode
@@ -282,8 +307,11 @@ class expandWorkflow:
         paths = None
         self._templateCenter = templateCenter(paths)
 
+
         # get template data
         UpdatedJsonStruct = self._templateCenter.getTemplate(importTemplate)
+
+
 
         # call 'getImportedJson' in case there are nested files that need to be imported
         UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
