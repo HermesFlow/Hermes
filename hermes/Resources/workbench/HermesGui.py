@@ -212,6 +212,8 @@ class _HermesWorkflow:
 
         # create jsonObject varieble that contain all data, including imported data from files/templates
         self.JsonObject = expandWorkflow().expand(jsonFilePath)
+        if self.JsonObject is None:
+            return
 
         # assign the data been import to the JSONString property after dumps
         obj.JSONString = json.dumps(self.JsonObject)

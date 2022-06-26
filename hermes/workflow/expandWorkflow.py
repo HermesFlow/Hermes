@@ -78,8 +78,18 @@ class expandWorkflow:
 
         if isinstance(templateJSON,str):
             if os.path.exists(templateJSON):
-                with open(templateJSON, 'r') as myfile:
-                    JsonObjectfromFile  = json.load(myfile)
+                try:
+                    with open(templateJSON, 'r') as myfile:
+                        JsonObjectfromFile  = json.load(myfile)
+                except Exception:  # if error detected to write
+                    # FreeCAD message
+                    import FreeCAD
+                    FreeCAD.Console.PrintError("Could not Load the JSON file, check its structure\n")
+
+                    # python message
+                    print("Could not Load the JSON file, check its structure\n")
+
+                    return None
             else:
                 JsonObjectfromFile = json.loads(templateJSON)
 

@@ -415,7 +415,7 @@ class _ViewProviderNode:
         if self.NodeObjType is None:
             return 
 
-        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "copyFile", "RunOsCommand", "RunPythonCode"]
+        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "CopyFile", "RunOsCommand", "RunPythonCode"]
         bool_webGuinodes = [True for node in webGuiNodes if node in self.NodeObjType]
 
         if True in bool_webGuinodes:

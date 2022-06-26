@@ -4,18 +4,22 @@
         "Templates": [],
         "nodeList": [
             "CopyDirectory",
-            "RunPythonScript",
-            "RunOsCommand"
+            "RunPythonCode",
+            "RunOsCommand",
+            "CopyFile"
         ],
         "nodes": {
             "CopyDirectory": {
                 "Template": "general.CopyDirectory.jsonForm"
             },
-            "RunPythonScript": {
-                "Template": "nodeTemplates.general.RunPythonCode"
+            "RunPythonCode": {
+                "Template": "general.RunPythonCode.jsonForm"
             },
             "RunOsCommand": {
-                "Template": "nodeTemplates.general.RunOsCommand"
+                "Template": "general.RunOsCommand.jsonForm"
+            },
+            "CopyFile": {
+                "Template": "general.CopyFile.jsonForm"
             }
         }
     }
