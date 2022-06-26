@@ -47,6 +47,7 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
+        # FreeCAD.Console.PrintMessage("jsonPath = " + jsonPath + "\n")
 
         print(jsonPath)
         try:

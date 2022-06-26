@@ -22,6 +22,30 @@ from HermesTools import addObjectProperty
 # from BC.HermesBC import _ViewProviderNodeBC
 
 # ********************************************************************
+def getClassPylocate(path):
+    ''' try locate class using pydoc.locate'''
+    try:
+        nodecls = pydoc.locate(path)
+    except:
+        nodecls = None
+
+    return nodecls
+
+# ********************************************************************
+def getClassMoudule(path):
+    ''' try locate class using importlib'''
+
+    import importlib
+    module_name, class_name = path.rsplit(".", 1)
+
+    try:
+        nodecls = getattr(importlib.import_module(module_name), class_name)
+    except Exception:  # if error detected to write
+        nodecls = None
+
+    return nodecls
+
+# ********************************************************************
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
@@ -35,27 +59,24 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     workflowObj.addObject(obj)
 
     # ----------------dynamic find class--------------------
-    nodecls = None
-    # find the class of the node from the its type
-    try:
-        nodecls = pydoc.locate(nodeData["Type"])
-    except:
-        # in case pydoc couldn't find the class, try with another method
-        import importlib
-        workbencj_path = "hermes.Resources.workbench"
-        path = nodeData["Type"]
+
+    # possible class paths
+    workbench_paths = ["","hermes.Resources", "hermes.Resources.workbench"]
+    for w_path in workbench_paths:
 
         # join and make sure path with '.'
-        path = os.path.join(workbencj_path, path)
+        path = os.path.join(w_path, nodeData["Type"])
         path = path.replace("/", ".")
 
-        module_name, class_name = path.rsplit(".", 1)
-        try:
-            # FreeCAD.Console.PrintMessage("module_name = " + module_name + "\n")
-            # FreeCAD.Console.PrintMessage("class_name = " + class_name + "\n")
-            nodecls = getattr(importlib.import_module(module_name), class_name)
-        except Exception:  # if error detected to write
-            FreeCAD.Console.PrintError("Error locating class" + class_name + "\n")
+        # locate class using pylocate
+        nodecls = getClassPylocate(path)
+        if nodecls is not None:
+            break
+
+        # locate class using importlib
+        nodecls = getClassMoudule(path)
+        if nodecls is not None:
+            break
 
 
     # call to the class
@@ -73,8 +94,8 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         FreeCAD.ActiveDocument.recompute()
     else:
-        FreeCAD.Console.PrintWarning("Could not locate node name = " + name + ": ")
-        FreeCAD.Console.PrintWarning("nodeData['Type'] = " + nodeData["Type"] + "\n")
+        FreeCAD.Console.PrintError("Could not locate node name = " + name + ": ")
+        FreeCAD.Console.PrintError("nodeData['Type'] = " + nodeData["Type"] + "\n")
 
     return obj
 

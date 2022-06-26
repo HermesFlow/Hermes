@@ -5,12 +5,13 @@
     Note:
         Check if we want to use jsonpath.
 """
-from ..Resources.nodeTemplates.templateCenter import templateCenter
+# from ..Resources.nodeTemplates.templateCenter import templateCenter
+from ..Resources.reTemplateCenter import templateCenter
 import json
 import os
 import collections.abc
 
-import FreeCAD
+# import FreeCAD
 
 
 class expandWorkflow:

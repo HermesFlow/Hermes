@@ -1,0 +1,22 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonScript",
+            "RunOsCommand"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory.jsonForm"
+            },
+            "RunPythonScript": {
+                "Template": "nodeTemplates.general.RunPythonCode"
+            },
+            "RunOsCommand": {
+                "Template": "nodeTemplates.general.RunOsCommand"
+            }
+        }
+    }
+}
