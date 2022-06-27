@@ -9,7 +9,9 @@
             "CopyFile",
             "TransportProperties",
             "TurbulenceProperties",
-            "ControlDict"
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -32,8 +34,13 @@
             },
             "ControlDict": {
                 "Template": "openFOAM.system.ControlDict.jsonForm"
+            },
+            "FvSchemes": {
+                "Template": "openFOAM.system.FvSchemes.jsonForm"
+            },
+            "FvSolution": {
+                "Template": "openFOAM.system.FvSolution.jsonForm"
             }
-
         }
     }
 }

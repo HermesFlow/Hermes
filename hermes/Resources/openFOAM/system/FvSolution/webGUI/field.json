@@ -1,0 +1,41 @@
+{
+   "solver":{
+      "type":"string",
+      "title":"solver",
+      "enum":[
+         "PCG",
+         "PBiCGStab",
+         "PBiCG",
+         "smoothSolver",
+         "GAMG",
+         "diagonal"
+      ]
+   },
+   "preconditioner":{
+      "type":"string",
+      "title":"preconditioner",
+      "enum":[
+         "none",
+         "DIC",
+         "DILU",
+         "FDIC",
+         "diagonal",
+         "GAMG"
+      ]
+   },
+   "tolerance":{
+      "type":"number",
+      "title":"tolerance",
+      "description":"the solver tolerance"
+   },
+   "relTol":{
+      "type":"number",
+      "title":"relTol",
+      "description":"the ratio of current to initial residuals falls below the solver relative tolerance"
+   },
+   "maxIter":{
+      "type":"number",
+      "title":"maxIter",
+      "description":"the number of iterations exceeds a maximum number of iterations"
+   }
+}

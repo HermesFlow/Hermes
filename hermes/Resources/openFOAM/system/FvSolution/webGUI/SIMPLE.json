@@ -1,0 +1,23 @@
+{ 
+
+        "nNonOrthogonalCorrectors":{
+            "type":"number",
+            "title":"nNonOrthogonalCorrectors",
+            "description":"pecifies repeated solutions of the pressure equation, used to update the explicit non-orthogonal correction"
+        },
+        "momentumPredictor":{
+            "type":"boolean",
+            "title":"momentumPredictor",
+            "description":"switch that controls solving of the momentum predictor",
+            "enumNames":["on", "off"]
+        },
+        "pRefCell":{
+            "type":"number",
+            "title":"pRefCell"
+        },
+        "pRefValue":{
+            "type":"number",
+            "title":"pRefValue"
+        }
+
+}

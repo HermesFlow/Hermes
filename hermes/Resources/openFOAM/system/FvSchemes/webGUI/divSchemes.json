@@ -1,0 +1,40 @@
+{
+    "noOfOperators": {
+      "type": "number"
+    },
+    "phi": {
+      "type": "string",
+      "enum": [
+        "phi"
+      ]
+    },
+    "type":{
+      "type": "string",
+      "enum": [
+        "Gauss"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "enum": [
+        "linear",
+        "UMISTV",
+        "linearUpwind",
+        "LUST",
+        "limitedLinear",
+        "upwind",
+        "limitedLinearV",
+        "linearUpwindV"
+      ]
+    },
+    "parameters": {
+      "type": "string",
+      "enum": [
+        " ",
+        "uncorrected",
+        "corrected",
+        "orthogonal"
+      ],
+      "default": " "
+    }
+}
