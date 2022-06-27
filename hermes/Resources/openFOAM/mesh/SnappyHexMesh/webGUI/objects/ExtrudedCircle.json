@@ -1,0 +1,17 @@
+{ 
+    "typeExtrudedCircle":{ 
+        "type":"string",
+        "title":"type",
+        "description":"A shape defined by inflating a segmented line into a tube with constant radius. Note that only near queries are implemented, i.e. no testing for intersections or inside/outside."
+    },
+    "fileExtrudedCircle":{ 
+        "type":"string",
+        "title":"file Name",
+        "description":"example: curve2.vtk "
+    },
+    "radiusExtrudedCircle":{
+        "title": "radius",
+        "type": "number",
+        "description":"Constant radius"
+    }
+}

@@ -11,7 +11,8 @@
             "TurbulenceProperties",
             "ControlDict",
             "FvSchemes",
-            "FvSolution"
+            "FvSolution",
+            "SnappyHexMesh"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -40,6 +41,9 @@
             },
             "FvSolution": {
                 "Template": "openFOAM.system.FvSolution.jsonForm"
+            },
+            "SnappyHexMesh": {
+                "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm"
             }
         }
     }

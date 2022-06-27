@@ -1,0 +1,121 @@
+{
+  "Type": "HermesNode.WebGuiNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"meshQualityControls",
+      "description":"",
+      "type":"object",
+      "properties": {
+        "maxNonOrtho":{
+            "type":"number",
+            "title":"maxNonOrtho",
+            "description":"maximum non-orthogonality allowed"
+        },
+        "maxBoundarySkewness":{
+            "type":"number",
+            "title":"maxBoundarySkewness",
+            "description":"max boundary face skewness allowed"
+        },
+        "maxInternalSkewness":{
+            "type":"number",
+            "title":"maxInternalSkewness",
+            "description":"max internal face skewness allowed"
+        },
+        "maxConcave":{
+            "type":"number",
+            "title":"maxConcave",
+            "description":"max concaveness allowed"
+        },
+        "minVol":{
+            "type":"number",
+            "title":"minVol",
+            "description":"minimum cell pyramid volume"
+        },
+        "minTetQuality":{
+            "type":"number",
+            "title":"minTetQuality",
+            "description":"minimum quality of tetrahedral cells from cell decomposition"
+        },
+        "minArea":{
+            "type":"number",
+            "title":"minArea",
+            "default":-1,
+            "description":"minimum face area"
+        },
+        "minTwist":{
+            "type":"number",
+            "title":"minTwist",
+            "description":"minimum face twist"
+         },
+        "minDeterminant":{
+            "type":"number",
+            "title":"minDeterminant",
+            "description":"minimum normalised cell determinant"
+        },
+        "minFaceWeight":{
+            "type":"number",
+            "title":"minFaceWeight"
+        },
+        "minVolRatio":{
+            "type":"number",
+            "title":"minVolRatio"
+        },
+        "minTriangleTwist":{
+            "type":"number",
+            "title":"minTriangleTwist"
+        },
+        "nSmoothScale":{
+            "type":"integer",
+            "title":"nSmoothScale",
+            "description":"number of error distribution iterations"
+        },
+        "errorReduction":{
+            "type":"number",
+            "title":"errorReduction",
+            "description":"amount to scale back displacement at error points"
+        },
+        "minFlatness":{
+            "type":"number",
+            "title":"minFlatness",
+            "description":"ratio of minimum projected area to actual area"
+        },
+        "relaxed":{
+            "type":"object",
+            "title":"relaxed",
+            "properties": {
+              "maxNonOrtho": {
+                "type": "number",
+                "title": "maxNonOrtho",
+                "description": ""
+              }
+            },
+            "description":"sub-dictionary that can include modified values for the above keyword entries to be used when nRelaxedIter is exceeded in the layer addition process",
+            "additionalProperties": {
+                "type": "string"
+            }
+        }
+      }
+    },
+    "uiSchema":{},
+    "formData":{
+      "maxNonOrtho": 65,
+      "maxBoundarySkewness": 20,
+      "maxInternalSkewness": 4,
+      "maxConcave": 80,
+      "minVol": 1e-13,
+      "minTetQuality": -1e30,
+      "minArea": -1,
+      "minTwist": 0.02,
+      "minDeterminant": 0.001,
+      "minFaceWeight": 0.05,
+      "minVolRatio": 0.01,
+      "minTriangleTwist": -1,
+      "nSmoothScale": 4,
+      "errorReduction": 0.75,
+      "relaxed": {
+        "maxNonOrtho": 75
+      }
+    }
+  }
+}
