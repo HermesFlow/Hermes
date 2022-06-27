@@ -6,7 +6,10 @@
             "CopyDirectory",
             "RunPythonCode",
             "RunOsCommand",
-            "CopyFile"
+            "CopyFile",
+            "TransportProperties",
+            "TurbulenceProperties",
+            "ControlDict"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -20,7 +23,17 @@
             },
             "CopyFile": {
                 "Template": "general.CopyFile.jsonForm"
+            },
+            "TransportProperties": {
+                "Template": "openFOAM.constant.TransportProperties.jsonForm"
+            },
+            "TurbulenceProperties": {
+                "Template": "openFOAM.constant.TurbulenceProperties.jsonForm"
+            },
+            "ControlDict": {
+                "Template": "openFOAM.system.ControlDict.jsonForm"
             }
+
         }
     }
 }

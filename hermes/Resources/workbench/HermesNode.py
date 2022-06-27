@@ -415,7 +415,9 @@ class _ViewProviderNode:
         if self.NodeObjType is None:
             return 
 
-        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "CopyFile", "RunOsCommand", "RunPythonCode"]
+        openFoamWebNodes = ["TransportProperties", "TurbulenceProperties","ControlDict", "SnappyHexMesh", "FvSolution", "FvSchemes"]
+        generalNodes = ["CopyDirectory", "CopyFile", "RunOsCommand", "RunPythonCode"]
+        webGuiNodes = ["WebGuiNode"] + openFoamWebNodes + generalNodes
         bool_webGuinodes = [True for node in webGuiNodes if node in self.NodeObjType]
 
         if True in bool_webGuinodes:

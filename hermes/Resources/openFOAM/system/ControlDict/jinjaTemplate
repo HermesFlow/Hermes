@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     {{values.application}};
+
+startFrom       {{values.startFrom}};
+
+startTime       {{values.startTime}};
+
+stopAt          {{values.stopAt}};
+
+endTime         {{values.endTime}};
+
+deltaT          {{values.deltaT}};
+
+writeControl    {{values.writeControl}};
+
+writeInterval   {{values.writeInterval}};
+
+purgeWrite      {{values.purgeWrite}};
+
+writeFormat     {{values.writeFormat}};
+
+writePrecision  {{values.writePrecision}};
+
+writeCompression {%- if values.writeCompression %} yes {% else %} no {%- endif %};
+
+timeFormat      {{values.timeFormat}};
+
+timePrecision   {{values.timePrecision}};
+
+runTimeModifiable {%- if values.runTimeModifiable %} yes {% else %} no {%- endif %};
+
+adjustTimeStep  {%- if values.adjustTimeStep %} yes {% else %} no {%- endif %};
+
+maxCo           {{values.maxCo}};
+
+libs
+(
+    {%- for lib in values.libs -%}
+       "lib{{lib}}.so";
+    {%- endfor -%}
+);
+
+functions
+{
+    {%- for function in values.functions -%}
+       {{function}};
+    {%- endfor -%}
+}
+
+

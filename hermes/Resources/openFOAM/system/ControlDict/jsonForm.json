@@ -1,0 +1,16 @@
+{
+  "Execution": {
+    "type": "jinjaExecuter.ControlDict",
+    "input_parameters": {
+      "values": "{WebGui.formData}"
+    }
+  },
+  "GUI": {
+    "Type": "openFOAM.system.ControlDict.workbench.ControlDict",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.ControlDict.webGUI"
+    }
+  }
+}
