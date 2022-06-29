@@ -1,0 +1,29 @@
+{
+  "Execution": {
+    "type": "jinjaExecuters.jinja",
+    "input_parameters": {
+      "values": "{WebGui.formData}",
+      "template": ""
+    }
+  },
+  "GUI": {
+    "Type": "BC.workbench.BCNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "BC.webGUI.WebGui_empty"
+    },
+    "GeometriesSource": ["BlockMesh","SnappyHexMesh.Geometry"],
+    "Templates": {
+      "BCList": {
+        "Template": "BC.webGUI.List"
+      },
+      "BCField": {
+        "Template": "BC.webGUI.Field"
+      },
+      "BCGeometry": {
+        "Template": "BC.webGUI.Geometry"
+      }
+    }
+  }
+}

@@ -5,7 +5,8 @@
         "nodeList": [
             "SnappyHexMesh",
             "GeometryDefiner",
-            "BlockMesh"
+            "BlockMesh",
+            "BoundaryCondition"
         ],
         "nodes": {
             "SnappyHexMesh": {
@@ -16,6 +17,9 @@
             },
             "BlockMesh": {
                 "Template": "openFOAM.mesh.BlockMesh.jsonForm"
+            },
+            "BoundaryCondition": {
+                "Template": "BC.jsonForm"
             }
         }
     }

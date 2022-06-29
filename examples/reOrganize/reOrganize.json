@@ -14,7 +14,8 @@
             "FvSolution",
             "SnappyHexMesh",
             "GeometryDefiner",
-            "BlockMesh"
+            "BlockMesh",
+            "BoundaryCondition"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -52,6 +53,9 @@
             },
             "BlockMesh": {
                 "Template": "openFOAM.mesh.BlockMesh.jsonForm"
+            },
+            "BoundaryCondition": {
+                "Template": "BC.jsonForm"
             }
         }
     }

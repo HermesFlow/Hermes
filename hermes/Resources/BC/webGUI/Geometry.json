@@ -1,0 +1,15 @@
+{
+  "Type": "BC.workbench.BCGeometryNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "title":"Boundary Condition Geometry",
+      "description":"",
+      "type":"object",
+      "properties": {}
+    },
+    "uiSchema":{},
+    "formData":{}
+  },
+  "Fields": {}
+}
