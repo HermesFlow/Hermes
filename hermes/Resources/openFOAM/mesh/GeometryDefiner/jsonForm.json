@@ -1,0 +1,33 @@
+{
+    "Execution": {
+        "type": "jinjaExecuter.GeometryDefiner",
+        "input_parameters": {}
+    },
+    "GUI": {
+        "Type":"openFOAM.mesh.GeometryDefiner.workbench.GeometryDefinerNode",
+        "Properties":{
+            "IntegerProperty":{
+                "prop":"IntegerProperty",
+                "init_val":10,
+                "type":"App::PropertyInteger",
+                "Heading":"PropInteger",
+                "tooltip":"IntegerProperty",
+                "current_val":10
+            }
+        },
+        "GeometryFaceTypes":{
+            "TypeList":["wall","symmetry","patch","boundarylayer"],
+            "TypeProperties":{
+                "Template":"openFOAM.mesh.GeometryDefiner.webGUI.FaceTypes.PropertyTypeList"
+            }
+        },
+        "GeometryEntityList": {
+            "GE1": {
+                "Template": "openFOAM.mesh.GeometryDefiner.webGUI.EntityList.GE1"
+            },
+            "GE2": {
+                "Template": "openFOAM.mesh.GeometryDefiner.webGUI.EntityList.GE2"
+            }
+        }
+    }
+}

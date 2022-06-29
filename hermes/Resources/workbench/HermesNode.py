@@ -23,27 +23,33 @@ from HermesTools import addObjectProperty
 
 # ********************************************************************
 def getClassPylocate(path):
-    ''' try locate class using pydoc.locate'''
+    ''' try locate class using pydoc.locate
+        return class if found, or None and err '''
+
     try:
         nodecls = pydoc.locate(path)
-    except:
+        e = None
+    except Exception as e:
         nodecls = None
 
-    return nodecls
+    return nodecls, e
 
 # ********************************************************************
 def getClassMoudule(path):
-    ''' try locate class using importlib'''
+    ''' try locate class using importlib
+        return class if found, or None and err '''
 
     import importlib
     module_name, class_name = path.rsplit(".", 1)
-
     try:
         nodecls = getattr(importlib.import_module(module_name), class_name)
-    except Exception:  # if error detected to write
+        err = None
+    except Exception as e:  # if error detected to write
         nodecls = None
+        err = e
 
-    return nodecls
+
+    return nodecls, err
 
 # ********************************************************************
 def makeNode(name, workflowObj, nodeId, nodeData):
@@ -62,6 +68,9 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
     # possible class paths
     workbench_paths = ["","hermes.Resources", "hermes.Resources.workbench"]
+
+    errs = list()
+    e = None
     for w_path in workbench_paths:
 
         # join and make sure path with '.'
@@ -69,15 +78,17 @@ def makeNode(name, workflowObj, nodeId, nodeData):
         path = path.replace("/", ".")
 
         # locate class using pylocate
-        nodecls = getClassPylocate(path)
+        nodecls, e = getClassPylocate(path)
         if nodecls is not None:
             break
+        errs.append(e)
 
         # locate class using importlib
-        nodecls = getClassMoudule(path)
+        nodecls, e = getClassMoudule(path)
         if nodecls is not None:
             break
 
+        errs.append(e)
 
     # call to the class
     if nodecls is not None:
@@ -96,6 +107,9 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     else:
         FreeCAD.Console.PrintError("Could not locate node name = " + name + ": ")
         FreeCAD.Console.PrintError("nodeData['Type'] = " + nodeData["Type"] + "\n")
+        for e in errs:
+            if e is not  None:
+                FreeCAD.Console.PrintError(str(e) + "\n")
 
     return obj
 

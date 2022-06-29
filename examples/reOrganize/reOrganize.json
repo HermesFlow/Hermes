@@ -12,7 +12,9 @@
             "ControlDict",
             "FvSchemes",
             "FvSolution",
-            "SnappyHexMesh"
+            "SnappyHexMesh",
+            "GeometryDefiner",
+            "BlockMesh"
         ],
         "nodes": {
             "CopyDirectory": {
@@ -44,6 +46,12 @@
             },
             "SnappyHexMesh": {
                 "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm"
+            },
+            "GeometryDefiner": {
+                "Template": "openFOAM.mesh.GeometryDefiner.jsonForm"
+            },
+            "BlockMesh": {
+                "Template": "openFOAM.mesh.BlockMesh.jsonForm"
             }
         }
     }

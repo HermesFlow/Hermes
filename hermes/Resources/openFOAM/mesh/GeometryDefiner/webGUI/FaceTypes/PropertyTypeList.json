@@ -1,0 +1,14 @@
+{
+    "wall":{
+        "Template":"openFOAM.mesh.GeometryDefiner.webGUI.FaceTypes.wall"
+    },
+    "symmetry":{
+        "Template":"openFOAM.mesh.GeometryDefiner.webGUI.FaceTypes.sym"
+    },
+    "patch": {
+        "Template":"openFOAM.mesh.GeometryDefiner.webGUI.FaceTypes.patch"
+    },
+    "boundarylayer":{
+        "Template":"openFOAM.mesh.GeometryDefiner.webGUI.FaceTypes.boundarylayer"
+    }
+}

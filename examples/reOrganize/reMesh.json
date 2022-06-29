@@ -1,0 +1,22 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "nodeList": [
+            "SnappyHexMesh",
+            "GeometryDefiner",
+            "BlockMesh"
+        ],
+        "nodes": {
+            "SnappyHexMesh": {
+                "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm"
+            },
+            "GeometryDefiner": {
+                "Template": "openFOAM.mesh.GeometryDefiner.jsonForm"
+            },
+            "BlockMesh": {
+                "Template": "openFOAM.mesh.BlockMesh.jsonForm"
+            }
+        }
+    }
+}
