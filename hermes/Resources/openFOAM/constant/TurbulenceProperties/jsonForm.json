@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type":"jinjaExecuter.TurbulenceProperties",
+        "type":"openFOAM.constantExecuters.turbulenceProperties",
         "input_parameters": {
             "transportModel" : "Newtonian",
             "nu" : 1e-5

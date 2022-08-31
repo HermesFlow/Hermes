@@ -370,7 +370,7 @@ class HermesNode(_SlotHandler):
             current_val = getattr(obj, prop)
 
             # update the value at the propertyNum[prop]
-            if type(current_val) is not int and type(current_val) is not float and type(current_val) is not list:
+            if type(current_val) not in [int, float,list, bool]:
                 # In case of 'Quantity property' (velocity,length etc.), 'current_val' need to be export as a string
                 propertyNum["current_val"] = str(current_val)
 
@@ -678,7 +678,7 @@ class WebGuiNode(HermesNode):
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         '''
             update the Execution.input_parameters JSON data
         '''
@@ -688,6 +688,11 @@ class WebGuiNode(HermesNode):
             return self.nodeData["WebGui"]["formData"]
         else:
             return None
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        # self.nodeData["WebGui"]["formData"] = parameters
+        obj.Proxy.nodeData["WebGui"]["formData"] = copy.deepcopy(parameters)
 
     def print_formData(self):
         '''

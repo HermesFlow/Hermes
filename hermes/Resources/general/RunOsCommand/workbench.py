@@ -1,6 +1,6 @@
 
 # import FreeCAD modules
-# import FreeCAD, FreeCADGui, WebGui
+import FreeCAD, FreeCADGui, WebGui
 
 # Hermes modules
 # from hermes.Resources.workbench.HermesNode import WebGuiNode
@@ -29,7 +29,7 @@ class RunOsCommand(WebGuiNode):
         elif method == "batchFile":
             obj.setEditorMode("Commands", 1)  # Make read-only
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()
@@ -44,3 +44,21 @@ class RunOsCommand(WebGuiNode):
             parameters["Command"] = obj.batchFile
 
         return parameters
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+
+        method = parameters["Method"]
+        if method in ["Commands list", "batchFile"]:
+            setattr(obj, "ChooseMethod", method)
+            # obj.ChooseMethod = parameters["Method"]
+
+            # make read only the property that hasnt been choosen
+            if method == "Commands list":
+                obj.Commands = parameters["Command"]
+                obj.setEditorMode("batchFile", 1)  # Make read-only
+            elif method == "batchFile":
+                obj.batchFile = parameters["Command"]
+                obj.setEditorMode("Commands", 1)  # Make read-only
+        else:
+            FreeCAD.Console.printWarning(method + " is not Run Os Command options")

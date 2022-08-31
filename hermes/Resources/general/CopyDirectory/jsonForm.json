@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type":"jinjaExecuter.CopyDirectory",
+        "type":"fileSystemExecuters.copyDirectory",
         "input_parameters": {
             "Source": "{Properties.Source.current_val}",
             "Target": "{Properties.Target.current_val}",

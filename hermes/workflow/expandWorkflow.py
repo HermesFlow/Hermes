@@ -125,12 +125,16 @@ class expandWorkflow:
                     templatepath = currentNode[self.getFromTemplate]
 
                 # update the data in the nodes from file/templates to concrete data
-                updatedCurrentNode = self.getImportedJson(currentNode)
+                openCurrentNode = self.getImportedJson(currentNode)
 
+                updatedCurrentNode = dict()
                 if len(templatepath) > 0:
                     updatedCurrentNode[self.getFromTemplate] = templatepath
 
-                # add the data into 'new_nodes'
+                for key, val in openCurrentNode.items():
+                    updatedCurrentNode[key] = val
+
+                # add the data into 'new_nodes'updatedCurrentNode
                 new_nodes[node] = updatedCurrentNode
 
         # update the data in JsonObject to be the new dictionary new_nodes

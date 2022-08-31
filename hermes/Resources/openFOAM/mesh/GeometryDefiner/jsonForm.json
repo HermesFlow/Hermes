@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type": "jinjaExecuter.GeometryDefiner",
+        "type": "jinjaExecuters.jinjaExecuter.GeometryDefiner",
         "input_parameters": {}
     },
     "GUI": {

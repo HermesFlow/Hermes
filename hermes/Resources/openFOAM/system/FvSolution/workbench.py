@@ -38,7 +38,7 @@ class FvSolution(WebGuiNode):
         super().initializeFromJson(obj)
 
         rootParent = self.getRootParent(obj.getParentGroup())
-        for field in rootParent.CalculatedFields:
+        for field in rootParent.SolvedFields:
             fv_name = "fvSol_" + field
             nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
             nodeData["WebGui"]["Schema"]["title"] = fv_name
@@ -53,7 +53,7 @@ class FvSolution(WebGuiNode):
             field = child.Name.replace("fvSol_", "")
             self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
 
         solverProperties = copy.deepcopy(self.nodeData["WebGui"]["formData"])
@@ -81,6 +81,35 @@ class FvSolution(WebGuiNode):
 
 
         return dict(fields=fields, solverProperties=solverProperties, relaxationFactors=relaxationFactors)
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        fields = copy.deepcopy(parameters["fields"])
+        solverProperties = copy.deepcopy(parameters["solverProperties"])
+        relaxationFactors = copy.deepcopy(parameters["relaxationFactors"])
+
+
+        for child in obj.Group:
+            ch_fd = dict()
+
+            field = child.Name.replace("fvSol_", "")
+            if field in fields:
+                ch_fd = fields[field]
+                if len(relaxationFactors) > 0:
+                    ch_rlx_fctr = dict(fields=None, equations=None)
+                    ch_rlx_fctr["fields"] = relaxationFactors["fields"][field]
+                    ch_rlx_fctr["equations"] = relaxationFactors["equations"][field]
+                    ch_fd["relaxationFactors"] = copy.deepcopy(ch_rlx_fctr)
+                if "residualControl" in solverProperties:
+                    ch_fd["residualControl"] = solverProperties["residualControl"][field]
+
+            child.Proxy.nodeData["WebGui"]["formData"] = copy.deepcopy(ch_fd)
+            child.Proxy.selectNode(child)
+
+        solverProperties.pop("residualControl")
+        self.nodeData["WebGui"]["formData"] = solverProperties
+        self.selectNode(obj)
+
 
     def updateNodeFields(self, fieldList, obj):
         '''

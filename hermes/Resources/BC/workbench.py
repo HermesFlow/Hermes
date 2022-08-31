@@ -35,7 +35,7 @@ class BCNode(WebGuiNode):
 
         workflowObj = self.getRootParent(obj)
 
-        # self.updateBCNodeFields(workflowObj.CalculatedFields, obj)
+        # self.updateBCNodeFields(workflowObj.SolvedFields, obj)
 
     def selectNode(self, obj):
         self.updateBCPartList(obj)
@@ -43,10 +43,14 @@ class BCNode(WebGuiNode):
 
 
     def updateNodeFields(self, fieldList, obj):
-        ''' update the fields in the children nodes'''
+        ''' update the Solved fields in the children nodes'''
         for bcObj in obj.Group:
             bcObj.Proxy.updateNodeFields(fieldList, bcObj)
 
+    def updateAuxNodeFields(self, AuxfieldList, obj):
+        ''' update the Aux fields in the children nodes'''
+        for bcObj in obj.Group:
+            bcObj.Proxy.updateAuxNodeFields(AuxfieldList, bcObj)
 
     def updateBCPartList(self, obj):
         '''
@@ -123,7 +127,7 @@ class BCNode(WebGuiNode):
                     FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
 
                 bc_part_obj.partLinkName = partName
-                bc_part_obj.Proxy.updateNodeFields(workflowObj.CalculatedFields, bc_part_obj)
+                bc_part_obj.Proxy.updateNodeFields(workflowObj.SolvedFields, bc_part_obj)
 
          # remove bc geometry objects
         if len(del_list) > 0:
@@ -212,7 +216,7 @@ class BCNode(WebGuiNode):
         if FreeCAD.GuiUp:
             _ViewProviderNodeBC(obj.ViewObject)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         '''
             update the Execution.input_parameters JSON data
             creates a dict sorted bt fields defined in the doc
@@ -222,7 +226,7 @@ class BCNode(WebGuiNode):
         HermesWorkflow = self.getRootParent(obj)
         jinja = dict()
         # loop all fields defined
-        for field in HermesWorkflow.CalculatedFields:
+        for field in HermesWorkflow.SolvedFields:
             obj_field = dict()
             # loop each geom and get its field BC data
             for geom in obj.Group:
@@ -317,13 +321,19 @@ class BCGeometryNode(WebGuiNode):
         if FreeCAD.GuiUp:
             _ViewProviderNodeBC(obj.ViewObject)
 
-    def updateNodeFields(self, fieldList, bcObj):
+    def updateNodeFields(self, SolvedFieldsList, bcObj):
         '''
             update the children nodes with the field of the problem
             - take the list of field from HermesNode
             - take the list of children nodes
             - compare between the lists, and add/remove nodes
         '''
+
+        rootParent = self.getRootParent(bcObj)
+        AuxFields = rootParent.AuxFields
+        fieldList = AuxFields + SolvedFieldsList
+
+        # FreeCAD.Console.PrintMessage("updateNodeFields: SolvedFieldsList" + str(SolvedFieldsList) + " \n")
 
         # get part from Name
         part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
@@ -370,6 +380,63 @@ class BCGeometryNode(WebGuiNode):
                 if field in bcField.Label:
                     bcObj.Document.removeObject(bcField.Name)
 
+    def updateAuxNodeFields(self, AuxfieldList, bcObj):
+        '''
+            update the children nodes with the field of the problem
+            - take the list of field from HermesNode
+            - take the list of children nodes
+            - compare between the lists, and add/remove nodes
+        '''
+
+        rootParent = self.getRootParent(bcObj)
+        SolvedFields = rootParent.SolvedFields
+        fieldList = SolvedFields + AuxfieldList
+        # FreeCAD.Console.PrintMessage("updateAuxNodeFields: updateAuxNodeFields" + str(AuxfieldList) + " \n")
+        
+        # get part from Name
+        part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
+
+        # get the Field name from the bc_field obj - remove the "part_" from obj label
+        # BCfieldList = [bcField.Label.replace(part.Label + '_', '') for bcField in bcObj.Group]
+        BCfieldList = list()
+        for bcField in bcObj.Group:
+            # remove the "part_" from obj label
+            field = bcField.Label.split('_')[-1]
+
+            # remove spaces
+            field.replace(" ", "")
+
+            if len(field) > 0:
+                BCfieldList.append(field)
+
+        # remove spaces from Hermes field list
+        fieldList = [Field.replace(" ", "") for Field in fieldList if len(Field.replace(" ", "")) > 0]
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in BCfieldList]
+        del_list = [field for field in BCfieldList if field not in fieldList]
+
+
+        parent = bcObj.getParentGroup()
+
+        # FreeCAD.Console.PrintMessage("self.nodeData = " + str(self.nodeData) + "\n")
+        # FreeCAD.Console.PrintMessage("self.nodeData[Templates][BCField] = " + str(self.nodeData["Templates"]["BCField"]) + "\n")
+
+        # create a new bc geometry object
+        if len(add_list) > 0:
+            for field in add_list:
+                bc_field_obj = HermesNode.makeNode(part.Label + "_" + field, bcObj, str(0), copy.deepcopy(parent.Proxy.nodeData["Templates"]["BCField"]))
+
+                bc_field_nodeData = bc_field_obj.Proxy.nodeData
+                bc_field_nodeData["WebGui"]["Schema"]["title"] = field + " - " + part.Label
+                bc_field_nodeData["WebGui"]["Schema"]["description"] = "Defined " + field + " Boundary condition for the part."
+                bc_field_obj.Proxy.nodeData = bc_field_nodeData
+
+        # remove fields from webGui
+        for field in del_list:
+            for bcField in bcObj.Group:
+                if field in bcField.Label:
+                    bcObj.Document.removeObject(bcField.Name)
 
 # =============================================================================
 # BCFieldNode

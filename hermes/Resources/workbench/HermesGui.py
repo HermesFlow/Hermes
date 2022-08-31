@@ -101,8 +101,10 @@ class _HermesWorkflow:
         # JSONString property - keep the json data as a string
         addObjectProperty(obj, "JSONString", "", "App::PropertyString", "", "JSON Stringify", 4)
 
-        # Calculated Fields property
-        addObjectProperty(obj, "CalculatedFields", ["U", "P"], "App::PropertyStringList", "JSON", "Calculated Fields")
+        # Solved Fields property
+        addObjectProperty(obj, "SolvedFields", ["U", "P"], "App::PropertyStringList", "JSON", "Solved Fields")
+        # Aux Fields property
+        addObjectProperty(obj, "AuxFields", [], "App::PropertyStringList", "JSON", "Aux Fields")
 
         #        #link property - link to other object (beside parent)
         #        addObjectProperty(obj, "HermesLink", "", "App::PropertyLink", "", "Link to",4)
@@ -236,6 +238,12 @@ class _HermesWorkflow:
                 self.partPathListFromJson = []
                 self.partNameListFromJson = []
 
+
+        if "SolvedFields" in self.JsonObject["workflow"]:
+            setattr(obj, "SolvedFields", self.JsonObject["workflow"]["SolvedFields"].split())
+        if "AuxFields" in self.JsonObject["workflow"]:
+            setattr(obj, "AuxFields", self.JsonObject["workflow"]["AuxFields"].split())
+
         # create node list
         self.setJson(obj)
 
@@ -329,16 +337,32 @@ class _HermesWorkflow:
         x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
         for node in nodes:
-            # get Node data
-            nodeData = nodes[node]["GUI"]
+
+            if "GUI" in nodes[node]:
+                # get Node data
+                nodeData = nodes[node]["GUI"]
+            else:
+                #get template path
+                templatePath = nodes[node]["Template"]
+                #import node template
+                nodeData = expandWorkflow.importJsonDataFromTemplate(templatePath)
+                #copy the data from input parameters? or later after node exist
+
+            # FreeCAD.Console.PrintMessage("nodeData = " + str(nodeData) + "\n")
+            # FreeCAD.Console.PrintMessage("==================\n")
 
             # get node name
             nodename = node
 
+
             # Create node obj
             # makeNode(nodename, obj, str(x), nodeData)
             # FreeCADGui.doCommand("hermes.addObject(HermesNode.makeNode(nodename, obj, str(x), nodeData))")
-            HermesNode.makeNode(nodename, obj, str(x), nodeData)
+            nodeObj = HermesNode.makeNode(nodename, obj, str(x), nodeData)
+
+            initParams = nodes[node]["Execution"]["input_parameters"]
+            if initParams:
+                nodeObj.Proxy.executeToGui(nodeObj, initParams)
 
             x = x + 1
 
@@ -396,6 +420,10 @@ class _HermesWorkflow:
             loop all nodes and update each node data in the main JSON var
         '''
 
+        self.JsonObject["workflow"]["SolvedFields"] = " ".join(getattr(obj, "SolvedFields"))
+        self.JsonObject["workflow"]["AuxFields"] = " ".join(getattr(obj, "AuxFields"))
+
+
         # loop all children in HermesWorkflow
         for child in obj.Group:
             # back child date
@@ -414,7 +442,7 @@ class _HermesWorkflow:
 
             # if "BlockMesh" in nodename:
             # if "BoundaryCondition" not in nodename:
-            ch_jinja = child.Proxy.jsonToJinja(child)
+            ch_jinja = child.Proxy.guiToExecute(child)
             if ch_jinja is not None:
                 self.JsonObject["workflow"]["nodes"][nodename]["Execution"]["input_parameters"] = ch_jinja
 
@@ -444,10 +472,18 @@ class _HermesWorkflow:
         os.chdir(current_dir)
 
         # import hermesWorkflow
-        from hermes import hermesWorkflow
+        # from hermes import hermesWorkflow
+        from hermes import workflow
 
         # call hermes workflow and keep its result in var
-        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+        # wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+        wf = workflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+
+        newWorkflow = "FCtoLgi.py"
+        builder = "luigi"
+        build = wf.build(builder)
+        with open(newWorkflow, "w") as file:
+            file.write(build)
 
         print(wf)
         print("===================================")
@@ -539,6 +575,20 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
 
             if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
                 child.Proxy.updateNodeFields(fieldList, child)
+
+    def updateAuxFields(self, fieldList, HermesObj):
+        '''
+            when the field list of the problem is changed, it
+            updates the field nodes in BoundaryCondition, FvSchemes,
+            FvSolution
+        '''
+        BCNode = None
+        for child in HermesObj.Group:
+            # if "BoundaryCondition" == child.Label:
+            #     BCNode = child
+
+            if child.Name in ["BoundaryCondition"]:
+                child.Proxy.updateAuxNodeFields(fieldList, child)
 
 
 
@@ -663,9 +713,14 @@ class _ViewProviderHermesWorkflow:
         if len(str(obj.WorkingDirectory)) > 0:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
-    def _handle_CalculatedFields(self, obj):
+    def _handle_SolvedFields(self, obj):
         ''' updated the fields in the doc'''
-        obj.Proxy.updateFields(obj.CalculatedFields, obj)
+        obj.Proxy.updateFields(obj.SolvedFields, obj)
+
+    def _handle_AuxFields(self, obj):
+        ''' updated the fields in the doc'''
+        # obj.Proxy.updateFields(obj.AuxFields, obj)
+        obj.Proxy.updateAuxFields(obj.AuxFields, obj)
 
 
     def onChanged(self, vobj, prop):

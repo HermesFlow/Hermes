@@ -13,6 +13,10 @@ class TransportProperties(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    # def jsonToJinja(self, obj):
+    # def guiToExecute(self, obj):
     #     ''' convert the json data to "input_parameters" structure '''
-    #     super().jsonToJinja(obj)
+    #     super().guiToExecute(obj)
+
+   # def executeToGui(self, obj, parameters):
+   #      ''' import the "input_parameters" data into the json obj data '''
+   #      super().executeToGui(obj)

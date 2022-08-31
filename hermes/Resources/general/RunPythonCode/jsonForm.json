@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type": "jinjaExecuter.python",
+        "type": "pythonExecuters.python",
         "input_parameters": {
             "ModulePath": "{Properties.ModulePath.current_val}",
             "ClassName": "{Properties.ClassName.current_val}",

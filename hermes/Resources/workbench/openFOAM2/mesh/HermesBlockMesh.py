@@ -292,7 +292,7 @@ class BlockMeshNode(GeometryDefinerNode):
             # update current properties value of the GE-child
             child.Proxy.UpdateGENodePropertiesData(child)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         '''
             convert the json data to "inputParameters" structure
         '''
@@ -344,7 +344,7 @@ class BlockMeshNode(GeometryDefinerNode):
 
 
         jinja = dict(geomerty=geometry, boundry=boundry, vertices=vertices)
-        # FreeCAD.Console.PrintMessage("blockMesh jsonToJinja = " + str(jinja) + "\n")
+        # FreeCAD.Console.PrintMessage("blockMesh guiToExecute = " + str(jinja) + "\n")
 
         return jinja
 

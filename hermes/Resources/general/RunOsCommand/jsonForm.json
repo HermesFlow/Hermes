@@ -1,9 +1,9 @@
 {
     "Execution": {
-        "type": "jinjaExecuter.RunOsCommand",
+        "type": "fileSystemExecuters.RunOsCommand",
         "input_parameters": {
-            "Method": "{Properties.ChooseMethod.current_val}",
-            "Command": "{Properties.Commands.current_val}"
+            "Method": "Commands list",
+            "Command": ""
         }
     },
     "GUI": {

@@ -213,6 +213,11 @@ class GeometryDefinerNode(C_HermesNode):
             bcObj.Proxy.updateBCPartList(bcObj)
 
         return
+    def guiToExecute(self, obj):
+        '''
+            convert the json data to "inputParameters" structure
+        '''
+        pass
 
 
 # =============================================================================

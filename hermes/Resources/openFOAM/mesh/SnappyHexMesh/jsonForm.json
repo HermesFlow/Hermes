@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "jinjaExecuter.SnappyHexMesh",
+    "type": "openFOAM.meshExecuters.snappyHexMesh",
     "input_parameters": {
       "modules": {
         "castellatedMesh": true,
@@ -8,7 +8,7 @@
         "layers": true,
         "mergeTolerance" : 1e-6
       },
-      "geometry": {
+      "Geometry": {
         "objects": {},
         "refinementSurfaces": {},
         "regions": {},
@@ -23,9 +23,9 @@
         "resolveFeatureAngle": 30,
         "allowFreeStandingZoneFaces": true,
         "locationInMesh": [
-          0,
-          0,
-          0
+          1,
+          2,
+          3
         ]
       },
       "snapControls": {

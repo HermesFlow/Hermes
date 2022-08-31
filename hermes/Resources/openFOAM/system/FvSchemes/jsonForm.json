@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "jinjaExecuter.FvSchemes",
+    "type": "openFOAM.systemExecuters.fvSchemes",
     "input_parameters": {
       "default": {
         "ddtScheme": "Euler",

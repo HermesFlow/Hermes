@@ -34,7 +34,7 @@ class FvSchemes(WebGuiNode):
         super().initializeFromJson(obj)
 
         rootParent = self.getRootParent(obj.getParentGroup())
-        for field in rootParent.CalculatedFields:
+        for field in rootParent.SolvedFields:
             fv_name = "fvSch_" + field
             nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
             nodeData["WebGui"]["Schema"]["title"] = fv_name
@@ -49,7 +49,7 @@ class FvSchemes(WebGuiNode):
             field = child.Name.replace("fvSch_", "")
             self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
 
         default = copy.deepcopy(self.nodeData["WebGui"]["formData"])
@@ -62,6 +62,18 @@ class FvSchemes(WebGuiNode):
 
 
         return dict(fields=fields, default=default)
+
+    def executeToGui(self, obj, parameters):
+         ''' import the "input_parameters" data into the json obj data '''
+         fields = copy.deepcopy(parameters["fields"])
+         default = copy.deepcopy(parameters["default"])
+
+         self.nodeData["WebGui"]["formData"] = default
+         for child in obj.Group:
+            field = child.Name.replace("fvSch_", "")
+            if field in fields:
+                child.Proxy.nodeData["WebGui"]["formData"] = copy.deepcopy(fields[field])
+                child.Proxy.selectNode(child)
 
     def updateNodeFields(self, fieldList, obj):
         '''

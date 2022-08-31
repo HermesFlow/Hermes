@@ -1,8 +1,8 @@
 {
   "Execution": {
-    "type": "jinjaExecuter.ControlDict",
+    "type": "openFOAM.systemExecuters.controlDict",
     "input_parameters": {
-      "values": "{WebGui.formData}"
+
     }
   },
   "GUI": {

@@ -13,7 +13,7 @@ class CopyFile(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()
@@ -21,3 +21,9 @@ class CopyFile(WebGuiNode):
         parameters["Target"] = obj.Target
 
         return parameters
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+
+        obj.Source = parameters["Source"]
+        obj.Target = parameters["Target"]

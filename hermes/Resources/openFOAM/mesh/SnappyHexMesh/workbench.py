@@ -58,15 +58,33 @@ class SnappyHexMesh(WebGuiNode):
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
-        jinjaObj = dict()
+        executeObj = dict()
 
-        jinjaObj["modules"] = copy.deepcopy(self.nodeData["WebGui"]["formData"]["modules"])
+        executeObj["modules"] = copy.deepcopy(self.nodeData["WebGui"]["formData"]["modules"])
 
         for child in obj.Group:
-            jinjaObj[child.Name] = child.Proxy.jsonToJinja(child)
-        return jinjaObj
+            executeObj[child.Name] = child.Proxy.guiToExecute(child)
+        return executeObj
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+
+        if "modules" in parameters:
+            self.nodeData["WebGui"]["formData"]["modules"] = copy.deepcopy(parameters["modules"])
+
+        for child in obj.Group:
+            # FreeCAD.Console.PrintMessage("child " + child.Name + "\n")
+            # FreeCAD.Console.PrintMessage("parameters[child.Name] " + str(parameters[child.Name]) + "\n")
+            if child.Name in parameters:
+                child.Proxy.executeToGui(child, parameters[child.Name])
+            else:
+                FreeCAD.Console.PrintWarning(child.Name + "is not in snappyHexMesh input data \n")
+            # self.nodeData["WebGui"]["formData"][child.Name] = child.Proxy.executeToGui(child, parameters[child.Name])
+
+
+
 
 # =============================================================================
 # #SnappyHexMeshCastellatedMeshControls
@@ -142,12 +160,24 @@ class SnappyHexMeshCastellatedMeshControls(WebGuiNode):
             snappyPoint.Y = coordinates[1]
             snappyPoint.Z = coordinates[2]
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
         coordinates = self.pointStringToArr()
-        jinjaObj = copy.deepcopy(self.nodeData["WebGui"]["formData"])
-        jinjaObj['locationInMesh'] = coordinates
-        return jinjaObj
+        executeObj = copy.deepcopy(self.nodeData["WebGui"]["formData"])
+        executeObj['locationInMesh'] = coordinates
+        return executeObj
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        self.nodeData["WebGui"]["formData"] = copy.deepcopy(parameters)
+
+        # add the location in mesh to the
+        locationInMesh_arr = [str(idx) for idx in parameters["locationInMesh"]]
+        locationInMesh = " ".join(locationInMesh_arr)
+        if len(locationInMesh) > 0:
+            self.nodeData["WebGui"]["formData"]["locationInMesh"] = locationInMesh
+            self.backupNodeData(obj)
+
 
     def pointStringToArr(self):
         ''' split and create a list of the coordinates from the string '''
@@ -174,8 +204,13 @@ class SnappyHexMeshRefinement(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         return dict(regions={})
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        # self.nodeData["WebGui"]["formData"] = copy.deepcopy(parameters)
+        pass
 
     # def doubleClickedNode(self, obj):
     #     # super().doubleClickedNode(obj)
@@ -200,9 +235,9 @@ class SnappyHexMeshGeometry(C_HermesNode):
     def initializeFromJson(self, obj):
         super().initializeFromJson(obj)
 
-        for itemKey, itemVal in self.nodeData["Entities"]["items"].items():
-            l = len(obj.Group)
-            GeoEntity_obj = HermesNode.makeNode(itemKey, obj, str(l), itemVal)
+        # for itemKey, itemVal in self.nodeData["Entities"]["items"].items():
+        #     l = len(obj.Group)
+        #     GeoEntity_obj = HermesNode.makeNode(itemKey, obj, str(l), itemVal)
 
     def doubleClickedNode(self, obj):
         '''
@@ -296,13 +331,61 @@ class SnappyHexMeshGeometry(C_HermesNode):
 
         return
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
         objects = {}
         for child in obj.Group:
-            objects[child.partLinkName] = child.Proxy.jsonToJinja(child)
+            objects[child.partLinkName] = child.Proxy.guiToExecute(child)
 
         return dict(objects=objects)
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        # self.nodeData["WebGui"]["formData"] = copy.deepcopy(parameters)
+
+        # need to check if geometry exist
+        objects = FreeCAD.ActiveDocument.Objects
+        fc_parts = [o for o in objects if o.Module == "Part"]
+        if len(fc_parts) == 0:
+            FreeCAD.Console.PrintWarning("No geometries in FreeCAD, the data of SnappyHexMesh geometries might get lost \n")
+            return
+
+        # need to check of those geometries the same as in parameters
+        input_geometries = list(parameters["objects"].keys())
+
+        # compare the list - check if need to delete or add objects
+        add_Name_list = [part for part in fc_parts if part.Name in input_geometries]
+        add_Label_list = [part for part in fc_parts if part.Label in input_geometries]
+
+        # check that the same part is not twice in the add list
+        add_list = [part for part in add_Name_list if part not in add_Label_list]
+        add_list += add_Label_list
+
+        miss_Name_list = [name for name in input_geometries if name not in [part.Name for part in fc_parts]]
+        miss_Label_list = [label for label in input_geometries if label not in [part.Label for part in fc_parts]]
+
+        miss_list = [part for part in miss_Name_list if part not in miss_Label_list]
+        miss_list += miss_Label_list
+
+
+        if len(add_list) == 0:
+            # warning the data will get lost
+            FreeCAD.Console.PrintWarning("No geometries in FreeCAD matched to input geometries, the data of SnappyHexMesh geometries might get lost \n")
+            return
+        else:
+            for add_part in add_list:
+                # create the snappy geometry obj
+                self.SnappyGeDialogClosed(obj, add_part.Label)
+
+        # update the data from json
+        for child in obj.Group:
+            child.Proxy.executeToGui(child, parameters["objects"][child.partLinkName])
+
+        # check if geometry not in FreeCAD but in input data
+        if len(miss_list) > 0:
+            for partName in miss_list:
+                FreeCAD.Console.PrintWarning("No geometry of " + partName + " in FreeCAD, the data of SnappyHexMesh " + partName + " might get lost\n")
+
 
 # =============================================================================
 # #SnappyHexMeshGeometryEntity
@@ -313,41 +396,86 @@ class SnappyHexMeshGeometryEntity(WebGuiNode):
         super().__init__(obj, nodeId, nodeData, name)
 
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
 
-        jinjaObj = dict()
+        executeObj = dict()
         for key,val in self.nodeData["WebGui"]["formData"].items():
             updateKey = key.replace("TSM", "")
-            jinjaObj[updateKey] = val
+            executeObj[updateKey] = val
 
         # turn refinementRegions levels from string to arrays
         # for mode distance - list of string to list of arrays
-        if "refinementRegions" in jinjaObj.keys():
-            if "mode" not in jinjaObj["refinementRegions"]:
+        if "refinementRegions" in executeObj.keys():
+            if "mode" not in executeObj["refinementRegions"]:
                     pass
-            elif jinjaObj["refinementRegions"]["mode"] == "distance":
+            elif executeObj["refinementRegions"]["mode"] == "distance":
                 levels = list()
-                for level in jinjaObj["refinementRegions"]["levels"]:
+                for level in executeObj["refinementRegions"]["levels"]:
                     levels.append(self.stringToArray(level))
-                jinjaObj["refinementRegions"]["levels"] = levels
+                executeObj["refinementRegions"]["levels"] = levels
             else:
                 # for mode inside/outside just to strung to arr
-                jinjaObj["refinementRegions"]["levels"] = self.stringToArray(jinjaObj["refinementRegions"]["levels"])
+                executeObj["refinementRegions"]["levels"] = self.stringToArray(executeObj["refinementRegions"]["levels"])
 
-            # turn refinementSurfaceLevels from string to arrays
-            if "refinementSurfaceLevels" in jinjaObj.keys():
-                jinjaObj["refinementSurfaceLevels"] = self.stringToArray(jinjaObj["refinementSurfaceLevels"])
+        # turn refinementSurfaceLevels from string to arrays
+        if "refinementSurfaceLevels" in executeObj.keys():
+            executeObj["refinementSurfaceLevels"] = self.stringToArray(executeObj["refinementSurfaceLevels"])
 
         # mv the regions from array to dict structure
-        if "regions" in jinjaObj.keys():
+        if "regions" in executeObj.keys():
             new_regions = dict()
-            for reg in jinjaObj["regions"]:
+            for reg in executeObj["regions"]:
                 new_regions[reg["regionName"]] = dict(name=reg["regionName"], type=reg["regionType"])
-            jinjaObj["regions"] = new_regions
+            executeObj["regions"] = new_regions
 
 
-        return jinjaObj
+        return executeObj
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+
+        formData = dict()
+        for key,val in parameters.items():
+            if key == "regions":
+                updateKey = key
+            else:
+                updateKey = key + "TSM"
+            formData[updateKey] = val
+
+        # turn refinementRegions levels from string to arrays
+        # for mode distance - list of string to list of arrays
+        if "refinementRegionsTSM" in formData.keys():
+            if "mode" not in formData["refinementRegionsTSM"]:
+                    pass
+            elif formData["refinementRegionsTSM"]["mode"] == "distance":
+                levels = list()
+                for level in formData["refinementRegionsTSM"]["levels"]:
+                    levels.append(self.arrayToString(level))
+                formData["refinementRegionsTSM"]["levels"] = levels
+            else:
+                # for mode inside/outside just to strung to arr
+                formData["refinementRegionsTSM"]["levels"] = self.arrayToString(formData["refinementRegionsTSM"]["levels"])
+
+
+        # turn refinementSurfaceLevels from string to arrays
+        if "refinementSurfaceLevelsTSM" in formData.keys():
+            formData["refinementSurfaceLevelsTSM"] = self.arrayToString(formData["refinementSurfaceLevelsTSM"])
+
+        if "regions" in formData.keys():
+            new_regions = list()
+            for regKey,regVal in formData["regions"].items():
+                new_regions.append(dict(regionName=regVal["name"], regionType=regVal["type"]))
+            formData["regions"] = new_regions
+
+
+
+        self.nodeData["WebGui"]["formData"] = formData
+        self.selectNode(obj)
+
+        obj.NodeDataString = json.dumps(self.nodeData)
+        # self.backupNodeData(obj)
+
 
     def stringToArray(self, stringObj):
         ''' convert from string to array of numbers '''
@@ -374,7 +502,21 @@ class SnappyHexMeshGeometryEntity(WebGuiNode):
                 arr.append(float(item))
         return arr
 
+    def arrayToString(self, arrayObj):
+        ''' convert from string to array of numbers '''
+        if type(arrayObj) is not list:
+            FreeCAD.Console.PrintMessage("arrayObj is not array. arrayObj = "+ str(arrayObj) + "and its type is " + str(type(arrayObj)) + "\n")
+            return
 
+        stringObj = "("
+        for item in arrayObj:
+            stringObj += str(item)
+            stringObj += " "
+
+        stringObj += ")"
+
+
+        return stringObj
 # =============================================================================
 # SnappyHexMeshGeometryEntityDialogPanel
 # =============================================================================
@@ -462,7 +604,6 @@ class _CommandSnappyHexMeshPointSelection(Point):
         # QtCore.QTimer.singleShot(0, self.linkToSnappy)
 
     def linkToSnappy(self):
-
 
         # snappyObj = FreeCAD.ActiveDocument.getObjectsByLabel("SnappyHexMesh")[0]
         castellObj = FreeCAD.ActiveDocument.getObjectsByLabel("castellatedMeshControls")[0]

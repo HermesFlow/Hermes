@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "jinjaExecuter.FvSolution",
+    "type": "openFOAM.systemExecuters.fvSolution",
     "input_parameters": {
       "fields": {
         "p": {

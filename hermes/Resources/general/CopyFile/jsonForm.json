@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type":"jinjaExecuter.CopyFile",
+        "type":"fileSystemExecuters.copyFile",
         "input_parameters": {
             "Source": "{Properties.Source.current_val}",
             "Target": "{Properties.Target.current_val}"
@@ -12,9 +12,9 @@
             "Source": {
                 "prop": "Source",
                 "init_val": "",
-                "type": "App::PropertyPath",
+                "type": "App::PropertyFile",
                 "Heading": "Parameters",
-                "tooltip": "The source directory",
+                "tooltip": "The source file",
                 "current_val": ""
             },
             "Target": {
