@@ -392,7 +392,7 @@ class BCGeometryNode(WebGuiNode):
         SolvedFields = rootParent.SolvedFields
         fieldList = SolvedFields + AuxfieldList
         # FreeCAD.Console.PrintMessage("updateAuxNodeFields: updateAuxNodeFields" + str(AuxfieldList) + " \n")
-        
+
         # get part from Name
         part = FreeCAD.ActiveDocument.getObject(bcObj.partLinkName)
 

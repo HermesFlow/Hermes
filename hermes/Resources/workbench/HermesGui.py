@@ -92,8 +92,12 @@ class _HermesWorkflow:
         # ImportJSONFile propert- get the file path of the wanted json file
         addObjectProperty(obj, "ImportJSONFile", "", "App::PropertyFile", "IO", "Browse JSON File")
 
-        # ExportJSONFile property- get the directory path of where we want to export the json file
-        addObjectProperty(obj, "ExportJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+        # ExportGUIJSONFile property- get the directory path of where we want to export the json file
+        addObjectProperty(obj, "ExportGUIJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+
+        # ExportExecuteJSONFile property- get the directory path of where we want to export the json file
+        addObjectProperty(obj, "ExportExecuteJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+
 
         # WorkingDirectory property- get the directory path of where we want to export our files
         addObjectProperty(obj, "WorkingDirectory", "", "App::PropertyPath", "IO", "Path to working directory")
@@ -156,7 +160,20 @@ class _HermesWorkflow:
 
         self.JsonObjectString = json.dumps(self.JsonObject)
 
-    def saveJson(self, obj, jsonSaveFilePath, FileSaveName):
+    def prepareExecuteJsonVar(self, obj, rootVal):
+        self.prepareJsonVar(obj, rootVal)
+
+        import copy
+        executeJson = copy.deepcopy(self.JsonObject)
+        for node in executeJson["workflow"]["nodes"]:
+            if "GUI" in executeJson["workflow"]["nodes"][node]:
+                executeJson["workflow"]["nodes"][node].pop("GUI")
+
+        return executeJson
+
+
+    # def saveJson(self, obj, jsonSaveFilePath, FileSaveName):
+    def saveJson(self, obj, jsonSaveFileName, exportJson):
         """
             Saves the current workflow to JSON.
 
@@ -169,38 +186,38 @@ class _HermesWorkflow:
         # ^^^Export Json-file
 
         # define the full path of the export file
-        jsonSaveFileName = jsonSaveFilePath + '/' + FileSaveName + '.json'
+        # jsonSaveFileName = jsonSaveFilePath + '/' + FileSaveName + '.json'
 
         # get the json want to be export
-        dataSave = self.JsonObject
+        # dataSave = self.JsonObject
 
         # save file to the selected place
         with open(jsonSaveFileName, "w") as write_file:
-            json.dump(dataSave, write_file, indent=4)  # indent make it readable
+            json.dump(exportJson, write_file, indent=4)  # indent make it readable
 
         # ^^^Export Part-files
 
-        # export FreeCAD parts
-        doc = obj.Document
-
-        # loop all the objects
-        for y in range(len(self.partNameExportList)):
-
-            partObjName = self.partNameExportList[y]
-            partObj = doc.getObject(partObjName)
-
-            # Define full path
-            # 'stp' file
-            fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
-            # fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
-
-            # 'stl' file
-            # fullPath_stl = jsonSaveFilePath + '/' + partObjName + '.stl'
-
-            # export all part Object
-            Part.export([partObj], u"" + fullPath)
-
-        self.partNameExportList = []
+        # # export FreeCAD parts
+        # doc = obj.Document
+        #
+        # # loop all the objects
+        # for y in range(len(self.partNameExportList)):
+        #
+        #     partObjName = self.partNameExportList[y]
+        #     partObj = doc.getObject(partObjName)
+        #
+        #     # Define full path
+        #     # 'stp' file
+        #     fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
+        #     # fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
+        #
+        #     # 'stl' file
+        #     # fullPath_stl = jsonSaveFilePath + '/' + partObjName + '.stl'
+        #
+        #     # export all part Object
+        #     Part.export([partObj], u"" + fullPath)
+        #
+        # self.partNameExportList = []
 
     def readJson(self, obj):
         '''
@@ -687,16 +704,31 @@ class _ViewProviderHermesWorkflow:
             obj.Proxy.readJson(obj)
             obj.ImportJSONFile = ''
 
-    def _handle_ExportJSONFile(self, obj):
+    def _handle_ExportGUIJSONFile(self, obj):
         '''
             take the path and
             - update JSON
             - Export JSON to the path choosen
         '''
-        if len(str(obj.ExportJSONFile)) > 0:
+        if len(str(obj.ExportGUIJSONFile)) > 0:
             obj.Proxy.prepareJsonVar(obj, "null")
-            obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
-            obj.ExportJSONFile = ''
+            # define the full path of the export file
+            jsonSaveFileName = obj.ExportGUIJSONFile + '/' + obj.Label + '_GUI.json'
+            obj.Proxy.saveJson(obj, jsonSaveFileName,  obj.Proxy.JsonObject)
+            obj.ExportGUIJSONFile = ''
+
+    def _handle_ExportExecuteJSONFile(self, obj):
+        '''
+            take the path and
+            - update JSON
+            - Export JSON to the path choosen
+        '''
+        if len(str(obj.ExportExecuteJSONFile)) > 0:
+            executeJson = obj.Proxy.prepareExecuteJsonVar(obj, "null")
+            # define the full path of the export file
+            jsonSaveFileName = obj.ExportExecuteJSONFile + '/' + obj.Label + '_Execute.json'
+            obj.Proxy.saveJson(obj, jsonSaveFileName, executeJson)
+            obj.ExportExecuteJSONFile = ''
 
     def _handle_RunWorkflow(self, obj):
         ''' update the JSON and call the function that run the workflow'''

@@ -143,6 +143,10 @@ class BlockMeshNode(GeometryDefinerNode):
         setattr(obj, "partName", geometryObj.Name)
         setattr(obj, "partLink", geometryObj)
 
+        # todo - if neighbourPatch name updated, update in eighbour
+        # if getattr(obj, "Type") == "cylclic":
+
+
 
     def linkPartToBM(self, obj):
         '''
@@ -225,16 +229,16 @@ class BlockMeshNode(GeometryDefinerNode):
             # update vertices in nodedata
             self.updateVertices(vertices)
 
-        # update boundry in nodedata
-        self.updateBoundry(obj)
+        # update boundary in nodedata
+        self.updateBoundary(obj)
 
         # Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def updateBoundry(self, obj):
+    def updateBoundary(self, obj):
         ''' save the children(BlockMesh entities) nodes data into json'''
-        # initialize boundry list
-        boundryList = []
+        # initialize boundary list
+        boundaryList = []
 
         # loop all objects in Nodeobj
         for child in obj.Group:
@@ -242,10 +246,10 @@ class BlockMeshNode(GeometryDefinerNode):
             BMEnodeData = json.loads(child.EntityNodeDataString)
 
             # update the GE-child nodeDate in the Geometry Entity List section
-            boundryList.append(BMEnodeData)
+            boundaryList.append(BMEnodeData)
 
         # update the Geometry Entity List section data in nodeData
-        self.nodeData['boundary'] = boundryList
+        self.nodeData['boundary'] = boundaryList
 
     def updateVertices(self, vertices):
         '''create a list of string vertices'''
@@ -282,7 +286,10 @@ class BlockMeshNode(GeometryDefinerNode):
         workflowObj = obj.getParentGroup()
 
         # update part path
-        setattr(obj, "partPath", workflowObj.ExportJSONFile)
+        if workflowObj.ExportGUIJSONFile:
+            setattr(obj, "partPath", workflowObj.ExportGUIJSONFile)
+        else:
+            setattr(obj, "partPath", workflowObj.ExportExecuteJSONFile)
 
         # update properties as parent
         C_HermesNode.UpdateNodePropertiesData(self, obj)
@@ -330,33 +337,146 @@ class BlockMeshNode(GeometryDefinerNode):
 
         # boundary
         json_boundary = self.nodeData["boundary"]
-        boundry = list()
+        boundary = list()
         for bn in json_boundary:
             bn_dict = dict()
             bn_dict["name"] = bn["Name"]
             bn_dict["type"] = bn["Type"]
             bn_dict["faces"] = [bn["faces"][face]["vertices"] for face in bn["faces"]]
             if bn["Type"] == "cyclic":
-                bn_dict["neighbourPatch"] = bn["Properties"]["Property01"]["current_val"]
+                bn_dict["neighbourPatch"] = bn["Properties"]["neighbourPatch"]["current_val"]
 
-            boundry.append(copy.deepcopy(bn_dict))
+            boundary.append(copy.deepcopy(bn_dict))
 
 
 
-        jinja = dict(geomerty=geometry, boundry=boundry, vertices=vertices)
+        jinja = dict(geometry=geometry, boundary=boundary, vertices=vertices)
         # FreeCAD.Console.PrintMessage("blockMesh guiToExecute = " + str(jinja) + "\n")
 
         return jinja
 
     def executeToGui(self, obj, parameters):
         ''' import the "input_parameters" data into the json obj data '''
-        pass
-        # FreeCAD.ActiveDocument.addObject("Part::Box","Box")
-        # FreeCAD.ActiveDocument.ActiveObject.Label = "Cube"
-        # FreeCAD.ActiveDocument.recompute()
-        # FreeCAD.getDocument("sphere").getObject("Box").Length = '11 mm'
-        # v = FreeCAD.Base.Vector(1, 2, 3)
-        # box.Placement.move(v)
+
+        # update the geometry section in FC properties
+        geometry = parameters["geometry"]
+        FreeCAD.Console.PrintMessage("geometry = " + str(geometry) + "\n")
+        setattr(obj, "convertToMeters", geometry["convertToMeters"])
+        cellCountStr = " ".join(map(str, geometry["cellCount"]))
+        setattr(obj, "NumberOfCells", cellCountStr)
+
+        # if grade consist of 1 list -> convert to arr with 1 str
+        # if grade consist of 3 lists-> loop each list, convert to arr with 3 str
+        simpleGrading = list()
+        for grade in geometry["grading"]:
+            if len(grade) == 1:
+                simpleGrading.append([" ".join(map(str, grade))])
+            else:
+                subSimpleGrading = list()
+                subIdx = 0
+                for subGrade in grade:
+                    subSimpleGrading.append(" ".join(map(str, subGrade)))
+                # simpleGrading[idx] = subSimpleGrading
+                simpleGrading.append(subSimpleGrading)
+
+        # update the data in FC obj
+        setattr(obj, "simpleGradingX", simpleGrading[0])
+        setattr(obj, "simpleGradingY", simpleGrading[1])
+        setattr(obj, "simpleGradingZ", simpleGrading[2])
+
+
+        # FreeCAD.Console.PrintMessage("grading = " + str(grading) + "\n")
+
+
+
+        # check that boundry box data(vertices) exist
+        if len(parameters["vertices"]) == 0:
+            return
+
+        maxmin = {'min': 1e6, 'max': -1e6}
+        extrema = [maxmin.copy(), maxmin.copy(), maxmin.copy()]
+        for vertex in parameters["vertices"]:
+            for i in range(len(vertex)):
+                if vertex[i] < extrema[i]["min"]:
+                    extrema[i]["min"] = vertex[i]
+                elif vertex[i] > extrema[i]["max"]:
+                    extrema[i]["max"] = vertex[i]
+
+        # create FreeCAD box part
+        blockMeshCube = FreeCAD.ActiveDocument.addObject("Part::Box","Box")
+        FreeCAD.ActiveDocument.ActiveObject.Label = "BlockMeshCube"
+        FreeCAD.ActiveDocument.recompute()
+        # x direction
+        blockMeshCube.Length = extrema[0]["max"] - extrema[0]["min"]
+        # y direction
+        blockMeshCube.Width = extrema[1]["max"] - extrema[1]["min"]
+        # z direction
+        blockMeshCube.Height = extrema[2]["max"] - extrema[2]["min"]
+
+        # create vector of the position of the cube
+        position_vector = FreeCAD.Base.Vector(extrema[0]["min"], extrema[1]["min"], extrema[2]["min"])
+        # move the cube to that location
+        blockMeshCube.Placement.move(position_vector)
+
+
+        # link the part to thr BlockMesh node
+        setattr(obj, "partLink", blockMeshCube)
+
+        # create the part object from the part
+        self.backupNodeData(obj)
+
+        # create BlockEntities based on the boundary input
+        # get Geometry Face types section from json
+        GeometryFaceTypes = self.nodeData["GeometryFaceTypes"]
+
+        # get the list of available Geometry Face types
+        TypeList = GeometryFaceTypes["TypeList"]
+
+
+        if len(parameters["boundary"]) == 0:
+            return
+
+        for bound in parameters["boundary"]:
+            # Create basic structure of a GENodeData
+            Properties = GeometryFaceTypes["TypeProperties"][bound["type"]]["Properties"]
+            BmNodeData = dict(Name=bound["name"], Type=bound["type"], Properties=Properties)
+            faceList = bound["faces"]
+
+            # update the Reference(faces) list attach to the the BMEObj -
+            for face_vertices in faceList:
+                freecad_face = self.find_face_Name(obj, face_vertices, blockMeshCube.Name)
+                if freecad_face is not None:
+                    tmp = (blockMeshCube.Name, freecad_face)  # Reference structure
+                    obj.References.append(tmp)
+
+
+            # create the object
+            from ..GeometryDefiner import workbenchEntity
+            BmNodeObj = workbenchEntity.makeEntityNode(bound["name"], TypeList, copy.deepcopy(BmNodeData), obj)
+            if BmNodeObj is None:
+                return None
+
+            # copy the Refernces list to the new BME object, and reset BM Refernces
+            BmNodeObj.References = obj.References
+            obj.References = []
+
+
+
+
+    def find_face_Name(self, obj, faceVertices, partName):
+
+        # get the part linked dictionary
+        workflowObj = obj.getParentGroup()
+        partDict = workflowObj.Proxy.partList[partName]
+        OF_Faces = partDict["Faces"]
+
+        # loop face till vertices are are equal
+        for of_face in OF_Faces:
+            if faceVertices == OF_Faces[of_face]["vertices"]:
+                return of_face
+
+        return None
+
 
 
 # =============================================================================

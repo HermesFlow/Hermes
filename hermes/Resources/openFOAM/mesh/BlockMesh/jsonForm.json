@@ -2,9 +2,9 @@
     "Execution": {
         "type": "openFOAM.meshExecuters.BlockMesh",
         "input_parameters": {
-            "geometry": "{value.Properties}",
-            "boundary": "{value.boundary}",
-            "vertices": "{value.vertices}"
+            "geometry": {},
+            "boundary": [],
+            "vertices": []
         }
     },
     "GUI": {

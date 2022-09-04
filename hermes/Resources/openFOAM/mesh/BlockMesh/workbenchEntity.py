@@ -172,6 +172,9 @@ class HermesBME(HermesGE):
         # update the self var of proporties
         self.Properties = self.EntityNodeData["Properties"]
 
+    # def executeToGui(self, obj, parameters):
+    #     ''' import the "input_parameters" data into the json obj data '''
+
 
 
 

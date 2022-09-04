@@ -290,7 +290,8 @@ class HermesGE(_Facebinder):
         for x in ListProperties:
             # get property'num' object ; num =1,2,3 ...
             propertyNum = ListProperties[x]
-
+            if len(propertyNum) == 0:
+                continue
             # get needed parameters to create a property
             prop = propertyNum["prop"]
             init_val = propertyNum["init_val"]
@@ -314,7 +315,11 @@ class HermesGE(_Facebinder):
         workflowObj = Nodeobj.getParentGroup()
 
         # get Export path from workflowObj
-        dirPath = workflowObj.ExportJSONFile
+        # dirPath = workflowObj.ExportJSONFile
+        if workflowObj.ExportGUIJSONFile:
+            dirPath = workflowObj.ExportGUIJSONFile
+        else:
+            dirPath = workflowObj.ExportExecuteJSONFile
 
         # Create basic structure of a part object
         Part_strc = {

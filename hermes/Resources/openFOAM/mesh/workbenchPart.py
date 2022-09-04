@@ -198,6 +198,10 @@ class HermesPart:
         return ver
 
     def getPlane(self, partVertices, vertexList):
+        ''' get plane - in each direction there are 2 planes, one on
+            the min and one on the max.
+            the function return in which direction the plane is, and if
+            it is on the min or max value on that direction'''
 
         # define a sum var in each direction
         sum = {'x': 0, 'y': 0, 'z': 0}
