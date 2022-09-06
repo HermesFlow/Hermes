@@ -1,4 +1,4 @@
-__version__=(1,2,0)
+__version__=(2,0,0)
 
 """
     - hermes workflow: Solving the problem of weak-ref in the mongoDB object
