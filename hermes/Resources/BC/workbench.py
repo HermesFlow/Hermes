@@ -23,6 +23,16 @@ from ..workbench.HermesNode import WebGuiNode, _ViewProviderNode
 from ..workbench import HermesNode
 from ..workbench.HermesTools import addObjectProperty
 
+
+def getBoundaryConditionNode():
+    FC_objects = FreeCAD.ActiveDocument.Objects
+    for object in FC_objects:
+        if "Type" in object.PropertiesList:
+            if "BCNode" in object.Type:
+                return object
+
+    return None
+
 # =============================================================================
 # _BCNode
 # =============================================================================
@@ -33,13 +43,32 @@ class BCNode(WebGuiNode):
         super().__init__(obj, nodeId, nodeData, name)
         self.iconColor = "red"
 
+        # update the fields in the webGUI
         workflowObj = self.getRootParent(obj)
-
-        # self.updateBCNodeFields(workflowObj.SolvedFields, obj)
+        Auxfield = workflowObj.AuxFields
+        SolvedFields = workflowObj.SolvedFields
+        fieldList = SolvedFields +Auxfield
+        self.updateInternalField(fieldList, obj)
 
     def selectNode(self, obj):
         self.updateBCPartList(obj)
         super().selectNode(obj)
+
+    def updateInternalField(self, fieldList, obj):
+        ''' Update the fields in the webGui of the BC Node for internalField'''
+
+        schema = self.nodeData["WebGui"]["Schema"]
+
+        # create list of items need to be added or removed from webGui
+        add_list = [field for field in fieldList if field not in schema["properties"].keys()]
+        del_list = [field for field in schema["properties"].keys() if field not in fieldList]
+
+
+        for field in add_list:
+            self.nodeData["WebGui"]["Schema"]["properties"][field]=dict(type="string",title=field)
+
+        for field in del_list:
+            self.nodeData["WebGui"]["Schema"]["properties"].pop(field)
 
 
     def updateNodeFields(self, fieldList, obj):
@@ -226,8 +255,9 @@ class BCNode(WebGuiNode):
         HermesWorkflow = self.getRootParent(obj)
         jinja = dict()
         # loop all fields defined
-        for field in HermesWorkflow.SolvedFields:
-            obj_field = dict()
+        fieldList = HermesWorkflow.SolvedFields + HermesWorkflow.AuxFields
+        for field in fieldList:
+            obj_field = dict(boundaryField=dict())
             # loop each geom and get its field BC data
             for geom in obj.Group:
                 geom_fields = geom.Group
@@ -241,12 +271,76 @@ class BCNode(WebGuiNode):
                                 obj_jinja["type"] = value
                             else:
                                 obj_jinja[key] = value
-                        obj_field[part.Label] = obj_jinja
+                        obj_field["boundaryField"][part.Label] = obj_jinja
+            if field in self.nodeData["WebGui"]["formData"]:
+                obj_field["internalField"] = self.nodeData["WebGui"]["formData"][field]
 
             jinja[field] = copy.deepcopy(obj_field)
 
         # FreeCAD.Console.PrintMessage("BC jinja = " + str(jinja) + "\n")
         return dict(fields=jinja)
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+
+        # update by snappy and blockmesh
+        self.updateBCPartList(obj)
+        fields = parameters["fields"]
+        formData = dict()
+
+        # update internalField
+        for field in fields:
+            # save the internalField to the main BC node data
+            if "internalField" in fields[field]:
+                formData[field] = fields[field]["internalField"]
+        self.nodeData["WebGui"]["formData"] = copy.deepcopy(formData)
+
+        # check if children exist
+        if len(obj.Group) == 0:
+            return
+
+        # update boundaryField for each field
+        for field in fields:
+            # update the nodeDate of a specific BC
+            boundaryField = copy.deepcopy(fields[field]["boundaryField"])
+            for geom in boundaryField:
+                bcgeom = self.findBcObjByGeometryName(obj, geom)
+                if bcgeom is None:
+                    continue
+                else:
+                    bcGeomField = self.findBcFieldObjByFieldName(bcgeom, field)
+                    if bcGeomField is None:
+                        continue
+                    else:
+                        if "type" in boundaryField[geom]:
+                            bcGeomField.Proxy.nodeData["WebGui"]["formData"]["typeBC"] = boundaryField[geom]["type"]
+                            boundaryField[geom].pop("type")
+                        else:
+                            continue
+                        # if(len(boundaryField[geom]) > 0):
+                        for key, val in boundaryField[geom].items():
+                            bcGeomField.Proxy.nodeData["WebGui"]["formData"][key] = val
+
+
+
+
+
+    def findBcObjByGeometryName(self, obj, geomName):
+        ''' find the child that linked to the gemetry'''
+        for child in obj.Group:
+            if geomName == child.partLinkName:
+                return child
+
+        return None
+
+    def findBcFieldObjByFieldName(self, bcgeomObj, field):
+        ''' find the child that linked to the gemetry'''
+        for child in bcgeomObj.Group:
+            if field in child.Name:
+                return child
+        return None
+
+
 
 # =============================================================================
 # BCGeometryNode

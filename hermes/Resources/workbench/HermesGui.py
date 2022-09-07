@@ -585,13 +585,20 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
             updates the field nodes in BoundaryCondition, FvSchemes,
             FvSolution
         '''
-        BCNode = None
-        for child in HermesObj.Group:
-            # if "BoundaryCondition" == child.Label:
-            #     BCNode = child
 
-            if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
+        for child in HermesObj.Group:
+            if "FvSchemes" in child.Type:
                 child.Proxy.updateNodeFields(fieldList, child)
+            if "FvSolution" in child.Type:
+                child.Proxy.updateNodeFields(fieldList, child)
+            if "BCNode" in child.Type: # BoundaryCondition type
+                child.Proxy.updateNodeFields(fieldList, child)
+                child.Proxy.updateInternalField(fieldList + HermesObj.AuxFields, child)
+
+            # if Name/Label is different - so better use Type is constant
+            # if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
+            #     child.Proxy.updateNodeFields(fieldList, child)
+
 
     def updateAuxFields(self, fieldList, HermesObj):
         '''
@@ -599,14 +606,11 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
             updates the field nodes in BoundaryCondition, FvSchemes,
             FvSolution
         '''
-        BCNode = None
         for child in HermesObj.Group:
-            # if "BoundaryCondition" == child.Label:
-            #     BCNode = child
-
-            if child.Name in ["BoundaryCondition"]:
+            # BoundaryCondition type
+            if "BCNode" in child.Type:
                 child.Proxy.updateAuxNodeFields(fieldList, child)
-
+                child.Proxy.updateInternalField(fieldList + HermesObj.SolvedFields, child)
 
 
 # =============================================================================

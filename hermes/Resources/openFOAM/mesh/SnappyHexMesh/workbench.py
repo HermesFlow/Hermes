@@ -21,6 +21,7 @@ import copy
 from ....workbench.HermesNode import WebGuiNode
 from ....workbench.HermesNode import HermesNode as C_HermesNode
 from ....workbench import HermesNode
+from ....BC import workbench as BCworkbench
 
 
 
@@ -324,7 +325,8 @@ class SnappyHexMeshGeometry(C_HermesNode):
         else:
             FreeCAD.Console.PrintMessage("SnappyGeDialogClosed: geometryObj is None \n")
 
-        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
+        bcObj = BCworkbench.getBoundaryConditionNode()
+        # bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
         if bcObj is not None:
             bcObj.Proxy.updateBCPartList(bcObj)
             bcObj.touch()
