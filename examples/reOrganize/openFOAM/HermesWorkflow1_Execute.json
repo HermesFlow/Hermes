@@ -5,73 +5,23 @@
         "SolvedFields": "p U k epsilon",
         "AuxFields": "nut",
         "nodeList": [
-            "CopyDirectory",
-            "RunPythonCode",
-            "RunOsCommand",
-            "CopyFile",
             "TransportProperties",
             "TurbulenceProperties",
             "ControlDict",
             "FvSchemes",
             "FvSolution",
             "SnappyHexMesh",
-            "GeometryDefiner",
             "BlockMesh",
             "BoundaryCondition"
         ],
         "nodes": {
-            "CopyDirectory": {
-                "Template": "general.CopyDirectory.jsonForm",
-                "Execution": {
-                    "type": "fileSystemExecuters.copyDirectory",
-                    "input_parameters": {
-                        "Source": "{Properties.Source.current_val}",
-                        "Target": "{Properties.Target.current_val}",
-                        "dirs_exist_ok": false
-                    }
-                }
-            },
-            "RunPythonCode": {
-                "Template": "general.RunPythonCode.jsonForm",
-                "Execution": {
-                    "type": "pythonExecuters.python",
-                    "input_parameters": {
-                        "ModulePath": "{Properties.ModulePath.current_val}",
-                        "ClassName": "{Properties.ClassName.current_val}",
-                        "MethodName": "{Properties.MethodName.current_val}",
-                        "Parameters": {}
-                    }
-                }
-            },
-            "RunOsCommand": {
-                "Template": "general.RunOsCommand.jsonForm",
-                "Execution": {
-                    "type": "fileSystemExecuters.RunOsCommand",
-                    "input_parameters": {
-                        "Method": "Commands list",
-                        "Command": [
-                            ""
-                        ]
-                    }
-                }
-            },
-            "CopyFile": {
-                "Template": "general.CopyFile.jsonForm",
-                "Execution": {
-                    "type": "fileSystemExecuters.copyFile",
-                    "input_parameters": {
-                        "Source": "{Properties.Source.current_val}",
-                        "Target": "{Properties.Target.current_val}"
-                    }
-                }
-            },
             "TransportProperties": {
                 "Template": "openFOAM.constant.TransportProperties.jsonForm",
                 "Execution": {
                     "type": "openFOAM.constantExecuters.transportProperties",
                     "input_parameters": {
                         "transportModel": "Newtonian",
-                        "nu": "1e-5"
+                        "nu": 1e-05
                     }
                 }
             },
@@ -82,8 +32,9 @@
                     "input_parameters": {
                         "transportModel": "Newtonian",
                         "nu": 1e-05,
-                        "simulationType": "RAS",
-                        "Model": "kEpsilon",
+                        "ModelCoeffs": {},
+                        "Model": "kOmega",
+                        "simulationType": "type",
                         "turbulence": true,
                         "printCoeffs": false
                     }
@@ -230,10 +181,10 @@
                     "input_parameters": {
                         "fields": {
                             "p": {
-                                "solver": "GAMG",
-                                "preconditioner": "GAMG",
-                                "tolerance": 0.001,
-                                "relTol": 0.00013,
+                                "solver": "PCG",
+                                "preconditioner": "DIC",
+                                "tolerance": 1e-08,
+                                "relTol": 0.0001,
                                 "maxIter": 5000,
                                 "final": {
                                     "solver": "PCG",
@@ -244,10 +195,10 @@
                                 }
                             },
                             "U": {
-                                "solver": "diagonal",
-                                "preconditioner": "diagonal",
-                                "tolerance": 1e-13,
-                                "relTol": 13,
+                                "solver": "PBiCG",
+                                "preconditioner": "DILU",
+                                "tolerance": 1e-08,
+                                "relTol": 0.001,
                                 "maxIter": 5000,
                                 "final": {
                                     "solver": "PBiCG",
@@ -338,8 +289,7 @@
                             "castellatedMesh": true,
                             "snap": true,
                             "layers": true,
-                            "mergeTolerance": 1e-06,
-                            "addLayers": true
+                            "mergeTolerance": 1e-06
                         },
                         "castellatedMeshControls": {
                             "maxLocalCells": 100000,
@@ -357,7 +307,7 @@
                         },
                         "snapControls": {
                             "nSmoothPatch": 3,
-                            "tolerance": 2.0,
+                            "tolerance": 2,
                             "nSolveIter": 100,
                             "nRelaxIter": 5,
                             "nFeatureSnapIter": 10,
@@ -406,23 +356,12 @@
                             }
                         },
                         "Geometry": {
-                            "objects": {
-                                "Cylinder": {
-                                    "refinementRegions": {}
-                                }
-                            }
+                            "objects": {}
                         },
                         "Refinement": {
                             "regions": {}
                         }
                     }
-                }
-            },
-            "GeometryDefiner": {
-                "Template": "openFOAM.mesh.GeometryDefiner.jsonForm",
-                "Execution": {
-                    "type": "jinjaExecuters.jinjaExecuter.GeometryDefiner",
-                    "input_parameters": {}
                 }
             },
             "BlockMesh": {
@@ -475,29 +414,19 @@
                     "input_parameters": {
                         "fields": {
                             "p": {
-                                "Cylinder": {
-                                    "type": "inletOutlet",
-                                    "inletValue": "6",
-                                    "value": "8"
-                                }
+                                "boundaryField": {}
                             },
                             "U": {
-                                "Cylinder": {
-                                    "type": "slip"
-                                }
+                                "boundaryField": {}
                             },
                             "k": {
-                                "Cylinder": {
-                                    "type": "pressureInletOutletVelocity",
-                                    "value": "5"
-                                }
+                                "boundaryField": {}
                             },
                             "epsilon": {
-                                "Cylinder": {
-                                    "type": "inletOutlet",
-                                    "inletValue": "6",
-                                    "value": "8"
-                                }
+                                "boundaryField": {}
+                            },
+                            "nut": {
+                                "boundaryField": {}
                             }
                         }
                     }

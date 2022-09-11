@@ -2,8 +2,7 @@
   "Execution": {
     "type": "openFOAM.systemExecuters.changeDictionary",
     "input_parameters": {
-      "values": "{WebGui.formData}",
-      "template": ""
+      "fields": ""
     }
   },
   "GUI": {

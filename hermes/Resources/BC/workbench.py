@@ -262,7 +262,8 @@ class BCNode(WebGuiNode):
             for geom in obj.Group:
                 geom_fields = geom.Group
                 for cf in geom_fields:
-                    if field in cf.Name:
+                    cfName = self.getGeomBcName(geom, field)
+                    if cfName == cf.Name:
                         part = FreeCAD.ActiveDocument.getObject(geom.partLinkName)
                         formData = cf.Proxy.nodeData["WebGui"]["formData"]
                         obj_jinja = dict()
@@ -272,6 +273,8 @@ class BCNode(WebGuiNode):
                             else:
                                 obj_jinja[key] = value
                         obj_field["boundaryField"][part.Label] = obj_jinja
+
+
             if field in self.nodeData["WebGui"]["formData"]:
                 obj_field["internalField"] = self.nodeData["WebGui"]["formData"][field]
 
@@ -330,17 +333,44 @@ class BCNode(WebGuiNode):
         for child in obj.Group:
             if geomName == child.partLinkName:
                 return child
+            elif geomName in child.Name:
+                return child
+            elif geomName in child.Label:
+                return child
 
         return None
 
     def findBcFieldObjByFieldName(self, bcgeomObj, field):
         ''' find the child that linked to the gemetry'''
         for child in bcgeomObj.Group:
-            if field in child.Name:
+            cfName = self.getGeomBcName(bcgeomObj, field)
+            if cfName == child.Name:
                 return child
         return None
 
+    def getGeomBcName(self, bcgeomObj, field):
+        returnName = None
 
+        # blockmesh Name
+        geomName = bcgeomObj.Name.replace("bc_", "")
+        cfName = geomName + "_" + field
+
+        for geom in bcgeomObj.Group:
+            if cfName == geom.Name:
+                returnName = cfName
+
+        if returnName is not None:
+            return returnName
+
+        # Snappy name
+        geomName = bcgeomObj.Name.replace("bc_snappy_", "")
+        cfSnappyName = geomName + "_" + field
+
+        for geom in bcgeomObj.Group:
+            if cfSnappyName == geom.Name:
+                returnName = cfSnappyName
+
+        return returnName
 
 # =============================================================================
 # BCGeometryNode
