@@ -53,12 +53,14 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         
         parameters_from_required = self.get_all_required_outputs()        
         params = dict(parameters_from_required)
-        params['formData']   = {{taskwrapper.formData}}
-        params['files']      = {{taskwrapper.files}}
-        params['Schema']     = {{taskwrapper.Schema}}
-        params['uiSchema']   = {{taskwrapper.uiSchema}}
-        params['Properties'] = {{taskwrapper.task_Properties}}
-        params['WebGui']     = {{taskwrapper.task_webGui}}
+        
+        # We seperated the GUI from the execution. 
+        # params['formData']   = {{taskwrapper.formData}}
+        # params['files']      = {{taskwrapper.files}}
+        # params['Schema']     = {{taskwrapper.Schema}}
+        # params['uiSchema']   = {{taskwrapper.uiSchema}}
+        # params['Properties'] = {{taskwrapper.task_Properties}}
+        # params['WebGui']     = {{taskwrapper.task_webGui}}
         
        
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)

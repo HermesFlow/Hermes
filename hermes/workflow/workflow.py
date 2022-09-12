@@ -136,7 +136,7 @@ class workflow:
         :return:
         """
 
-        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not x.startswith("#")]
+        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow'])]
 
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
