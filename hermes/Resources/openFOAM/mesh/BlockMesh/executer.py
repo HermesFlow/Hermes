@@ -63,9 +63,6 @@ Noga:
         # 2. Check here if inputs['boundary'] is from webGUI. if it is: convert to the right form
         # 3. Check here if inputs['vertices'] is from webGUI. if it is: convert to the right form
 
-
-
-
         template = self._getTemplate(templateName)
 
         # render jinja for the choosen template

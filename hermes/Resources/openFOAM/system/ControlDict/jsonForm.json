@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "openFOAM.systemExecuters.controlDict",
+    "type": "openFOAM.system.ControlDict",
     "input_parameters": {
 
     }
