@@ -206,7 +206,7 @@ class workflow:
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(type="generalExecuters.caseParameters",
+                         Execution=dict(type="general.Parameters",
                                         input_parameters={},
                                         requires=[x for x in self._workflowJSON["workflow"]["nodes"]]),
 

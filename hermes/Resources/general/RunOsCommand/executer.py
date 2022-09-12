@@ -2,7 +2,7 @@ from ...executers.abstractExecuter import abstractExecuter
 import shutil
 import os, sys, stat
 
-class RunOsCommandExecuter(abstractExecuter):
+class RunOsCommand(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(

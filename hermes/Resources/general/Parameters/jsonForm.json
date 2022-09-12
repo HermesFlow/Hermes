@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "generalExecuters.caseParameters"
+    "type": "general.Parameters"
   },
   "GUI": {
     "Type": "HermesNode.WebGuiNode",
