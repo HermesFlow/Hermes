@@ -21,6 +21,7 @@ import copy
 from ....workbench.HermesNode import WebGuiNode
 from ....workbench.HermesNode import HermesNode as C_HermesNode
 from ....workbench import HermesNode
+from ....BC import workbench as BCworkbench
 
 
 
@@ -324,7 +325,8 @@ class SnappyHexMeshGeometry(C_HermesNode):
         else:
             FreeCAD.Console.PrintMessage("SnappyGeDialogClosed: geometryObj is None \n")
 
-        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
+        bcObj = BCworkbench.getBoundaryConditionNode()
+        # bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
         if bcObj is not None:
             bcObj.Proxy.updateBCPartList(bcObj)
             bcObj.touch()
@@ -482,24 +484,28 @@ class SnappyHexMeshGeometryEntity(WebGuiNode):
         if type(stringObj) is not str:
             FreeCAD.Console.PrintMessage("stringObj is not string. stringObj = "+ str(stringObj) + "and its type is " + str(type(stringObj)) + "\n")
             return
-
-        l_stringObj = stringObj.split(",") if "," in stringObj else stringObj.split(" ")
+        # take only digit from the string, and save to an array
+        # arr = [int(n) for n in stringObj if n.isdigit()]
         arr = list()
-        for item in l_stringObj:
-            if "(" in item:
-                tmp = item.replace("(", "")
-                if len(tmp) > 0:
-                    arr.append(float(tmp))
-            elif ")" in item:
-                tmp = item.replace(")", "")
-                if len(tmp) > 0:
-                    arr.append(float(tmp))
-            elif ")" in item:
-                tmp = item.replace(",", "")
-                if len(tmp) > 0:
-                    arr.append(float(tmp))
+        i = 0
+        while i < len(stringObj):
+            if stringObj[i].isdigit():
+                arr.append( int(stringObj[i]))
+                i += 1
+            elif stringObj[i] == ".":
+                num = stringObj[i-1] + "."
+                i += 1
+                while stringObj[i].isdigit():
+                    num += stringObj[i]
+                    i += 1
+                f_num = float(num)
+
+                arr.pop()
+                arr.append(int(f_num))
+
             else:
-                arr.append(float(item))
+                i += 1
+
         return arr
 
     def arrayToString(self, arrayObj):

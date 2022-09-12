@@ -1,0 +1,1756 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "SolvedFields": "p U k epsilon",
+        "AuxFields": "nut",
+        "nodeList": [
+            "SnappyHexMesh",
+            "BlockMesh",
+            "BoundaryCondition"
+        ],
+        "nodes": {
+            "SnappyHexMesh": {
+                "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm",
+                "Execution": {
+                    "type": "openFOAM.meshExecuters.snappyHexMesh",
+                    "input_parameters": {
+                        "modules": {
+                            "castellatedMesh": true,
+                            "snap": true,
+                            "addLayers": true,
+                            "mergeTolerance": 1e-06
+                        },
+                        "castellatedMeshControls": {
+                            "maxLocalCells": 100000,
+                            "maxGlobalCells": 100000000,
+                            "minRefinementCells": 10,
+                            "maxLoadUnbalance": 0.1,
+                            "nCellsBetweenLevels": 3,
+                            "resolveFeatureAngle": 30,
+                            "allowFreeStandingZoneFaces": true,
+                            "locationInMesh": [
+                                "1",
+                                "2",
+                                "3"
+                            ]
+                        },
+                        "snapControls": {
+                            "nSmoothPatch": 3,
+                            "tolerance": 2.0,
+                            "nSolveIter": 100,
+                            "nRelaxIter": 5,
+                            "nFeatureSnapIter": 10,
+                            "explicitFeatureSnap": false,
+                            "multiRegionFeatureSnap": false,
+                            "implicitFeatureSnap": true
+                        },
+                        "addLayersControls": {
+                            "relativeSizes": true,
+                            "expansionRatio": 1.05,
+                            "finalLayerThickness": 0.9,
+                            "minThickness": 0.05,
+                            "featureAngle": 100,
+                            "slipFeatureAngle": 30,
+                            "nLayerIter": 50,
+                            "nRelaxedIter": 20,
+                            "nRelaxIter": 5,
+                            "nGrow": 0,
+                            "nSmoothSurfaceNormals": 1,
+                            "nSmoothNormals": 3,
+                            "nSmoothThickness": 10,
+                            "maxFaceThicknessRatio": 0.5,
+                            "maxThicknessToMedialRatio": 0.3,
+                            "minMedianAxisAngle": 90,
+                            "nMedialAxisIter": 10,
+                            "nBufferCellsNoExtrude": 0,
+                            "additionalReporting": false
+                        },
+                        "meshQualityControls": {
+                            "maxNonOrtho": 65,
+                            "maxBoundarySkewness": 20,
+                            "maxInternalSkewness": 4,
+                            "maxConcave": 80,
+                            "minVol": 1e-13,
+                            "minTetQuality": -1e+30,
+                            "minArea": -1,
+                            "minTwist": 0.02,
+                            "minDeterminant": 0.001,
+                            "minFaceWeight": 0.05,
+                            "minVolRatio": 0.01,
+                            "minTriangleTwist": -1,
+                            "nSmoothScale": 4,
+                            "errorReduction": 0.75,
+                            "relaxed": {
+                                "maxNonOrtho": 75
+                            }
+                        },
+                        "Geometry": {
+                            "objects": {
+                                "Cylinder": {
+                                    "refinementRegions": {
+                                        "mode": "inside",
+                                        "levels": null
+                                    },
+                                    "objectName": "Cylinder",
+                                    "objectType": "obj",
+                                    "levels": 1,
+                                    "refinementSurfaceLevels": [
+                                        1.0,
+                                        2.0
+                                    ],
+                                    "patchType": "wall"
+                                }
+                            }
+                        },
+                        "Refinement": {
+                            "regions": {}
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMesh",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "title": "",
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "modules": {
+                                    "type": "object",
+                                    "title": "modules",
+                                    "properties": {
+                                        "castellatedMesh": {
+                                            "type": "boolean",
+                                            "title": "castellatedMesh",
+                                            "description": "To switch on creation of the castellated mesh"
+                                        },
+                                        "snap": {
+                                            "type": "boolean",
+                                            "title": "snap",
+                                            "description": "To switch on surface snapping stage"
+                                        },
+                                        "addLayers": {
+                                            "type": "boolean",
+                                            "title": "addLayers",
+                                            "description": "To switch on surface layer insertion"
+                                        },
+                                        "mergeTolerance": {
+                                            "title": "mergeTolerance",
+                                            "type": "number",
+                                            "default": 1e-06,
+                                            "description": "merge tolerance as fraction of bounding box of initial mesh"
+                                        },
+                                        "writeFlags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "uiSchema": {},
+                        "formData": {
+                            "modules": {
+                                "castellatedMesh": true,
+                                "snap": true,
+                                "addLayers": true,
+                                "mergeTolerance": 1e-06
+                            }
+                        }
+                    },
+                    "castellatedMeshControls": {
+                        "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMeshCastellatedMeshControls",
+                        "Properties": {
+                            "locationInMesh": {
+                                "prop": "locationInMesh",
+                                "init_val": null,
+                                "type": "App::PropertyLink",
+                                "Heading": "Links",
+                                "tooltip": "point of locationInMesh ",
+                                "current_val": null
+                            }
+                        },
+                        "WebGui": {
+                            "Schema": {
+                                "title": "castellatedMeshControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "locationInMesh": {
+                                        "type": "string",
+                                        "title": "locationInMesh",
+                                        "format": "vector",
+                                        "description": "location vector inside the region to be meshed; vector must not coincide with a cell face either before or during refinement"
+                                    },
+                                    "maxLocalCells": {
+                                        "type": "number",
+                                        "title": "maxLocalCells",
+                                        "description": "max number of cells per processor during refinement."
+                                    },
+                                    "maxGlobalCells": {
+                                        "type": "number",
+                                        "title": "maxGlobalCells",
+                                        "description": "overall cell limit during refinement"
+                                    },
+                                    "minRefinementCells": {
+                                        "type": "number",
+                                        "title": "minRefinementCells",
+                                        "description": "if minRefinementCells bigger/equal than number of cells to be refined, surface refinement stops"
+                                    },
+                                    "maxLoadUnbalance": {
+                                        "type": "number",
+                                        "title": "maxLoadUnbalance",
+                                        "description": ""
+                                    },
+                                    "nCellsBetweenLevels": {
+                                        "type": "number",
+                                        "title": "nCellsBetweenLevels",
+                                        "description": "number of buffer layers of cells between successive levels of refinement"
+                                    },
+                                    "resolveFeatureAngle": {
+                                        "type": "number",
+                                        "title": "resolveFeatureAngle",
+                                        "description": "applies maximum level of refinement to cells that can see intersections whose angle exceeds resolveFeatureAngle"
+                                    },
+                                    "allowFreeStandingZoneFaces": {
+                                        "type": "boolean",
+                                        "title": "allowFreeStandingZoneFaces",
+                                        "description": ""
+                                    }
+                                }
+                            },
+                            "uiSchema": {},
+                            "formData": {
+                                "maxLocalCells": 100000,
+                                "maxGlobalCells": 100000000,
+                                "minRefinementCells": 10,
+                                "maxLoadUnbalance": 0.1,
+                                "nCellsBetweenLevels": 3,
+                                "resolveFeatureAngle": 30,
+                                "allowFreeStandingZoneFaces": true,
+                                "locationInMesh": "1 2 3"
+                            }
+                        }
+                    },
+                    "snapControls": {
+                        "Type": "HermesNode.WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "snapControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "nSmoothPatch": {
+                                        "type": "integer",
+                                        "title": "nSmoothPatch",
+                                        "description": "Number of smoothing iterations along the surface"
+                                    },
+                                    "nSmoothInternal": {
+                                        "type": "integer",
+                                        "title": "nSmoothInternal",
+                                        "description": "Number of iterations for internal smoothing to reduce non-orthogonality at the face of refinement (effectively making the faces non-planar)."
+                                    },
+                                    "tolerance": {
+                                        "type": "number",
+                                        "title": "tolerance",
+                                        "description": "Multiplied by local cell-edge length specifies region along the surface within which the points are attracted by the surface."
+                                    },
+                                    "nSolveIter": {
+                                        "type": "integer",
+                                        "title": "nSolveIter",
+                                        "description": "Number of mesh displacement iterations"
+                                    },
+                                    "nRelaxIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxIter",
+                                        "description": "Number of relaxation iterations during the snapping"
+                                    },
+                                    "nFeatureSnapIter": {
+                                        "type": "integer",
+                                        "title": "nFeatureSnapIter",
+                                        "description": "Number of relaxation iterations used for snapping onto the features"
+                                    },
+                                    "implicitFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "implicitFeatureSnap",
+                                        "description": "Switch turning on the implicit feature specification"
+                                    },
+                                    "explicitFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "explicitFeatureSnap",
+                                        "description": "Snap mesh onto the feature lines defined in eMesh file."
+                                    },
+                                    "multiRegionFeatureSnap": {
+                                        "type": "boolean",
+                                        "title": "multiRegionFeatureSnap",
+                                        "description": "When using explicitFeatureSnap and this switch is on, features between multiple surfaces will be captured. This is useful for multi-region meshing where the internal mesh must conform the region geometrical boundaries"
+                                    }
+                                }
+                            },
+                            "uiSchema": {
+                                "implicitFeatureSnap": {
+                                    "ui:widget": "radio"
+                                },
+                                "explicitFeatureSnap": {
+                                    "ui:widget": "radio"
+                                },
+                                "multiRegionFeatureSnap": {
+                                    "ui:widget": "radio"
+                                }
+                            },
+                            "formData": {
+                                "nSmoothPatch": 3,
+                                "tolerance": 2.0,
+                                "nSolveIter": 100,
+                                "nRelaxIter": 5,
+                                "nFeatureSnapIter": 10,
+                                "explicitFeatureSnap": false,
+                                "multiRegionFeatureSnap": false,
+                                "implicitFeatureSnap": true
+                            }
+                        }
+                    },
+                    "addLayersControls": {
+                        "Type": "HermesNode.WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "addLayersControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "relativeSizes": {
+                                        "type": "boolean",
+                                        "title": "relativeSizes"
+                                    },
+                                    "expansionRatio": {
+                                        "type": "number",
+                                        "title": "expansionRatio",
+                                        "description": "expansion factor for layer mesh, increase in size from one layer to the next."
+                                    },
+                                    "finalLayerThickness": {
+                                        "type": "number",
+                                        "title": "finalLayerThickness",
+                                        "description": "thickness of layer furthest from the wall, usually in combination with relative sizes according to the relativeSizes entry."
+                                    },
+                                    "minThickness": {
+                                        "type": "number",
+                                        "title": "minThickness",
+                                        "description": "minimum thickness of cell layer, either relative or absolute"
+                                    },
+                                    "firstLayerThickness": {
+                                        "type": "number",
+                                        "title": "firstLayerThickness",
+                                        "description": "thickness of layer nearest the wall, usually in combination with absolute sizes according to the relativeSizes entry."
+                                    },
+                                    "thickness": {
+                                        "type": "number",
+                                        "title": "thickness",
+                                        "description": "total thickness of all layers of cells, usually in combination with absolute sizes according to the relativeSizes entry"
+                                    },
+                                    "featureAngle": {
+                                        "type": "number",
+                                        "title": "featureAngle",
+                                        "description": "angle above which surface is not extruded"
+                                    },
+                                    "slipFeatureAngle": {
+                                        "type": "number",
+                                        "title": "slipFeatureAngle",
+                                        "description": "At non-patched sides allow mesh to slip if extrusion direction makes angle larger than slipFeatureAngle"
+                                    },
+                                    "nLayerIter": {
+                                        "type": "integer",
+                                        "title": "nLayerIter",
+                                        "description": "overall max number of layer addition iterations"
+                                    },
+                                    "nRelaxedIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxedIter",
+                                        "description": "max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used"
+                                    },
+                                    "nRelaxIter": {
+                                        "type": "integer",
+                                        "title": "nRelaxIter",
+                                        "description": "maximum number of snapping relaxation iterations"
+                                    },
+                                    "nGrow": {
+                                        "type": "integer",
+                                        "title": "nGrow",
+                                        "description": "number of layers of connected faces that are not grown if points do not get extruded"
+                                    },
+                                    "nSmoothSurfaceNormals": {
+                                        "type": "integer",
+                                        "title": "nSmoothSurfaceNormals",
+                                        "description": "number of smoothing iterations of surface normals"
+                                    },
+                                    "nSmoothNormals": {
+                                        "type": "integer",
+                                        "title": "nSmoothNormals",
+                                        "description": "number of smoothing iterations of interior mesh movement direction"
+                                    },
+                                    "nSmoothThickness": {
+                                        "type": "integer",
+                                        "title": "nSmoothThickness",
+                                        "description": "smooth layer thickness over surface patches"
+                                    },
+                                    "maxFaceThicknessRatio": {
+                                        "type": "number",
+                                        "title": "maxFaceThicknessRatio",
+                                        "description": "stop layer growth on highly warped cells"
+                                    },
+                                    "maxThicknessToMedialRatio": {
+                                        "type": "number",
+                                        "title": "maxThicknessToMedialRatio",
+                                        "description": "reduce layer growth where ratio thickness to medial distance is large"
+                                    },
+                                    "minMedianAxisAngle": {
+                                        "type": "number",
+                                        "title": "minMedianAxisAngle",
+                                        "description": "angle used to pick up medial axis points"
+                                    },
+                                    "nMedialAxisIter": {
+                                        "type": "number",
+                                        "title": "nMedialAxisIter",
+                                        "description": ""
+                                    },
+                                    "nBufferCellsNoExtrude": {
+                                        "type": "integer",
+                                        "title": "nBufferCellsNoExtrude",
+                                        "description": "create buffer region for new layer terminations"
+                                    },
+                                    "additionalReporting": {
+                                        "type": "boolean",
+                                        "title": "additionalReporting"
+                                    }
+                                }
+                            },
+                            "uiSchema": {
+                                "relativeSizes": {
+                                    "ui:widget": "radio"
+                                },
+                                "additionalReporting": {
+                                    "ui:widget": "radio"
+                                }
+                            },
+                            "formData": {
+                                "relativeSizes": true,
+                                "expansionRatio": 1.05,
+                                "finalLayerThickness": 0.9,
+                                "minThickness": 0.05,
+                                "featureAngle": 100,
+                                "slipFeatureAngle": 30,
+                                "nLayerIter": 50,
+                                "nRelaxedIter": 20,
+                                "nRelaxIter": 5,
+                                "nGrow": 0,
+                                "nSmoothSurfaceNormals": 1,
+                                "nSmoothNormals": 3,
+                                "nSmoothThickness": 10,
+                                "maxFaceThicknessRatio": 0.5,
+                                "maxThicknessToMedialRatio": 0.3,
+                                "minMedianAxisAngle": 90,
+                                "nMedialAxisIter": 10,
+                                "nBufferCellsNoExtrude": 0,
+                                "additionalReporting": false
+                            }
+                        }
+                    },
+                    "meshQualityControls": {
+                        "Type": "HermesNode.WebGuiNode",
+                        "Properties": {},
+                        "WebGui": {
+                            "Schema": {
+                                "title": "meshQualityControls",
+                                "description": "",
+                                "type": "object",
+                                "properties": {
+                                    "maxNonOrtho": {
+                                        "type": "number",
+                                        "title": "maxNonOrtho",
+                                        "description": "maximum non-orthogonality allowed"
+                                    },
+                                    "maxBoundarySkewness": {
+                                        "type": "number",
+                                        "title": "maxBoundarySkewness",
+                                        "description": "max boundary face skewness allowed"
+                                    },
+                                    "maxInternalSkewness": {
+                                        "type": "number",
+                                        "title": "maxInternalSkewness",
+                                        "description": "max internal face skewness allowed"
+                                    },
+                                    "maxConcave": {
+                                        "type": "number",
+                                        "title": "maxConcave",
+                                        "description": "max concaveness allowed"
+                                    },
+                                    "minVol": {
+                                        "type": "number",
+                                        "title": "minVol",
+                                        "description": "minimum cell pyramid volume"
+                                    },
+                                    "minTetQuality": {
+                                        "type": "number",
+                                        "title": "minTetQuality",
+                                        "description": "minimum quality of tetrahedral cells from cell decomposition"
+                                    },
+                                    "minArea": {
+                                        "type": "number",
+                                        "title": "minArea",
+                                        "default": -1,
+                                        "description": "minimum face area"
+                                    },
+                                    "minTwist": {
+                                        "type": "number",
+                                        "title": "minTwist",
+                                        "description": "minimum face twist"
+                                    },
+                                    "minDeterminant": {
+                                        "type": "number",
+                                        "title": "minDeterminant",
+                                        "description": "minimum normalised cell determinant"
+                                    },
+                                    "minFaceWeight": {
+                                        "type": "number",
+                                        "title": "minFaceWeight"
+                                    },
+                                    "minVolRatio": {
+                                        "type": "number",
+                                        "title": "minVolRatio"
+                                    },
+                                    "minTriangleTwist": {
+                                        "type": "number",
+                                        "title": "minTriangleTwist"
+                                    },
+                                    "nSmoothScale": {
+                                        "type": "integer",
+                                        "title": "nSmoothScale",
+                                        "description": "number of error distribution iterations"
+                                    },
+                                    "errorReduction": {
+                                        "type": "number",
+                                        "title": "errorReduction",
+                                        "description": "amount to scale back displacement at error points"
+                                    },
+                                    "minFlatness": {
+                                        "type": "number",
+                                        "title": "minFlatness",
+                                        "description": "ratio of minimum projected area to actual area"
+                                    },
+                                    "relaxed": {
+                                        "type": "object",
+                                        "title": "relaxed",
+                                        "properties": {
+                                            "maxNonOrtho": {
+                                                "type": "number",
+                                                "title": "maxNonOrtho",
+                                                "description": ""
+                                            }
+                                        },
+                                        "description": "sub-dictionary that can include modified values for the above keyword entries to be used when nRelaxedIter is exceeded in the layer addition process",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "uiSchema": {},
+                            "formData": {
+                                "maxNonOrtho": 65,
+                                "maxBoundarySkewness": 20,
+                                "maxInternalSkewness": 4,
+                                "maxConcave": 80,
+                                "minVol": 1e-13,
+                                "minTetQuality": -1e+30,
+                                "minArea": -1,
+                                "minTwist": 0.02,
+                                "minDeterminant": 0.001,
+                                "minFaceWeight": 0.05,
+                                "minVolRatio": 0.01,
+                                "minTriangleTwist": -1,
+                                "nSmoothScale": 4,
+                                "errorReduction": 0.75,
+                                "relaxed": {
+                                    "maxNonOrtho": 75
+                                }
+                            }
+                        }
+                    },
+                    "Geometry": {
+                        "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMeshGeometry",
+                        "Properties": {},
+                        "WebGui": {},
+                        "Entities": {
+                            "TemplateEntity": {
+                                "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMeshGeometryEntity",
+                                "Properties": {},
+                                "WebGui": {
+                                    "Schema": {
+                                        "title": "SnappyHexMesh Geometry",
+                                        "description": "",
+                                        "type": "object",
+                                        "properties": {
+                                            "objectNameTSM": {
+                                                "type": "string",
+                                                "title": "objectName",
+                                                "description": "Name to use to refer to this surface"
+                                            },
+                                            "objectTypeTSM": {
+                                                "type": "string",
+                                                "title": "objectType",
+                                                "enum": [
+                                                    "stl",
+                                                    "obj"
+                                                ]
+                                            },
+                                            "levelsTSM": {
+                                                "type": "number",
+                                                "title": "Levels",
+                                                "description": ""
+                                            },
+                                            "refinementRegionsTSM": {
+                                                "type": "object",
+                                                "title": "refinementRegions",
+                                                "properties": {
+                                                    "mode": {
+                                                        "type": "string",
+                                                        "title": "Mode",
+                                                        "enum": [
+                                                            "inside",
+                                                            "outside",
+                                                            "distance"
+                                                        ]
+                                                    }
+                                                },
+                                                "dependencies": {
+                                                    "mode": {
+                                                        "oneOf": [
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "inside"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "string",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter 2 numbers: (1 2)"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "outside"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "string",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter 2 numbers: (1 2)"
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                "properties": {
+                                                                    "mode": {
+                                                                        "enum": [
+                                                                            "distance"
+                                                                        ]
+                                                                    },
+                                                                    "levels": {
+                                                                        "type": "array",
+                                                                        "title": "Levels",
+                                                                        "description": "Enter a list of 2 numbers:  distance and refinement level (1 2)",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "refinementSurfaceLevelsTSM": {
+                                                "type": "string",
+                                                "title": "refinementSurfaceLevels",
+                                                "description": "Enter 2 numbers: refinement on the X and on the Y dimensions"
+                                            },
+                                            "patchTypeTSM": {
+                                                "type": "string",
+                                                "title": "patchType",
+                                                "enum": [
+                                                    "wall",
+                                                    "patch"
+                                                ]
+                                            },
+                                            "regions": {
+                                                "type": "array",
+                                                "title": "Regions",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "regionName": {
+                                                            "type": "string",
+                                                            "title": "Name"
+                                                        },
+                                                        "regionType": {
+                                                            "type": "string",
+                                                            "title": "Type",
+                                                            "enum": [
+                                                                "wall",
+                                                                "patch"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "uiSchema": {},
+                                    "formData": {}
+                                }
+                            },
+                            "items": {
+                                "snappy_Cylinder": {
+                                    "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMeshGeometryEntity",
+                                    "Properties": {},
+                                    "WebGui": {
+                                        "Schema": {
+                                            "title": "SnappyHexMesh Cylinder",
+                                            "description": "",
+                                            "type": "object",
+                                            "properties": {
+                                                "objectNameTSM": {
+                                                    "type": "string",
+                                                    "title": "objectName",
+                                                    "description": "Name to use to refer to this surface"
+                                                },
+                                                "objectTypeTSM": {
+                                                    "type": "string",
+                                                    "title": "objectType",
+                                                    "enum": [
+                                                        "stl",
+                                                        "obj"
+                                                    ]
+                                                },
+                                                "levelsTSM": {
+                                                    "type": "number",
+                                                    "title": "Levels",
+                                                    "description": ""
+                                                },
+                                                "refinementRegionsTSM": {
+                                                    "type": "object",
+                                                    "title": "refinementRegions",
+                                                    "properties": {
+                                                        "mode": {
+                                                            "type": "string",
+                                                            "title": "Mode",
+                                                            "enum": [
+                                                                "inside",
+                                                                "outside",
+                                                                "distance"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "dependencies": {
+                                                        "mode": {
+                                                            "oneOf": [
+                                                                {
+                                                                    "properties": {
+                                                                        "mode": {
+                                                                            "enum": [
+                                                                                "inside"
+                                                                            ]
+                                                                        },
+                                                                        "levels": {
+                                                                            "type": "string",
+                                                                            "title": "Levels",
+                                                                            "description": "Enter 2 numbers: (1 2)"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "properties": {
+                                                                        "mode": {
+                                                                            "enum": [
+                                                                                "outside"
+                                                                            ]
+                                                                        },
+                                                                        "levels": {
+                                                                            "type": "string",
+                                                                            "title": "Levels",
+                                                                            "description": "Enter 2 numbers: (1 2)"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "properties": {
+                                                                        "mode": {
+                                                                            "enum": [
+                                                                                "distance"
+                                                                            ]
+                                                                        },
+                                                                        "levels": {
+                                                                            "type": "array",
+                                                                            "title": "Levels",
+                                                                            "description": "Enter a list of 2 numbers:  distance and refinement level (1 2)",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "refinementSurfaceLevelsTSM": {
+                                                    "type": "string",
+                                                    "title": "refinementSurfaceLevels",
+                                                    "description": "Enter 2 numbers: refinement on the X and on the Y dimensions"
+                                                },
+                                                "patchTypeTSM": {
+                                                    "type": "string",
+                                                    "title": "patchType",
+                                                    "enum": [
+                                                        "wall",
+                                                        "patch"
+                                                    ]
+                                                },
+                                                "regions": {
+                                                    "type": "array",
+                                                    "title": "Regions",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "regionName": {
+                                                                "type": "string",
+                                                                "title": "Name"
+                                                            },
+                                                            "regionType": {
+                                                                "type": "string",
+                                                                "title": "Type",
+                                                                "enum": [
+                                                                    "wall",
+                                                                    "patch"
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "uiSchema": {},
+                                        "formData": {
+                                            "refinementRegionsTSM": {
+                                                "mode": "inside",
+                                                "levels": [
+                                                    1.0,
+                                                    2.0
+                                                ]
+                                            },
+                                            "objectNameTSM": "Cylinder",
+                                            "objectTypeTSM": "obj",
+                                            "levelsTSM": 1,
+                                            "refinementSurfaceLevelsTSM": "(1 2)",
+                                            "patchTypeTSM": "wall"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "Refinement": {
+                        "Type": "openFOAM.mesh.SnappyHexMesh.workbench.SnappyHexMeshRefinement",
+                        "Properties": {},
+                        "WebGui": {}
+                    }
+                }
+            },
+            "BlockMesh": {
+                "Template": "openFOAM.mesh.BlockMesh.jsonForm",
+                "Execution": {
+                    "type": "openFOAM.meshExecuters.BlockMesh",
+                    "input_parameters": {
+                        "geometry": {
+                            "convertToMeters": 1,
+                            "cellCount": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "grading": [
+                                [
+                                    1.0
+                                ],
+                                [
+                                    [
+                                        0.2,
+                                        0.3,
+                                        4.0
+                                    ],
+                                    [
+                                        0.6,
+                                        0.4,
+                                        1.0
+                                    ],
+                                    [
+                                        0.2,
+                                        0.3,
+                                        0.25
+                                    ]
+                                ],
+                                [
+                                    1.0
+                                ]
+                            ]
+                        },
+                        "boundary": [
+                            {
+                                "name": "input",
+                                "type": "wall",
+                                "faces": [
+                                    [
+                                        0,
+                                        4,
+                                        7,
+                                        3
+                                    ]
+                                ]
+                            },
+                            {
+                                "name": "output",
+                                "type": "wall",
+                                "faces": [
+                                    [
+                                        1,
+                                        2,
+                                        6,
+                                        5
+                                    ]
+                                ]
+                            },
+                            {
+                                "name": "sym",
+                                "type": "symmetry",
+                                "faces": [
+                                    [
+                                        0,
+                                        1,
+                                        5,
+                                        4
+                                    ],
+                                    [
+                                        3,
+                                        7,
+                                        6,
+                                        2
+                                    ]
+                                ]
+                            },
+                            {
+                                "name": "pch",
+                                "type": "patch",
+                                "faces": [
+                                    [
+                                        4,
+                                        5,
+                                        6,
+                                        7
+                                    ],
+                                    [
+                                        0,
+                                        3,
+                                        2,
+                                        1
+                                    ]
+                                ]
+                            }
+                        ],
+                        "vertices": [
+                            [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            [
+                                10.0,
+                                0.0,
+                                0.0
+                            ],
+                            [
+                                10.0,
+                                10.0,
+                                0.0
+                            ],
+                            [
+                                0.0,
+                                10.0,
+                                0.0
+                            ],
+                            [
+                                0.0,
+                                0.0,
+                                10.0
+                            ],
+                            [
+                                10.0,
+                                0.0,
+                                10.0
+                            ],
+                            [
+                                10.0,
+                                10.0,
+                                10.0
+                            ],
+                            [
+                                0.0,
+                                10.0,
+                                10.0
+                            ]
+                        ]
+                    }
+                },
+                "GUI": {
+                    "Type": "openFOAM.mesh.BlockMesh.workbench.BlockMeshNode",
+                    "Properties": {
+                        "partName": {
+                            "prop": "partName",
+                            "init_val": "",
+                            "type": "App::PropertyString",
+                            "Heading": "BasicData",
+                            "tooltip": "Name of tha part of the blockMesh node ",
+                            "current_val": "Box"
+                        },
+                        "partPath": {
+                            "prop": "partPath",
+                            "init_val": "",
+                            "type": "App::PropertyPath",
+                            "Heading": "BasicData",
+                            "tooltip": "Path to tha part of the blockMesh node ",
+                            "current_val": "/mnt/examples/reOrganize/mesh"
+                        },
+                        "convertToMeters": {
+                            "prop": "convertToMeters",
+                            "init_val": 1,
+                            "type": "App::PropertyFloat",
+                            "Heading": "BasicData",
+                            "tooltip": "Link a part to the blockMesh node ",
+                            "current_val": 1.0
+                        },
+                        "NumberOfCells": {
+                            "prop": "NumberOfCells",
+                            "init_val": "1 2 3",
+                            "type": "App::PropertyString",
+                            "Heading": "Block",
+                            "tooltip": "Numbers of cells in each direction ",
+                            "current_val": "1 2 3"
+                        },
+                        "simpleGradingX": {
+                            "prop": "simpleGradingX",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in x direction ",
+                            "current_val": [
+                                "1.0"
+                            ]
+                        },
+                        "simpleGradingY": {
+                            "prop": "simpleGradingY",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in y direction ",
+                            "current_val": [
+                                "0.2 0.3 4.0",
+                                "0.6 0.4 1.0",
+                                "0.2 0.3 0.25"
+                            ]
+                        },
+                        "simpleGradingZ": {
+                            "prop": "simpleGradingZ",
+                            "init_val": [
+                                "1"
+                            ],
+                            "type": "App::PropertyStringList",
+                            "Heading": "Block",
+                            "tooltip": "simpleGrading in z direction ",
+                            "current_val": [
+                                "1.0"
+                            ]
+                        }
+                    },
+                    "GeometryFaceTypes": {
+                        "TypeList": [
+                            "wall",
+                            "symmetry",
+                            "patch",
+                            "cyclic"
+                        ],
+                        "TypeProperties": {
+                            "wall": {
+                                "Properties": {}
+                            },
+                            "symmetry": {
+                                "Properties": {}
+                            },
+                            "patch": {
+                                "Properties": {}
+                            },
+                            "cyclic": {
+                                "Properties": {
+                                    "neighbourPatch": {
+                                        "prop": "neighbourPatch",
+                                        "init_val": [
+                                            "notSet"
+                                        ],
+                                        "type": "App::PropertyEnumeration",
+                                        "Heading": "Neighbour",
+                                        "tooltip": "Neight face name",
+                                        "current_val": "notSet"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "boundary": [
+                        {
+                            "Name": "input",
+                            "Type": "wall",
+                            "Properties": {},
+                            "faces": {
+                                "Face1": {
+                                    "vertices": [
+                                        0,
+                                        4,
+                                        7,
+                                        3
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Name": "output",
+                            "Type": "wall",
+                            "Properties": {},
+                            "faces": {
+                                "Face2": {
+                                    "vertices": [
+                                        1,
+                                        2,
+                                        6,
+                                        5
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Name": "sym",
+                            "Type": "symmetry",
+                            "Properties": {},
+                            "faces": {
+                                "Face3": {
+                                    "vertices": [
+                                        0,
+                                        1,
+                                        5,
+                                        4
+                                    ]
+                                },
+                                "Face4": {
+                                    "vertices": [
+                                        3,
+                                        7,
+                                        6,
+                                        2
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "Name": "pch",
+                            "Type": "patch",
+                            "Properties": {},
+                            "faces": {
+                                "Face6": {
+                                    "vertices": [
+                                        4,
+                                        5,
+                                        6,
+                                        7
+                                    ]
+                                },
+                                "Face5": {
+                                    "vertices": [
+                                        0,
+                                        3,
+                                        2,
+                                        1
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    "vertices": [
+                        [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        [
+                            10.0,
+                            0.0,
+                            0.0
+                        ],
+                        [
+                            10.0,
+                            10.0,
+                            0.0
+                        ],
+                        [
+                            0.0,
+                            10.0,
+                            0.0
+                        ],
+                        [
+                            0.0,
+                            0.0,
+                            10.0
+                        ],
+                        [
+                            10.0,
+                            0.0,
+                            10.0
+                        ],
+                        [
+                            10.0,
+                            10.0,
+                            10.0
+                        ],
+                        [
+                            0.0,
+                            10.0,
+                            10.0
+                        ]
+                    ]
+                }
+            },
+            "BoundaryCondition": {
+                "Template": "BC.jsonForm",
+                "Execution": {
+                    "type": "openFOAM.systemExecuters.changeDictionary",
+                    "input_parameters": {
+                        "fields": {
+                            "p": {
+                                "boundaryField": {
+                                    "input": {
+                                        "type": "totalPressure",
+                                        "gamma": 1,
+                                        "value": "1",
+                                        "p0": "3"
+                                    },
+                                    "output": {
+                                        "type": "zeroGradient"
+                                    },
+                                    "sym": {},
+                                    "pch": {
+                                        "type": "slip"
+                                    },
+                                    "Cylinder": {}
+                                }
+                            },
+                            "U": {
+                                "boundaryField": {
+                                    "input": {
+                                        "type": "slip"
+                                    },
+                                    "output": {
+                                        "type": "fixedValue",
+                                        "value": "3"
+                                    },
+                                    "sym": {
+                                        "type": "notSet"
+                                    },
+                                    "pch": {},
+                                    "Cylinder": {
+                                        "type": "fixedValue",
+                                        "value": "1"
+                                    }
+                                },
+                                "internalField": "uniform 5"
+                            },
+                            "k": {
+                                "boundaryField": {
+                                    "input": {
+                                        "type": "fixedValue",
+                                        "value": "1"
+                                    },
+                                    "output": {},
+                                    "sym": {},
+                                    "pch": {},
+                                    "Cylinder": {
+                                        "type": "fixedValue",
+                                        "value": "4"
+                                    }
+                                },
+                                "internalField": "uniform 3"
+                            },
+                            "epsilon": {
+                                "boundaryField": {
+                                    "input": {
+                                        "type": "pressureInletOutletVelocity",
+                                        "value": "2"
+                                    },
+                                    "output": {},
+                                    "sym": {},
+                                    "pch": {},
+                                    "Cylinder": {
+                                        "type": "pressureInletOutletVelocity",
+                                        "value": "3"
+                                    }
+                                }
+                            },
+                            "nut": {
+                                "boundaryField": {
+                                    "input": {
+                                        "type": "zeroGradient"
+                                    },
+                                    "output": {},
+                                    "sym": {},
+                                    "pch": {},
+                                    "Cylinder": {
+                                        "type": "zeroGradient"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "GUI": {
+                    "Type": "BC.workbench.BCNode",
+                    "Properties": {},
+                    "WebGui": {
+                        "Schema": {
+                            "title": "internalField",
+                            "type": "object",
+                            "properties": {
+                                "p": {
+                                    "type": "string",
+                                    "title": "p"
+                                },
+                                "U": {
+                                    "type": "string",
+                                    "title": "U"
+                                },
+                                "k": {
+                                    "type": "string",
+                                    "title": "k"
+                                },
+                                "epsilon": {
+                                    "type": "string",
+                                    "title": "epsilon"
+                                },
+                                "nut": {
+                                    "type": "string",
+                                    "title": "nut"
+                                }
+                            }
+                        },
+                        "uiSchema": {},
+                        "formData": {
+                            "U": "uniform 5",
+                            "k": "uniform 3"
+                        }
+                    },
+                    "GeometriesSource": [
+                        "BlockMesh",
+                        "SnappyHexMesh.Geometry"
+                    ],
+                    "Templates": {
+                        "BCList": {
+                            "title": "BCName",
+                            "type": "object",
+                            "description": "defined the Velocity boundaary condition",
+                            "properties": {
+                                "typeBC": {
+                                    "title": "type",
+                                    "type": "string",
+                                    "enum": [
+                                        "notSet",
+                                        "fixedValue",
+                                        "pressureInletOutletVelocity",
+                                        "slip",
+                                        "zeroGradient",
+                                        "totalPressure",
+                                        "inletOutlet",
+                                        "epsilonWallFunction",
+                                        "kqRWallFunction",
+                                        "calculated",
+                                        "nutkRoughWallFunction"
+                                    ],
+                                    "default": "notSet"
+                                }
+                            },
+                            "dependencies": {
+                                "typeBC": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "slip"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "notSet"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "fixedValue"
+                                                    ]
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "pressureInletOutletVelocity"
+                                                    ]
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "zeroGradient"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "totalPressure"
+                                                    ]
+                                                },
+                                                "p0": {
+                                                    "type": "string"
+                                                },
+                                                "gamma": {
+                                                    "type": "number"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "inletOutlet"
+                                                    ]
+                                                },
+                                                "inletValue": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "epsilonWallFunction"
+                                                    ]
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "kqRWallFunction"
+                                                    ]
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "calculated"
+                                                    ]
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "typeBC": {
+                                                    "enum": [
+                                                        "nutkRoughWallFunction"
+                                                    ]
+                                                },
+                                                "z0": {
+                                                    "type": "string"
+                                                },
+                                                "Ks": {
+                                                    "type": "string"
+                                                },
+                                                "Cs": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "BCField": {
+                            "Type": "BC.workbench.BCFieldNode",
+                            "Properties": {},
+                            "WebGui": {
+                                "Schema": {
+                                    "title": "BCName",
+                                    "type": "object",
+                                    "description": "defined the Velocity boundaary condition",
+                                    "properties": {
+                                        "typeBC": {
+                                            "title": "type",
+                                            "type": "string",
+                                            "enum": [
+                                                "notSet",
+                                                "fixedValue",
+                                                "pressureInletOutletVelocity",
+                                                "slip",
+                                                "zeroGradient",
+                                                "totalPressure",
+                                                "inletOutlet",
+                                                "epsilonWallFunction",
+                                                "kqRWallFunction",
+                                                "calculated",
+                                                "nutkRoughWallFunction"
+                                            ],
+                                            "default": "notSet"
+                                        }
+                                    },
+                                    "dependencies": {
+                                        "typeBC": {
+                                            "oneOf": [
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "slip"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "notSet"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "fixedValue"
+                                                            ]
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "pressureInletOutletVelocity"
+                                                            ]
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "zeroGradient"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "totalPressure"
+                                                            ]
+                                                        },
+                                                        "p0": {
+                                                            "type": "string"
+                                                        },
+                                                        "gamma": {
+                                                            "type": "number"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "inletOutlet"
+                                                            ]
+                                                        },
+                                                        "inletValue": {
+                                                            "type": "string"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "epsilonWallFunction"
+                                                            ]
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "kqRWallFunction"
+                                                            ]
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "calculated"
+                                                            ]
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "typeBC": {
+                                                            "enum": [
+                                                                "nutkRoughWallFunction"
+                                                            ]
+                                                        },
+                                                        "z0": {
+                                                            "type": "string"
+                                                        },
+                                                        "Ks": {
+                                                            "type": "string"
+                                                        },
+                                                        "Cs": {
+                                                            "type": "string"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "uiSchema": {},
+                                "formData": {}
+                            }
+                        },
+                        "BCGeometry": {
+                            "Type": "BC.workbench.BCGeometryNode",
+                            "Properties": {},
+                            "WebGui": {
+                                "Schema": {
+                                    "title": "Boundary Condition Geometry",
+                                    "description": "",
+                                    "type": "object",
+                                    "properties": {}
+                                },
+                                "uiSchema": {},
+                                "formData": {}
+                            },
+                            "Fields": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

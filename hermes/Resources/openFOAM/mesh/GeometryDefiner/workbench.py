@@ -13,6 +13,8 @@ import json
 # Hermes modules
 from ....workbench.HermesNode import HermesNode as C_HermesNode
 # from ... import HermesNode
+from ....BC import workbench as BCworkbench
+
 #
 from . import workbenchEntity
 # import HermesPart
@@ -208,7 +210,8 @@ class GeometryDefinerNode(C_HermesNode):
         # Empty the parent node References for further use
         obj.References = []
 
-        bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
+        bcObj = BCworkbench.getBoundaryConditionNode()
+        # bcObj = FreeCAD.ActiveDocument.getObject("BoundaryCondition")
         if bcObj is not None:
             bcObj.Proxy.updateBCPartList(bcObj)
 

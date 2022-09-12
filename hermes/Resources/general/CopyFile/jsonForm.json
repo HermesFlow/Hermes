@@ -2,8 +2,8 @@
     "Execution": {
         "type":"fileSystemExecuters.copyFile",
         "input_parameters": {
-            "Source": "{Properties.Source.current_val}",
-            "Target": "{Properties.Target.current_val}"
+            "Source": "",
+            "Target": ""
         }
     },
     "GUI": {

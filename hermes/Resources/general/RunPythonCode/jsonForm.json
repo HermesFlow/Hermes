@@ -2,10 +2,10 @@
     "Execution": {
         "type": "pythonExecuters.python",
         "input_parameters": {
-            "ModulePath": "{Properties.ModulePath.current_val}",
-            "ClassName": "{Properties.ClassName.current_val}",
-            "MethodName": "{Properties.MethodName.current_val}",
-            "Parameters": "{WebGui.formData}"
+            "ModulePath": "",
+            "ClassName": "",
+            "MethodName": "",
+            "Parameters": ""
         }
     },
     "GUI": {

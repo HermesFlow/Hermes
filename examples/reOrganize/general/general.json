@@ -1,0 +1,28 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "SolvedFields": "p U k epsilon",
+        "AuxFields": "nut",
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonCode",
+            "RunOsCommand",
+            "CopyFile"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory.jsonForm"
+            },
+            "RunPythonCode": {
+                "Template": "general.RunPythonCode.jsonForm"
+            },
+            "RunOsCommand": {
+                "Template": "general.RunOsCommand.jsonForm"
+            },
+            "CopyFile": {
+                "Template": "general.CopyFile.jsonForm"
+            }
+        }
+    }
+}

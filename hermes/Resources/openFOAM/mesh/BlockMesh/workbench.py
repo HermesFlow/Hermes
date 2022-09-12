@@ -23,6 +23,8 @@ import copy
 from ....workbench.HermesNode import WebGuiNode
 from ....workbench.HermesNode import HermesNode as C_HermesNode
 from ....workbench import HermesNode
+from ....BC import workbench as BCworkbench
+
 
 # import HermesGeometryDefinerEntity
 # import HermesPart
@@ -360,29 +362,30 @@ class BlockMeshNode(GeometryDefinerNode):
 
         # update the geometry section in FC properties
         geometry = parameters["geometry"]
-        FreeCAD.Console.PrintMessage("geometry = " + str(geometry) + "\n")
-        setattr(obj, "convertToMeters", geometry["convertToMeters"])
-        cellCountStr = " ".join(map(str, geometry["cellCount"]))
-        setattr(obj, "NumberOfCells", cellCountStr)
+        if len(geometry) > 0:
+            # FreeCAD.Console.PrintMessage("geometry = " + str(geometry) + "\n")
+            setattr(obj, "convertToMeters", geometry["convertToMeters"])
+            cellCountStr = " ".join(map(str, geometry["cellCount"]))
+            setattr(obj, "NumberOfCells", cellCountStr)
 
-        # if grade consist of 1 list -> convert to arr with 1 str
-        # if grade consist of 3 lists-> loop each list, convert to arr with 3 str
-        simpleGrading = list()
-        for grade in geometry["grading"]:
-            if len(grade) == 1:
-                simpleGrading.append([" ".join(map(str, grade))])
-            else:
-                subSimpleGrading = list()
-                subIdx = 0
-                for subGrade in grade:
-                    subSimpleGrading.append(" ".join(map(str, subGrade)))
-                # simpleGrading[idx] = subSimpleGrading
-                simpleGrading.append(subSimpleGrading)
+            # if grade consist of 1 list -> convert to arr with 1 str
+            # if grade consist of 3 lists-> loop each list, convert to arr with 3 str
+            simpleGrading = list()
+            for grade in geometry["grading"]:
+                if len(grade) == 1:
+                    simpleGrading.append([" ".join(map(str, grade))])
+                else:
+                    subSimpleGrading = list()
+                    subIdx = 0
+                    for subGrade in grade:
+                        subSimpleGrading.append(" ".join(map(str, subGrade)))
+                    # simpleGrading[idx] = subSimpleGrading
+                    simpleGrading.append(subSimpleGrading)
 
-        # update the data in FC obj
-        setattr(obj, "simpleGradingX", simpleGrading[0])
-        setattr(obj, "simpleGradingY", simpleGrading[1])
-        setattr(obj, "simpleGradingZ", simpleGrading[2])
+            # update the data in FC obj
+            setattr(obj, "simpleGradingX", simpleGrading[0])
+            setattr(obj, "simpleGradingY", simpleGrading[1])
+            setattr(obj, "simpleGradingZ", simpleGrading[2])
 
 
         # FreeCAD.Console.PrintMessage("grading = " + str(grading) + "\n")

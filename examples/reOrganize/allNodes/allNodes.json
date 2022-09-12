@@ -3,7 +3,7 @@
         "root": null,
         "Templates": [],
         "SolvedFields": "p U k epsilon",
-        "AuxFields":"nut",
+        "AuxFields": "nut",
         "nodeList": [
             "CopyDirectory",
             "RunPythonCode",
@@ -15,7 +15,6 @@
             "FvSchemes",
             "FvSolution",
             "SnappyHexMesh",
-            "GeometryDefiner",
             "BlockMesh",
             "BoundaryCondition"
         ],
@@ -50,31 +49,11 @@
             "SnappyHexMesh": {
                 "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm"
             },
-            "GeometryDefiner": {
-                "Template": "openFOAM.mesh.GeometryDefiner.jsonForm"
-            },
             "BlockMesh": {
                 "Template": "openFOAM.mesh.BlockMesh.jsonForm"
             },
             "BoundaryCondition": {
                 "Template": "BC.jsonForm"
-            },
-            "finalnode_xx": {
-                "name": "finalnode_xx",
-                "Execution": {
-                    "type": "generalExecuters.caseParameters",
-                    "input_parameters": {},
-                    "requires": [
-                        "CopyDirectory",
-                        "CopyFile",
-                        "TransportProperties",
-                        "TurbulenceProperties",
-                        "ControlDict",
-                        "FvSchemes",
-                        "SnappyHexMesh",
-                        "BlockMesh"
-                    ]
-                }
             }
         }
     }

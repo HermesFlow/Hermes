@@ -1,36 +1,10 @@
 {
-	"Schema":{  
-		"title":"",
-		"description":"",
-		"type":"object",
-		"properties":{
-            "partName":{
-                "type":"string",
-                "title": "Part Name",
-                "enum":[
-                    "Inlet",
-                    "Outlet",
-                    "Wall"
-                ],
-                "description":"Defined Boundary condition for this part"
-            },
-            "U":{
-              "Template": "BC.webGUI.List",
-              "title": "U",
-              "description":"Defined U Boundary condition for the part"
-            },
-            "epsilon": {
-              "Template": "BC.webGUI.List",
-              "title": "epsilon",
-              "description":"Defined epsilon Boundary condition for the part"
-            },
-            "P":{
-              "Template": "BC.webGUI.List",
-              "title": "P",
-              "description":"Defined P Boundary condition for the part"
-            }
-        }
-	},
+	"Schema":{
+      "title": "internalField",
+      "type": "object",
+      "properties": {
+      }
+    },
 	"uiSchema":{
 	},
 	"formData":{
