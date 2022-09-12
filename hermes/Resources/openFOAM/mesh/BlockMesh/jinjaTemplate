@@ -25,10 +25,6 @@ vertices
     {%- endfor %}
 );
 
-
-
-
-
 blocks
 (
     hex (0 1 2 3 4 5 6 7)
@@ -39,6 +35,11 @@ blocks
 
 edges
 (
+    {%- for edge in edges %}
+        {%- if edge['type'] =='arc' %}
+            arc {{edge.point1}} {{edge.point2}} {{utils.toPoint(edge.pointM)}}
+        {%- endif %}
+    {%- endfor %}
 );
 
 boundary
@@ -54,7 +55,7 @@ boundary
                 {%- endfor %}
 
             );
-            {%- if bndry['Type'] =='cyclic' %}
+            {%- if bndry['type'] =='cyclic' %}
                 neighbourPatch {{bndry.neighbourPatch}};
             {%- endif %}
         }

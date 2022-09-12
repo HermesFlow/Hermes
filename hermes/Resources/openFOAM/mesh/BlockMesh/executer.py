@@ -1,6 +1,6 @@
-from ....executers.jinjaExecuters import jinjaExecuter
+from ....general import jinjaTransform
 
-class BlockMeshExecuter(jinjaExecuter):
+class BlockMesh(jinjaTransform):
     """
         Transforms JSON->blockMeshDict using the jinja template in jinjaTemplates.openFOAM.mesh.BlockMesh
 
@@ -56,8 +56,7 @@ Noga:
     def run(self, **inputs):
 
         # get the  name of the template
-        templateName = "openFOAM/mesh/BlockMesh"
-        # templateName = os.path.abspath(templateName)
+        templateName = "openFOAM/mesh/BlockMesh/jinjaTemplate"
 
         ## Noga:
         # 1. Check here if inputs['geometry'] is from webGUI. if it is: convert to the right form
@@ -65,14 +64,11 @@ Noga:
         # 3. Check here if inputs['vertices'] is from webGUI. if it is: convert to the right form
 
 
-        # get the values to update in the template
-        geometry = inputs['geometry']
-        boundary = inputs['boundary']
-        vertices = inputs['vertices']
+
 
         template = self._getTemplate(templateName)
 
         # render jinja for the choosen template
-        output = template.render(geometry = geometry, boundary = boundary, vertices = vertices)
+        output = template.render(**inputs)
 
         return dict(openFOAMfile=output)
