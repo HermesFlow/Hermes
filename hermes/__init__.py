@@ -1,6 +1,15 @@
-__version__=(2,0,0)
+__version__=(3,0,0)
 
 """
+  Version 3.0.0
+  -------------
+     
+     - Major refactor fo the internal structure of the nodes. 
+     
+  
+  Version 2.0.0
+  --------------
+
     - hermes workflow: Solving the problem of weak-ref in the mongoDB object
     - Adding the special handler {#<token>} in the parsing of the configuration file. 
       The current implementations is: 
