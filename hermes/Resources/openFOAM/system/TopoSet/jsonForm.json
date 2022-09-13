@@ -2,7 +2,9 @@
   "Execution": {
     "type": "openFOAM.system.TopoSet",
     "input_parameters": {
-        "actionName" : {
+      "actions": [
+         {
+            "name" : "setZoneName",
             "type" : "type",
             "action": "action",
             "source" : "source",
@@ -11,6 +13,7 @@
                 "param2" : "value2"
             }
         }
+        ]
     }
   },
   "GUI": {
