@@ -5,3 +5,7 @@
 {%- macro toBool(var) -%}
   {%- if var%}true{%- else%}false{%endif%}
 {%- endmacro %}
+
+{%- macro toList(lst) -%}
+  ({%- for val in lst %} {{ val }} {%- endfor %})
+{%- endmacro %}

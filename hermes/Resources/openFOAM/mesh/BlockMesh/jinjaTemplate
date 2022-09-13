@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-{%- import "openFOAM/mesh/utils.jinja"  as utils %}
+{%- import "openFOAM/utils.jinja"  as utils %}
 
 convertToMeters {{geometry.convertToMeters}};
 
