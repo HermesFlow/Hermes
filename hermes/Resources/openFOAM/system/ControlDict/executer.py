@@ -1,6 +1,6 @@
-from ....executers.openFOAM.systemExecuters import systemFileExecuter
+from ..abstractSystemExecuter import abstractSystemExecuter
 
-class controlDictExecuter(systemFileExecuter):
+class ControlDict(abstractSystemExecuter):
 
     def __init__(self,JSON):
         super().__init__(JSON,"ControlDict")

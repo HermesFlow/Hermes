@@ -15,7 +15,5 @@ class abstractConstantExecuter(jinjaTransform):
 
         # render jinja for the choosen template
         output = template.render(**inputs)
-        print(output)
-
         return dict(openFOAMfile=output)
 

@@ -1,0 +1,15 @@
+{
+    "Execution": {
+        "type": "openFOAM.general.FileWriter",
+        "input_parameters": {
+            "casePath": "pathToCase",
+            "Files": {
+              "NodeName": {
+                "fileName": "path",
+                "fileContent": "{[nodename].output.openFOAMfile}"
+              }
+            }
+    },
+    "GUI": {
+    }
+}
