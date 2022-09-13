@@ -1,0 +1,16 @@
+{
+  "Execution": {
+    "type": "openFOAM.system.ControlDict",
+    "input_parameters": {
+
+    }
+  },
+  "GUI": {
+    "Type": "openFOAM.system.ControlDict.workbench.ControlDict",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.ControlDict.webGUI"
+    }
+  }
+}

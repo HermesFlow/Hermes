@@ -1,0 +1,23 @@
+{
+  "Execution": {
+    "type": "openFOAM.system.ChangeDictionary",
+    "input_parameters": {
+      "fields" : {
+        "fieldName": {
+            "patchName": {
+                 "type" : "x",
+                "param1": "p1"
+            }
+        }
+      }
+    }
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.WebGui.ControlDictWebGui"
+    }
+  }
+}

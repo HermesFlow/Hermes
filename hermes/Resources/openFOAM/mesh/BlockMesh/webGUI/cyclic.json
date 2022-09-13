@@ -1,0 +1,12 @@
+{
+    "Properties":{
+        "neighbourPatch":{
+            "prop":"neighbourPatch",
+            "init_val":["notSet"],
+            "type":"App::PropertyEnumeration",
+            "Heading":"Neighbour",
+            "tooltip":"Neight face name",
+            "current_val":"notSet"
+        }
+    }
+}

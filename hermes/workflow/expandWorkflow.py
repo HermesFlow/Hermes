@@ -5,10 +5,14 @@
     Note:
         Check if we want to use jsonpath.
 """
-from ..Resources.nodeTemplates.templateCenter import templateCenter
+# from ..Resources.nodeTemplates.templateCenter import templateCenter
+from ..Resources.reTemplateCenter import templateCenter
 import json
 import os
 import collections.abc
+
+# import FreeCAD
+
 
 class expandWorkflow:
     """ this class is taking a json with reference
@@ -39,6 +43,20 @@ class expandWorkflow:
         self.cwd = ""
         self.WD_path = ""
 
+    def expandBatch(self, templateJSON, parameters={}):
+        '''
+        Expamd workflow and remove the GUI part
+        '''
+        JsonObjectBatch = self.expand(templateJSON,parameters)
+        for nodeKey, nodeVal in JsonObjectBatch["workflow"]["nodes"].items():
+            if "GUI" in nodeVal.keys():
+                nodeVal.pop("GUI")
+
+        ret = self.updateMap(JsonObjectBatch, parameters)
+
+        return ret
+
+
     def expand(self, templateJSON, parameters={}):
         """
         Expands a workflow by imbedding the template node to the workflow.
@@ -57,11 +75,26 @@ class expandWorkflow:
         --------
             Dict.
         """
-
         if isinstance(templateJSON,str):
             if os.path.exists(templateJSON):
-                with open(templateJSON, 'r') as myfile:
-                    JsonObjectfromFile  = json.load(myfile)
+                try:
+                    with open(templateJSON, 'r') as myfile:
+                        JsonObjectfromFile  = json.load(myfile)
+
+                except json.decoder.JSONDecodeError as e:
+                    raise e
+                except Exception:  # if error detected to write
+                    try:
+                        # FreeCAD message
+                        import FreeCAD
+                        FreeCAD.Console.PrintError("Could not Load the JSON file, check its structure\n")
+                    except ImportError:
+                        pass
+
+                    # python message
+                    print("Could not Load the JSON file, check its structure\n")
+
+                    return None
             else:
                 JsonObjectfromFile = json.loads(templateJSON)
 
@@ -88,13 +121,25 @@ class expandWorkflow:
 
             # check if the node from list is in the dictionary list
             if node in nodes:
+                templatepath = ""
+
                 # get the current node
                 currentNode = nodes[node]
 
-                # update the data in the nodes from file/templates to concrete data
-                updatedCurrentNode = self.getImportedJson(currentNode)
+                if self.getFromTemplate in currentNode.keys():
+                    templatepath = currentNode[self.getFromTemplate]
 
-                # add the data into 'new_nodes'
+                # update the data in the nodes from file/templates to concrete data
+                openCurrentNode = self.getImportedJson(currentNode)
+
+                updatedCurrentNode = dict()
+                if len(templatepath) > 0:
+                    updatedCurrentNode[self.getFromTemplate] = templatepath
+
+                for key, val in openCurrentNode.items():
+                    updatedCurrentNode[key] = val
+
+                # add the data into 'new_nodes'updatedCurrentNode
                 new_nodes[node] = updatedCurrentNode
 
         # update the data in JsonObject to be the new dictionary new_nodes
@@ -282,8 +327,11 @@ class expandWorkflow:
         paths = None
         self._templateCenter = templateCenter(paths)
 
+
         # get template data
         UpdatedJsonStruct = self._templateCenter.getTemplate(importTemplate)
+
+
 
         # call 'getImportedJson' in case there are nested files that need to be imported
         UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)

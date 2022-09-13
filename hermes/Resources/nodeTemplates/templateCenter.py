@@ -4,6 +4,7 @@
 import os
 import json
 import pathlib
+# import FreeCAD
 
 class templateCenter:
 
@@ -46,7 +47,6 @@ class templateCenter:
                     break
 
         jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
-
 
         print(jsonPath)
         try:

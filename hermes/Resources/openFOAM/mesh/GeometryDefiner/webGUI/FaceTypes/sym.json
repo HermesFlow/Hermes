@@ -1,0 +1,12 @@
+{
+    "Properties":{
+        "P0":{
+            "prop":"P0",
+            "init_val":"10 Pa",
+            "type":"App::PropertyPressure",
+            "Heading":"Pressure",
+            "tooltip":"Total Pressure ",
+            "current_val":"11 Pa"
+        }
+    }
+}

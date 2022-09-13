@@ -1,0 +1,12 @@
+{
+	"Schema":{
+      "title": "internalField",
+      "type": "object",
+      "properties": {
+      }
+    },
+	"uiSchema":{
+	},
+	"formData":{
+	}
+}

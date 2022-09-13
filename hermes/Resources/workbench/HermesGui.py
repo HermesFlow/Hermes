@@ -92,8 +92,12 @@ class _HermesWorkflow:
         # ImportJSONFile propert- get the file path of the wanted json file
         addObjectProperty(obj, "ImportJSONFile", "", "App::PropertyFile", "IO", "Browse JSON File")
 
-        # ExportJSONFile property- get the directory path of where we want to export the json file
-        addObjectProperty(obj, "ExportJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+        # ExportGUIJSONFile property- get the directory path of where we want to export the json file
+        addObjectProperty(obj, "ExportGUIJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+
+        # ExportExecuteJSONFile property- get the directory path of where we want to export the json file
+        addObjectProperty(obj, "ExportExecuteJSONFile", "", "App::PropertyPath", "IO", "Path to save JSON File")
+
 
         # WorkingDirectory property- get the directory path of where we want to export our files
         addObjectProperty(obj, "WorkingDirectory", "", "App::PropertyPath", "IO", "Path to working directory")
@@ -101,8 +105,10 @@ class _HermesWorkflow:
         # JSONString property - keep the json data as a string
         addObjectProperty(obj, "JSONString", "", "App::PropertyString", "", "JSON Stringify", 4)
 
-        # Calculated Fields property
-        addObjectProperty(obj, "CalculatedFields", ["U", "P"], "App::PropertyStringList", "JSON", "Calculated Fields")
+        # Solved Fields property
+        addObjectProperty(obj, "SolvedFields", ["U", "P"], "App::PropertyStringList", "JSON", "Solved Fields")
+        # Aux Fields property
+        addObjectProperty(obj, "AuxFields", [], "App::PropertyStringList", "JSON", "Aux Fields")
 
         #        #link property - link to other object (beside parent)
         #        addObjectProperty(obj, "HermesLink", "", "App::PropertyLink", "", "Link to",4)
@@ -154,7 +160,20 @@ class _HermesWorkflow:
 
         self.JsonObjectString = json.dumps(self.JsonObject)
 
-    def saveJson(self, obj, jsonSaveFilePath, FileSaveName):
+    def prepareExecuteJsonVar(self, obj, rootVal):
+        self.prepareJsonVar(obj, rootVal)
+
+        import copy
+        executeJson = copy.deepcopy(self.JsonObject)
+        for node in executeJson["workflow"]["nodes"]:
+            if "GUI" in executeJson["workflow"]["nodes"][node]:
+                executeJson["workflow"]["nodes"][node].pop("GUI")
+
+        return executeJson
+
+
+    # def saveJson(self, obj, jsonSaveFilePath, FileSaveName):
+    def saveJson(self, obj, jsonSaveFileName, exportJson):
         """
             Saves the current workflow to JSON.
 
@@ -167,38 +186,38 @@ class _HermesWorkflow:
         # ^^^Export Json-file
 
         # define the full path of the export file
-        jsonSaveFileName = jsonSaveFilePath + '/' + FileSaveName + '.json'
+        # jsonSaveFileName = jsonSaveFilePath + '/' + FileSaveName + '.json'
 
         # get the json want to be export
-        dataSave = self.JsonObject
+        # dataSave = self.JsonObject
 
         # save file to the selected place
         with open(jsonSaveFileName, "w") as write_file:
-            json.dump(dataSave, write_file, indent=4)  # indent make it readable
+            json.dump(exportJson, write_file, indent=4)  # indent make it readable
 
         # ^^^Export Part-files
 
-        # export FreeCAD parts
-        doc = obj.Document
-
-        # loop all the objects
-        for y in range(len(self.partNameExportList)):
-
-            partObjName = self.partNameExportList[y]
-            partObj = doc.getObject(partObjName)
-
-            # Define full path
-            # 'stp' file
-            fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
-            # fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
-
-            # 'stl' file
-            # fullPath_stl = jsonSaveFilePath + '/' + partObjName + '.stl'
-
-            # export all part Object
-            Part.export([partObj], u"" + fullPath)
-
-        self.partNameExportList = []
+        # # export FreeCAD parts
+        # doc = obj.Document
+        #
+        # # loop all the objects
+        # for y in range(len(self.partNameExportList)):
+        #
+        #     partObjName = self.partNameExportList[y]
+        #     partObj = doc.getObject(partObjName)
+        #
+        #     # Define full path
+        #     # 'stp' file
+        #     fullPath=os.path.join(jsonSaveFilePath,f"{partObjName}.stp")
+        #     # fullPath = jsonSaveFilePath + '/' + partObjName + '.stp'
+        #
+        #     # 'stl' file
+        #     # fullPath_stl = jsonSaveFilePath + '/' + partObjName + '.stl'
+        #
+        #     # export all part Object
+        #     Part.export([partObj], u"" + fullPath)
+        #
+        # self.partNameExportList = []
 
     def readJson(self, obj):
         '''
@@ -212,6 +231,8 @@ class _HermesWorkflow:
 
         # create jsonObject varieble that contain all data, including imported data from files/templates
         self.JsonObject = expandWorkflow().expand(jsonFilePath)
+        if self.JsonObject is None:
+            return
 
         # assign the data been import to the JSONString property after dumps
         obj.JSONString = json.dumps(self.JsonObject)
@@ -233,6 +254,12 @@ class _HermesWorkflow:
                 # clear the part lists
                 self.partPathListFromJson = []
                 self.partNameListFromJson = []
+
+
+        if "SolvedFields" in self.JsonObject["workflow"]:
+            setattr(obj, "SolvedFields", self.JsonObject["workflow"]["SolvedFields"].split())
+        if "AuxFields" in self.JsonObject["workflow"]:
+            setattr(obj, "AuxFields", self.JsonObject["workflow"]["AuxFields"].split())
 
         # create node list
         self.setJson(obj)
@@ -327,16 +354,32 @@ class _HermesWorkflow:
         x = 1
         nodes = self.JsonObject["workflow"]["nodes"]
         for node in nodes:
-            # get Node data
-            nodeData = nodes[node]["GUI"]
+
+            if "GUI" in nodes[node]:
+                # get Node data
+                nodeData = nodes[node]["GUI"]
+            else:
+                #get template path
+                templatePath = nodes[node]["Template"]
+                #import node template
+                nodeData = expandWorkflow.importJsonDataFromTemplate(templatePath)
+                #copy the data from input parameters? or later after node exist
+
+            # FreeCAD.Console.PrintMessage("nodeData = " + str(nodeData) + "\n")
+            # FreeCAD.Console.PrintMessage("==================\n")
 
             # get node name
             nodename = node
 
+
             # Create node obj
             # makeNode(nodename, obj, str(x), nodeData)
             # FreeCADGui.doCommand("hermes.addObject(HermesNode.makeNode(nodename, obj, str(x), nodeData))")
-            HermesNode.makeNode(nodename, obj, str(x), nodeData)
+            nodeObj = HermesNode.makeNode(nodename, obj, str(x), nodeData)
+
+            initParams = nodes[node]["Execution"]["input_parameters"]
+            if initParams:
+                nodeObj.Proxy.executeToGui(nodeObj, initParams)
 
             x = x + 1
 
@@ -394,6 +437,10 @@ class _HermesWorkflow:
             loop all nodes and update each node data in the main JSON var
         '''
 
+        self.JsonObject["workflow"]["SolvedFields"] = " ".join(getattr(obj, "SolvedFields"))
+        self.JsonObject["workflow"]["AuxFields"] = " ".join(getattr(obj, "AuxFields"))
+
+
         # loop all children in HermesWorkflow
         for child in obj.Group:
             # back child date
@@ -412,7 +459,7 @@ class _HermesWorkflow:
 
             # if "BlockMesh" in nodename:
             # if "BoundaryCondition" not in nodename:
-            ch_jinja = child.Proxy.jsonToJinja(child)
+            ch_jinja = child.Proxy.guiToExecute(child)
             if ch_jinja is not None:
                 self.JsonObject["workflow"]["nodes"][nodename]["Execution"]["input_parameters"] = ch_jinja
 
@@ -442,10 +489,18 @@ class _HermesWorkflow:
         os.chdir(current_dir)
 
         # import hermesWorkflow
-        from hermes import hermesWorkflow
+        # from hermes import hermesWorkflow
+        from hermes import workflow
 
         # call hermes workflow and keep its result in var
-        wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+        # wf = hermesWorkflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+        wf = workflow(self.JsonObjectString, self.WD_path, self.HermesDirpath)
+
+        newWorkflow = "FCtoLgi.py"
+        builder = "luigi"
+        build = wf.build(builder)
+        with open(newWorkflow, "w") as file:
+            file.write(build)
 
         print(wf)
         print("===================================")
@@ -530,14 +585,32 @@ python3 -m luigi --module FCtoLuigi finalnode_xx_0 --local-scheduler
             updates the field nodes in BoundaryCondition, FvSchemes,
             FvSolution
         '''
-        BCNode = None
+
         for child in HermesObj.Group:
-            # if "BoundaryCondition" == child.Label:
-            #     BCNode = child
-
-            if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
+            if "FvSchemes" in child.Type:
                 child.Proxy.updateNodeFields(fieldList, child)
+            if "FvSolution" in child.Type:
+                child.Proxy.updateNodeFields(fieldList, child)
+            if "BCNode" in child.Type: # BoundaryCondition type
+                child.Proxy.updateNodeFields(fieldList, child)
+                child.Proxy.updateInternalField(fieldList + HermesObj.AuxFields, child)
 
+            # if Name/Label is different - so better use Type is constant
+            # if child.Name in ["BoundaryCondition", "FvSchemes", "FvSolution"]:
+            #     child.Proxy.updateNodeFields(fieldList, child)
+
+
+    def updateAuxFields(self, fieldList, HermesObj):
+        '''
+            when the field list of the problem is changed, it
+            updates the field nodes in BoundaryCondition, FvSchemes,
+            FvSolution
+        '''
+        for child in HermesObj.Group:
+            # BoundaryCondition type
+            if "BCNode" in child.Type:
+                child.Proxy.updateAuxNodeFields(fieldList, child)
+                child.Proxy.updateInternalField(fieldList + HermesObj.SolvedFields, child)
 
 
 # =============================================================================
@@ -635,16 +708,31 @@ class _ViewProviderHermesWorkflow:
             obj.Proxy.readJson(obj)
             obj.ImportJSONFile = ''
 
-    def _handle_ExportJSONFile(self, obj):
+    def _handle_ExportGUIJSONFile(self, obj):
         '''
             take the path and
             - update JSON
             - Export JSON to the path choosen
         '''
-        if len(str(obj.ExportJSONFile)) > 0:
+        if len(str(obj.ExportGUIJSONFile)) > 0:
             obj.Proxy.prepareJsonVar(obj, "null")
-            obj.Proxy.saveJson(obj, obj.ExportJSONFile, obj.Label)
-            obj.ExportJSONFile = ''
+            # define the full path of the export file
+            jsonSaveFileName = obj.ExportGUIJSONFile + '/' + obj.Label + '_GUI.json'
+            obj.Proxy.saveJson(obj, jsonSaveFileName,  obj.Proxy.JsonObject)
+            obj.ExportGUIJSONFile = ''
+
+    def _handle_ExportExecuteJSONFile(self, obj):
+        '''
+            take the path and
+            - update JSON
+            - Export JSON to the path choosen
+        '''
+        if len(str(obj.ExportExecuteJSONFile)) > 0:
+            executeJson = obj.Proxy.prepareExecuteJsonVar(obj, "null")
+            # define the full path of the export file
+            jsonSaveFileName = obj.ExportExecuteJSONFile + '/' + obj.Label + '_Execute.json'
+            obj.Proxy.saveJson(obj, jsonSaveFileName, executeJson)
+            obj.ExportExecuteJSONFile = ''
 
     def _handle_RunWorkflow(self, obj):
         ''' update the JSON and call the function that run the workflow'''
@@ -661,9 +749,14 @@ class _ViewProviderHermesWorkflow:
         if len(str(obj.WorkingDirectory)) > 0:
             obj.Proxy.updateWorkingDirectory(obj.WorkingDirectory)
 
-    def _handle_CalculatedFields(self, obj):
+    def _handle_SolvedFields(self, obj):
         ''' updated the fields in the doc'''
-        obj.Proxy.updateFields(obj.CalculatedFields, obj)
+        obj.Proxy.updateFields(obj.SolvedFields, obj)
+
+    def _handle_AuxFields(self, obj):
+        ''' updated the fields in the doc'''
+        # obj.Proxy.updateFields(obj.AuxFields, obj)
+        obj.Proxy.updateAuxFields(obj.AuxFields, obj)
 
 
     def onChanged(self, vobj, prop):

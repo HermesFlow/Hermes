@@ -1,0 +1,79 @@
+{
+	"Schema":{
+		"type":"object",
+        "title":"General",
+		"properties": {
+            "algorithm": {
+                "title": "algorithm",
+                "type": "string",
+                "enum": [
+                    "SIMPLE",
+                    "PIMPLE",
+                    "PISO"
+                ],
+                "default": "SIMPLE"
+            }
+        },
+        "dependencies": {
+            "algorithm": {
+                "oneOf": [
+                    {
+                        "properties": {
+                            "algorithm": {
+                                "enum": [
+                                    "SIMPLE"
+                                ]
+                            },
+                            "solverFields": {
+                                "type": "object",
+                                "properties":{
+                                    "Template": "openFOAM.system.FvSolution.webGUI.SIMPLE"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "algorithm": {
+                                "enum": [
+                                    "PIMPLE"
+                                ]
+                            },
+                            "solverFields": {
+                                "type": "object",
+                                "properties":{
+                                    "Template": "openFOAM.system.FvSolution.webGUI.PIMPLE"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "algorithm": {
+                                "enum": [
+                                    "PISO"
+                                ]
+                            },
+                            "solverFields": {
+                                "type": "object",
+                                "properties":{
+                                    "Template": "openFOAM.system.FvSolution.webGUI.PISO"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+	"uiSchema":{
+        "solverFields": {
+            "momentumPredictor":
+            {
+                "ui:widget": "radio"
+            }
+        }
+
+    },
+    "formData":{}
+}

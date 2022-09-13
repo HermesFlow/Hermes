@@ -1,0 +1,12 @@
+{
+  "Execution": {
+    "type": "general.Parameters"
+  },
+  "GUI": {
+    "Type": "HermesNode.WebGuiNode",
+    "Properties": {},
+    "WebGui": {
+        "formData" : {}
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+    "noOfOperators": {
+      "type": "number"
+    },
+    "coefficient": {
+      "type": "string",
+      "enum": [
+        "(1|A(U))",
+        "nuEff",
+        "AnisotropicDiffusion",
+        "DkEff",
+        "DepsilonEff"
+      ]
+    },
+    "type":{
+      "type": "string",
+      "enum": [
+        "Gauss"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "enum": [
+        "linear",
+        "UMISTV",
+        "linearUpwind",
+        "LUST",
+        "limitedLinear",
+        "upwind",
+        "limitedLinearV",
+        "linearUpwindV"
+      ]
+    },
+    "parameters": {
+      "type": "string",
+      "enum": [
+        " ",
+        "uncorrected",
+        "corrected",
+        "orthogonal"
+      ],
+      "default": " "
+    }
+}

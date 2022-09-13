@@ -38,7 +38,7 @@ class FvSolution(WebGuiNode):
         super().initializeFromJson(obj)
 
         rootParent = self.getRootParent(obj.getParentGroup())
-        for field in rootParent.CalculatedFields:
+        for field in rootParent.SolvedFields:
             fv_name = "fvSol_" + field
             nodeData = copy.deepcopy(self.nodeData["fields"]["template_webGui"])
             nodeData["WebGui"]["Schema"]["title"] = fv_name
@@ -53,7 +53,7 @@ class FvSolution(WebGuiNode):
             field = child.Name.replace("fvSol_", "")
             self.nodeData["fields"]["items"][field] = child.Proxy.nodeData
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
 
         solverProperties = copy.deepcopy(self.nodeData["WebGui"]["formData"])

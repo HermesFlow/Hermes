@@ -91,6 +91,10 @@ class workflow:
                 a json of the workflow.
 
         """
+        # import FreeCAD
+        # FreeCAD.Console.PrintMessage("here:")
+        # FreeCAD.Console.PrintMessage(workflowJSON)
+
         if (loadedMongo):
             # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
             # Here, we catch that object and then severe it from the DB by pronting it to str and reading it again...
@@ -132,7 +136,7 @@ class workflow:
         :return:
         """
 
-        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not x.startswith("#")]
+        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow'])]
 
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
@@ -202,7 +206,7 @@ class workflow:
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(type="generalExecuters.caseParameters",
+                         Execution=dict(type="general.Parameters",
                                         input_parameters={},
                                         requires=[x for x in self._workflowJSON["workflow"]["nodes"]]),
 

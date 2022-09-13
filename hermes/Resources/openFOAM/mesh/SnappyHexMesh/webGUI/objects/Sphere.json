@@ -1,0 +1,17 @@
+{ 
+    "typeSphere":{ 
+        "type":"string",
+        "title":"type"
+    },
+    "centerSphere":{ 
+        "type":"string",
+        "title":"point1",
+        "format":"vector",
+        "description":"Centre of sphere"
+    },
+    "radiusSphere":{
+        "title": "radius",
+        "type": "number",
+        "description":"Radius of sphere"
+    }
+}

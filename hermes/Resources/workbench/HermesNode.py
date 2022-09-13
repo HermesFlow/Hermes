@@ -22,6 +22,36 @@ from HermesTools import addObjectProperty
 # from BC.HermesBC import _ViewProviderNodeBC
 
 # ********************************************************************
+def getClassPylocate(path):
+    ''' try locate class using pydoc.locate
+        return class if found, or None and err '''
+
+    try:
+        nodecls = pydoc.locate(path)
+        e = None
+    except Exception as e:
+        nodecls = None
+
+    return nodecls, e
+
+# ********************************************************************
+def getClassMoudule(path):
+    ''' try locate class using importlib
+        return class if found, or None and err '''
+
+    import importlib
+    module_name, class_name = path.rsplit(".", 1)
+    try:
+        nodecls = getattr(importlib.import_module(module_name), class_name)
+        err = None
+    except Exception as e:  # if error detected to write
+        nodecls = None
+        err = e
+
+
+    return nodecls, err
+
+# ********************************************************************
 def makeNode(name, workflowObj, nodeId, nodeData):
     """ Create a Hermes Node object """
 
@@ -35,28 +65,30 @@ def makeNode(name, workflowObj, nodeId, nodeData):
     workflowObj.addObject(obj)
 
     # ----------------dynamic find class--------------------
-    nodecls = None
-    # find the class of the node from the its type
-    try:
-        nodecls = pydoc.locate(nodeData["Type"])
-    except:
-        # in case pydoc couldn't find the class, try with another method
-        import importlib
-        workbencj_path = "hermes.Resources.workbench"
-        path = nodeData["Type"]
+
+    # possible class paths
+    workbench_paths = ["","hermes.Resources", "hermes.Resources.workbench"]
+
+    errs = list()
+    e = None
+    for w_path in workbench_paths:
 
         # join and make sure path with '.'
-        path = os.path.join(workbencj_path, path)
+        path = os.path.join(w_path, nodeData["Type"])
         path = path.replace("/", ".")
 
-        module_name, class_name = path.rsplit(".", 1)
-        try:
-            # FreeCAD.Console.PrintMessage("module_name = " + module_name + "\n")
-            # FreeCAD.Console.PrintMessage("class_name = " + class_name + "\n")
-            nodecls = getattr(importlib.import_module(module_name), class_name)
-        except Exception:  # if error detected to write
-            FreeCAD.Console.PrintError("Error locating class" + class_name + "\n")
+        # locate class using pylocate
+        nodecls, e = getClassPylocate(path)
+        if nodecls is not None:
+            break
+        errs.append(e)
 
+        # locate class using importlib
+        nodecls, e = getClassMoudule(path)
+        if nodecls is not None:
+            break
+
+        errs.append(e)
 
     # call to the class
     if nodecls is not None:
@@ -73,8 +105,11 @@ def makeNode(name, workflowObj, nodeId, nodeData):
 
         FreeCAD.ActiveDocument.recompute()
     else:
-        FreeCAD.Console.PrintWarning("Could not locate node name = " + name + ": ")
-        FreeCAD.Console.PrintWarning("nodeData['Type'] = " + nodeData["Type"] + "\n")
+        FreeCAD.Console.PrintError("Could not locate node name = " + name + ": ")
+        FreeCAD.Console.PrintError("nodeData['Type'] = " + nodeData["Type"] + "\n")
+        for e in errs:
+            if e is not  None:
+                FreeCAD.Console.PrintError(str(e) + "\n")
 
     return obj
 
@@ -335,7 +370,7 @@ class HermesNode(_SlotHandler):
             current_val = getattr(obj, prop)
 
             # update the value at the propertyNum[prop]
-            if type(current_val) is not int and type(current_val) is not float and type(current_val) is not list:
+            if type(current_val) not in [int, float,list, bool]:
                 # In case of 'Quantity property' (velocity,length etc.), 'current_val' need to be export as a string
                 propertyNum["current_val"] = str(current_val)
 
@@ -394,7 +429,9 @@ class _ViewProviderNode:
         if self.NodeObjType is None:
             return 
 
-        webGuiNodes = ["WebGuiNode", "SnappyHexMesh", "FvSolution", "FvSchemes", "CopyDirectory", "copyFile", "RunOsCommand", "RunPythonCode"]
+        openFoamWebNodes = ["TransportProperties", "TurbulenceProperties","ControlDict", "SnappyHexMesh", "FvSolution", "FvSchemes"]
+        generalNodes = ["CopyDirectory", "CopyFile", "RunOsCommand", "RunPythonCode"]
+        webGuiNodes = ["WebGuiNode"] + openFoamWebNodes + generalNodes
         bool_webGuinodes = [True for node in webGuiNodes if node in self.NodeObjType]
 
         if True in bool_webGuinodes:
@@ -641,7 +678,7 @@ class WebGuiNode(HermesNode):
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         '''
             update the Execution.input_parameters JSON data
         '''
@@ -651,6 +688,11 @@ class WebGuiNode(HermesNode):
             return self.nodeData["WebGui"]["formData"]
         else:
             return None
+
+    def executeToGui(self, obj, parameters):
+        ''' import the "input_parameters" data into the json obj data '''
+        # self.nodeData["WebGui"]["formData"] = parameters
+        obj.Proxy.nodeData["WebGui"]["formData"] = copy.deepcopy(parameters)
 
     def print_formData(self):
         '''

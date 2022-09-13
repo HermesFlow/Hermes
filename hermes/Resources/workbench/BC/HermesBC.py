@@ -35,7 +35,7 @@ class _BCNode(WebGuiNode):
 
         workflowObj = self.getRootParent(obj)
 
-        # self.updateBCNodeFields(workflowObj.CalculatedFields, obj)
+        # self.updateBCNodeFields(workflowObj.SolvedFields, obj)
 
     def selectNode(self, obj):
         self.updateBCPartList(obj)
@@ -123,7 +123,7 @@ class _BCNode(WebGuiNode):
                     FreeCAD.Console.PrintMessage("add None: bc_part_name = " + bc_part_name + "\n")
 
                 bc_part_obj.partLinkName = partName
-                bc_part_obj.Proxy.updateNodeFields(workflowObj.CalculatedFields, bc_part_obj)
+                bc_part_obj.Proxy.updateNodeFields(workflowObj.SolvedFields, bc_part_obj)
 
          # remove bc geometry objects
         if len(del_list) > 0:
@@ -212,7 +212,7 @@ class _BCNode(WebGuiNode):
         if FreeCAD.GuiUp:
             _ViewProviderNodeBC(obj.ViewObject)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         '''
             update the Execution.input_parameters JSON data
             creates a dict sorted bt fields defined in the doc
@@ -222,7 +222,7 @@ class _BCNode(WebGuiNode):
         HermesWorkflow = self.getRootParent(obj)
         jinja = dict()
         # loop all fields defined
-        for field in HermesWorkflow.CalculatedFields:
+        for field in HermesWorkflow.SolvedFields:
             obj_field = dict()
             # loop each geom and get its field BC data
             for geom in obj.Group:

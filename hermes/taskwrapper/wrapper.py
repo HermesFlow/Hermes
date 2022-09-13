@@ -186,13 +186,13 @@ class hermesTaskWrapper(object):
     def uiSchema(self):
         return self._taskJSON.get("uiSchema", {})
 
-    @property
-    def task_Properties(self):
-        return self._taskJSON["GUI"]["Properties"]
+    # @property
+    # def task_Properties(self):
+    #     return self._taskJSON["GUI"]["Properties"]
 
-    @property
-    def task_webGui(self):
-        return self._taskJSON['GUI'].get('WebGui',{})
+    # @property
+    # def task_webGui(self):
+    #     return self._taskJSON['GUI'].get('WebGui',{})
 
     @property
     def task_workflowJSON(self):
@@ -233,10 +233,10 @@ class hermesTaskWrapper(object):
 
 
     def getExecuterPackage(self):
-        return ".".join(executerhome[self.taskType].split(".")[:-1])
+        return executerhome[self.taskType]
 
     def getExecuterClass(self):
-        return executerhome[self.taskType].split(".")[-1]
+        return self.taskType.split(".")[-1]
 
     def getNetworkTasks(self):
         """

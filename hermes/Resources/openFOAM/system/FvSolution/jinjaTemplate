@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/system/FvSolution/solvers.jinja" as solvers %}
+
+solvers
+{
+    {% for fieldName,solverData in fields.items() -%}
+       {{solvers.solver(fieldName,solverData,False)}}
+       {%- if 'final' in solverData -%}
+       {{solvers.solver(fieldName,solverData.final,True)}}
+       {%- else -%}
+       {{solvers.solver(fieldName,solverData,True)}}
+       {%- endif -%}
+    {%- endfor %}
+
+}
+
+{{solverProperties.algorithm}}
+{
+    residualControl
+    {
+        {% for fieldName, factor in solverProperties.residualControl.items() -%}
+        {{fieldName}}    {{factor}};
+        {% endfor %}
+    }
+
+    {% for field,fieldValue in solverProperties.solverFields.items() -%}
+        {{field}} {{fieldValue}};
+    {% endfor %}
+
+}
+
+relaxationFactors
+{
+    fields
+    {
+        {% for fieldName, factor in relaxationFactors.fields.items() -%}
+        {{fieldName}} {{factor}};
+        {% endfor %}
+    }
+    equations
+    {
+        {% for fieldName, factorData in relaxationFactors.equations.items() -%}
+        {{fieldName}}   {{factorData.factor}};
+        {%- if 'final' in factorData -%}{{fieldName}}Final {{factorData.final}};
+        {% endif -%}
+        {% endfor %}
+    }
+}
+
+// ************************************************************************* //

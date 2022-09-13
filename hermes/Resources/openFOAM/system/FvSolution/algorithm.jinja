@@ -1,0 +1,24 @@
+{#-###########################-#}
+{#-A marco for the a algorithm -#}
+{#-###########################-#}
+{%- macro solver(algorithmData) -%}
+{%  if algorithmData.type =='SIMPLE' %}
+{{SIMPLE(algorithmData)}}
+{%  elif solverData.type =='PIMPLE' %}
+{{PIMPLE(algorithmData)}}
+{%  else %}
+    UNKNOWN Algorithm, must be PIMPLE, or SIMPLE. Got {{solverData.type}}
+{% endif %}
+{%- endmacro %}
+
+
+
+
+{#-###########################-#}
+{#-A marco for the SIMPLE solver -#}
+{#-###########################-#}
+{%- macro SIMPLE(fieldName) -%}
+
+
+
+{%- endmacro %}

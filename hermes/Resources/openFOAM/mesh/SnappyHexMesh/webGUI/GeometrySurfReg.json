@@ -1,0 +1,33 @@
+{
+    "type":"array",
+    "title":"geometry",
+    "items":{ 
+        "type": "object",
+        "anyOf":[
+            {
+                "type":"object",
+                "title":"Surface",
+                "properties":{
+                    "triSurfaceMesh":{
+                        "type":"object",
+                        "properties":{
+                            "Template":"openFOAM.mesh.SnappyHexMesh.webGUI.objects.triSurfaceMesh"
+                        }
+                    }
+                }
+            },
+            {
+                "type":"object",
+                "title":"Region",
+                "properties":{ 
+                    "searchableObject":{ 
+                        "Template":"openFOAM.mesh.SnappyHexMesh.webGUI.geometryObject"
+                    }
+                }
+            }
+        ]
+    }
+       
+}
+
+

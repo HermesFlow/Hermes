@@ -1,0 +1,49 @@
+{
+    "Execution": {
+        "type": "general.RunOsCommand",
+        "input_parameters": {
+            "Method": "Commands list",
+            "Command": ""
+        }
+    },
+    "GUI": {
+        "Type": "general.RunOsCommand.workbench.RunOsCommand",
+        "Properties": {
+            "ChooseMethod": {
+                "prop": "ChooseMethod",
+                "init_val": [
+                    "Commands list",
+                    "batchFile"
+                ],
+                "type": "App::PropertyEnumeration",
+                "Heading": "Parameters",
+                "tooltip": "True-commands, False-file",
+                "current_val": "Commands list"
+            },
+            "Commands": {
+                "prop": "Commands",
+                "init_val": [],
+                "type": "App::PropertyStringList",
+                "Heading": "Parameters",
+                "tooltip": "The OS commands to execute",
+                "current_val": [
+                    "echo 'Here is an example of a shell script'",
+                    "echo '1a. File listing'",
+                    "ls",
+                    "echo ''"
+                ]
+            },
+            "batchFile":{
+                "prop":"batchFile",
+                "init_val":"Text",
+                "type":"App::PropertyFile",
+                "Heading":"Parameters",
+                "tooltip":"File containing all the OS commands to execute",
+                "current_val":""
+            }
+
+        },
+        "WebGui": {
+        }
+    }
+}

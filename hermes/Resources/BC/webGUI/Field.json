@@ -1,0 +1,11 @@
+{
+  "Type": "BC.workbench.BCFieldNode",
+  "Properties": {},
+  "WebGui": {
+    "Schema":{
+      "Template": "BC.webGUI.List"
+    },
+    "uiSchema":{},
+    "formData":{}
+  }
+}

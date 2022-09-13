@@ -1,0 +1,72 @@
+{
+  "partName": {
+    "prop": "partName",
+    "init_val": "",
+    "type": "App::PropertyString",
+    "Heading": "BasicData",
+    "tooltip": "Name of tha part of the blockMesh node ",
+    "current_val": ""
+  },
+  "partPath": {
+    "prop": "partPath",
+    "init_val": "",
+    "type": "App::PropertyPath",
+    "Heading": "BasicData",
+    "tooltip": "Path to tha part of the blockMesh node ",
+    "current_val": ""
+  },
+  "convertToMeters": {
+    "prop": "convertToMeters",
+    "init_val": 1,
+    "type": "App::PropertyFloat",
+    "Heading": "BasicData",
+    "tooltip": "Link a part to the blockMesh node ",
+    "current_val": 1
+  },
+  "NumberOfCells": {
+    "prop": "NumberOfCells",
+    "init_val": "1 2 3",
+    "type": "App::PropertyString",
+    "Heading": "Block",
+    "tooltip": "Numbers of cells in each direction ",
+    "current_val": "1 2 3"
+  },
+  "simpleGradingX": {
+    "prop": "simpleGradingX",
+    "init_val": [
+      "1"
+    ],
+    "type": "App::PropertyStringList",
+    "Heading": "Block",
+    "tooltip": "simpleGrading in x direction ",
+    "current_val": [
+      "1"
+    ]
+  },
+  "simpleGradingY": {
+    "prop": "simpleGradingY",
+    "init_val": [
+      "1"
+    ],
+    "type": "App::PropertyStringList",
+    "Heading": "Block",
+    "tooltip": "simpleGrading in y direction ",
+    "current_val": [
+      "0.2 0.3 4",
+      "0.6 0.4 1",
+      "0.2 0.3 0.25"
+    ]
+  },
+  "simpleGradingZ": {
+    "prop": "simpleGradingZ",
+    "init_val": [
+      "1"
+    ],
+    "type": "App::PropertyStringList",
+    "Heading": "Block",
+    "tooltip": "simpleGrading in z direction ",
+    "current_val": [
+      "1"
+    ]
+  }
+}

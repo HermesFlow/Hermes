@@ -1,0 +1,172 @@
+{
+  "title": "BCName",
+  "type": "object",
+  "description":"defined the Velocity boundaary condition",
+  "properties": {
+    "typeBC": {
+      "title": "type",
+      "type": "string",
+      "enum": [
+        "notSet",
+        "fixedValue",
+        "pressureInletOutletVelocity",
+        "slip",
+        "zeroGradient",
+        "totalPressure",
+        "inletOutlet",
+        "epsilonWallFunction",
+        "kqRWallFunction",
+        "calculated",
+        "nutkRoughWallFunction"
+      ],
+      "default": "notSet"
+    }
+  },
+  "dependencies": {
+    "typeBC": {
+      "oneOf": [
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "slip"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "notSet"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "fixedValue"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "pressureInletOutletVelocity"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "zeroGradient"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "totalPressure"
+              ]
+            },
+            "p0": {
+              "type": "string"
+            },
+            "gamma": {
+              "type": "number"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "inletOutlet"
+              ]
+            },
+            "inletValue": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "epsilonWallFunction"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "kqRWallFunction"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "calculated"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "typeBC": {
+              "enum": [
+                "nutkRoughWallFunction"
+              ]
+            },
+            "z0": {
+              "type": "string"
+            },
+            "Ks": {
+              "type": "string"
+            },
+            "Cs": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

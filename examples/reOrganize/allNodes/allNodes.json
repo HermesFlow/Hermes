@@ -1,0 +1,60 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "SolvedFields": "p U k epsilon",
+        "AuxFields": "nut",
+        "nodeList": [
+            "CopyDirectory",
+            "RunPythonCode",
+            "RunOsCommand",
+            "CopyFile",
+            "TransportProperties",
+            "TurbulenceProperties",
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution",
+            "SnappyHexMesh",
+            "BlockMesh",
+            "BoundaryCondition"
+        ],
+        "nodes": {
+            "CopyDirectory": {
+                "Template": "general.CopyDirectory.jsonForm"
+            },
+            "RunPythonCode": {
+                "Template": "general.RunPythonCode.jsonForm"
+            },
+            "RunOsCommand": {
+                "Template": "general.RunOsCommand.jsonForm"
+            },
+            "CopyFile": {
+                "Template": "general.CopyFile.jsonForm"
+            },
+            "TransportProperties": {
+                "Template": "openFOAM.constant.TransportProperties.jsonForm"
+            },
+            "TurbulenceProperties": {
+                "Template": "openFOAM.constant.TurbulenceProperties.jsonForm"
+            },
+            "ControlDict": {
+                "Template": "openFOAM.system.ControlDict.jsonForm"
+            },
+            "FvSchemes": {
+                "Template": "openFOAM.system.FvSchemes.jsonForm"
+            },
+            "FvSolution": {
+                "Template": "openFOAM.system.FvSolution.jsonForm"
+            },
+            "SnappyHexMesh": {
+                "Template": "openFOAM.mesh.SnappyHexMesh.jsonForm"
+            },
+            "BlockMesh": {
+                "Template": "openFOAM.mesh.BlockMesh.jsonForm"
+            },
+            "BoundaryCondition": {
+                "Template": "BC.jsonForm"
+            }
+        }
+    }
+}

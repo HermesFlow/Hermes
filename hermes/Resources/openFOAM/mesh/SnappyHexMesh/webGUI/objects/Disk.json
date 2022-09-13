@@ -1,0 +1,23 @@
+{ 
+    "typeDisk":{ 
+        "type":"string",
+        "title":"type"
+    },
+    "originDisk":{ 
+        "type":"string",
+        "title":"origin",
+        "format":"vector",
+        "description":"Disk origin"
+    },
+    "normalDisk":{ 
+        "type":"string",
+        "title":"normal",
+        "format":"vector",
+        "description":"Normal direction"
+    },
+    "radiusDisk":{
+        "title": "radius",
+        "type": "number",
+        "description":"Disk radius"
+    }
+}

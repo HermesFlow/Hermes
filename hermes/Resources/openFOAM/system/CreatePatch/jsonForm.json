@@ -1,0 +1,23 @@
+{
+  "Execution": {
+    "type": "openFOAM.system.CreatePatch",
+    "input_parameters": {
+      "patches" : [
+        {
+          "name": "inflow",
+          "type" : "patch",
+          "constructFrom" : "set",
+          "set": "inflowSet"
+        }
+      ]
+    }
+  },
+  "GUI": {
+    "Type": "openFOAM.system.ControlDict.workbench.ControlDict",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.ControlDict.webGUI"
+    }
+  }
+}

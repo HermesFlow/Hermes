@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja"  as utils %}
+thermoType
+{
+    type            {{thermoType.type}};
+    mixture         {{thermoType.mixture}};
+    transport       {{thermoType.transport}};
+    thermo          {{thermoType.thermo}};
+    energy          {{thermoType.energy}};
+    equationOfState {{thermoType.equationOfState}};
+    specie          {{thermoType.specie}};
+}
+
+inertSpecie {{inertSpecie}};
+
+
+species
+(
+    {%- for specieName in species.keys() %}
+        {{specieName}}
+    {%- endfor %}
+);
+
+// **************** Species directory *********************************** //
+
+{%- for specieName,specieData in species.items() %}
+{{specieName}}
+{
+    {%- for defName,defData in specieData.items() %}
+    {{defName}}
+    {
+    {%- for defName,data in defData.items() %}
+            {%- if data is sequence %}
+            {{defName}} {{utils.toList(data)}};
+            {%- else %}
+            {{defName}} {{data}};
+            {%-endif %}
+    {% endfor %}
+    }
+    {%- endfor %}
+}
+{%- endfor %}
+
+
+

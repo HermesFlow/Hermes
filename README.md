@@ -1,4 +1,4 @@
-# Hermes
+# Hermes 2.0
 
 Hermes is a package designed to simplify the construction of a task-based workflow pipelines for executers like 
 Luigi or Airflow. The Hermes package focuses on pipelines for CFD/solid applications.

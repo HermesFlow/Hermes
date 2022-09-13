@@ -1,0 +1,41 @@
+{
+    "Execution": {
+        "type":"fileSystemExecuters.copyDirectory",
+        "input_parameters": {
+            "Source": "",
+            "Target": "",
+            "dirs_exist_ok" :true
+        }
+    },
+    "GUI": {
+        "Type": "general.CopyDirectory.workbench.CopyDirectory",
+        "Properties": {
+            "Source": {
+                "prop": "Source",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "Parameters",
+                "tooltip": "The source directory",
+                "current_val": ""
+            },
+            "Target": {
+                "prop": "Target",
+                "init_val": "",
+                "type": "App::PropertyPath",
+                "Heading": "Parameters",
+                "tooltip": "The target directory",
+                "current_val": ""
+            },
+            "dirs_exist_ok": {
+                "prop": "dirs_exist_ok",
+                "init_val": true,
+                "type": "App::PropertyBool",
+                "Heading": "Parameters",
+                "tooltip": "The target directory",
+                "current_val": true
+            }
+        },
+        "WebGui": {
+        }
+    }
+}

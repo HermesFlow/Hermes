@@ -68,6 +68,8 @@ Noga:
         # 2. Check here if inputs['boundary'] is from webGUI. if it is: convert to the right form
         # 3. Check here if inputs['vertices'] is from webGUI. if it is: convert to the right form
 
+        print("Blockmesh Executer")
+        print(inputs)
 
         # get the values to update in the template
         geometry = inputs['geometry']

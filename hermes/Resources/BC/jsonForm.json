@@ -1,0 +1,28 @@
+{
+  "Execution": {
+    "type": "openFOAM.systemExecuters.changeDictionary",
+    "input_parameters": {
+      "fields": ""
+    }
+  },
+  "GUI": {
+    "Type": "BC.workbench.BCNode",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "BC.webGUI.WebGui"
+    },
+    "GeometriesSource": ["BlockMesh","SnappyHexMesh.Geometry"],
+    "Templates": {
+      "BCList": {
+        "Template": "BC.webGUI.List"
+      },
+      "BCField": {
+        "Template": "BC.webGUI.Field"
+      },
+      "BCGeometry": {
+        "Template": "BC.webGUI.Geometry"
+      }
+    }
+  }
+}

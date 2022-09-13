@@ -31,7 +31,7 @@ class CopyDirectory(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()
@@ -48,7 +48,7 @@ class CopyFile(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()
@@ -80,7 +80,7 @@ class RunOsCommand(WebGuiNode):
         elif method == "batchFile":
             obj.setEditorMode("Commands", 1)  # Make read-only
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()
@@ -103,7 +103,7 @@ class RunPythonCode(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "input_parameters" structure '''
 
         parameters = dict()

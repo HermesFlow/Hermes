@@ -58,14 +58,14 @@ class SnappyHexMesh(WebGuiNode):
         # then Update nodeData  at the NodeDataString by converting from json to string
         obj.NodeDataString = json.dumps(self.nodeData)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
         jinjaObj = dict()
 
         jinjaObj["modules"] = copy.deepcopy(self.nodeData["WebGui"]["formData"]["modules"])
 
         for child in obj.Group:
-            jinjaObj[child.Name] = child.Proxy.jsonToJinja(child)
+            jinjaObj[child.Name] = child.Proxy.guiToExecute(child)
         return jinjaObj
 
 # =============================================================================
@@ -142,7 +142,7 @@ class SnappyHexMeshCastellatedMeshControls(WebGuiNode):
             snappyPoint.Y = coordinates[1]
             snappyPoint.Z = coordinates[2]
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
         coordinates = self.pointStringToArr()
         jinjaObj = copy.deepcopy(self.nodeData["WebGui"]["formData"])
@@ -174,7 +174,7 @@ class SnappyHexMeshRefinement(WebGuiNode):
     def __init__(self, obj, nodeId, nodeData, name):
         super().__init__(obj, nodeId, nodeData, name)
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         return dict(regions={})
 
     # def doubleClickedNode(self, obj):
@@ -296,11 +296,11 @@ class SnappyHexMeshGeometry(C_HermesNode):
 
         return
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
         objects = {}
         for child in obj.Group:
-            objects[child.partLinkName] = child.Proxy.jsonToJinja(child)
+            objects[child.partLinkName] = child.Proxy.guiToExecute(child)
 
         return dict(objects=objects)
 
@@ -313,7 +313,7 @@ class SnappyHexMeshGeometryEntity(WebGuiNode):
         super().__init__(obj, nodeId, nodeData, name)
 
 
-    def jsonToJinja(self, obj):
+    def guiToExecute(self, obj):
         ''' convert the json data to "inputParameters" structure '''
 
         jinjaObj = dict()
