@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja"  as utils %}
+actions
+(
+{% for actionData in actions: -%}
+{
+    name    {{actionData.name}};
+    type    {{actionData.type}};
+    action  {{actionData.action}};
+    source  {{actionData.source}};
+    sourceInfo {
+        {%- for info,data in actionData.sourceInfo.items(): -%}
+            {%- if (data is sequence) and (data is not string) %}
+            {{info}} {{utils.toList(data)}};
+            {%- else %}
+            {{info}} {{data}};
+            {%-endif %}
+        {% endfor %}
+    }
+}
+{% endfor %}
+);

@@ -1,0 +1,24 @@
+{
+  "Execution": {
+    "type": "openFOAM.system.TopoSet",
+    "input_parameters": {
+        "actionName" : {
+            "type" : "type",
+            "action": "action",
+            "source" : "source",
+            "sourceInfo" : {
+                "param1" : "value1",
+                "param2" : "value2"
+            }
+        }
+    }
+  },
+  "GUI": {
+    "Type": "openFOAM.system.ControlDict.workbench.ControlDict",
+    "Properties": {
+    },
+    "WebGui": {
+      "Template": "openFOAM.system.ControlDict.webGUI"
+    }
+  }
+}
