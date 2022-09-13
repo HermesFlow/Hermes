@@ -1,0 +1,64 @@
+{#-###########################-#}
+{#-A marco for the a solver -#}
+{#-###########################-#}
+{%- macro solver(fieldName,solverData,final=False) -%}
+{%  if solverData.solver =='PCG' %}
+{{PCG(fieldName,solverData,final)}}
+{%  elif solverData.solver =='PBiCG' %}
+{{PBiCG(fieldName,solverData,final)}}
+{%  elif solverData.solver =='GAMG'%}
+{{GAMG(fieldName,solverData,final)}}
+{%  else %}
+    UNKNOWN Solver, must be PCG, PBiCG or GAMG. Got {{solverData.solver}}
+{% endif %}
+{%- endmacro %}
+
+
+{#-###########################-#}
+{#-A marco for the PCG solver -#}
+{#-###########################-#}
+{%- macro PCG(fieldName,solverData,final=False) -%}
+{{fieldName}}{%- if final %}Final{%- endif %}
+{
+    solver              PCG;
+    preconditioner      {{solverData.preconditioner}};
+    tolerance           {{solverData.tolerance}};
+    relTol              {{solverData.relTol}};
+    maxIter             {{solverData.maxIter}};
+}
+{%- endmacro %}
+
+
+{#-#############################-#}
+{#-A marco for the PBiCG solver -#}
+{#-#############################-#}
+{%- macro PBiCG(fieldName,solverData,final=False) -%}
+{{fieldName}}{%- if final %}Final{%- endif %}
+{
+    solver              PBiCG;
+    preconditioner      {{solverData.preconditioner}};
+    tolerance           {{solverData.tolerance}};
+    relTol              {{solverData.relTol}};
+    maxIter             {{solverData.maxIter}};
+}
+{%- endmacro %}
+
+{#-#############################-#}
+{#-A marco for the GAMG solver -#}
+{#-#############################-#}
+{%- macro GAMG(fieldName,solverData,final=False) -%}
+{{fieldName}}{%- if final %}Final{%- endif %}
+{
+    solver GAMG;
+    smoother        {{solverData.smoother}};
+    {%- set CAbool=solverData.cacheAgglomeration %}
+    {{ 'cacheAgglomeration on;' if CAbool else 'cacheAgglomeration off;' }}
+
+    agglomerator    {{solverData.agglomerator}};
+    nCellsInCoarsestLevel {{solverData.nCellsInCoarsestLevel}};
+    mergeLevels     {{solverData.mergeLevels}};
+    tolerance       {{solverData.tolerance}};
+    relTol          {{solverData.relTol}};
+
+}
+{%- endmacro %}

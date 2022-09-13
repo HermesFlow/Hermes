@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-{%- import "openFOAM/system/solvers.jinja" as solvers %}
+{%- import "openFOAM/system/FvSolution/solvers.jinja" as solvers %}
 
 solvers
 {
