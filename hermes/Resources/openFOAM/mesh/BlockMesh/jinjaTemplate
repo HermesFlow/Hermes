@@ -30,7 +30,20 @@ blocks
     hex (0 1 2 3 4 5 6 7)
     {{utils.toPoint(geometry.cellCount)}}
     simpleGrading
-    {{utils.toPoint(geometry.grading)}}
+    (
+        {% for grd in geometry.grading -%}
+            {%- if grd is sequence -%}
+            (
+                {% for dtl in grd -%}
+                    ( {{dtl.fracDir}} {{dtl.fracCells}} {{dtl.expansion}} )
+                {% endfor -%}
+             )
+            {%- else -%}
+                {{grd}}
+            {%- endif %}
+          {% endfor %}
+    )
+
 );
 
 edges
