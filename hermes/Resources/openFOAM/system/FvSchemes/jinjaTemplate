@@ -87,7 +87,7 @@ fluxRequired
 {
     default         no;
     {% for fieldName,fieldData in fields.items() -%}
-        {%- if fieldData.fluxRequired -%} {{fieldName}} {%- endif -%}
+        {%- if fieldData.fluxRequired -%} {{fieldName}}; {%- endif -%}
     {%- endfor %}
 }
 
