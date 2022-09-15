@@ -1,0 +1,12 @@
+{
+    "Execution": {
+        "type": "openFOAM.constant.ThermophysicalProperties",
+        "input_parameters": {
+            "x" : 0,
+            "y" : 0,
+            "z" : -9.8
+        }
+    },
+    "GUI": {
+    }
+}
