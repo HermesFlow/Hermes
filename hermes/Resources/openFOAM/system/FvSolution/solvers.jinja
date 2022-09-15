@@ -8,6 +8,8 @@
 {{PBiCG(fieldName,solverData,final)}}
 {%  elif solverData.solver =='GAMG'%}
 {{GAMG(fieldName,solverData,final)}}
+{%  elif solverData.solver =='diagonal'%}
+{{diagonal(fieldName,solverData,final)}}
 {%  else %}
     UNKNOWN Solver, must be PCG, PBiCG or GAMG. Got {{solverData.solver}}
 {% endif %}
@@ -60,5 +62,16 @@
     tolerance       {{solverData.tolerance}};
     relTol          {{solverData.relTol}};
 
+}
+{%- endmacro %}
+
+
+{#-###########################-#}
+{#-A marco for the PCG solver -#}
+{#-###########################-#}
+{%- macro diagonal(fieldName,solverData,final=False) -%}
+{{fieldName}}{%- if final %}Final{%- endif %}
+{
+    solver              diagonal;
 }
 {%- endmacro %}
