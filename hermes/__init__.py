@@ -71,7 +71,7 @@ import json
 
 import logging.config
 
-with open(os.path.join(os.path.dirname(__file__),'logging','hermesLogging.config'),'r') as logconfile:
+with open(os.path.join(os.path.dirname(__file__), 'hermesLogging', 'hermesLogging.config'), 'r') as logconfile:
      log_conf_str = logconfile.read().replace("\n","")
      log_conf = json.loads(log_conf_str.replace("{hermespath}",os.path.dirname(__file__)))
 
