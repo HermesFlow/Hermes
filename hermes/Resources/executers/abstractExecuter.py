@@ -42,7 +42,7 @@ Example executers:
 
 """
 import abc
-from ...logging.loggingObject import loggedObject
+from ...hermesLogging.loggingObject import loggedObject
 
 class abstractExecuter(loggedObject):
     """
