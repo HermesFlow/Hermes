@@ -398,7 +398,7 @@ class workflow:
                 raise FileExistsError(err)
 
         with open(filename,'w') as outputFile:
-            json.dump(self._workflowJSON,outputFile)  # write with the workflow node.
+            json.dump(self._workflowJSON,outputFile,indent=4)  # write with the workflow node.
 
 
     def getNodesParametersTable(self):
