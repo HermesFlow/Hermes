@@ -2,7 +2,7 @@ from ...executers.abstractExecuter import abstractExecuter
 import shutil
 import os, sys, stat
 
-class CopyFileExecuter(abstractExecuter):
+class CopyFile(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -14,12 +14,12 @@ class CopyFileExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-            if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
-                shutil.copy(inputs['Source'], inputs['Target']) # this will change to a flag like the other version.
-            else:
-                print("=============== empty ===============")
+        if (len(inputs["Source"]) > 0 and len(inputs["Target"]) > 0):
+            shutil.copy(inputs['Source'], inputs['Target']) # this will change to a flag like the other version.
+        else:
+            print("=============== empty ===============")
 
-            absSource = os.path.abspath(inputs["Source"])
-            absTarget = os.path.abspath(inputs["Target"])
+        absSource = os.path.abspath(inputs["Source"])
+        absTarget = os.path.abspath(inputs["Target"])
 
-            return dict(copyField="copyFile",Source =absSource,Target=absTarget)
+        return dict(copyField="copyFile",Source =absSource,Target=absTarget)

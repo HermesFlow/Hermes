@@ -31,33 +31,41 @@ solvers
 
 {{solverProperties.algorithm}}
 {
+    {% if 'residualControl' in solverProperties %}
     residualControl
     {
         {% for fieldName, factor in solverProperties.residualControl.items() -%}
         {{fieldName}}    {{factor}};
         {% endfor %}
     }
+    {% endif %}
 
-    {% for field,fieldValue in solverProperties.solverFields.items() -%}
-        {{field}} {{fieldValue}};
-    {% endfor %}
-
+    {% if 'solverFields' in solverProperties %}
+        {% for field,fieldValue in solverProperties.solverFields.items() -%}
+            {{field}} {{fieldValue}};
+        {% endfor %}
+    {% endif %}
 }
 
 relaxationFactors
 {
+    {% if 'fields' in relaxationFactors %}
     fields
     {
         {% for fieldName, factor in relaxationFactors.fields.items() -%}
         {{fieldName}} {{factor}};
         {% endfor %}
     }
+    {% endif %}
+
+    {% if 'equations' in relaxationFactors %}
     equations
     {
         {% for fieldName, factorData in relaxationFactors.equations.items() -%}
         {{fieldName}}   {{factorData}};
         {% endfor %}
     }
+    {% endif %}
 }
 
 // ************************************************************************* //
