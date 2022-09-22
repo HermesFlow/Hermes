@@ -1,6 +1,6 @@
 {
     "Execution": {
-        "type":"fileSystemExecuters.copyFile",
+        "type":"general.copyFile",
         "input_parameters": {
             "Source": "",
             "Target": ""

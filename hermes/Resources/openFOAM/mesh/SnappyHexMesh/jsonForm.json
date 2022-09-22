@@ -1,6 +1,6 @@
 {
   "Execution": {
-    "type": "openFOAM.meshExecuters.snappyHexMesh",
+    "type": "openFOAM.mesh.SnappyHexMesh",
     "input_parameters": {
       "modules": {
         "castellatedMesh": true,

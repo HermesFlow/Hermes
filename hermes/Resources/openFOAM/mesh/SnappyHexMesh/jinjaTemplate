@@ -13,7 +13,7 @@ FoamFile
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-{%- import "openFOAM/mesh/utils.jinja" as utils %}
+{%- import "openFOAM/utils.jinja" as utils %}
 
 castellatedMesh {{utils.toBool(modules.castellatedMesh)}};
 snap            {{utils.toBool(modules.snap)}};
@@ -45,7 +45,8 @@ geometry
     }
     {%- endfor %}
 
-    {%- for regionName,regionData in geometry.regions.items() %}
+    {% if 'gemeotricalEntities' in geometry %}
+    {%- for regionName,regionData in geometry.gemeotricalEntities.items() %}
         {{regionName}}
         {
             type {{regionData.type}}
@@ -54,6 +55,7 @@ geometry
             {%- endfor %}
         }
     {%- endfor %}
+    {%- endif %}
 };
 
 castellatedMeshControls
