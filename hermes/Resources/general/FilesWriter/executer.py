@@ -40,6 +40,11 @@ class FilesWriter(abstractExecuter):
                     if exc.errno != errno.EEXIST:
                         raise
 
+            print(groupName,type(fileContent))
+            if groupName == 'surfaceFeatures':
+                import pdb
+                pdb.set_trace()
+
             if isinstance(fileContent,dict):
                 outputFiles =[]
                 for filenameItr,fileContent in fileContent.items():

@@ -4,7 +4,6 @@ import json
 import jsonpath_rw_ext as jp
 import sys
 
-
 import hermes
 class utils(object):
 
@@ -136,7 +135,7 @@ class utils(object):
                     raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
             elif ispath:
                 try:
-                    value.append(str(self._evaluate_path(token, params)))
+                    value.append(self._evaluate_path(token, params))
                 except IndexError:
                     errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
                     print(errMsg)
