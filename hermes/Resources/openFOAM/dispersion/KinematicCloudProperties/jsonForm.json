@@ -1,0 +1,43 @@
+{
+  "Execution": {
+    "type": "openFOAM.dispersionExecuters.kinematicCloudProperties",
+    "input_parameters": {
+      "activeCloud": "true",
+      "stochasticTurbulenceModel": "Indoor",
+      "passiveTrace": true,
+      "injectors": {
+        "release": {
+          "type": "manualInjection",
+          "massTotal": 0.5,
+          "parcelBasisType": "mass",
+          "nParticle": 1,
+          "StartOfInjection": 0,
+          "positionsFile": "kinematicCloudPositions",
+          "U0": [
+            0,
+            0,
+            0
+          ],
+          "sizeDistribution": {
+            "type": "fixedValue",
+            "diameter": 0.006
+          }
+        }
+      },
+      "patchInteraction": {
+        "interactionType": "LocalInteraction",
+        "patches": {
+          "cwalls": {
+            "type": "rebound"
+          },
+          "inlet": {
+            "type": "escape"
+          },
+          "outlet": {
+            "type": "escape"
+          }
+        }
+      }
+    }
+  }
+}

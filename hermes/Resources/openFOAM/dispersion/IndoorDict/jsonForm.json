@@ -1,0 +1,7 @@
+{
+  "Template": "openFOAM.dispersion.models.indoor",
+  "Execution": {
+    "input_parameters": {
+    }
+  }
+}
