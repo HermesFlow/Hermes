@@ -1,0 +1,24 @@
+{
+  "Template": "openFOAM.dispersion.MakeFlowDispersion",
+  "Execution": {
+    "input_parameters": {
+      "baseFlow": {
+        "type": "directory",
+        "parameters": {
+          "name": "../flow/simpleStation"
+        },
+        "useTime": 50,
+        "maximalDispersionTime": 3600
+      },
+      "dispersionFields": {
+        "CellHeights": {}
+      },
+      "Hmix": {
+        "internalField": 1000
+      },
+      "ustar": {
+        "internalField": 0.1
+      }
+    }
+  }
+}

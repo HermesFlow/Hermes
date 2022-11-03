@@ -1,5 +1,5 @@
 from ..abstractDispersionExecuter import abstractDispersionExecuter
 
-class kinematicCloudProperties(abstractDispersionExecuter):
+class KinematicCloudProperties(abstractDispersionExecuter):
     def __init__(self,JSON):
-        super().__init__(JSON,"kinematicCloudProperties")
+        super().__init__(JSON,"KinematicCloudProperties")

@@ -1,7 +1,14 @@
 {
-  "Template": "openFOAM.dispersion.models.indoor",
+  "Template": "openFOAM.dispersion.IndoorDict",
   "Execution": {
     "input_parameters": {
+      "C0": 3,
+        "g" : 9.81,
+        "coriolisFactor" : 1e-4,
+        "zd" : 0.1,
+        "Qh":   100,
+        "T0" : 100,
+        "stable" : true
     }
   }
 }
