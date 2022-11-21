@@ -2,8 +2,7 @@
     "Execution": {
         "type":"openFOAM.constant.TurbulenceProperties",
         "input_parameters": {
-            "transportModel" : "Newtonian",
-            "nu" : 1e-5
+            "simulationType" : "laminar"
         }
     },
     "GUI": {
