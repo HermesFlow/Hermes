@@ -39,6 +39,7 @@ class FilesWriter(abstractExecuter):
                 except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
+
             if isinstance(fileContent,dict):
                 outputFiles =[]
                 for filenameItr,fileContent in fileContent.items():
