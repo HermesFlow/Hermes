@@ -43,7 +43,7 @@ regions
             {% for dataItem in regionData['fieldValues'] %}
                     {{valueByType(dataItem)}}
             {%- endfor %}
-        )
+        );
     }
     {%- endfor %}
 );

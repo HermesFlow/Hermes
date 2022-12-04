@@ -136,10 +136,12 @@ class workflow:
         :return:
         """
 
-        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow'])]
+        requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
+                #taskJSON = self._getTaskJSON(requirednode)
+                #if taskJSON is not None:
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
@@ -185,7 +187,7 @@ class workflow:
         return rootTaskName
 
     def _getTaskJSON(self, nodeName):
-        return self._workflowJSON["workflow"]["nodes"][nodeName]
+        return self._workflowJSON["workflow"]["nodes"].get(nodeName,None)
 
     def _createFinalNode(self):
         """
