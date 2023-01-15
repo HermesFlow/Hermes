@@ -100,10 +100,19 @@ setup_docker() {
     fi
         
     res=0
-    docker_image="registry.gitlab.com/daviddaish/freecad_docker_env@$DOCKER_IMAGE_DIGEST"
+    docker_image="registry.gitlab.com/daviddaish/freecad_docker_env"
+    if [[ "x$DOCKER_IMAGE_DIGEST" != "x" ]]; then
+        docker_image="$docker_image""@""$DOCKER_IMAGE_DIGEST"
+    else
+        DOCKER_IMAGE_DIGEST=":latest"
+        docker_image="$docker_image"":""$DOCKER_IMAGE_DIGEST"
+    fi
     echo "Will try to pull docker image $docker_image"
-    docker pull $docker_image  || ( echo "Docker image pull failed"  ; res=1)
-
+    echo docker pull $docker_image 
+    docker pull $docker_image  || res=1
+    if [ $res -eq  1 ];  then
+        echo "Docker image pull failed"
+    fi
     return $res
     }
 
@@ -111,7 +120,7 @@ setup_docker() {
 setup_docker_launch() {
     res=0
     for dockerscript in freecad.sh freecad_dev.sh freecad_dev_compile.sh; do
-        cat "$DESTINATION_FULL/Hermes_git/freecad_build_files/$dockerscript"   | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" > "$DESTINATION_FULL/$dockerscript" || res=1
+        cat "$DESTINATION_FULL/Hermes_git/freecad_build_files/$dockerscript"   | sed "s/:latest/@$DOCKER_IMAGE_DIGEST/1" | sed "s/@:/:/g" > "$DESTINATION_FULL/$dockerscript" || res=1
         if [ ! $res -eq 0 ]; then
             echo "Docker launch script \"$dockerscript\" creation failed"
             return $res
@@ -262,7 +271,8 @@ setup_python() {
 FREECAD_SOURCE_HASH="0.18-1194-g5a352ea639"
 FREECAD_SOURCE_PATCH="freecad_5a352ea63_git.diff"
 DOCKER_IMAGE_ID=ee7e3ecee4ca
-DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
+#DOCKER_IMAGE_DIGEST="sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0"
+DOCKER_IMAGE_DIGEST=
 HERMES_BRANCH=master
 HERMES_REPO="HermesFlow/Hermes"
 # Process the options
@@ -302,7 +312,6 @@ DOCKER_DEV_COMPILE="$DESTINATION_FULL/freecad_dev_compile.sh"
 
 git_pull "$HERMES_REPO" Hermes_git || myexit
 
-
 check_docker || myexit
 setup_docker || myexit
 setup_docker_launch || myexit
@@ -311,6 +320,7 @@ setup_mod_hermes || myexit
 setup_python || myexit
 
 "$DOCKER_DEV_COMPILE"
+
 
 
 
