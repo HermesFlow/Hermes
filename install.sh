@@ -105,7 +105,7 @@ setup_docker() {
         docker_image="$docker_image""@""$DOCKER_IMAGE_DIGEST"
     else
         DOCKER_IMAGE_DIGEST=":latest"
-        docker_image="$docker_image"":""$DOCKER_IMAGE_DIGEST"
+        docker_image="$docker_image$DOCKER_IMAGE_DIGEST"
     fi
     echo "Will try to pull docker image $docker_image"
     echo docker pull $docker_image 
