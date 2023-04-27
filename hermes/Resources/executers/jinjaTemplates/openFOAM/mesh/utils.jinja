@@ -1,7 +1,0 @@
-{%- macro toPoint(vertices) -%}
-  ({%- for coord in vertices %} {{ coord }} {%- endfor %})
-{%- endmacro %}
-
-{%- macro toBool(var) -%}
-  {%- if var%}true{%- else%}false{%endif%}
-{%- endmacro %}
