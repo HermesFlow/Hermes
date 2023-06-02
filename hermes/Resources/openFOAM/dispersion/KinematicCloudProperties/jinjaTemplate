@@ -16,8 +16,8 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-{%- import 'openFOAM/dispersion/injectorModels.jinja' as injection %}
-{%- import 'openFOAM/dispersion/patchInteractionModels.jinja' as interaction %}
+{%- import 'openFOAM/dispersion/KinematicCloudProperties/injectorModels.jinja' as injection %}
+{%- import 'openFOAM/dispersion/KinematicCloudProperties/patchInteractionModels.jinja' as interaction %}
 
 solution
 {

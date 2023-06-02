@@ -5,8 +5,6 @@ import pathlib
 import shutil
 
 
-
-
 def handler_expand(arguments):
     exapnder = expandWorkflow()
 
@@ -64,7 +62,10 @@ def handler_execute(arguments):
         shutil.rmtree(executionfileDir, ignore_errors=True)
 
 
+
     os.system(executionStr)
+
+
     #os.chdir(cwd)
 
 
