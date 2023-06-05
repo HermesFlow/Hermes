@@ -71,7 +71,6 @@ __version__=(3,1,0)
 
 from .workflow.workflow import workflow
 from .taskwrapper import hermesTaskWrapper
-from .Resources.nodeTemplates.templateCenter import templateCenter
 from .workflow.expandWorkflow import expandWorkflow
 from .Resources.executers.executerHome import executerHome
 import os
