@@ -1,6 +1,14 @@
-__version__=(3,0,0)
+__version__=(3,1,0)
 
 """
+
+  Version 3.1.0
+  -------------
+
+    - Adding the build RunAll nodes. 
+
+    - Adding the workflow type to the workflow (#85). 
+
   Version 3.0.0
   -------------
      
