@@ -67,8 +67,6 @@ __version__=(3,1,0)
            
 
 """
-
-
 from .workflow.workflow import workflow
 from .taskwrapper import hermesTaskWrapper
 from .workflow.expandWorkflow import expandWorkflow
