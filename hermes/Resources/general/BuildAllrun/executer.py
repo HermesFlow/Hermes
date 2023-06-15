@@ -16,7 +16,7 @@ class BuildAllrun(abstractExecuter):
     def run(self, **inputs):
         path = inputs["casePath"]
         self.buildCaseExecutionScript(caseDirectory=path,
-                                      execConfiguration=inputs['caseExecution'])
+                                      execConfiguration=inputs)
 
         return dict(buildAllRun="buildAllrun")
 
@@ -61,6 +61,7 @@ class BuildAllrun(abstractExecuter):
 
 
         """
+
         isSlurm   = execConfiguration.get('slurm',False)
         isParallel = execConfiguration['parallelCase']
 

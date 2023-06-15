@@ -46,6 +46,7 @@ class utils(object):
                     [Exp path]  = <workflow|input|output|value|parameters|input_parameters|WebGUI|Properties|WebGui|>.[Exp path]
                     [Node Path] = <node name>.[Exp path|node path]
 
+        If the path is empty return {}
 
         :param parampath:
             The path of the parameter
@@ -55,12 +56,13 @@ class utils(object):
         :return:
             The value of the parameter, str
         """
+        if len(parampath) == 0:
+            return '{}'
         path_tokens = parampath.split(".")
         func_name = path_tokens[0] if path_tokens[0] in ["WebGUI","parameters","workflow","input_parameters","output","Properties","WebGui","value"] else "node"
         func = getattr(self, "_handle_%s" % func_name)
-
         if len(path_tokens[1:]) == 0:
-            raise ValueError("Some error with path: %s " % parampath)
+            raise ValueError(f"_evaluate_path: Some error with path: <{parampath}>")
         #retval = func(".".join(path_tokens[1:]), params.get(path_tokens[0],{}))
         retval = func(path_tokens, params)
         #print("%s-->%s == %s" % (func_name, path_tokens[1:],retval))
