@@ -29,7 +29,7 @@ from hermes.workflow.expandWorkflow import expandWorkflow
 # ###################### Temporary hack while the hermes is not in the pythonpath
 # sys.path.append("/mnt/build")
 # ######################
-# from hermes.Resources.nodeTemplates.templateCenter import templateCenter
+# from hermes.Resources.nodeTemplates.old.templateCenter import templateCenter
 
 # =============================================================================
 #     "makeHermesWorkflow" class

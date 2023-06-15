@@ -24,8 +24,11 @@ class workflow:
         An example for the workflow JSON is:
         {
             "workflow" : {
-                    root : "node3",
-
+                    "root": null,
+                    "SolvedFields": "p U k epsilon nut",
+                    "AuxFields": "",
+                    "Templates": [],
+                    "nodeList": : "node3",
                     nodes: {
                         "baseParameters" : {
                             "typeExecution" : "parameters",
@@ -434,6 +437,10 @@ class workflow:
             retdict[node] = hermesNode.parameters
 
         return retdict
+
+    @property
+    def workflowType(self):
+        return self.workflowJSON['workflowType']
 
 class hermesNode:
     """

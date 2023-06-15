@@ -5,7 +5,7 @@
     Note:
         Check if we want to use jsonpath.
 """
-# from ..Resources.nodeTemplates.templateCenter import templateCenter
+# from ..Resources.nodeTemplates.old.templateCenter import templateCenter
 from ..Resources.reTemplateCenter import templateCenter
 import json
 import os
@@ -322,7 +322,7 @@ class expandWorkflow:
         # sys.path.insert(1, HermesDirpath)
         #
         # # get and initial class _templateCenter
-        # from hermes.Resources.nodeTemplates.templateCenter import templateCenter
+        # from hermes.Resources.nodeTemplates.old.templateCenter import templateCenter
 
         paths = None
         self._templateCenter = templateCenter(paths)
