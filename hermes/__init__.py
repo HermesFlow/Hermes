@@ -5,8 +5,8 @@ __version__=(3,2,0)
     - Removed  hera-metadata
     - The empty parameter string '{}' in a parameter path is interpreted as {}.
       This is important for the shell scripts. 
-    -  Fixed the all run execution.  
-       
+    - Fixed the all run execution.  
+    - Added an optional name attribute to the workflow         
 
   Version 3.1.0
   -------------

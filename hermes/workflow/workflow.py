@@ -86,17 +86,19 @@ class workflow:
     def taskRepresentations(self):
         return self._taskRepresentations
 
-    def __init__(self, workflowJSON,WD_path=None,Resources_path=""):
+    def __init__(self, workflowJSON,WD_path=None,Resources_path="",name=None):
         """
                 Initiates the hermes workflow.
 
-        :param workflowJSON:
-                a json of the workflow.
+        Parameters
+        ----------
+        workflowJSON
+        WD_path
+        Resources_path
+        name : str,Optional
+            The name of the workflow
 
         """
-        # import FreeCAD
-        # FreeCAD.Console.PrintMessage("here:")
-        # FreeCAD.Console.PrintMessage(workflowJSON)
 
         if (loadedMongo):
             # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
@@ -115,6 +117,7 @@ class workflow:
             workflowJSON = json.load(workflowJSON)
 
 
+        self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
 
