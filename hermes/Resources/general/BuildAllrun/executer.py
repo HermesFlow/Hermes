@@ -107,7 +107,7 @@ class BuildAllrun(abstractExecuter):
     # Source tutorial clean functions
     . $WM_PROJECT_DIR/bin/tools/CleanFunctions
     
-    cp 0.parallel/* 0
+    cp 0.orig/* 0
     cleanCase
         """
         allcleanFile = os.path.join(caseDirectory,"Allclean")
