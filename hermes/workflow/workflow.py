@@ -3,12 +3,11 @@ import os
 import json
 from itertools import product
 import pandas.io.json
-from hermes.taskwrapper import hermes_task_wrapper_home
-from hermes.taskwrapper import hermesTaskWrapper
-from hermes.engines import builders
-from hermes.taskwrapper import hermesTaskWrapper
-from hermes.workflow.expandWorkflow import expandWorkflow
 
+from ..taskwrapper import hermes_task_wrapper_home,hermesTaskWrapper
+from ..engines import builders
+from .expandWorkflow import expandWorkflow
+from ..utils.jsonutils import loadJSON
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -107,15 +106,7 @@ class workflow:
             if isinstance(workflowJSON,mongoDataStructures.BaseDict):
                 workflowJSON = json.loads(json.dumps(workflowJSON))
 
-        if isinstance(workflowJSON,str):
-            if os.path.exists(workflowJSON):
-                with open(workflowJSON,"r") as infile:
-                    workflowJSON = json.load(infile)
-            else:
-                    workflowJSON = json.loads(workflowJSON)
-        elif isinstance(workflowJSON,TextIOWrapper):
-            workflowJSON = json.load(workflowJSON)
-
+        workflowJSON = loadJSON(workflowJSON)
 
         self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
