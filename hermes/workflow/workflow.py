@@ -436,6 +436,44 @@ class workflow:
     def workflowType(self):
         return self.workflowJSON['workflowType']
 
+    def write(self,workflowName=None,directory=None):
+        """
+            Writing the workflow to the disk
+
+            use  workflowName if supplied, else use the name of the workflow
+            if the name is not set and the workflowName is not supplied - raise error.
+
+        Parameters
+        ----------
+        workflowName : str
+            optional file name
+
+        directory : str
+            optional directory location, else writes to current directory.
+
+        Returns
+        -------
+
+        """
+        if workflowName is None and self.name is None:
+            raise ValueError("Must supply file name")
+
+        if workflowName is not None:
+            if 'json' not in workflowName:
+                outFileName = workflowName /".json"
+        else:
+            outFileName = self.name/".json"
+
+        if directory is not None:
+            outFileName = os.path.join(directory,outFileName)
+
+        with open(outFileName,'w') as writeFile:
+            json.dump(self.workflowJSON,writeFile,indent=4)
+
+
+
+
+
 class hermesNode:
     """
         An interface to the JSON of an hermes workflow.

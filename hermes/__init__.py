@@ -2,6 +2,7 @@ __version__=(3,2,0)
 
 """
 
+    - Added 'write' capability to the hermes workflow
     - Removed  hera-metadata
     - The empty parameter string '{}' in a parameter path is interpreted as {}.
       This is important for the shell scripts. 
