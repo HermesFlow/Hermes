@@ -3,37 +3,37 @@ import json
 import os
 import pathlib
 import shutil
-
+import logging
+from ..utils.jsonutils import loadJSON
 
 def handler_expand(arguments):
+    logger = logging.getLogger("hermes.bin.expand")
+    logger.info("---------- Start ---------")
+
     exapnder = expandWorkflow()
 
     templateFileName = f"{arguments.workflow.split('.')[0]}.json"
     expandedWorkflow = f"{arguments.caseName.split('.')[0]}.json"
-    newTemplate = exapnder.expand(templateJSON=templateFileName)
 
+    logger.execution(f"Expanding {templateFileName} to {expandedWorkflow}")
+    newTemplate = exapnder.expandBatch(templateJSON=templateFileName)
+
+    logger.execution(f"Writing the expanded workflow to {expandedWorkflow}")
     with open(expandedWorkflow, 'w') as fp:
         json.dump(newTemplate, fp,indent=4)
+
+    logger.info("---------- End ---------")
 
 def handler_build(arguments):
-    exapnder = expandWorkflow()
+    logger = logging.getLogger("hermes.bin.build")
+    logger.info("---------- Start ---------")
+    handler_expand(arguments)
 
-    templateFile = f"{arguments.workflow.split('.')[0]}.json"
+    templateFileName = f"{arguments.workflow.split('.')[0]}.json"
+    newTemplate = loadJSON(templateFileName)
     newWorkflow = f"{arguments.caseName.split('.')[0]}.py"
 
-    expandedWorkflow = f"{newWorkflow.split('.')[0]}.json"
-
-    parametersPath = dict()
-    if arguments.parameters is not None:
-        with open(arguments.parameters) as paramfile:
-            parametersPath = json.load(paramfile)
-
-    newTemplate = exapnder.expand(templateJSON=templateFile, parameters=parametersPath)
-    with open(expandedWorkflow, 'w') as fp:
-        json.dump(newTemplate, fp,indent=4)
-
     WDPath = os.getcwd()
-
     builder = "luigi"
     flow = workflow(newTemplate, WDPath)
     build = flow.build(builder)
@@ -61,8 +61,6 @@ def handler_execute(arguments):
         executionfileDir = f"{arguments.caseName.split('.')[0]}_targetFiles"
         shutil.rmtree(executionfileDir, ignore_errors=True)
 
-
-
     os.system(executionStr)
 
 
@@ -70,7 +68,8 @@ def handler_execute(arguments):
 
 
 def handler_buildExecute(arguments):
-
+    logger = logging.getLogger("hermes.bin")
+    logger.info("---------- Start ---------")
     arguments.caseName = arguments.workflow
 
     if not arguments.force:
@@ -84,15 +83,20 @@ def handler_buildExecute(arguments):
             print(f"Python execution file {newWorkflow} exists. Delete or run with --force flag.")
             exit()
 
-
+    logger.execution(f"Expanding the workflow with arguments {arguments}")
     handler_expand(arguments)
     arguments.workflow = arguments.caseName
     arguments.parameters = None
+    logger.execution(f"building the workflow with arguments {arguments}")
     handler_build(arguments)
 
     if arguments.force:
+
         # delete the run files if exist.
         executionfileDir = f"{arguments.caseName.split('.')[0]}_targetFiles"
+        logger.execution(f"Got remove, tree, deleting {executionfileDir}")
         shutil.rmtree(executionfileDir, ignore_errors=True)
 
+    logger.execution("Executing the workflow")
     handler_execute(arguments)
+    logger.info("----------- End ----------")

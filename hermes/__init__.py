@@ -1,5 +1,10 @@
 __version__=(3,2,0)
 
+# Have some initial default logging configuration in case the user hasn't set any
+from .utils.logging.helpers import initialize_logging
+initialize_logging(disable_existing_loggers=False)
+
+
 """
 
     - Added 'write' capability to the hermes workflow

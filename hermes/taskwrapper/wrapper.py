@@ -162,7 +162,7 @@ t
 
     @property
     def taskType(self):
-        return self._taskJSON['Execution']['type']
+        return self._taskJSON['type']
 
 
     @property

@@ -62,7 +62,10 @@ relaxationFactors
     equations
     {
         {% for fieldName, factorData in relaxationFactors.equations.items() -%}
-        {{fieldName}}   {{factorData}};
+        {{fieldName}}   {{factorData['factor']}};
+         {%if 'final' in factorData%}
+          {{fieldName}}final   {{factorData['final']}};
+          {%endif%}
         {% endfor %}
     }
     {% endif %}

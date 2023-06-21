@@ -3,14 +3,8 @@
     "type": "openFOAM.system.ChangeDictionary",
     "input_parameters": {
       "fields" : {
-        "fieldName": {
-            "patchName": {
-                 "type" : "x",
-                "param1": "p1"
-            }
         }
       }
-    }
   },
   "GUI": {
     "Type": "HermesNode.WebGuiNode",

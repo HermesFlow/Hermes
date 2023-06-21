@@ -2,7 +2,6 @@
   "Execution": {
     "type": "openFOAM.system.ControlDict",
     "input_parameters": {
-
     }
   },
   "GUI": {

@@ -10,7 +10,9 @@ from ..Resources.reTemplateCenter import templateCenter
 import json
 import os
 import collections.abc
-
+from ..utils.jsonutils import loadJSON
+import hermes.utils.logging.helpers as hera_logging
+from importlib.resources import read_text
 # import FreeCAD
 
 
@@ -30,12 +32,12 @@ class expandWorkflow:
 
     @property
     def templateCenter(self):
-        return self._templateCenter
+        return self._templateCenter 
 
     def __init__(self):
-        self.getFromTemplate = "Template"
-        self.importJsonfromfile = "importJsonfromfile"
-
+        self.TEMPLATE = "Template"
+        self.IMPORTJSONFROMFILE = "importJsonfromfile"
+        self.logger = hera_logging.get_logger(self)
         paths = None
         self._templateCenter = templateCenter(paths)
 
@@ -44,9 +46,18 @@ class expandWorkflow:
         self.WD_path = ""
 
     def expandBatch(self, templateJSON, parameters={}):
-        '''
+        """
         Expamd workflow and remove the GUI part
-        '''
+        Parameters
+        ----------
+        templateJSON
+        parameters
+
+        Returns
+        -------
+
+        """
+
         JsonObjectBatch = self.expand(templateJSON,parameters)
         for nodeKey, nodeVal in JsonObjectBatch["workflow"]["nodes"].items():
             if "GUI" in nodeVal.keys():
@@ -75,358 +86,25 @@ class expandWorkflow:
         --------
             Dict.
         """
-        if isinstance(templateJSON,str):
-            if os.path.exists(templateJSON):
-                try:
-                    with open(templateJSON, 'r') as myfile:
-                        JsonObjectfromFile  = json.load(myfile)
+        self.logger.info("---------------- Start ------------")
+        self.logger.debug(f"Got templateJSON : {templateJSON}")
+        JsonObjectfromFile = loadJSON(templateJSON)
+        nodeList = JsonObjectfromFile["workflow"]["nodeList"]
+        nodes = JsonObjectfromFile["workflow"]["nodes"]
 
-                except json.decoder.JSONDecodeError as e:
-                    raise e
-                except Exception:  # if error detected to write
-                    try:
-                        # FreeCAD message
-                        import FreeCAD
-                        FreeCAD.Console.PrintError("Could not Load the JSON file, check its structure\n")
-                    except ImportError:
-                        pass
+        for nodeName,nodeData in nodes.items():
+            self.logger.execution(f"Processing node {nodeName}")
+            if nodeName in nodeList:
+                self.logger.debug(f"Node {nodeName} in the list")
+                fullNodeData = dict(self._templateCenter[nodeData['type']])
+                self.updateMap(fullNodeData,nodeData)
 
-                    # python message
-                    print("Could not Load the JSON file, check its structure\n")
-
-                    return None
+                JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
             else:
-                JsonObjectfromFile = json.loads(templateJSON)
-
-            # define the current working directory - where the json file has been uploaded
-            self.cwd = os.path.dirname(templateJSON)
-        else:
-            JsonObjectfromFile = templateJSON
-
-            # define the current working directory as the current directory.
-            self.cwd = os.getcwd()
-
-
-        # Create JsonObject will contain all the imported date from file/template
-        JsonObject = JsonObjectfromFile.copy()
-        workflow = JsonObject["workflow"]
-
-        # get the List of nodes , and the 'nodes' from jsonObject
-        nodeList = workflow["nodeList"]
-        nodes = workflow["nodes"]
-        new_nodes = {}
-
-        # Loop the node List, and import external data
-        for node in nodeList:
-
-            # check if the node from list is in the dictionary list
-            if node in nodes:
-                templatepath = ""
-
-                # get the current node
-                currentNode = nodes[node]
-
-                if self.getFromTemplate in currentNode.keys():
-                    templatepath = currentNode[self.getFromTemplate]
-
-                # update the data in the nodes from file/templates to concrete data
-                openCurrentNode = self.getImportedJson(currentNode)
-
-                updatedCurrentNode = dict()
-                if len(templatepath) > 0:
-                    updatedCurrentNode[self.getFromTemplate] = templatepath
-
-                for key, val in openCurrentNode.items():
-                    updatedCurrentNode[key] = val
-
-                # add the data into 'new_nodes'updatedCurrentNode
-                new_nodes[node] = updatedCurrentNode
-
-        # update the data in JsonObject to be the new dictionary new_nodes
-        workflow["nodes"] = new_nodes
-        JsonObject["workflow"] = workflow
-
-        ret = self.updateMap(JsonObject,parameters)
-
-        return ret
-
-    def getImportedJson(self, jsonObjStruct):
-
-        # check if jsonObjStruct is a dictionary
-        if type(jsonObjStruct) is not dict:
-            return
-
-        # insert the current jsonStruct to the UpdateJson that will be return after modify
-        UpdatedJsonStruct = {}
-
-        # to know if it is the first iteration
-        i = 0
-
-        # loop all the keys,values
-        for subStructKey, subtructVal in jsonObjStruct.items():
-
-            # zero open data vars
-            openKeyData = {}
-            openImportData = {}
-
-            # in case import data from <file>
-            if subStructKey == self.importJsonfromfile:
-
-                # check if there are list of files that need to be imported, or just 1:
-                # list- saved as a dictionary
-                # 1 file - saved as keys and values
-                # *if*- check if the first value is a dict
-                if type(list(subtructVal.values())[0]) is dict:
-
-                    for fileKey, fileVal in subtructVal.items():
-                        # call the function that open data
-                        openImportData = self.importJsonDataFromFile(fileVal)
-
-                        if i > 0:
-                            # not the first iteration -> overide the data
-                            UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-                        else:
-                            # first iteration -> define the UpdatedJsonStruct as the open data
-                            UpdatedJsonStruct = openImportData.copy()
-
-                        i = i + 1
-                else:
-
-                    # call the function that open data
-                    openImportData = self.importJsonDataFromFile(subtructVal)
-
-                    if i > 0:
-                        # not the first iteration -> overide the data
-                        UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-
-                    else:
-                        # first iteration -> define the UpdatedJsonStruct as the open data
-                        UpdatedJsonStruct = openImportData.copy()
-
-
-            # in case import data from <Template>
-            elif subStructKey == self.getFromTemplate:
-
-                # call the function that open data
-                openImportData = self.importJsonDataFromTemplate(subtructVal)
-
-                if i > 0:
-                    # not the first iteration -> overide the data
-                    UpdatedJsonStruct = self.overidaDataFunc(openImportData, UpdatedJsonStruct)
-                else:
-                    # first iteration -> define the UpdatedJsonStruct as the open data
-                    UpdatedJsonStruct = openImportData.copy()
-
-            # No imported data from path or Template
-            else:
-
-                # check if the json substruct is list(in case its items are objects)
-                if type(subtructVal) is list:
-
-                    # create an identaty list , that will be updated
-                    UpdatedJsonList = subtructVal.copy()
-
-                    # loop all the list items
-                    for ind in range(len(subtructVal)):
-
-                        # check each item if its type is a dictionary -
-                        if type(subtructVal[ind]) is dict:
-                            # call 'getImportedJson' in case there are nested files that need to be imported
-                            UpdatedListItem = self.getImportedJson(subtructVal[ind])
-
-                            # update the updateItem in the main Updated json List
-                            UpdatedJsonList[ind] = UpdatedListItem
-
-                    # update the list in the json structure
-                    UpdatedJsonStruct[subStructKey] = UpdatedJsonList
-
-
-
-                # dont apply on values that are not dict - (str/int/double etc.)
-                elif type(subtructVal) is dict:
-
-
-                    # call 'getImportedJson' in case there are nested files that need to be imported
-                    openKeyData = self.getImportedJson(subtructVal)
-
-                    if subStructKey in UpdatedJsonStruct:
-                        # not the first iteration -> overide the data
-                        UpdatedJsonStruct[subStructKey] = self.overidaDataFunc(openKeyData,
-                                                                               UpdatedJsonStruct[subStructKey])
-
-                    else:
-                        # first iteration -> define the UpdatedJsonStruct as the open data
-                        UpdatedJsonStruct[subStructKey] = openKeyData.copy()
-
-                # any other type-
-                #   =if exist - update the dat
-                #   =no exist - add it to the structure
-                else:
-                    UpdatedJsonStruct[subStructKey] = jsonObjStruct[subStructKey]
-
-            i = i + 1
-
-        return UpdatedJsonStruct
-
-    def overidaDataFunc(self, overideData, UpdatedJsonStruct):
-
-        # loop all the overide data
-
-        for dataKey, dataVal in overideData.items():
-
-            # check for each key, if exsist in UpdatedJsonStruct
-            if dataKey in UpdatedJsonStruct:
-                # type is dictionary
-                if type(dataVal) is dict:
-
-                    # check if 'dataKey' in the structure is empty
-                    if len(UpdatedJsonStruct[dataKey]) == 0:
-
-                        # take all the data in dataVal and insert to 'dataKey' place in the structure
-                        UpdatedJsonStruct[dataKey] = dataVal
-
-                    else:
-                        # recursion of override on the dict
-                        if isinstance(UpdatedJsonStruct[dataKey],dict):
-                            UpdatedJsonStruct[dataKey] = self.overidaDataFunc(dataVal, UpdatedJsonStruct[dataKey])
-                        else:
-                            UpdatedJsonStruct[dataKey] = dataVal
-
-                # type is any other data type.
-                else:
-                    UpdatedJsonStruct[dataKey] = dataVal
-
-            # dataKey not exist in UpdatedJsonStruct
-            else:
-                # add to the dictionary
-                UpdatedJsonStruct[dataKey] = dataVal
-
-        # remove self.getFromTemplate and self.importJsonfromfile from UpdatedJsonStruct
-        if self.getFromTemplate in UpdatedJsonStruct:
-            UpdatedJsonStruct.pop(self.getFromTemplate)
-        if self.importJsonfromfile in UpdatedJsonStruct:
-            UpdatedJsonStruct.pop(self.importJsonfromfile)
-
-        return UpdatedJsonStruct
-
-
-    def importJsonDataFromTemplate(self, importTemplate):
-
-        UpdatedJsonStruct = {}
-
-        # # get the Hermes path
-        # HermesDirpath = os.getenv('HERMES_2_PATH')
-        # import sys
-        # # insert the path to sys
-        # # insert at 1, 0 is the script path (or '' in REPL)
-        # sys.path.insert(1, HermesDirpath)
-        #
-        # # get and initial class _templateCenter
-        # from hermes.Resources.nodeTemplates.old.templateCenter import templateCenter
-
-        paths = None
-        self._templateCenter = templateCenter(paths)
-
-
-        # get template data
-        UpdatedJsonStruct = self._templateCenter.getTemplate(importTemplate)
-
-
-
-        # call 'getImportedJson' in case there are nested files that need to be imported
-        UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
-
-        return UpdatedJsonStruct
-
-    def importJsonDataFromFile(self, importFileData):
-        # ----Step 1 : Remember Current Directory----
-
-        # define current directory - saved during the recursion
-        current_dir = self.cwd
-        # update the current work directory
-        os.chdir(current_dir)
-        # ----------------------------------------------------
-
-        # get the path of the file
-        pathFile = importFileData["path"]
-
-        # update 'pathFile' to full path- absolute
-        pathFile = os.path.abspath(pathFile)
-
-        # check if there is only a specific field that need to be imported from file
-        if "field" in importFileData:
-
-            # empty var
-            UpdatedJsonStruct = {}
-
-            # loop all 'field' list
-            for entry in importFileData["field"]:
-                # todo - till now only field been taken were dictionaries ,
-                #       check possbility of taking ecnries that are not dict-
-                #       take the data, create dict struct="key:value", and inject it
-
-                # get the entry data from the file
-                entryData = self.loadJsonFromfile(pathFile, entry)
-
-                # add to the UpdatedJsonStruct
-                UpdatedJsonStruct.update(entryData)
-
-                # ----Step 2 : Change CWD to pathFile Directory----
-
-                # get the current full path of the directory's file
-                dirname = os.path.dirname(pathFile)
-
-                # update the current work directory at 'os' and at 'cwd' var
-                os.chdir(dirname)
-                self.cwd = dirname
-                # ----------------------------------------------------
-
-                # call 'getImportedJson' in case there are nested files that need to be imported
-                UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
-
-        else:
-
-            # load and recieve the json object from file
-            UpdatedJsonStruct = self.loadJsonFromfile(pathFile)
-
-            # ----Step 2 : Change CWD to pathFile Directory----
-
-            # get the current full path of the directory's file
-            dirname = os.path.dirname(pathFile)
-
-            # update the current work directory at 'os' and at 'cwd' var
-            os.chdir(dirname)
-            self.cwd = dirname
-            # ----------------------------------------------------
-
-            # call 'getImportedJson' in case there are nested files that need to be imported
-            UpdatedJsonStruct = self.getImportedJson(UpdatedJsonStruct)
-
-            # ---Step 3: Return to previous working directory---
-
-        # update the current work directory at 'os' and at 'cwd' var
-        os.chdir(current_dir)
-        self.cwd = dirname = current_dir
-        # ----------------------------------------------------
-
-        return UpdatedJsonStruct
-
-
-
-    def loadJsonFromfile(self, filePath, entryInFile=""):
-
-        # Open JsonFile & Read
-        with open(filePath, 'r') as myfile:
-            dataParsed = json.load(myfile)
-
-
-        # No split the 'entryInFile' and get the data from that path
-        if (len(entryInFile) == 0):
-            return dataParsed
-
-        # split the
-        splitEntryList = entryInFile.split(".")
-        for entry in splitEntryList:
-            dataParsed = dataParsed[entry]
-
-        return dataParsed
+                err = f"The {nodeName} exists in node list but is not specified in nodes. Abort! "
+                self.logger.err(err)
+                raise ValueError(err)
+
+        self.logger.debug(json.dumps(JsonObjectfromFile,indent=4))
+        self.logger.info("--------------- End --------------")
+        return JsonObjectfromFile

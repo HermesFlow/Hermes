@@ -8,6 +8,7 @@ from ..taskwrapper import hermes_task_wrapper_home,hermesTaskWrapper
 from ..engines import builders
 from .expandWorkflow import expandWorkflow
 from ..utils.jsonutils import loadJSON
+from ..utils.logging import helpers as hermes_logging
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -111,10 +112,11 @@ class workflow:
         self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
-
+        self.logger = hermes_logging.get_logger(self)
         workflowJSON = expandWorkflow().expand(workflowJSON)
         self._workflowJSON = workflowJSON
         self._hermes_task_wrapper_home = hermes_task_wrapper_home
+
         self._buildNetwork()
 
     def _buildNetworkRepresentations(self, taskname, taskJSON):
@@ -132,13 +134,18 @@ class workflow:
             The JSON that represents
         :return:
         """
+        self.logger.execution(f"Building {taskname}")
+        if taskJSON is None:
+            raise ModuleNotFoundError(f"Node {taskname} is not found")
 
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
+        self.logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
                 #if taskJSON is not None:
+
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
@@ -168,6 +175,7 @@ class workflow:
         # print(root_task)
         # print("--------------------------")
 
+        self.logger.debug(f"Building network for\n {json.dumps(self._workflowJSON)}")
         self._buildNetworkRepresentations(root_task_name, root_task)
 
 
@@ -205,7 +213,8 @@ class workflow:
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(type="general.Parameters",
+                         type="general.Parameters",
+                         Execution=dict(
                                         input_parameters={},
                                         requires=[x for x in self._workflowJSON["workflow"]["nodes"]]),
 
