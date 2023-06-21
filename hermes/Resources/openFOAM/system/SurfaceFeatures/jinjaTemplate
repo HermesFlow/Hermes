@@ -15,6 +15,30 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+{% if OFversion == 'of2212' %}
+
+{{geometryData.objectName}}.{{geometryData.objectType}}
+{
+
+    extractionMethod    extractFromSurface;
+
+    // Identify a feature when angle between faces < includedAngle
+    includedAngle       {{includeAngle}};
+
+    subsetFeatures
+    {
+        // Keep nonManifold edges (edges with >2 connected faces)
+        nonManifoldEdges       {% if nonManifoldEdges %}no{%else%}yes{%endif%};
+
+        // Keep open edges (edges with 1 connected face)
+        openEdges       {% if openEdges %}no{%else%}yes{%endif%};
+    }
+    // Write features to obj format for postprocessing
+    writeObj            yes;
+
+}
+{% else %}
+
 surfaces ("{{geometryData.objectName}}.{{geometryData.objectType}}");
 
 // Identify a feature when angle between faces < includedAngle
@@ -28,5 +52,5 @@ subsetFeatures
     // Keep open edges (edges with 1 connected face)
     openEdges       {% if openEdges %}no{%else%}yes{%endif%};
 }
-
+{% endif %}
 // ************************************************************************* //
