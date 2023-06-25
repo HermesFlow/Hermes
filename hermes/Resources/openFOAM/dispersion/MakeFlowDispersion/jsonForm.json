@@ -1,5 +1,4 @@
 {
-  "Template": "openFOAM.dispersion.MakeFlowDispersion",
   "Execution": {
     "input_parameters": {
       "baseFlow": {

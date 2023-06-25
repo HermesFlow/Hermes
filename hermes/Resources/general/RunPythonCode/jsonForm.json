@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type": "pythonExecuters.python",
         "input_parameters": {
             "ModulePath": "",
             "ClassName": "",

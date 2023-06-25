@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.dispersionExecuters.kinematicCloudProperties",
     "input_parameters": {
       "activeCloud": "true",
       "stochasticTurbulenceModel": "Indoor",

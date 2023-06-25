@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.system.ChangeDictionary",
     "input_parameters": {
       "fields" : {
         }

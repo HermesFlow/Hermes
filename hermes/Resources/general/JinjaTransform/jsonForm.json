@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type":"jinjaExecuters.jinja",
         "input_parameters": {
             "template": "{Properties.TemplateName.current_val}",
             "path" : [],

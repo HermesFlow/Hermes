@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type": "general.RunOsCommand",
         "input_parameters": {
             "Method": "Commands list",
             "Command": ""

@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type": "openFOAM.mesh.BlockMesh",
         "input_parameters": {
             "geometry": {},
             "boundary": [],

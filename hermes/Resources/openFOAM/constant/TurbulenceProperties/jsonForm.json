@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type":"openFOAM.constant.TurbulenceProperties",
         "input_parameters": {
             "simulationType" : "laminar"
         }

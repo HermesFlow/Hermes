@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type":"fileSystemExecuters.copyDirectory",
         "input_parameters": {
             "Source": "",
             "Target": "",

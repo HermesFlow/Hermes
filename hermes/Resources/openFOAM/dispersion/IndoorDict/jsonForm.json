@@ -1,5 +1,4 @@
 {
-  "Template": "openFOAM.dispersion.IndoorDict",
   "Execution": {
     "input_parameters": {
       "C0": 3,
