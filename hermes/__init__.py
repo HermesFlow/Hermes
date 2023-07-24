@@ -1,6 +1,18 @@
-__version__=(3,1,0)
+__version__=(3,2,0)
+
+# Have some initial default logging configuration in case the user hasn't set any
+from .utils.logging.helpers import initialize_logging
+initialize_logging(disable_existing_loggers=False)
+
 
 """
+
+    - Added 'write' capability to the hermes workflow
+    - Removed  hera-metadata
+    - The empty parameter string '{}' in a parameter path is interpreted as {}.
+      This is important for the shell scripts. 
+    - Fixed the all run execution.  
+    - Added an optional name attribute to the workflow         
 
   Version 3.1.0
   -------------

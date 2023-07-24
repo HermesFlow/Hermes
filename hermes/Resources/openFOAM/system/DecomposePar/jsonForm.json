@@ -2,7 +2,6 @@
     "Execution": {
         "type": "openFOAM.system.DecomposePar",
         "input_parameters": {
-            "numberOfSubdomains": 4
         }
     },
     "GUI": {

@@ -49,7 +49,6 @@ class hermesTaskWrapperHome(object):
         # print("taskname: " + str(taskname))
         # print("taskJSON: " + str(taskJSON))
         # print("-----------------------")
-
         try:
             if "template" in taskJSON['Execution']["input_parameters"]:
                 # add wrapper to path - and creste new full path
@@ -63,11 +62,11 @@ class hermesTaskWrapperHome(object):
                 # try locate the package
                 specializedPack = locate(full)
                 if specializedPack is not None:
-                    hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], specializedPack)
+                    hermesTaskWrapperObj = self._wrappers.get(taskJSON['type'], specializedPack)
                 else:
-                    hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], hermesTaskWrapper)
+                    hermesTaskWrapperObj = self._wrappers.get(taskJSON['type'], hermesTaskWrapper)
             else:
-                hermesTaskWrapperObj = self._wrappers.get(taskJSON['Execution']['type'], hermesTaskWrapper)
+                hermesTaskWrapperObj = self._wrappers.get(taskJSON['type'], hermesTaskWrapper)
         except KeyError as e:
             raise KeyError(f"Missing data in processing Node {taskname}: {taskJSON}. Error is {e}")
 

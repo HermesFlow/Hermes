@@ -3,12 +3,6 @@
     "type": "openFOAM.system.CreatePatch",
     "input_parameters": {
       "patches" : [
-        {
-          "name": "inflow",
-          "type" : "patch",
-          "constructFrom" : "set",
-          "set": "inflowSet"
-        }
       ]
     }
   },

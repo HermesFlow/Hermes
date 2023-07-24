@@ -3,31 +3,6 @@
     "type": "openFOAM.system.SetFields",
     "input_parameters": {
       "defaultFieldValues" : [
-        {
-          "name" : "T",
-          "type" : "scalar",
-          "value" : 0
-        },
-        {
-          "name" : "U",
-          "type" : "vector",
-          "value" : [0,0,0]
-        }
-      ],
-        "regions" : [
-        {
-          "type" : "boxToCell",
-          "params" : [
-            ["box", [0, 0, -1],[0, 0, 1]],
-          ],
-          "fieldValues": [
-              {
-                "name" : "T",
-                "type" : "scalar",
-                "value" : 0
-              }
-          ]
-        }
       ]
     }
   },

@@ -4,7 +4,9 @@
 import os
 import json
 import pathlib
-# import FreeCAD
+from importlib import resources
+from ..utils.logging import helpers as hermes_logging
+from ..utils.jsonutils import loadJSON
 
 class templateCenter:
 
@@ -28,6 +30,7 @@ class templateCenter:
 
 
         """
+        self.logger = hermes_logging.get_logger(self)
         self._paths = paths
 
     def __getitem__(self, item):
@@ -37,23 +40,36 @@ class templateCenter:
         """
         Finds a template and return a copy of it  as a dict.
         """
-        jsonPath = None
-        template = template.replace(".", "/") + ".json"
+        self.logger.execution("--------- Start ----------")
+        self.logger.debug(f"Getting template {template}")
 
-        if self._paths is not None:
-            for path in self._paths:
-                if os.path.exists(path+template):
-                    jsonPath = path+template
-                    break
-
-        jsonPath = os.path.join(pathlib.Path(__file__).parent.absolute(), template) if jsonPath is None else jsonPath
-        # FreeCAD.Console.PrintMessage("jsonPath = " + jsonPath + "\n")
-
-        print(jsonPath)
         try:
-            with open(jsonPath) as json_file:
-                template = json.load(json_file)
+            default = resources.files("hermes.Resources").joinpath(*template.split("."),"jsonForm.json")
+            basicTemplate = loadJSON(default.read_text())
         except FileNotFoundError:
-            raise KeyError("Template %s Not Found" % template)
+            fl = [x for x in resources.files("hermes.Resources").glob(f"{template.replace('.',os.path.sep)}*")]
+            if len(fl) == 0:
+                raise FileNotFoundError(f"{template} note found in {resources.files('hermes.Resources')}")
+            else:
+                 basicTemplate = loadJSON(fl[0].read_text())
 
-        return dict(template)
+        self._subsituteTemplates(basicTemplate)
+
+        return basicTemplate
+
+
+    def _subsituteTemplates(self,basicTemplate):
+        self.logger.execution(f"Process {basicTemplate}")
+        if 'Template' in basicTemplate.keys():
+            self.logger.debug(f"Replacing template in {basicTemplate} ")
+            ret =  "Done" #self.getTemplate(basicTemplate['Template'])
+        else:
+            for key,value in basicTemplate.items():
+                self.logger.debug(f"processing {key}->{value}")
+                if isinstance(value,dict):
+                    basicTemplate[key] = self._subsituteTemplates(value)
+            ret = basicTemplate
+
+        self.logger.debug(f"Finish -> {ret}")
+        return ret
+

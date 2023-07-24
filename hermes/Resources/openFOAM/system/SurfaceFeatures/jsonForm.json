@@ -2,10 +2,7 @@
     "Execution": {
         "type": "openFOAM.systemExecuters.surfaceFeaturesDict",
         "input_parameters": {
-            "geometryData" :  {},
-            "includeAngle" : 150,
-            "nonManifoldEdges" : true,
-            "openEdges" : true
+            "OFversion" : "of10"
         }
     },
     "GUI": {

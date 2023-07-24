@@ -52,7 +52,7 @@ class hermesTaskWrapper(object):
             returns the list of node names in the parameter_mapping values.
 
             Also append a dependent node
-
+t
             :param taskJSON:
                     The JSON definition of the
             :return:
@@ -89,7 +89,11 @@ class hermesTaskWrapper(object):
             Determine which parts of the input are path to parse and which
             stay as they are.
 
-            split ...{path}...{path}...
+            A path is denoted by {..}
+            However,  \{ \} can be used to pass the charaters { } without considering them as a path.
+
+
+            The results is that the path  ...{path}...{path}... is split
             to
             [(...,False),
              (path,True),
@@ -158,7 +162,7 @@ class hermesTaskWrapper(object):
 
     @property
     def taskType(self):
-        return self._taskJSON['Execution']['type']
+        return self._taskJSON['type']
 
 
     @property

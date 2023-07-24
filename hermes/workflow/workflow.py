@@ -3,12 +3,12 @@ import os
 import json
 from itertools import product
 import pandas.io.json
-from hermes.taskwrapper import hermes_task_wrapper_home
-from hermes.taskwrapper import hermesTaskWrapper
-from hermes.engines import builders
-from hermes.taskwrapper import hermesTaskWrapper
-from hermes.workflow.expandWorkflow import expandWorkflow
 
+from ..taskwrapper import hermes_task_wrapper_home,hermesTaskWrapper
+from ..engines import builders
+from .expandWorkflow import expandWorkflow
+from ..utils.jsonutils import loadJSON
+from ..utils.logging import helpers as hermes_logging
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -86,17 +86,19 @@ class workflow:
     def taskRepresentations(self):
         return self._taskRepresentations
 
-    def __init__(self, workflowJSON,WD_path=None,Resources_path=""):
+    def __init__(self, workflowJSON,WD_path=None,Resources_path="",name=None):
         """
                 Initiates the hermes workflow.
 
-        :param workflowJSON:
-                a json of the workflow.
+        Parameters
+        ----------
+        workflowJSON
+        WD_path
+        Resources_path
+        name : str,Optional
+            The name of the workflow
 
         """
-        # import FreeCAD
-        # FreeCAD.Console.PrintMessage("here:")
-        # FreeCAD.Console.PrintMessage(workflowJSON)
 
         if (loadedMongo):
             # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
@@ -105,22 +107,16 @@ class workflow:
             if isinstance(workflowJSON,mongoDataStructures.BaseDict):
                 workflowJSON = json.loads(json.dumps(workflowJSON))
 
-        if isinstance(workflowJSON,str):
-            if os.path.exists(workflowJSON):
-                with open(workflowJSON,"r") as infile:
-                    workflowJSON = json.load(infile)
-            else:
-                    workflowJSON = json.loads(workflowJSON)
-        elif isinstance(workflowJSON,TextIOWrapper):
-            workflowJSON = json.load(workflowJSON)
+        workflowJSON = loadJSON(workflowJSON)
 
-
+        self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
-
+        self.logger = hermes_logging.get_logger(self)
         workflowJSON = expandWorkflow().expand(workflowJSON)
         self._workflowJSON = workflowJSON
         self._hermes_task_wrapper_home = hermes_task_wrapper_home
+
         self._buildNetwork()
 
     def _buildNetworkRepresentations(self, taskname, taskJSON):
@@ -138,13 +134,18 @@ class workflow:
             The JSON that represents
         :return:
         """
+        self.logger.execution(f"Building {taskname}")
+        if taskJSON is None:
+            raise ModuleNotFoundError(f"Node {taskname} is not found")
 
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
+        self.logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
                 #if taskJSON is not None:
+
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
@@ -174,6 +175,7 @@ class workflow:
         # print(root_task)
         # print("--------------------------")
 
+        self.logger.debug(f"Building network for\n {json.dumps(self._workflowJSON)}")
         self._buildNetworkRepresentations(root_task_name, root_task)
 
 
@@ -211,7 +213,8 @@ class workflow:
         #                  input_parameters={})
 
         finalnode = dict(name=finalNodeName ,
-                         Execution=dict(type="general.Parameters",
+                         type="general.Parameters",
+                         Execution=dict(
                                         input_parameters={},
                                         requires=[x for x in self._workflowJSON["workflow"]["nodes"]]),
 
@@ -441,6 +444,44 @@ class workflow:
     @property
     def workflowType(self):
         return self.workflowJSON['workflowType']
+
+    def write(self,workflowName=None,directory=None):
+        """
+            Writing the workflow to the disk
+
+            use  workflowName if supplied, else use the name of the workflow
+            if the name is not set and the workflowName is not supplied - raise error.
+
+        Parameters
+        ----------
+        workflowName : str
+            optional file name
+
+        directory : str
+            optional directory location, else writes to current directory.
+
+        Returns
+        -------
+
+        """
+        if workflowName is None and self.name is None:
+            raise ValueError("Must supply file name")
+
+        if workflowName is not None:
+            if 'json' not in workflowName:
+                outFileName = workflowName /".json"
+        else:
+            outFileName = self.name/".json"
+
+        if directory is not None:
+            outFileName = os.path.join(directory,outFileName)
+
+        with open(outFileName,'w') as writeFile:
+            json.dump(self.workflowJSON,writeFile,indent=4)
+
+
+
+
 
 class hermesNode:
     """

@@ -6,46 +6,12 @@
       "caseExecution": {
         "parallelCase": true,
         "slurm": false,
-        "getNumberOfSubdomains" : 10,
+        "getNumberOfSubdomains": 10,
         "runFile": [
-          {
-            "name": "blockMesh",
-            "couldRunInParallel": false,
-            "parameters": null
-          },
-          {
-            "name": "topoSet",
-            "parameters": null,
-            "couldRunInParallel": false
-          },
-          {
-            "name": "createPatch",
-            "parameters": "-overwrite",
-            "couldRunInParallel": false
-          },
-          {
-            "name": "changeDictionary",
-            "parameters": null,
-            "couldRunInParallel": false
-          },
-          {
-            "name": "rhoConstantHydrostaticIC",
-            "parameters": null,
-            "couldRunInParallel": false
-          },
-          {
-            "name": "decomposePar",
-            "parameters": "-force",
-            "couldRunInParallel": false
-          },
-          {
-            "name": "rhoReactingBuoyantFoamExtend",
-            "parameters": null,
-            "couldRunInParallel": true
-          }
         ]
       }
-    },
-    "GUI": {
     }
+  },
+  "GUI": {
   }
+}
