@@ -97,7 +97,7 @@ class BuildAllrun(abstractExecuter):
         allrunFile = os.path.join(caseDirectory,"Allrun")
         if not os.path.exists(caseDirectory):
             os.makedirs(caseDirectory,exist_ok=True)
-            
+
         with open(allrunFile,'w') as execFile:
             execFile.write(execLine)
         os.chmod(allrunFile, 0o777)
