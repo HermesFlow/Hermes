@@ -1,0 +1,30 @@
+{
+    "workflow": {
+        "nodes": {
+            "CopyDirectory": {
+                "Execution": {
+                    "input_parameters": {
+                        "Source": "source",
+                        "Target": "target",
+                        "dirs_exist_ok": true
+                    }
+                },
+                "type": "general.CopyDirectory"
+            },
+            "RunPythonCode": {
+                "Execution": {
+                    "input_parameters": {
+                        "ModulePath": "tutorial1",
+                        "ClassName": "tutrialPrinter",
+                        "MethodName": "printDirectories",
+                        "Parameters": {
+                            "source": "{CopyDirectory.output.Source}",
+                            "target": "{CopyDirectory.output.Target}"
+                        }
+                    }
+                },
+                "type": "general.RunPythonCode"
+            }
+        }
+    }
+}

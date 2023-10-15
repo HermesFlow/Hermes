@@ -18,7 +18,7 @@ class FilesWriter(abstractExecuter):
 
     def run(self, **inputs):
 
-        path = inputs["casePath"]
+        path = inputs["directoryPath"]
         files = inputs["Files"]
 
         createdFiles = dict()

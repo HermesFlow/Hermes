@@ -49,7 +49,7 @@ class templateCenter:
         except FileNotFoundError:
             fl = [x for x in resources.files("hermes.Resources").glob(f"{template.replace('.',os.path.sep)}*")]
             if len(fl) == 0:
-                raise FileNotFoundError(f"{template} note found in {resources.files('hermes.Resources')}")
+                raise FileNotFoundError(f"{template} node found in {resources.files('hermes.Resources')}")
             else:
                  basicTemplate = loadJSON(fl[0].read_text())
 

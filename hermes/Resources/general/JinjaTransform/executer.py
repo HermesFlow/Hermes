@@ -6,7 +6,7 @@ import pathlib
 import numpy
 from jinja2 import FileSystemLoader, Environment
 
-class jinjaTransform(abstractExecuter):
+class JinjaTransform(abstractExecuter):
 
     def _defaultParameters(self):
         return dict(
@@ -29,12 +29,13 @@ class jinjaTransform(abstractExecuter):
         # get the  name of the template
         templateName = inputs['template']
         additionalTemplatePath = [os.path.abspath(x) for x in numpy.atleast_1d(inputs.get("path",[]))]
+        additionalTemplatePath.append(os.getcwd())
 
         # make sure the splits are with slash
-        delimiters = ".", "/"
+        delimiters = ".", "/", "\\"
         regexPattern = '|'.join(map(re.escape, delimiters))
         spltList = re.split(regexPattern, templateName)
-        templateName = '/'.join(spltList)
+        templateName = os.path.sep.join(spltList)
 
         # get the values to update in the template
         values = inputs['parameters']
@@ -44,4 +45,4 @@ class jinjaTransform(abstractExecuter):
         # render jinja for the choosen template
         output = template.render(**values)
 
-        return dict(openFOAMfile=output)
+        return dict(renderedText=output)

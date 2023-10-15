@@ -1,8 +1,8 @@
-from ....general import jinjaTransform
+from ....general import JinjaTransform
 import logging
 import json
 
-class SnappyHexMesh(jinjaTransform):
+class SnappyHexMesh(JinjaTransform):
 
     def run(self, **inputs):
         logger = logging.getLogger('luigi-interface')

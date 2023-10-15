@@ -1,8 +1,7 @@
 {
     "Execution": {
         "input_parameters": {
-            "template": "{Properties.TemplateName.current_val}",
-            "path" : [],
+            "path" : ["."],
             "parameters" : {}
         }
     },

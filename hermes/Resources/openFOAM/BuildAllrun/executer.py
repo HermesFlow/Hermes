@@ -1,4 +1,4 @@
-from ...executers.abstractExecuter import abstractExecuter
+from hermes.Resources.executers.abstractExecuter import abstractExecuter
 import shutil
 import os, sys, stat
 import numpy

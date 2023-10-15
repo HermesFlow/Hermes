@@ -3,9 +3,9 @@ from collections.abc import Iterable
 import json
 import jsonpath_rw_ext as jp
 import sys
-
 import hermes
-class utils(object):
+
+class utils:
 
     def get_all_required_outputs(self):
         ret = {}

@@ -74,7 +74,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         
         out_params = params
         with open(self.output().fn, "w") as outfile:
-            json.dump(out_params, outfile)
+            json.dump(out_params, outfile,indent=4)
 """
 
     def transform(self,taskWrapper,WD_path):

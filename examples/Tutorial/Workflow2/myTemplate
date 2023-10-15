@@ -1,0 +1,7 @@
+We will now write the sentence {{repeat}} times:
+
+{%- for pnt in range(repeat) %}
+    {{pnt+1}}. My name is {{myName}} and my Directory is {{directoryName}}
+{%- endfor %}
+
+

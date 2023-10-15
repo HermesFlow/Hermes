@@ -17,13 +17,57 @@ concomitant execution of all the node withc respect to their depencies.
 An additional workbench was programmed using the opensource CAD program FreeCAD, so simplify the definition of
 boundary conditions and complex objects in the simulation.
 
+10 minute Tutorial
+------------------
 
-.. include:: About/Tutrial10Min.rst
+This tutorial shows how to run a Hermes workflow that will copy the directory named source to a directory
+named target, and then execute
+
+.. code-block:: javascript
+
+    {
+        "workflow": {
+            "root": null,
+            "nodeList": [
+                "CopyDirectory",
+                "RunPythonCode"
+            ],
+            "nodes": {
+                "CopyDirectory": {
+                    "Execution": {
+                        "input_parameters": {
+                            "Source": "source",
+                            "Target": "target",
+                            "dirs_exist_ok": true
+                        }
+                    },
+                    "type": "general.CopyDirectory"
+                },
+                "RunPythonCode": {
+                    "Execution": {
+                        "input_parameters": {
+                            "ModulePath": "tutorial1",
+                            "ClassName": "tutorialPrinter",
+                            "MethodName": "printDirectories",
+                            "Parameters": {
+                                "source": "{CopyDirectory.output.Source}",
+                                "target": "{CopyDirectory.output.Target}"
+                            }
+                        }
+                    },
+                    "type": "general.RunPythonCode"
+                }
+            }
+        }
+    }
+
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   Usage/UsingByExample.rst
 
    FreeCAD/FreeCAD.rst
    simpleWorkflow/intro.rst

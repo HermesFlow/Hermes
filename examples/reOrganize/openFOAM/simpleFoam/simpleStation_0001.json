@@ -761,7 +761,6 @@
             },
             "buildAllRun": {
                 "Execution": {
-                    "type": "openFOAM.general.FileWriter",
                     "input_parameters": {
                         "casePath": "{Parameters.output.targetDirectory}",
                         "caseExecution": {
@@ -807,11 +806,10 @@
                     },
                     "requires": "createEmptyCase"
                 },
-                "type": "general.BuildAllrun"
+                "type": "openFOAM.BuildAllrun"
             },
             "fileWriter": {
                 "Execution": {
-                    "type": "openFOAM.general.FileWriter",
                     "input_parameters": {
                         "casePath": "{Parameters.output.targetDirectory}",
                         "Files": {

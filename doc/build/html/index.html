@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="FreeCAD" href="FreeCAD/FreeCAD.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Hermes workflow" href="Usage/UsingByExample.html" />
 
     <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
         <title>Hermes 3.2.0 documentation</title>
@@ -156,6 +156,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Usage/UsingByExample.html">Using Hermes workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FreeCAD/FreeCAD.html">FreeCAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simpleWorkflow/intro.html">Simple Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Json/JsonStructure.html">The JSON Structure</a></li>
@@ -210,47 +211,54 @@ concomitant execution of all the node withc respect to their depencies.</p>
 <p>An additional workbench was programmed using the opensource CAD program FreeCAD, so simplify the definition of
 boundary conditions and complex objects in the simulation.</p>
 <section id="minute-tutorial">
-<h2>10-minute tutorial<a class="headerlink" href="#minute-tutorial" title="Permalink to this heading">#</a></h2>
-<p>In this tutrial we will show examples for workflows at an increasing level of complexity.</p>
-<section id="example-1-copy-and-run-workflow">
-<h3>Example 1: Copy and run workflow<a class="headerlink" href="#example-1-copy-and-run-workflow" title="Permalink to this heading">#</a></h3>
-<p>The following workflow copies a directory and then
-executes a python program.</p>
+<h2>10 minute Tutorial<a class="headerlink" href="#minute-tutorial" title="Permalink to this heading">#</a></h2>
+<p>This tutorial shows how to run a Hermes workflow that will copy the directory named source to a directory
+named target, and then execute</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;workflow&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;root&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;nodeList&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="w"></span>
 <span class="w">        </span><span class="p">],</span><span class="w"></span>
 <span class="w">        </span><span class="s2">&quot;nodes&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;fileSystemExecuters.copyDirectory&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;./source&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;./target&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;Source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;source&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;Target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;target&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                        </span><span class="s2">&quot;dirs_exist_ok&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
 <span class="w">                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.CopyDirectory&quot;</span><span class="w"></span>
 <span class="w">            </span><span class="p">},</span><span class="w"></span>
 <span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pythonExecuters.python&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;ModulePath&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;ClassName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;MethodName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;ModulePath&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorial1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;ClassName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorialPrinter&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;MethodName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;printDirectories&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="s2">&quot;Parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Source}&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="s2">&quot;target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Target}&quot;</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
 <span class="w">                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">                </span><span class="p">},</span><span class="w"></span>
+<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.RunPythonCode&quot;</span><span class="w"></span>
 <span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Usage/UsingByExample.html">Using Hermes workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Usage/UsingByExample.html#workflow-1-copy-directory-and-run-python-code">Workflow 1: Copy directory and run python code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Usage/UsingByExample.html#workflow-2-running-os-command-and-creating-file-using-template">Workflow 2: Running OS command and creating file using template</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="FreeCAD/FreeCAD.html">FreeCAD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simpleWorkflow/intro.html">Simple Workflow</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="simpleWorkflow/intro.html#workflow-steps">Workflow Steps</a></li>
@@ -272,7 +280,6 @@ executes a python program.</p>
 </div>
 </section>
 </section>
-</section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
 <ul class="simple">
@@ -287,12 +294,12 @@ executes a python program.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="FreeCAD/FreeCAD.html">
+          <a class="next-page" href="Usage/UsingByExample.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">FreeCAD</div>
+                <div class="title">Using Hermes workflow</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -328,10 +335,7 @@ executes a python program.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Welcome to Hermes’s documentation!</a><ul>
-<li><a class="reference internal" href="#minute-tutorial">10-minute tutorial</a><ul>
-<li><a class="reference internal" href="#example-1-copy-and-run-workflow">Example 1: Copy and run workflow</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#minute-tutorial">10 minute Tutorial</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

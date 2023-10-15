@@ -21,13 +21,16 @@ class expandWorkflow:
       to other files , end inject the data from those other
       files into that json """
 
-    def updateMap(self,d, u):
-        for k, v in u.items():
-            if isinstance(v, collections.abc.Mapping):
-                d[k] = self.updateMap(d.get(k, {}), v)
+    def updateMap(self, destinationMap, templateMap):
+        for sourceKey, sourceValue in templateMap.items():
+            self.logger.debug(f"Processing key {sourceKey} with value {sourceValue}")
+            if isinstance(sourceValue, collections.abc.Mapping):
+                self.logger.debug(f"Key is a mapping in template. It is a {destinationMap.get(sourceKey, {})} in destination, calling recursively")
+                destinationMap[sourceKey] = self.updateMap(destinationMap.get(sourceKey, {}), sourceValue)
             else:
-                d[k] = v
-        return d
+                self.logger.debug(f"Key is not a map, setting key {sourceKey} with value {sourceValue} (-{destinationMap}-)")
+                destinationMap[sourceKey] = sourceValue
+        return destinationMap
 
 
     @property
@@ -89,21 +92,17 @@ class expandWorkflow:
         self.logger.info("---------------- Start ------------")
         self.logger.debug(f"Got templateJSON : {templateJSON}")
         JsonObjectfromFile = loadJSON(templateJSON)
-        nodeList = JsonObjectfromFile["workflow"]["nodeList"]
+        #nodeList = JsonObjectfromFile["workflow"]["nodeList"]
         nodes = JsonObjectfromFile["workflow"]["nodes"]
 
         for nodeName,nodeData in nodes.items():
             self.logger.execution(f"Processing node {nodeName}")
-            if nodeName in nodeList:
-                self.logger.debug(f"Node {nodeName} in the list")
-                fullNodeData = dict(self._templateCenter[nodeData['type']])
-                self.updateMap(fullNodeData,nodeData)
+            self.logger.debug(f"Node {nodeName} in the list, using type {nodeData['type']} ")
+            fullNodeData = dict(self._templateCenter[nodeData['type']])
+            self.logger.debug(f"Got template, now updating map {fullNodeData}")
+            self.updateMap(fullNodeData,nodeData)
 
-                JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
-            else:
-                err = f"The {nodeName} exists in node list but is not specified in nodes. Abort! "
-                self.logger.err(err)
-                raise ValueError(err)
+            JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
 
         self.logger.debug(json.dumps(JsonObjectfromFile,indent=4))
         self.logger.info("--------------- End --------------")
