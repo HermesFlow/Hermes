@@ -102,7 +102,7 @@ class expandWorkflow:
                 JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
             else:
                 err = f"The {nodeName} exists in node list but is not specified in nodes. Abort! "
-                self.logger.err(err)
+                self.logger.error(err)
                 raise ValueError(err)
 
         self.logger.debug(json.dumps(JsonObjectfromFile,indent=4))

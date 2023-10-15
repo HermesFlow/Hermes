@@ -136,6 +136,8 @@ class workflow:
         """
         self.logger.execution(f"Building {taskname}")
         if taskJSON is None:
+            import pdb
+            pdb.set_trace()
             raise ModuleNotFoundError(f"Node {taskname} is not found")
 
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
