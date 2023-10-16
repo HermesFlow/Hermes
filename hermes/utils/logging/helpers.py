@@ -5,6 +5,7 @@ import os.path
 import pathlib
 from importlib import resources
 from typing import List
+from importlib.resources import read_text
 
 # Special Hermes logging level
 EXECUTION = 15
