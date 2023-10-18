@@ -26,14 +26,14 @@ FoamFile
 
     boundaryField
     {
-        {% for patchName,patchData in fieldChangeData.boundaryField.items() %}
+        {% for patchName,patchData in fieldChangeData.boundaryField.items() -%}
         {{patchName}}
         {
-            {% for itemName,itemData in patchData.items() %}
+            {% for itemName,itemData in patchData.items() -%}
                 {{itemName}} {{itemData}};
-            {% endfor %}
+            {% endfor -%}
         }
-        {% endfor %}
+        {% endfor -%}
     }
 }
 {% endfor %}

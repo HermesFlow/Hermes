@@ -1,7 +1,7 @@
 {
     "Execution": {
       "input_parameters": {
-        "directoryPath": "pathToCase",
+        "directoryPath": null,
         "Files": {
         }
       }

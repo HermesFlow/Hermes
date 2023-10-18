@@ -18,7 +18,7 @@ class FilesWriter(abstractExecuter):
 
     def run(self, **inputs):
 
-        path = inputs["directoryPath"]
+        path = os.path.join(inputs["directoryPath"],inputs["casePath"])
         files = inputs["Files"]
 
         createdFiles = dict()
@@ -32,9 +32,11 @@ class FilesWriter(abstractExecuter):
                 fileName = f"{fileName}/"
 
             newPath = os.path.join(path, fileName)
-
             if not os.path.exists(os.path.dirname(newPath)):
                 try:
+                    import pdb
+                    pdb.set_trace()
+
                     os.makedirs(os.path.dirname(newPath),exist_ok=True)
                 except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
