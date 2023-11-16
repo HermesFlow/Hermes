@@ -1,3 +1,3 @@
 To build and run: 
 
-hera-workflows buildExecute simpleStation_0001.json 
+hermes-workflows buildExecute simpleStation_0001.json 
