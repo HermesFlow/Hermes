@@ -94,3 +94,10 @@ Use docker_dev.sh script inside the installation directory. The script will laun
 
 Invoking the script will trigger build process. 
 
+## Execute in gui mode
+
+
+## Execute in script mode
+
+Use one of the examples in the examaple directory
+
