@@ -11,7 +11,7 @@ import json
 import os
 import collections.abc
 from ..utils.jsonutils import loadJSON
-import hermes.utils.logging.helpers as hera_logging
+from ..utils.logging import get_classMethod_logger
 from importlib.resources import read_text
 # import FreeCAD
 
@@ -22,13 +22,14 @@ class expandWorkflow:
       files into that json """
 
     def updateMap(self, destinationMap, templateMap):
+        logger = get_classMethod_logger(self, "updateMap")
         for sourceKey, sourceValue in templateMap.items():
-            self.logger.debug(f"Processing key {sourceKey} with value {sourceValue}")
+            logger.debug(f"Processing key {sourceKey} with value {sourceValue}")
             if isinstance(sourceValue, collections.abc.Mapping):
-                self.logger.debug(f"Key is a mapping in template. It is a {destinationMap.get(sourceKey, {})} in destination, calling recursively")
+                logger.debug(f"Key is a mapping in template. It is a {destinationMap.get(sourceKey, {})} in destination, calling recursively")
                 destinationMap[sourceKey] = self.updateMap(destinationMap.get(sourceKey, {}), sourceValue)
             else:
-                self.logger.debug(f"Key is not a map, setting key {sourceKey} with value {sourceValue} (-{destinationMap}-)")
+                logger.debug(f"Key is not a map, setting key {sourceKey} with value {sourceValue} (-{destinationMap}-)")
                 destinationMap[sourceKey] = sourceValue
         return destinationMap
 
@@ -40,7 +41,6 @@ class expandWorkflow:
     def __init__(self):
         self.TEMPLATE = "Template"
         self.IMPORTJSONFROMFILE = "importJsonfromfile"
-        self.logger = hera_logging.get_logger(self)
         paths = None
         self._templateCenter = templateCenter(paths)
 
@@ -89,21 +89,22 @@ class expandWorkflow:
         --------
             Dict.
         """
-        self.logger.info("---------------- Start ------------")
-        self.logger.debug(f"Got templateJSON : {templateJSON}")
+        logger = get_classMethod_logger(self,"expand")
+        logger.info("---------------- Start ------------")
+        logger.debug(f"Got templateJSON : {templateJSON}")
         JsonObjectfromFile = loadJSON(templateJSON)
         #nodeList = JsonObjectfromFile["workflow"]["nodeList"]
         nodes = JsonObjectfromFile["workflow"]["nodes"]
 
         for nodeName,nodeData in nodes.items():
-            self.logger.execution(f"Processing node {nodeName}")
-            self.logger.debug(f"Node {nodeName} in the list, using type {nodeData['type']} ")
+            logger.execution(f"Processing node {nodeName}")
+            logger.debug(f"Node {nodeName} in the list, using type {nodeData['type']} ")
             fullNodeData = dict(self._templateCenter[nodeData['type']])
-            self.logger.debug(f"Got template, now updating map {fullNodeData}")
+            logger.debug(f"Got template, now updating map {fullNodeData}")
             self.updateMap(fullNodeData,nodeData)
 
             JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
 
-        self.logger.debug(json.dumps(JsonObjectfromFile,indent=4))
-        self.logger.info("--------------- End --------------")
+        logger.debug(json.dumps(JsonObjectfromFile,indent=4))
+        logger.info("--------------- End --------------")
         return JsonObjectfromFile

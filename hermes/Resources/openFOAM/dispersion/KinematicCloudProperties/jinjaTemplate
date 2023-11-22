@@ -53,8 +53,9 @@ subModels
 {
     particleForces
     {
-  //      sphereDrag;
-  //     gravity;
+     {% for forceName in forces -%}
+        {{forceName}};
+     {%- endfor -%}
     }
 
     injectionModels
