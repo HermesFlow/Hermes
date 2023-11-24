@@ -1,0 +1,69 @@
+{
+	"Schema":{
+		"type":"object",
+        "title": "TurbulenceProperties",
+		"properties":{
+            "simulationType":{
+                "type":"string",
+                "title":"simulationType"
+            },
+            "Model":{
+                "type":"string",
+                "title":"RASModel",
+                "enum":[
+                    "LRR",
+                    "LamBremhorstKE",
+                    "LaunderSharmaKE",
+                    "LienCubicKE",
+                    "LienLeschziner",
+                    "RNGkEpsilon",
+                    "SSG",
+                    "ShihQuadraticKE",
+                    "SpalartAllmaras",
+                    "kEpsilon",
+                    "kOmega",
+                    "kOmegaSST",
+                    "kOmegaSSTLM",
+                    "kOmegaSSTSAS",
+                    "kkLOmega",
+                    "qZeta",
+                    "realizableKE",
+                    "v2f"
+                ],
+                "description":"name of RAS turbulence model."
+            },
+            "turbulence":{
+                "type":"boolean",
+                "title":"turbulence",
+                "description":"switch to turn the solving of turbulence modelling on/off",
+                "enumNames":["on", "off"]
+            },
+            "printCoeffs":{
+                "type":"boolean",
+                "title":"printCoeffs",
+                "description":"switch to print model coeffs to terminal at simulation start up.",
+                "enumNames":["on", "off"]
+            },
+            "ModelCoeffs":{
+                "type":"object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+	"uiSchema":{
+        "turbulence": {
+            "ui:widget": "radio"
+        },
+        "printCoeffs":{
+           "ui:widget": "radio"
+        }
+    },
+    "formData":{
+        "simulationType":"RAS",
+        "Model":"kEpsilon",
+        "turbulence":true,
+        "printCoeffs":false
+    }
+}

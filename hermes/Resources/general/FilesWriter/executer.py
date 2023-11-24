@@ -28,7 +28,6 @@ class FilesWriter(abstractExecuter):
         createdFiles = dict()
         for groupName, groupData in files.items():
             # make sure that the user input is regarded as a directory in case of input dict file.
-
             fileContent = groupData['fileContent']
             fileName    = groupData['fileName']
 
