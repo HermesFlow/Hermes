@@ -441,6 +441,10 @@ class workflow:
         return retdict
 
     @property
+    def workflowType(self):
+        return 'hermesWorkflow'
+
+    @property
     def solver(self):
         return self.workflowJSON['solver']
 
@@ -469,6 +473,8 @@ class workflow:
         if workflowName is not None:
             if 'json' not in workflowName:
                 outFileName = workflowName /".json"
+            else:
+                outFileName = workflowName
         else:
             outFileName = self.name/".json"
 
