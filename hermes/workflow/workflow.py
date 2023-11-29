@@ -441,8 +441,8 @@ class workflow:
         return retdict
 
     @property
-    def workflowType(self):
-        return self.workflowJSON['workflowType']
+    def solver(self):
+        return self.workflowJSON['solver']
 
     def write(self,workflowName=None,directory=None):
         """

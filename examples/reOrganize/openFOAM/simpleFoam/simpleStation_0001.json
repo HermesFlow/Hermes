@@ -1,7 +1,7 @@
 {
     "workflow": {
         "root": null,
-        "workflowType": "simpleFoam",
+        "solver": "simpleFoam",
         "SolvedFields": "p U k epsilon nut",
         "AuxFields": "",
         "Templates": [],
