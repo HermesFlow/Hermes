@@ -1,6 +1,6 @@
-from ...general import jinjaTransform
+from ...general import JinjaTransform
 
-class abstractDispersionExecuter(jinjaTransform):
+class abstractDispersionExecuter(JinjaTransform):
     _templateName = None
 
     def __init__(self,JSON,templateName):

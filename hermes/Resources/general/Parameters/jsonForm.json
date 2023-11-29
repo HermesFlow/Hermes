@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "general.Parameters"
   },
   "GUI": {
     "Type": "HermesNode.WebGuiNode",

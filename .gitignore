@@ -4,9 +4,7 @@
 # ignore all .pyc files
 **/*.pyc
 
-<<<<<<< HEAD
-.idea
-=======
 doc/build
 doc/source/.idea/
->>>>>>> b5a449698022b0e68a25fe8af86a807b882f6f75
+/examples/Tutorial/Workflow1/workflow.py
+/examples/Tutorial/Workflow2/workflow.py

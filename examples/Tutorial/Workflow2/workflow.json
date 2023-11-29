@@ -1,0 +1,55 @@
+{
+    "workflow": {
+        "nodes": {
+            "Parameters": {
+                "Execution": {
+                    "input_parameters": {
+                        "directoryName": "myCase",
+                        "name": "Tester"
+                    }
+                },
+                "type": "general.Parameters"
+            },
+            "createDirectory": {
+                "Execution": {
+                    "input_parameters": {
+                        "Method": "Command list",
+                        "Command": "mkdir {Parameters.output.directoryName}"
+                    }
+                },
+                "type": "general.RunOsCommand"
+            },
+            "makeTemplate": {
+                "Execution": {
+                    "input_parameters": {
+                        "path": [
+                            "."
+                        ],
+                        "parameters": {
+                            "myName": "{Parameters.output.name}",
+                            "directoryName": "{Parameters.output.directoryName}",
+                            "repeat": 3
+                        },
+                        "template": "myTemplate"
+                    }
+                },
+                "type": "general.JinjaTransform"
+            },
+            "writeFile": {
+                "Execution": {
+                    "input_parameters": {
+                        "directoryPath": "{Parameters.output.directoryName}",
+                        "Files": {
+                            "README": {
+                                "fileName": "README.txt",
+                                "fileContent": "{makeTemplate.output.renderedText}"
+                            }
+                        }
+                    },
+                    "requires": "createDirectory"
+                },
+                "type": "general.FilesWriter"
+            }
+        }
+    }
+}

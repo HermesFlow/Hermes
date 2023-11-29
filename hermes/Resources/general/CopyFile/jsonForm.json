@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type":"general.copyFile",
         "input_parameters": {
             "Source": "",
             "Target": ""

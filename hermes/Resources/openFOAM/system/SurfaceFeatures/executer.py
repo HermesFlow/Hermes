@@ -18,7 +18,11 @@ class SurfaceFeatures(abstractSystemExecuter):
         OFversion = inputs.get("OFversion","of10")
 
         for objectName,objectData in geometryData.items():
-            retFiles[objectName] = template.render(nonManifoldEdges=inputs['nonManifoldEdges'],openEdges=inputs['openEdges'],geometryData=objectData,includeAngle=inputs['includeAngle'],OFversion=OFversion)
+            retFiles[objectName] = template.render(nonManifoldEdges=inputs['nonManifoldEdges'],
+                                                   openEdges=inputs['openEdges'],
+                                                   geometryData=objectData,
+                                                   includeAngle=inputs['includeAngle'],
+                                                   OFversion=OFversion)
 
         return dict(openFOAMfile=retFiles)
 

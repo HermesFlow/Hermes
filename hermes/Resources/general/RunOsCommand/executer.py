@@ -7,7 +7,7 @@ class RunOsCommand(abstractExecuter):
     def _defaultParameters(self):
         return dict(
             output=["status"],
-            inputs=["source", "target"],
+            inputs=["Method", "Command"],
             webGUI=dict(JSONSchema="webGUI/RunOsCommand_JSONchema.json",
                         UISchema="webGUI/RunOsCommand_UISchema.json"),
             parameters={}

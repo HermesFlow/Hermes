@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type": "openFOAM.constant.ThermophysicalProperties",
         "input_parameters": {
             "thermoType" : {
                 "type" : "type",

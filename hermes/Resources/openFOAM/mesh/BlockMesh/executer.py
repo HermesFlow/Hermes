@@ -1,6 +1,6 @@
-from ....general import jinjaTransform
+from ....general import JinjaTransform
 
-class BlockMesh(jinjaTransform):
+class BlockMesh(JinjaTransform):
     """
         Transforms JSON->blockMeshDict using the jinja template in jinjaTemplates.openFOAM.mesh.BlockMesh
 

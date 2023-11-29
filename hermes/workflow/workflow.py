@@ -145,7 +145,6 @@ class workflow:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
                 #if taskJSON is not None:
-
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
@@ -216,7 +215,7 @@ class workflow:
                          type="general.Parameters",
                          Execution=dict(
                                         input_parameters={},
-                                        requires=[x for x in self._workflowJSON["workflow"]["nodes"]]),
+                                        requires=[x for x in self._workflowJSON["workflow"]["nodes"] if x != finalNodeName]),
 
                          GUI=dict(TypeFC={}, Properties={}, WebGui={}))
 
@@ -442,8 +441,8 @@ class workflow:
         return retdict
 
     @property
-    def workflowType(self):
-        return self.workflowJSON['workflowType']
+    def solver(self):
+        return self.workflowJSON['solver']
 
     def write(self,workflowName=None,directory=None):
         """

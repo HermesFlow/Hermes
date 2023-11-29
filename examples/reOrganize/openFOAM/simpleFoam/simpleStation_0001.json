@@ -1,7 +1,7 @@
 {
     "workflow": {
         "root": null,
-        "workflowType": "simpleFoam",
+        "solver": "simpleFoam",
         "SolvedFields": "p U k epsilon nut",
         "AuxFields": "",
         "Templates": [],
@@ -26,7 +26,6 @@
         "nodes": {
             "Parameters": {
                 "Execution": {
-                    "type": "general.Parameters",
                     "input_parameters": {
                         "OFversion": "of2212",
                         "targetDirectory": "{#moduleName}",
@@ -38,7 +37,6 @@
             },
             "createEmptyCase": {
                 "Execution": {
-                    "type": "general.RunOsCommand",
                     "input_parameters": {
                         "Method": "Command list",
                         "Command": "hera-openfoam {workflow.workflowType} createEmptyCaseDirectory {Parameters.output.targetDirectory} --fields {workflow.SolvedFields}"
@@ -48,7 +46,6 @@
             },
             "CopyObjectToCase": {
                 "Execution": {
-                    "type": "general.copyFile",
                     "input_parameters": {
                         "Source": "{Parameters.output.objectFile}",
                         "Target": "{Parameters.output.targetDirectory}"
@@ -59,7 +56,6 @@
             },
             "CopyBuildingObject": {
                 "Execution": {
-                    "type": "general.RunOsCommand",
                     "input_parameters": {
                         "Method": "Command list",
                         "Command": "surfaceMeshConvert {Parameters.output.objectFile} {Parameters.output.targetDirectory}/constant/triSurface/building.obj -scaleIn 0.001 -case {Parameters.output.targetDirectory}"
@@ -70,7 +66,6 @@
             },
             "blockMesh": {
                 "Execution": {
-                    "type": "openFOAM.mesh.BlockMesh",
                     "input_parameters": {
                         "geometry": {
                             "convertToMeters": "1",
@@ -358,7 +353,6 @@
             },
             "decomposePar": {
                 "Execution": {
-                    "type": "openFOAM.system.DecomposePar",
                     "input_parameters": {
                         "numberOfSubdomains": "{Parameters.output.decomposeProcessors}"
                     }
@@ -367,7 +361,6 @@
             },
             "controlDict": {
                 "Execution": {
-                    "type": "openFOAM.system.ControlDict",
                     "input_parameters": {
                         "values": {
                             "application": "simpleFoam",
@@ -397,7 +390,6 @@
             },
             "fvSchemes": {
                 "Execution": {
-                    "type": "openFOAM.systemExecuters.fvSchemes",
                     "input_parameters": {
                         "default": {
                             "ddtScheme": "Euler",
@@ -523,7 +515,6 @@
             },
             "fvSolution": {
                 "Execution": {
-                    "type": "openFOAM.system.FvSolution",
                     "input_parameters": {
                         "fields": {
                             "p": {
@@ -630,7 +621,6 @@
             },
             "transportProperties": {
                 "Execution": {
-                    "type": "openFOAM.constantExecuters.transportProperties",
                     "input_parameters": {
                         "transportModel": "Newtonian",
                         "nu": 1e-05
@@ -640,7 +630,6 @@
             },
             "turbulenceProperties": {
                 "Execution": {
-                    "type": "openFOAM.constant.TurbulenceProperties",
                     "input_parameters": {
                         "simulationType": "laminar",
                         "Model": "LienLeschziner"
@@ -650,7 +639,6 @@
             },
             "defineNewBoundaryConditions": {
                 "Execution": {
-                    "type": "openFOAM.system.ChangeDictionary",
                     "input_parameters": {
                         "fields": {
                             "U": {
@@ -761,7 +749,6 @@
             },
             "buildAllRun": {
                 "Execution": {
-                    "type": "openFOAM.general.FileWriter",
                     "input_parameters": {
                         "casePath": "{Parameters.output.targetDirectory}",
                         "caseExecution": {
@@ -807,11 +794,10 @@
                     },
                     "requires": "createEmptyCase"
                 },
-                "type": "general.BuildAllrun"
+                "type": "openFOAM.BuildAllrun"
             },
             "fileWriter": {
                 "Execution": {
-                    "type": "openFOAM.general.FileWriter",
                     "input_parameters": {
                         "casePath": "{Parameters.output.targetDirectory}",
                         "Files": {

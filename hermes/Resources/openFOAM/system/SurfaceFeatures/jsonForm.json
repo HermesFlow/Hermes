@@ -1,6 +1,5 @@
 {
     "Execution": {
-        "type": "openFOAM.systemExecuters.surfaceFeaturesDict",
         "input_parameters": {
             "OFversion" : "of10"
         }

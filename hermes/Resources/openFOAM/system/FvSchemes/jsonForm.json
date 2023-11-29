@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.systemExecuters.fvSchemes",
     "input_parameters": {
       "default": {
         "ddtScheme": "Euler",

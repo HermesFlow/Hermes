@@ -1,8 +1,10 @@
+import os
 
 from ...executers.abstractExecuter import abstractExecuter
 import pydoc
+import sys
 
-class pythonExecuter(abstractExecuter):
+class RunPythonCode(abstractExecuter):
     """
         Executes the function in the class.
 
@@ -15,7 +17,8 @@ class pythonExecuter(abstractExecuter):
     def _defaultParameters(self):
         return dict(
             output=["status"],
-            inputs=["classpath", "function"],
+
+            inputs=["CodeDirectory","ModulePath", "function"],
             webGUI=dict(JSONSchema="webGUI/pythonExecuter_JSONchema.json",
                         UISchema="webGUI/pythonExecuter_UISchema.json"),
             parameters={}
@@ -27,6 +30,12 @@ class pythonExecuter(abstractExecuter):
         # func   = getattr(newobj,input["funcName"])
         # ret = func(**inputs['parameters'])
         self.logger.info("Starting run of run python script")
+
+        codeDir =  inputs.get("CodeDirectory",None )
+
+        sys.path.append(os.getcwd())
+        if codeDir is not None:
+            sys.path.append(codeDir)
 
         try:
             modulecls = pydoc.locate(inputs['ModulePath'])
@@ -42,5 +51,5 @@ class pythonExecuter(abstractExecuter):
         objcls = getattr(modulecls, inputs["ClassName"])
         newobj = objcls()
         func   = getattr(newobj,inputs["MethodName"])
-        ret = func(**inputs)
+        ret = func(**inputs['Parameters'])
         return dict(pythonExecuter="pythonExecuter",Return=ret)

@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.system.TopoSet",
     "input_parameters": {
       "actions": [
       ]

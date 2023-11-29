@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.dispersionExecuters.kinematicCloudProperties",
     "input_parameters": {
       "activeCloud": "true",
       "stochasticTurbulenceModel": "Indoor",
@@ -24,6 +23,7 @@
           }
         }
       },
+      "forces" : ["sphereDrag","gravity"],
       "patchInteraction": {
         "interactionType": "LocalInteraction",
         "patches": {

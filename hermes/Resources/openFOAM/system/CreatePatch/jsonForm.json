@@ -1,6 +1,5 @@
 {
   "Execution": {
-    "type": "openFOAM.system.CreatePatch",
     "input_parameters": {
       "patches" : [
       ]

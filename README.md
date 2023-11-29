@@ -101,3 +101,10 @@ Invoking the script will trigger the build process.
 
 Use one of the examples in the examaple directory
 
+## Execute in gui mode
+
+
+## Execute in script mode
+
+Use one of the examples in the examaple directory
+
