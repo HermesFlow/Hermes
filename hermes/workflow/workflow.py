@@ -137,7 +137,6 @@ class workflow:
         self.logger.execution(f"Building {taskname}")
         if taskJSON is None:
             raise ModuleNotFoundError(f"Node {taskname} is not found")
-
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
         self.logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
@@ -214,12 +213,9 @@ class workflow:
         finalnode = dict(name=finalNodeName ,
                          type="general.Parameters",
                          Execution=dict(
-                                        input_parameters={},
-                                        requires=[x for x in self._workflowJSON["workflow"]["nodes"] if x != finalNodeName]),
-
-                         GUI=dict(TypeFC={}, Properties={}, WebGui={}))
-
-
+                                        input_parameters={}),
+                         GUI=dict(TypeFC={}, Properties={}, WebGui={}),
+                         requires=[x for x in self._workflowJSON["workflow"]["nodes"] if x != finalNodeName])
 
         self._workflowJSON["workflow"]["nodes"]["finalnode_xx"] =finalnode
         #self._workflowJSON["nodes"]["finalnode_xx"] =finalnode
@@ -482,7 +478,7 @@ class workflow:
             outFileName = os.path.join(directory,outFileName)
 
         with open(outFileName,'w') as writeFile:
-            json.dump(self.workflowJSON,writeFile,indent=4)
+            json.dump(self.json,writeFile,indent=4)
 
 
 

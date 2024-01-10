@@ -27,11 +27,12 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7)
-    {{utils.toPoint(geometry.cellCount)}}
+    {%- for blck in blocks %}
+    hex {{utils.toPoint(blck.hex)}}
+    {{utils.toPoint(blck.cellCount)}}
     simpleGrading
     (
-        {% for grd in geometry.grading -%}
+        {% for grd in blck.grading -%}
             {%- if grd is sequence -%}
             (
                 {% for dtl in grd -%}
@@ -43,8 +44,13 @@ blocks
             {%- endif %}
           {% endfor %}
     )
-
+    {% endfor %}
 );
+
+defaultPatch
+{
+    type {{defaultPatch}};
+}
 
 edges
 (
@@ -63,9 +69,11 @@ boundary
             type {{bndry.type}};
             faces
             (
+                {%if bndry.faces|length>0 %}
                 {%- for indx in range(bndry.faces|length)%}
                        {{utils.toPoint(bndry.faces[indx])}}
                 {%- endfor %}
+                {% endif %}
 
             );
             {%- if bndry['type'] =='cyclic' %}
