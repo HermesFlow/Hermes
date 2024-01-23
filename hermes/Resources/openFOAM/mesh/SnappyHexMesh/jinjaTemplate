@@ -111,7 +111,7 @@ castellatedMeshControls
     {
     {%- for geometryName,geometryData in geometry.objects.items() %}
         {%  set refinementRegions =  geometryData.refinementRegions %}
-        {% if 'mode' in geometryData.refinementRegions %}
+        {% if 'mode' in refinementRegions %}
         {{geometryName}}
         {
             mode {{refinementRegions.mode}};

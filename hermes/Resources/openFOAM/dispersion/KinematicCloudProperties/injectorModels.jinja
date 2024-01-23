@@ -5,8 +5,10 @@
 {%- macro injectors(injectorName,injectorData)  -%}
 {%      if injectorData.type =='manualInjection' %}
 {{ManualInjection(injectorName,injectorData)}}
+{%      elif injectorData.type =='continuousInjection' %}
+{{ContinuousInjection(injectorName,injectorData)}}
 {%      else %}
-    UNKNOWN Injector, must be manualInjection
+    UNKNOWN Injector, must be either [manualInjection,continuousInjection]
 {%      endif %}
 {%- endmacro %}
 
@@ -22,6 +24,27 @@
             SOI             {{injectorData.StartOfInjection}};
             positionsFile   {{injectorData.positionsFile}};
             U0              {{toVector(injectorData.U0)}};
+            T0              {{toVector(injectorData.T0)}};
+            sizeDistribution
+            {
+                {{sizedistribution(injectorData.sizeDistribution)}}
+            }
+        }
+{%- endmacro %}
+
+{#- Injector: A marco for the Continuous injection  -#}
+{#- -----------------------------------------  -#}
+{%- macro ContinuousInjection(injectorName,injectorData) -%}
+        {{injectorName}}
+        {
+            type            ContinuousInjection;
+            massTotal       {{injectorData.massTotal}};
+            parcelBasisType {{injectorData.parcelBasisType}};
+            EOI             {{injectorData.EndOfInjection}};
+            SOI             {{injectorData.StartOfInjection}};
+            positionsFile   {{injectorData.positionsFile}};
+            U0              {{toVector(injectorData.U0)}};
+            T0              {{toVector(injectorData.T0)}};
             sizeDistribution
             {
                 {{sizedistribution(injectorData.sizeDistribution)}}

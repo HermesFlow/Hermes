@@ -24,9 +24,15 @@
 {
     solver              PCG;
     preconditioner      {{solverData.preconditioner}};
+    {%- if 'tolerance' in solverData %}
     tolerance           {{solverData.tolerance}};
+    {% endif -%}
+    {%- if 'relTol' in solverData %}
     relTol              {{solverData.relTol}};
+    {% endif -%}
+    {%- if 'maxIter' in solverData %}
     maxIter             {{solverData.maxIter}};
+    {% endif -%}
 }
 {%- endmacro %}
 
@@ -39,9 +45,15 @@
 {
     solver              PBiCG;
     preconditioner      {{solverData.preconditioner}};
+    {%- if 'tolerance' in solverData %}
     tolerance           {{solverData.tolerance}};
+    {% endif -%}
+    {%- if 'relTol' in solverData %}
     relTol              {{solverData.relTol}};
+    {% endif -%}
+    {%- if 'maxIter' in solverData %}
     maxIter             {{solverData.maxIter}};
+    {% endif -%}
 }
 {%- endmacro %}
 
@@ -56,12 +68,21 @@
     {%- set CAbool=solverData.cacheAgglomeration %}
     {{ 'cacheAgglomeration on;' if CAbool else 'cacheAgglomeration off;' }}
 
+    {%- if 'agglomerator' in solverData %}
     agglomerator    {{solverData.agglomerator}};
+    {% endif -%}
+    {%- if 'nCellsInCoarsestLevel' in solverData %}
     nCellsInCoarsestLevel {{solverData.nCellsInCoarsestLevel}};
+    {% endif -%}
+    {%- if 'mergeLevels' in solverData %}
     mergeLevels     {{solverData.mergeLevels}};
+    {% endif -%}
+    {%- if 'tolerance' in solverData %}
     tolerance       {{solverData.tolerance}};
+    {% endif -%}
+    {%- if 'relTol' in solverData %}
     relTol          {{solverData.relTol}};
-
+    {% endif -%}
 }
 {%- endmacro %}
 
