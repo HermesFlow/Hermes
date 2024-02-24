@@ -18,13 +18,16 @@ class FilesWriter(abstractExecuter):
 
     def run(self, **inputs):
 
-        path = inputs["directoryPath"]
+        workdir = inputs["directoryPath"]
+        if workdir is None:
+            workdir = os.getcwd()
+
+        path = os.path.join(workdir,inputs["casePath"])
         files = inputs["Files"]
 
         createdFiles = dict()
         for groupName, groupData in files.items():
             # make sure that the user input is regarded as a directory in case of input dict file.
-
             fileContent = groupData['fileContent']
             fileName    = groupData['fileName']
 
@@ -32,7 +35,6 @@ class FilesWriter(abstractExecuter):
                 fileName = f"{fileName}/"
 
             newPath = os.path.join(path, fileName)
-
             if not os.path.exists(os.path.dirname(newPath)):
                 try:
                     os.makedirs(os.path.dirname(newPath),exist_ok=True)

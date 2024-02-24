@@ -1,0 +1,14 @@
+{
+    "Execution": {
+        "input_parameters": {
+            "simulationType" : "laminar"
+        }
+    },
+    "GUI": {
+        "Type": "openFOAM.constant.TurbulenceProperties.workbench.TurbulenceProperties",
+        "Properties": {},
+        "WebGui": {
+            "Template": "openFOAM.constant.TurbulenceProperties.webGUI"
+        }
+    }
+}

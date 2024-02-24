@@ -171,14 +171,16 @@ addLayersControls
     // Per final patch (so not geometry!) the layer information
     layers
     {
-        {%- for geometryName,geometryData in geometry.objects.items() %}
-        {%- if 'layers' in geometryData %}
-            {{geometryData.objectName}}
+        {%- if 'regions' in geometry.objects %}
+        {%- for geometryName,geometryData in geometry.objects.regions.items() %}
+        {%- if 'nSurfaceLayers' in geometryData %}
+            {{geometryData.name}}
             {
-                nSurfaceLayers {{geometryData.layers.nSurfaceLayers}};
+                nSurfaceLayers {{geometryData.nSurfaceLayers}};
             }
         {%- endif %}
         {%- endfor %}
+        {%- endif %}
     }
 
     // Are the thickness parameters below relative to the undistorted

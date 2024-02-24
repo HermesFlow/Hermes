@@ -23,6 +23,7 @@
           }
         }
       },
+      "forces" : ["sphereDrag","gravity"],
       "patchInteraction": {
         "interactionType": "LocalInteraction",
         "patches": {

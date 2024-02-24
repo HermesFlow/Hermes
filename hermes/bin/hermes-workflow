@@ -1,8 +1,14 @@
 #! /usr/bin/env python
 import argparse
 from hermes.utils.workflowAssembly import handler_build,handler_buildExecute,handler_expand,handler_execute
+from hermes.utils.logging import initialize_logging,with_logger
 
 if __name__ == "__main__":
+    initialize_logging(
+         with_logger("hermes.bin", handlers=['console'], level='CRITICAL', propagate=False),
+         with_logger("hermes.workflow", handlers=['console'], level='CRITICAL', propagate=False),
+    )
+
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help='sub-command help',dest="subparser_name")
 

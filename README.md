@@ -33,7 +33,7 @@ The script performs the following:
     HermesFlow/JsonExample
     FreeCad
 
-4. sets up the python environment needed for running/development in "dot_local" directory that is bound to ~/.local of the docker user by means of bind directive in doker launch script, it contains the following python components:
+4. sets up the Python environment needed for running/development in "dot_local" directory that is bound to ~/.local of the docker user by means of bind directive in doker launch script, it contains the following Python components:
     PyQt5
     jsonpath_rw_ext
     luigi
@@ -92,5 +92,19 @@ Use docker_dev.sh script inside the installation directory. The script will laun
 
     -D FREECAD_USE_QTWEBMODULE="Qt\ Webkit" 
 
-Invoking the script will trigger build process. 
+Invoking the script will trigger the build process. 
+
+## Execute in gui mode
+
+
+## Execute in script mode
+
+Use one of the examples in the examaple directory
+
+## Execute in gui mode
+
+
+## Execute in script mode
+
+Use one of the examples in the examaple directory
 
