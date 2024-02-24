@@ -144,6 +144,7 @@ class workflow:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
                 #if taskJSON is not None:
+
                 self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
 
         # Now build your own network representation.
@@ -438,7 +439,7 @@ class workflow:
 
     @property
     def workflowType(self):
-        return 'hermesWorkflow'
+        return self.workflowJSON['workflowType']
 
     @property
     def solver(self):
@@ -467,21 +468,18 @@ class workflow:
             raise ValueError("Must supply file name")
 
         if workflowName is not None:
-            if 'json' not in workflowName:
-                outFileName = workflowName /".json"
-            else:
+            if 'json' in workflowName:
                 outFileName = workflowName
+            else:
+                outFileName = f"{workflowName}.json"
         else:
-            outFileName = self.name/".json"
+            outFileName = f"{self.name}.json"
 
         if directory is not None:
             outFileName = os.path.join(directory,outFileName)
 
         with open(outFileName,'w') as writeFile:
             json.dump(self.json,writeFile,indent=4)
-
-
-
 
 
 class hermesNode:
