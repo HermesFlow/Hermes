@@ -1,3 +1,4 @@
+import copy
 from _io import TextIOWrapper
 import os
 import json
@@ -381,30 +382,6 @@ class workflow:
         jsonexpr = jsonpath.parse(jsonpath)
         jsonexpr.update(self._workflowJSON['nodes'],value)
 
-    def write(self,filename,overwrite=False):
-        """
-            writes the new workflow to the file.
-        Parameters
-        ----------
-        filename : str
-            The file name
-
-        overwrite: bool
-            If true, the writes over existing file. Otherwise raises an exception.
-
-        Returns
-        -------
-
-        """
-        if not overwrite:
-            if os.path.exists(filename):
-                err = f"{filename} alread exists. Use overwrite=True to overwite it"
-                raise FileExistsError(err)
-
-        with open(filename,'w') as outputFile:
-            json.dump(self._workflowJSON,outputFile,indent=4)  # write with the workflow node.
-
-
     def getNodesParametersTable(self):
         """
             A pandas (table) of  the parameters from all the nodes.
@@ -437,15 +414,29 @@ class workflow:
 
         return retdict
 
-    @property
-    def workflowType(self):
-        return self.workflowJSON['workflowType']
+
+    def _stripGUIandFinalNode(self):
+        """
+            Return the workflowJSON without the GUI node.
+
+        Returns
+        -------
+
+        """
+        retJSON = dict(self._workflowJSON)
+
+        del retJSON['workflow']["nodes"]['finalnode_xx']
+
+        for nodeName,nodeData in retJSON['workflow']["nodes"].items():
+            del nodeData['GUI']
+
+        return retJSON
 
     @property
     def solver(self):
         return self.workflowJSON['solver']
 
-    def write(self,workflowName=None,directory=None):
+    def write(self,workflowName=None,directory=None,fullJSON=False):
         """
             Writing the workflow to the disk
 
@@ -460,10 +451,16 @@ class workflow:
         directory : str
             optional directory location, else writes to current directory.
 
+        fullJSON  :bool
+            If true, return the full JSON (including the final and the GUI nodes)
+            otherwise stripthen out
+
         Returns
         -------
 
         """
+
+
         if workflowName is None and self.name is None:
             raise ValueError("Must supply file name")
 
@@ -478,8 +475,13 @@ class workflow:
         if directory is not None:
             outFileName = os.path.join(directory,outFileName)
 
+        if fullJSON:
+            output = self._workflowJSON
+        else:
+            output = self._stripGUIandFinalNode()
+
         with open(outFileName,'w') as writeFile:
-            json.dump(self.json,writeFile,indent=4)
+            json.dump(output,writeFile,indent=4)
 
 
 class hermesNode:
@@ -508,6 +510,16 @@ class hermesNode:
         return self._nodeJSON['Execution']['input_parameters']
 
     @property
+    def executionJSON(self):
+        """
+            Return the JSON file without the GUI node.
+        Returns
+        -------
+
+        """
+        return self._nodeJSON['Execution']
+
+    @property
     def parametersTable(self):
         return pandas.json_normalize(self._nodeJSON['Execution']['input_parameters'])\
             .T\
@@ -530,3 +542,4 @@ class hermesNode:
 
     def items(self):
         return self._nodeJSON['Execution']['input_parameters'].items()
+
