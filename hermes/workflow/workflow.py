@@ -468,19 +468,18 @@ class workflow:
             raise ValueError("Must supply file name")
 
         if workflowName is not None:
-            if 'json' not in workflowName:
-                outFileName = workflowName /".json"
+            if 'json' in workflowName:
+                outFileName = workflowName
+            else:
+                outFileName = f"{workflowName}.json"
         else:
-            outFileName = self.name/".json"
+            outFileName = f"{self.name}.json"
 
         if directory is not None:
             outFileName = os.path.join(directory,outFileName)
 
         with open(outFileName,'w') as writeFile:
             json.dump(self.workflowJSON,writeFile,indent=4)
-
-
-
 
 
 class hermesNode:
