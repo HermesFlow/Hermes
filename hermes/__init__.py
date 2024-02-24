@@ -6,6 +6,13 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+    
+    - Added a stripped output version in writing. 
+    - Updating blockMesh and the snappy jijna
+    - Updating the injectors jijna
+    - Updating to OF10 by adding the momentum and Physicla properties files.
+    - fixing the dependency bugs in the pipeline.
+
   Version 3.2.0
   -------------
 
