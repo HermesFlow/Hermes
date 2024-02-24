@@ -1,6 +1,7 @@
 from ...executers.abstractExecuter import abstractExecuter
 import shutil
 import os, sys, stat
+import subprocess
 
 class RunOsCommand(abstractExecuter):
 
@@ -29,16 +30,16 @@ class RunOsCommand(abstractExecuter):
             # give the file execute premission of the user
             os.chmod(fullPath, stat.S_IRWXU)
             # run the batch file
-            os.system(fullPath)
+            ret_val = os.system(fullPath)
+            if ret_val != 0:
+                raise ValueError(f"{fullPath} failed")
         elif inputs["Method"]=="Command list":
             import subprocess, stat, numpy
             ret = []
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
                 if ret_val != 0:
-                    ret = "Failed Run"
-                    break
-
+                    raise ValueError(f"{fullPath} failed")
                 ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.

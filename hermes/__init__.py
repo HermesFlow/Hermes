@@ -6,6 +6,8 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+  Version 3.2.0
+  -------------
 
     - Added 'write' capability to the hermes workflow
     - Removed  hera-metadata

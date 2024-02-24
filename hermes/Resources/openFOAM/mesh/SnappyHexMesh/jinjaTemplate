@@ -34,10 +34,7 @@ geometry
             {%- for regionName,regionData in objRegions.items()  %}
                 {{regionName}}
                 {
-                    name {{regionData.name}};
-                    {%- if 'type' in regionData %}
-                    type {{regionData.type}};
-                    {%- endif %}
+                    name {% if 'name' in regionData %} {{regionData.name}} {% else -%} {{regionName}}{% endif %};
                 }
             {%- endfor %}
         }
@@ -95,10 +92,12 @@ castellatedMeshControls
 
             {%- for regionName,regionData in objRegions.items()  %}
                 {%- if 'refinementSurfaceLevels' in regionData.keys() %}
-
-                {{regionData.name}}
+                {% if 'name' in regionData %} {{regionData.name}} {% else -%} {{regionName}}{% endif %}
                 {
                         level {{utils.toPoint(regionData.refinementSurfaceLevels)}};
+                        {%- if 'type' in regionData %}
+                        type {{regionData.type}};
+                        {%- endif %}
                 }
                 {%- endif %}
             {%- endfor %}
@@ -112,7 +111,7 @@ castellatedMeshControls
     {
     {%- for geometryName,geometryData in geometry.objects.items() %}
         {%  set refinementRegions =  geometryData.refinementRegions %}
-        {% if 'mode' in geometryData.refinementRegions %}
+        {% if 'mode' in refinementRegions %}
         {{geometryName}}
         {
             mode {{refinementRegions.mode}};
@@ -127,12 +126,13 @@ castellatedMeshControls
             );
         }
         {% endif %}
+        /*
         {%- if 'regions' in geometryData %}
             {%- set objRegions=geometryData.regions %}
             {%- for regionName,regionData in objRegions.items()  %}
                 {%- if 'refinementRegions' in regionData.keys() %}
                     {%- set regionRefinementRegions = regionData.refinementRegions %}
-        {{regionData.name}}
+        {% if 'name' in regionData %}{{regionData.name}} {% else -%}{{regionName}}{% endif %}
         {
             mode {{regionRefinementRegions.mode}};
             levels (
@@ -148,6 +148,7 @@ castellatedMeshControls
                 {% endif %}
             {%- endfor %}
         {%- endif %}
+        */
     {% endfor %}
     }
 }
