@@ -83,8 +83,13 @@ castellatedMeshControls
     {%- for geometryName,geometryData in geometry.objects.items() %}
         {{geometryName}}
         {
+            {%- if 'refinementSurfaceLevels' in geometryData -%}
             level {{utils.toPoint(geometryData.refinementSurfaceLevels)}};
             patchInfo { type {{geometryData.patchType}}; }
+            {% else %}
+            level {{utils.toPoint(geometryData.refinementSurfaces.levels)}};
+            patchInfo { type {{geometryData.refinementSurfaces.patchType}}; }
+            {%- endif %}
 
             {%- if 'regions' in geometryData %}
             {%- set objRegions=geometryData.regions %}
@@ -126,7 +131,7 @@ castellatedMeshControls
             );
         }
         {% endif %}
-        /*
+
         {%- if 'regions' in geometryData %}
             {%- set objRegions=geometryData.regions %}
             {%- for regionName,regionData in objRegions.items()  %}
@@ -148,7 +153,6 @@ castellatedMeshControls
                 {% endif %}
             {%- endfor %}
         {%- endif %}
-        */
     {% endfor %}
     }
 }
