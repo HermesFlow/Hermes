@@ -432,9 +432,15 @@ class workflow:
 
         return retJSON
 
+
     @property
-    def solver(self):
+    def sover(self):
         return self.workflowJSON['solver']
+
+    @sover.setter
+    def sover(self, value):
+        self.workflowJSON['solver'] = value
+
 
     def write(self,workflowName=None,directory=None,fullJSON=False):
         """
