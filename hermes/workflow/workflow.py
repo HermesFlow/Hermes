@@ -10,6 +10,7 @@ from ..engines import builders
 from .expandWorkflow import expandWorkflow
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import helpers as hermes_logging
+from ..utils.logging import get_classMethod_logger
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -265,6 +266,45 @@ class workflow:
     def values(self):
         for ndeName in self.workflowJSON['nodes'].keys():
             yield  self[ndeName]
+
+    def __setitem__(self, key, value):
+        """
+            Adds the node to the workflow.
+
+            This procedure also updates the nodeList.
+            Hence, if the value is a tuple, the second object is the node after which this node enters.
+
+            Specifically
+
+                > wf["newNode"] = nodeJSON
+                will add the new node to the end of the nodelist and the nodeJSON to the nodelist.
+
+                > wf["newNode"] = nodeJSON, "oldnode"
+                will add the new node after oldnode and the nodeJSON to the nodelist.
+
+
+        """
+        logger = get_classMethod_logger(self,"setitem")
+
+        if type(value,tuple):
+            if len(value) > 2:
+                err = f"Got more than 2 items: f{value}. Must get one item at most."
+                logger.error(err)
+                raise ValueError(err)
+
+            try:
+                olditemIndx = self.nodeList.index(value[1])
+            except ValueError:
+                err = f"Item {value[1]} is not on the list"
+                logger.error(err)
+                raise ValueError(err)
+            self.nodeList.inset(olditemIndx+1,value[0])
+
+        else:
+            logger.debug("Setting the node")
+            self.workflowJSON['nodes'] = value
+
+
 
     def __getitem__(self, item):
         """
