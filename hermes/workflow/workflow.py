@@ -272,37 +272,45 @@ class workflow:
             Adds the node to the workflow.
 
             This procedure also updates the nodeList.
-            Hence, if the value is a tuple, the second object is the node after which this node enters.
+            The value is a dict with the fields:
 
-            Specifically
-
-                > wf["newNode"] = nodeJSON
-                will add the new node to the end of the nodelist and the nodeJSON to the nodelist.
-
-                > wf["newNode"] = nodeJSON, "oldnode"
-                will add the new node after oldnode and the nodeJSON to the nodelist.
-
-
+            - nodeListPosition : string or int, [optional]
+                    If exists, write the new node after the node name (if string) or its position (if int).
+                    if does not exist, add at the end.
+            - node             :  dict
+                    The data of the node
         """
         logger = get_classMethod_logger(self,"setitem")
 
-        if type(value,tuple):
-            if len(value) > 2:
-                err = f"Got more than 2 items: f{value}. Must get one item at most."
-                logger.error(err)
-                raise ValueError(err)
 
+        if not isinstance(value,dict):
+            err = f"The value must be dict."
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'nodeListPosition' not in value:
+            self.nodeList.append(key)
+        elif isinstance(value['nodeListPosition'],str):
             try:
                 olditemIndx = self.nodeList.index(value[1])
             except ValueError:
                 err = f"Item {value[1]} is not on the list"
                 logger.error(err)
                 raise ValueError(err)
-            self.nodeList.inset(olditemIndx+1,value[0])
-
+            self.nodeList.inset(olditemIndx + 1, key)
+        elif isinstance(value['nodeListPosition'],int):
+            self.nodeList.inset(value['nodeListPosition'], key)
         else:
-            logger.debug("Setting the node")
-            self.workflowJSON['nodes'] = value
+            err = f"value['nodeListPosition'] must be int or string. Got {type(value['nodeListPosition'])}"
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'node' not in value:
+            err = f"The node data must be in specified in value['node']. Key not found"
+            logger.error(err)
+            raise ValueError(err)
+
+        self.workflowJSON['nodes'] = value['node']
 
 
 
