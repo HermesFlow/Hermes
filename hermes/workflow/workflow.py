@@ -10,6 +10,7 @@ from ..engines import builders
 from .expandWorkflow import expandWorkflow
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import helpers as hermes_logging
+from ..utils.logging import get_classMethod_logger
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -265,6 +266,53 @@ class workflow:
     def values(self):
         for ndeName in self.workflowJSON['nodes'].keys():
             yield  self[ndeName]
+
+    def __setitem__(self, key, value):
+        """
+            Adds the node to the workflow.
+
+            This procedure also updates the nodeList.
+            The value is a dict with the fields:
+
+            - nodeListPosition : string or int, [optional]
+                    If exists, write the new node after the node name (if string) or its position (if int).
+                    if does not exist, add at the end.
+            - node             :  dict
+                    The data of the node
+        """
+        logger = get_classMethod_logger(self,"setitem")
+
+
+        if not isinstance(value,dict):
+            err = f"The value must be dict."
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'nodeListPosition' not in value:
+            self.nodeList.append(key)
+        elif isinstance(value['nodeListPosition'],str):
+            try:
+                olditemIndx = self.nodeList.index(value[1])
+            except ValueError:
+                err = f"Item {value[1]} is not on the list"
+                logger.error(err)
+                raise ValueError(err)
+            self.nodeList.inset(olditemIndx + 1, key)
+        elif isinstance(value['nodeListPosition'],int):
+            self.nodeList.inset(value['nodeListPosition'], key)
+        else:
+            err = f"value['nodeListPosition'] must be int or string. Got {type(value['nodeListPosition'])}"
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'node' not in value:
+            err = f"The node data must be in specified in value['node']. Key not found"
+            logger.error(err)
+            raise ValueError(err)
+
+        self.workflowJSON['nodes'] = value['node']
+
+
 
     def __getitem__(self, item):
         """
