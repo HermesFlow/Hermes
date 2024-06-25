@@ -16,9 +16,7 @@ class RunOsCommand(abstractExecuter):
 
     def run(self, **inputs):
         import stat,os
-
         cwd = os.getcwd()
-
         if "changeDirTo" in inputs:
             os.chdir(os.path.abspath(inputs["changeDirTo"]))
 
@@ -39,7 +37,7 @@ class RunOsCommand(abstractExecuter):
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
                 if ret_val != 0:
-                    raise ValueError(f"{fullPath} failed")
+                    raise ValueError(f"{cmd} failed")
                 ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.
