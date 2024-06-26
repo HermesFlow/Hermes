@@ -90,14 +90,14 @@ class expandWorkflow:
             Dict.
         """
         logger = get_classMethod_logger(self,"expand")
-        logger.info("---------------- Start ------------")
+        logger.info(f"---------------- Start  : {logger.name}")
         logger.debug(f"Got templateJSON : {templateJSON}")
         JsonObjectfromFile = loadJSON(templateJSON)
         #nodeList = JsonObjectfromFile["workflow"]["nodeList"]
         nodes = JsonObjectfromFile["workflow"]["nodes"]
 
         for nodeName,nodeData in nodes.items():
-            logger.execution(f"Processing node {nodeName}")
+            logger.execution(f"Processing node **{nodeName}**")
             logger.debug(f"Node {nodeName} in the list, using type {nodeData['type']} ")
             fullNodeData = dict(self._templateCenter[nodeData['type']])
             logger.debug(f"Got template, now updating map {fullNodeData}")

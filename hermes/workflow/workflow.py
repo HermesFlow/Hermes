@@ -216,9 +216,9 @@ class workflow:
         finalnode = dict(name=finalNodeName ,
                          type="general.Parameters",
                          Execution=dict(
-                                        input_parameters={}),
+                                        input_parameters={},requires=[x for x in self._workflowJSON["workflow"]["nodes"] if x != finalNodeName]),
                          GUI=dict(TypeFC={}, Properties={}, WebGui={}),
-                         requires=[x for x in self._workflowJSON["workflow"]["nodes"] if x != finalNodeName])
+                         )
 
         self._workflowJSON["workflow"]["nodes"]["finalnode_xx"] =finalnode
         #self._workflowJSON["nodes"]["finalnode_xx"] =finalnode

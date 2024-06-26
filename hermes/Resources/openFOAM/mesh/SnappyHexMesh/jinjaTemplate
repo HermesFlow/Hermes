@@ -178,8 +178,8 @@ addLayersControls
     {
         {%- for geometryName,geometryData in geometry.objects.items() %}
         {%- set objLayers=geometryData.layers %}
-        {%- if objLayers|length > 0 -%}
-            {{geometryData.name}}
+        {%- if objLayers|length > 0 %}
+            {{geometryName}}
             {
                 {%- if 'nSurfaceLayers' in objLayers %}
                 nSurfaceLayers {{objLayers.nSurfaceLayers}};
@@ -205,7 +205,7 @@ addLayersControls
                 minThickness {{objLayers.minThickness}};
                 {%- endif -%}
             }
-        {%- endif %}
+        {% endif %}
         {%- if 'regions' in geometryData %}
         {%- for regionName,regionData in geometryData.regions.items() %}
 
