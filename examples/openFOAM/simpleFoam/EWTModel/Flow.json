@@ -528,48 +528,6 @@
                                     "relTol": 0,
                                     "maxIter": 5000
                                 }
-                            },
-                            "p_rgh": {
-                                "solver": "GAMG",
-                                "tolerance": 0,
-                                "relTol": 0.1,
-                                "maxIter": 5000,
-                                "final": {
-                                    "solver": "GAMG",
-                                    "smoother": "DICGaussSeidel",
-                                    "tolerance": 1e-06,
-                                    "relTol": 0,
-                                    "maxIter": 5000
-                                },
-                                "smoother": "GaussSeidel"
-                            },
-                            "T": {
-                                "solver": "PBiCG",
-                                "preconditioner": "DILU",
-                                "tolerance": 1e-08,
-                                "relTol": 0.001,
-                                "maxIter": 5000,
-                                "final": {
-                                    "solver": "PBiCG",
-                                    "preconditioner": "DILU",
-                                    "tolerance": 1e-08,
-                                    "relTol": 0,
-                                    "maxIter": 5000
-                                }
-                            },
-                            "Tbackground": {
-                                "solver": "PBiCG",
-                                "preconditioner": "DILU",
-                                "tolerance": 1e-08,
-                                "relTol": 0.001,
-                                "maxIter": 5000,
-                                "final": {
-                                    "solver": "PBiCG",
-                                    "preconditioner": "DILU",
-                                    "tolerance": 1e-08,
-                                    "relTol": 0,
-                                    "maxIter": 5000
-                                }
                             }
                         },
                         "solverProperties": {
