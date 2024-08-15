@@ -434,11 +434,11 @@ class workflow:
 
 
     @property
-    def sover(self):
+    def solver(self):
         return self.workflowJSON['solver']
 
-    @sover.setter
-    def sover(self, value):
+    @solver.setter
+    def solver(self, value):
         self.workflowJSON['solver'] = value
 
 
