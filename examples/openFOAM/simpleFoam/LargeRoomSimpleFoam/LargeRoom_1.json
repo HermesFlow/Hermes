@@ -39,7 +39,7 @@
         "Execution": {
           "input_parameters": {
             "Method": "Command list",
-            "Command": "hera-openfoam {workflow.workflowType} createEmptyCaseDirectory {Parameters.output.targetDirectory} --fields {workflow.SolvedFields}"
+            "Command": "hera-openfoam {workflow.workflowType} case createEmpty {Parameters.output.targetDirectory} --fields {workflow.SolvedFields}"
           }
         },
         "type": "general.RunOsCommand"
