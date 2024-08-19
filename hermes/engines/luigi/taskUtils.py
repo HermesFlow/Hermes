@@ -170,6 +170,11 @@ class utils:
                         param_ret[dict_paramname] = self.build_executer_parameters({dict_paramname:dict_parampath}, params)[dict_paramname]
                     elif isinstance(dict_parampath,str):
                         param_ret[dict_paramname] = self._parseAndEvaluatePath(dict_parampath, params)
+                    elif isinstance(dict_parampath,list):
+                        newValueList = []
+                        for value in dict_parampath:
+                            newValueList.append(self._parseAndEvaluatePath(value, params) if isinstance(value,str) else value)
+                        param_ret[dict_paramname] =newValueList
                     else:
                         param_ret[dict_paramname] = dict_parampath
 

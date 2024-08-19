@@ -33,6 +33,15 @@ actions
             {%-endif %}
         {% endfor %}
     }
+
+    {%- for info,data in actionData.get("parameters",dict()).items(): -%}
+    {%- if (data is sequence) and (data is not string) %}
+    {{info}} {{utils.toList(data)}};
+    {%- else %}
+    {{info}} {{data}};
+    {%-endif %}
+    {% endfor %}
+
 }
 {% endfor %}
 );
