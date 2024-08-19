@@ -16,6 +16,12 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 {%- import "openFOAM/utils.jinja"  as utils %}
+
+{% if params %}
+{{utils.setParams(params)}}
+{%- endif %}
+
+
 actions
 (
 {% for actionData in actions: -%}
@@ -24,6 +30,7 @@ actions
     type    {{actionData.type}};
     action  {{actionData.action}};
     source  {{actionData.source}};
+    {% if sourceIfno in actionData %}
     sourceInfo {
         {%- for info,data in actionData.sourceInfo.items(): -%}
             {%- if (data is sequence) and (data is not string) %}
@@ -33,6 +40,16 @@ actions
             {%-endif %}
         {% endfor %}
     }
+    {% endif %}
+
+    {%- for info,data in actionData.get("parameters",dict()).items(): -%}
+    {%- if (data is sequence) and (data is not string) %}
+    {{info}} {{utils.toList(data)}};
+    {%- else %}
+    {{info}} {{data}};
+    {%-endif %}
+    {% endfor %}
+
 }
 {% endfor %}
 );

@@ -1,4 +1,4 @@
-__version__=(3,2,0)
+__version__=(3,3,0)
 
 # Have some initial default logging configuration in case the user hasn't set any
 from .utils.logging.helpers import initialize_logging
@@ -6,7 +6,9 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
-    
+  Version 3.3.0
+  -------------
+    - Adding support for varibles and #calc. 
     - Added a stripped output version in writing. 
     - Updating blockMesh and the snappy jijna
     - Updating the injectors jijna

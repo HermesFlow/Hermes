@@ -9,3 +9,13 @@
 {%- macro toList(lst) -%}
   ({%- for val in lst %} {{ val }} {%- endfor %})
 {%- endmacro %}
+
+{%- macro setParams(params) -%}
+{%- for paramName,paramValue in params.items() -%}
+{% if paramValue is sequence %}
+{{paramName}} {% for valueItem in paramValue -%}{{valueItem}}{%- endfor %}
+{%- else %}
+{{paramName}} {{paramValue}};
+{%- endif %}
+{% endfor -%}
+{%- endmacro %}
