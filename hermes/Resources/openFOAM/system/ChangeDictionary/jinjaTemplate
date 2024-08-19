@@ -14,6 +14,7 @@ FoamFile
     object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{%- import "openFOAM/utils.jinja"  as utils %}
 
 {%- for fieldName,fieldChangeData in fields.items() %}
 
@@ -29,9 +30,7 @@ FoamFile
         {% for patchName,patchData in fieldChangeData.boundaryField.items() -%}
         {{patchName}}
         {
-            {% for itemName,itemData in patchData.items() -%}
-                {{itemName}} {{itemData}};
-            {% endfor -%}
+            {{utils.handleValue(patchData)}}
         }
         {% endfor -%}
     }

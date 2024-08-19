@@ -131,7 +131,14 @@ class utils:
         value = []
         tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
         for token, ispath in tokenList:
+            testIfTokenIsAHandler = False
             if token.startswith("#"):
+                if len(token[1:]) > 0:
+                    testIfTokenIsAHandler = True if hasattr(self,f"_handle_token_{token[1:]}".strip()) else False
+                else:
+                    testIfTokenIsAHandler = False
+
+            if testIfTokenIsAHandler:
                 try:
                     tknval_func = getattr(self,f"_handle_token_{token[1:]}".strip())
                     value.append(tknval_func())

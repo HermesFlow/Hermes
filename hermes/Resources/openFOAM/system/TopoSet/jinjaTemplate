@@ -18,7 +18,7 @@ FoamFile
 {%- import "openFOAM/utils.jinja"  as utils %}
 
 {% if params %}
-{{utils.setParams(params)}}
+{{utils.handleValue(params)}}
 {%- endif %}
 
 
