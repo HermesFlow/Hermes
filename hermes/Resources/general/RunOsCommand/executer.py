@@ -39,7 +39,7 @@ class RunOsCommand(abstractExecuter):
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
                 if ret_val != 0:
-                    raise ValueError(f"{fullPath} failed")
+                    raise ValueError(f"{cmd} failed")
                 ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.
