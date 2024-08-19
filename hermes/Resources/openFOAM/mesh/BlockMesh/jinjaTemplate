@@ -19,9 +19,7 @@ FoamFile
 convertToMeters {{geometry.convertToMeters}};
 
 {% if params %}
-{%- for paramName,paramValue in params.items() -%}
-{{paramName}} {{paramValue}};
-{% endfor -%}
+{{utils.handleValue(params)}}
 {%- endif %}
 
 vertices

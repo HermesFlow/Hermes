@@ -10,10 +10,10 @@
   ({%- for val in lst %} {{ val }} {%- endfor %})
 {%- endmacro %}
 
-{%- macro setParams(params) -%}
+{%- macro handleValue(params) -%}
 {%- for paramName,paramValue in params.items() -%}
 {% if paramValue is sequence %}
-{{paramName}} {% for valueItem in paramValue -%}{{valueItem}}{%- endfor %}
+{{paramName}} {% for valueItem in paramValue -%}{{valueItem}}{%- endfor %};
 {%- else %}
 {{paramName}} {{paramValue}};
 {%- endif %}

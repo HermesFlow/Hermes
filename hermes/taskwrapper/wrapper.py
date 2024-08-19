@@ -119,16 +119,18 @@ t
             a list with tokens and a flag that indicates if its a path or not.
         """
         retList = []
-
-        for pot_token in parameter.split("{"):
-            if "}" not in pot_token:
-                if pot_token != '':
-                    retList.append((pot_token,False))
-            else:
-                rest = pot_token.split("}")
-                retList.append((rest[0],True))
-                if rest[1] != '':
-                    retList.append((rest[1], False))
+        if ('{' in parameter) and ('}' in parameter):
+            for pot_token in parameter.split("{"):
+                if "}" not in pot_token:
+                    if pot_token != '':
+                        retList.append((pot_token,False))
+                else:
+                    rest = pot_token.split("}")
+                    retList.append((rest[0],True))
+                    if rest[1] != '':
+                        retList.append((rest[1], False))
+        else:
+            retList.append((parameter,False))
 
         return retList
 
