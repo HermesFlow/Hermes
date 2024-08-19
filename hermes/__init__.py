@@ -8,9 +8,9 @@ initialize_logging(disable_existing_loggers=False)
 """
   Version 3.3.1
   -------------
-
- - Fixing bugs in handling the #{ for the coded boundary and parameters. 
- - Jinja: Added function to concat values given as a list. 
+    - Adding the scalarTransport example. 
+    - Fixing bugs in handling the #{ for the coded boundary and parameters. 
+    - Jinja: Added function to concat values given as a list. 
 
   Version 3.3.0
   -------------
