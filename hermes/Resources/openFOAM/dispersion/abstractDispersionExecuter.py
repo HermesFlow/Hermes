@@ -12,7 +12,8 @@ class abstractDispersionExecuter(JinjaTransform):
 
 
         template = self._getTemplate(self.templateName)
-
+        import pdb
+        pdb.set_trace()
         # render jinja for the choosen template
         output = template.render(**inputs)
         return dict(openFOAMfile=output)
