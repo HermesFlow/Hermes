@@ -29,6 +29,8 @@ if __name__ == "__main__":
     parser_execute.add_argument('caseName', type=str, help="the name of the case to run")
     parser_execute.add_argument('--force', dest="force", default=False, action="store_true",
                                     help="If exist, delete the execution files first")
+    parser_execute.add_argument('--overwrite', dest="force", default=False, action="store_true",
+                                help="identical to --force, for consistency")
     #parser_execute.add_argument('executter', default="luigi", type=str, help="Execution engine: luigi")
 
 
@@ -36,6 +38,7 @@ if __name__ == "__main__":
     parser_runWorkflow.add_argument('workflow', type=str, help="base workflow")
 #    parser_runWorkflow.add_argument('caseName', default=None, type=str, help="the name of the case to run. If None, use the workflow base name")
     parser_runWorkflow.add_argument('--force',dest="force", default=False, action="store_true", help="If exist, delete the execution files first")
+    parser_runWorkflow.add_argument('--overwrite',dest="force", default=False, action="store_true", help="identical to --force, for consistency")
 
     args = parser.parse_args()
 
