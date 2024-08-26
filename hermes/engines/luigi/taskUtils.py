@@ -4,7 +4,7 @@ import json
 import jsonpath_rw_ext as jp
 import sys
 import hermes
-
+from ...utils.logging import get_classMethod_logger,get_logger
 class utils:
 
     def get_all_required_outputs(self):
@@ -147,7 +147,9 @@ class utils:
                     raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
             elif ispath:
                 try:
-                    value.append(self._evaluate_path(token, params))
+                    ret = self._evaluate_path(token, params)
+                    ret = f'"{str(ret)}"' if isinstance(ret,dict) else ret
+                    value.append(ret)
                 except IndexError:
                     errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
                     print(errMsg)
@@ -169,13 +171,9 @@ class utils:
 
     def build_executer_parameters(self, task_executer_mapping, params):
         ret = {}
-        if isinstance(task_executer_mapping,int):
-            import pdb
-            pdb.set_trace()
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 ret[paramname] = self._parseAndEvaluatePath(parampath,params)
-
             elif isinstance(parampath, dict):
                 param_ret = {}
                 for dict_paramname, dict_parampath in parampath.items():
