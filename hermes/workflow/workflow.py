@@ -427,7 +427,8 @@ class workflow:
         del retJSON['workflow']["nodes"]['finalnode_xx']
 
         for nodeName,nodeData in retJSON['workflow']["nodes"].items():
-            del nodeData['GUI']
+            if 'GUI' in nodeData:
+                del nodeData['GUI']
 
         return retJSON
 
