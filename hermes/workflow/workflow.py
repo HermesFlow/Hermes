@@ -100,7 +100,6 @@ class workflow:
             The name of the workflow
 
         """
-
         if (loadedMongo):
             # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
             # Here, we catch that object and then severe it from the DB by pronting it to str and reading it again...
