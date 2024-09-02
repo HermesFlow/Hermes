@@ -1,5 +1,5 @@
 from ..abstractDispersionExecuter import abstractDispersionExecuter
 
-class IndoorDict(abstractDispersionExecuter):
+class Neutral2018Dict(abstractDispersionExecuter):
     def __init__(self,JSON):
         super().__init__(JSON,"IndoorDict")
