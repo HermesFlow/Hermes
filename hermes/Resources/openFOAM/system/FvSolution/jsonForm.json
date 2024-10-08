@@ -29,43 +29,11 @@
             "relTol": 0,
             "maxIter": 5000
           }
-        },
-        "epsilon": {
-          "solver": "PBiCG",
-          "preconditioner": "DILU",
-          "tolerance": 1e-8,
-          "relTol": 1e-3,
-          "maxIter": 5000,
-          "final": {
-            "solver": "PBiCG",
-            "preconditioner": "DILU",
-            "tolerance": 1e-8,
-            "relTol": 0,
-            "maxIter": 5000
-          }
-        },
-        "k": {
-          "solver": "PBiCG",
-          "preconditioner": "DILU",
-          "tolerance": 1e-8,
-          "relTol": 1e-3,
-          "maxIter": 5000,
-          "final": {
-            "solver": "PBiCG",
-            "preconditioner": "DILU",
-            "tolerance": 1e-8,
-            "relTol": 0,
-            "maxIter": 5000
-          }
         }
       },
       "solverProperties": {
         "algorithm": "SIMPLE",
         "residualControl": {
-          "p": 1e-4,
-          "U": 1e-4,
-          "k": 1e-4,
-          "epsilon": 1e-4
         },
         "solverFields" : {
           "nNonOrthogonalCorrectors": 2,
@@ -76,9 +44,7 @@
       "relaxationFactors": {
         "fields": {
           "p": 0.15,
-          "U": 0.15,
-          "k": 0.15,
-          "epsilon": 0.15
+          "U": 0.15
         },
         "equations": {
           "p": {
@@ -86,14 +52,6 @@
             "final": 0.4
           },
           "U": {
-            "factor": 0.7,
-            "final": 0.7
-          },
-          "k": {
-            "factor": 0.7,
-            "final": 0.7
-          },
-          "epsilon": {
             "factor": 0.7,
             "final": 0.7
           }
