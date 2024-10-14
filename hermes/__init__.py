@@ -109,14 +109,4 @@ with open(os.path.join(os.path.dirname(__file__), 'hermesLogging', 'hermesLoggin
      log_conf_str = logconfile.read().replace("\n","")
      log_conf = json.loads(log_conf_str.replace("{hermespath}",os.path.dirname(__file__)))
 
-EXECUTION = 15
-logging.addLevelName(EXECUTION, 'EXECUTION')
-
-
-def execution(self, message, *args, **kws):
-    self.log(EXECUTION, message, *args, **kws)
-
-logging.Logger.execution = execution
-
-# logging.config.dictConfig(log_conf)
 
