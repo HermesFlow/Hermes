@@ -282,7 +282,6 @@ class workflow:
         """
         logger = get_classMethod_logger(self,"setitem")
 
-
         if not isinstance(value,dict):
             err = f"The value must be dict."
             logger.error(err)
