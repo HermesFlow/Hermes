@@ -40,7 +40,7 @@ class templateCenter:
         """
         Finds a template and return a copy of it  as a dict.
         """
-        self.logger.execution("--------- Start ----------")
+        self.logger.debug("--------- Start ----------")
         self.logger.debug(f"Getting template {template}")
 
         try:
@@ -59,7 +59,7 @@ class templateCenter:
 
 
     def _subsituteTemplates(self,basicTemplate):
-        self.logger.execution(f"Process {basicTemplate}")
+        self.logger.debug(f"Process {basicTemplate}")
         if 'Template' in basicTemplate.keys():
             self.logger.debug(f"Replacing template in {basicTemplate} ")
             ret =  "Done" #self.getTemplate(basicTemplate['Template'])

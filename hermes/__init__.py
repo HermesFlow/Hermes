@@ -116,7 +116,7 @@ logging.addLevelName(EXECUTION, 'EXECUTION')
 def execution(self, message, *args, **kws):
     self.log(EXECUTION, message, *args, **kws)
 
-logging.Logger.execution = execution
+logging.Logger.debug = execution
 
 # logging.config.dictConfig(log_conf)
 

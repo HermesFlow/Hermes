@@ -137,12 +137,12 @@ class workflow:
         :return:
         """
         logger = get_classMethod_logger(self,"_buildNetworkRepresentations")
-        logger.execution(f"Building {taskname}")
+        logger.debug(f"Building {taskname}")
         if taskJSON is None:
             raise ModuleNotFoundError(f"Node {taskname} is not found")
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
-        logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
+        logger.debug(f"The required nodes for {taskname} are {requiredNodeList}")
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)

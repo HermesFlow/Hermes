@@ -15,10 +15,10 @@ def handler_expand(arguments):
     templateFileName = f"{arguments.workflow.split('.')[0]}.json"
     expandedWorkflow = f"{arguments.caseName.split('.')[0]}.json"
 
-    logger.execution(f"Expanding {templateFileName} to {expandedWorkflow}")
+    logger.debug(f"Expanding {templateFileName} to {expandedWorkflow}")
     newTemplate = exapnder.expandBatch(templateJSON=templateFileName)
 
-    logger.execution(f"Writing the expanded workflow to {expandedWorkflow}")
+    logger.debug(f"Writing the expanded workflow to {expandedWorkflow}")
     with open(expandedWorkflow, 'w') as fp:
         json.dump(newTemplate, fp,indent=4)
 
@@ -83,20 +83,20 @@ def handler_buildExecute(arguments):
             print(f"Python execution file {newWorkflow} exists. Delete or run with --force flag.")
             exit()
 
-    logger.execution(f"Expanding the workflow with arguments {arguments}")
+    logger.debug(f"Expanding the workflow with arguments {arguments}")
     handler_expand(arguments)
     arguments.workflow = arguments.caseName
     arguments.parameters = None
-    logger.execution(f"building the workflow with arguments {arguments}")
+    logger.debug(f"building the workflow with arguments {arguments}")
     handler_build(arguments)
 
     if arguments.force:
 
         # delete the run files if exist.
         executionfileDir = f"{arguments.caseName.split('.')[0]}_targetFiles"
-        logger.execution(f"Got remove, tree, deleting {executionfileDir}")
+        logger.debug(f"Got remove, tree, deleting {executionfileDir}")
         shutil.rmtree(executionfileDir, ignore_errors=True)
 
-    logger.execution("Executing the workflow")
+    logger.debug("Executing the workflow")
     handler_execute(arguments)
     logger.info("----------- End ----------")

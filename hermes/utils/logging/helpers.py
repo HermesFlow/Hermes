@@ -50,7 +50,7 @@ def _define_logger_execution():
     def execution(self, message, *args, **kws):
         self.log(EXECUTION, message, *args, **kws)
 
-    logging.Logger.execution = execution
+    logging.Logger.debug = execution
     logging.addLevelName(EXECUTION, 'EXECUTION')
     logging.EXECUTION = EXECUTION
 

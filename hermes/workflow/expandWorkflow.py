@@ -97,7 +97,7 @@ class expandWorkflow:
         nodes = JsonObjectfromFile["workflow"]["nodes"]
 
         for nodeName,nodeData in nodes.items():
-            logger.execution(f"Processing node {nodeName}")
+            logger.debug(f"Processing node {nodeName}")
             logger.debug(f"Node {nodeName} in the list, using type {nodeData['type']} ")
             fullNodeData = dict(self._templateCenter[nodeData['type']])
             logger.debug(f"Got template, now updating map {fullNodeData}")
