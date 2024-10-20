@@ -20,6 +20,7 @@ class RunOsCommand(abstractExecuter):
         if "changeDirTo" in inputs:
             os.chdir(os.path.abspath(inputs["changeDirTo"]))
 
+        ErrorMsg=None
         if inputs["Method"]=="batchFile":
             #get the path of the batchfile
             fullPath = inputs["batchFile"]
@@ -30,15 +31,17 @@ class RunOsCommand(abstractExecuter):
             # run the batch file
             ret_val = os.system(fullPath)
             if ret_val != 0:
-                raise ValueError(f"{fullPath} failed")
+                ErrorMsg = f"{fullPath} failed"
+
         elif inputs["Method"]=="Command list":
             import subprocess, stat, numpy
             ret = []
             for cmd in numpy.atleast_1d(inputs["Command"]):
                 ret_val = os.system(cmd)
                 if ret_val != 0:
-                    raise ValueError(f"{cmd} failed")
-                ret.append("Success")
+                    ErrorMsg = f"{cmd} failed"
+                else:
+                    ret.append("Success")
 
                 #### This solution to save the std out doesn't work when there are multiple parameters.
                 # output = subprocess.Popen(cmd.split(" "),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -52,9 +55,11 @@ class RunOsCommand(abstractExecuter):
                 #               stderr=stderr)
                 # ret.append(result)
         else:
-            raise ValueError(f"Method must be 'batchFile', or 'Command list'. got {input['Method']}")
+            ErrorMsg = f"Method must be 'batchFile', or 'Command list'. got {input['Method']}"
 
         os.chdir(cwd)
+        if ErrorMsg is not None:
+            raise ValueError(ErrorMsg)
 
         return dict(RunOsCommand="RunOsCommand",commands=ret)
 
