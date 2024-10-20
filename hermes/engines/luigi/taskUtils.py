@@ -4,7 +4,7 @@ import json
 import jsonpath_rw_ext as jp
 import sys
 import hermes
-
+from ...utils.logging import get_classMethod_logger,get_logger
 class utils:
 
     def get_all_required_outputs(self):
@@ -124,20 +124,32 @@ class utils:
     def _handle_token_moduleName(self):
         return sys.argv[2]
 
+    def _handle_token_calc(self):
+        return "#calc "
+
     def _parseAndEvaluatePath(self, paramPath,params):
         value = []
         tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
         for token, ispath in tokenList:
+            testIfTokenIsAHandler = False
             if token.startswith("#"):
+                if len(token[1:]) > 0:
+                    testIfTokenIsAHandler = True if hasattr(self,f"_handle_token_{token[1:]}".strip()) else False
+                else:
+                    testIfTokenIsAHandler = False
+
+            if testIfTokenIsAHandler:
                 try:
-                    tknval_func = getattr(self,f"_handle_token_{token[1:]}")
+                    tknval_func = getattr(self,f"_handle_token_{token[1:]}".strip())
                     value.append(tknval_func())
                 except AttributeError:
                     existingTokens = ",".join([x for x in dir(self) if x.startswith("_handle_token_")])
                     raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
             elif ispath:
                 try:
-                    value.append(self._evaluate_path(token, params))
+                    ret = self._evaluate_path(token, params)
+                    ret = f'"{str(ret)}"' if isinstance(ret,dict) else ret
+                    value.append(ret)
                 except IndexError:
                     errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
                     print(errMsg)
@@ -162,7 +174,6 @@ class utils:
         for paramname, parampath in task_executer_mapping.items():
             if isinstance(parampath, str):
                 ret[paramname] = self._parseAndEvaluatePath(parampath,params)
-
             elif isinstance(parampath, dict):
                 param_ret = {}
                 for dict_paramname, dict_parampath in parampath.items():
@@ -170,6 +181,18 @@ class utils:
                         param_ret[dict_paramname] = self.build_executer_parameters({dict_paramname:dict_parampath}, params)[dict_paramname]
                     elif isinstance(dict_parampath,str):
                         param_ret[dict_paramname] = self._parseAndEvaluatePath(dict_parampath, params)
+                    elif isinstance(dict_parampath,list):
+                        newValueList = []
+                        for value in dict_parampath:
+                            if isinstance(value, str):
+                                newValue = self._parseAndEvaluatePath(value, params)
+                            elif isinstance(value, dict) or isinstance(value,list):
+                                newValue = self.build_executer_parameters(value, params)
+                            else:
+                                newValue = value
+
+                            newValueList.append(newValue)
+                        param_ret[dict_paramname] =newValueList
                     else:
                         param_ret[dict_paramname] = dict_parampath
 

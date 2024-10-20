@@ -1,0 +1,7 @@
+Diffusion Absorption
+--------------------
+
+Creates a mesh asa a circle at the top boundary with fixed concentrations. 
+The lower concentration is a robin boundary condition with fixed absorption rate. 
+
+

@@ -18,6 +18,10 @@ FoamFile
 
 convertToMeters {{geometry.convertToMeters}};
 
+{% if params %}
+{{utils.handleValue(params)}}
+{%- endif %}
+
 vertices
 (
     {%- for pnt in vertices %}
@@ -32,13 +36,14 @@ blocks
     {{utils.toPoint(blck.cellCount)}}
     simpleGrading
     (
+
         {% for grd in blck.grading -%}
             {%- if grd is sequence -%}
             (
-                {% for dtl in grd -%}
-                    ( {{dtl.fracDir}} {{dtl.fracCells}} {{dtl.expansion}} )
-                {% endfor -%}
-             )
+            {% for dtl in grd -%}
+                ( {{dtl.fracDir}} {{dtl.fracCells}} {{dtl.expansion}} )
+            {% endfor -%}
+            )
             {%- else -%}
                 {{grd}}
             {%- endif %}

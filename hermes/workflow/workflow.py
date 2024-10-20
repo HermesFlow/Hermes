@@ -9,8 +9,8 @@ from ..taskwrapper import hermes_task_wrapper_home,hermesTaskWrapper
 from ..engines import builders
 from .expandWorkflow import expandWorkflow
 from ..utils.jsonutils import loadJSON
-from ..utils.logging import helpers as hermes_logging
-from ..utils.logging import get_classMethod_logger
+from ..utils.logging import helpers as hermes_logging, get_classMethod_logger
+
 try:
     import mongoengine.base.datastructures as mongoDataStructures
     loadedMongo = True
@@ -136,12 +136,13 @@ class workflow:
             The JSON that represents
         :return:
         """
-        self.logger.execution(f"Building {taskname}")
+        logger = get_classMethod_logger(self,"_buildNetworkRepresentations")
+        logger.execution(f"Building {taskname}")
         if taskJSON is None:
             raise ModuleNotFoundError(f"Node {taskname} is not found")
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
-        self.logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
+        logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
@@ -170,13 +171,14 @@ class workflow:
             appropriate TaskWrappers.
 
         """
+        logger = get_classMethod_logger(self,"_buildNetwork")
         self._taskRepresentations = {}
         root_task_name = self.getRootTaskName()
         root_task = self._getTaskJSON(root_task_name)
         # print(root_task)
         # print("--------------------------")
 
-        self.logger.debug(f"Building network for\n {json.dumps(self._workflowJSON)}")
+        logger.debug(f"Building network for\n {json.dumps(self._workflowJSON)}")
         self._buildNetworkRepresentations(root_task_name, root_task)
 
 
@@ -475,7 +477,8 @@ class workflow:
         del retJSON['workflow']["nodes"]['finalnode_xx']
 
         for nodeName,nodeData in retJSON['workflow']["nodes"].items():
-            del nodeData['GUI']
+            if 'GUI' in nodeData:
+                del nodeData['GUI']
 
         return retJSON
 
