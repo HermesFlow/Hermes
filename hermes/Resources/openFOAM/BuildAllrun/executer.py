@@ -68,7 +68,7 @@ class BuildAllrun(abstractExecuter):
         execLine = ""
 
         for execNode in execConfiguration['runFile']:
-            #logger.execution(f"Processing Node {execNode['name']}")
+            #logger.debug(f"Processing Node {execNode['name']}")
 
             parallelFlag = "-parallel" if (isParallel and execNode['couldRunInParallel']) else ""
             progName = execNode['name']

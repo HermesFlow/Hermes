@@ -101,6 +101,7 @@ class workflow:
             The name of the workflow
 
         """
+
         if (loadedMongo):
             # The mongoDB returns a weak reference from the DB, that mkes it a problem to expand.
             # Here, we catch that object and then severe it from the DB by pronting it to str and reading it again...
@@ -136,12 +137,12 @@ class workflow:
         :return:
         """
         logger = get_classMethod_logger(self,"_buildNetworkRepresentations")
-        logger.execution(f"Building {taskname}")
+        logger.debug(f"Building {taskname}")
         if taskJSON is None:
             raise ModuleNotFoundError(f"Node {taskname} is not found")
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
-        logger.execution(f"The required nodes for {taskname} are {requiredNodeList}")
+        logger.debug(f"The required nodes for {taskname} are {requiredNodeList}")
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
@@ -267,6 +268,52 @@ class workflow:
     def values(self):
         for ndeName in self.workflowJSON['nodes'].keys():
             yield  self[ndeName]
+
+    def __setitem__(self, key, value):
+        """
+            Adds the node to the workflow.
+
+            This procedure also updates the nodeList.
+            The value is a dict with the fields:
+
+            - nodeListPosition : string or int, [optional]
+                    If exists, write the new node after the node name (if string) or its position (if int).
+                    if does not exist, add at the end.
+            - node             :  dict
+                    The data of the node
+        """
+        logger = get_classMethod_logger(self,"setitem")
+
+        if not isinstance(value,dict):
+            err = f"The value must be dict."
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'nodeListPosition' not in value:
+            self.nodeList.append(key)
+        elif isinstance(value['nodeListPosition'],str):
+            try:
+                olditemIndx = self.nodeList.index(value[1])
+            except ValueError:
+                err = f"Item {value[1]} is not on the list"
+                logger.error(err)
+                raise ValueError(err)
+            self.nodeList.inset(olditemIndx + 1, key)
+        elif isinstance(value['nodeListPosition'],int):
+            self.nodeList.inset(value['nodeListPosition'], key)
+        else:
+            err = f"value['nodeListPosition'] must be int or string. Got {type(value['nodeListPosition'])}"
+            logger.error(err)
+            raise ValueError(err)
+
+        if 'node' not in value:
+            err = f"The node data must be in specified in value['node']. Key not found"
+            logger.error(err)
+            raise ValueError(err)
+
+        self.workflowJSON['nodes'] = value['node']
+
+
 
     def __getitem__(self, item):
         """

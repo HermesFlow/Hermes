@@ -16,7 +16,6 @@ class RunOsCommand(abstractExecuter):
 
     def run(self, **inputs):
         import stat,os
-
         cwd = os.getcwd()
         if "changeDirTo" in inputs:
             os.chdir(os.path.abspath(inputs["changeDirTo"]))
