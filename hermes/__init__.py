@@ -1,4 +1,4 @@
-__version__=(3,3,1)
+__version__=(3,4,0)
 
 # Have some initial default logging configuration in case the user hasn't set any
 from .utils.logging.helpers import initialize_logging
@@ -6,6 +6,9 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+  Version 3.4.0
+  -------------
+  #118: system command execution - Fixed the code to return the original value, even if the execution of the command fails. 
   Version 3.3.1
   -------------
     - Adding the scalarTransport example. 

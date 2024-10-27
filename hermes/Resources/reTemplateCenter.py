@@ -30,6 +30,7 @@ class templateCenter:
 
 
         """
+        self.logger = hermes_logging.get_logger(self)
         self._paths = paths
 
     def __getitem__(self, item):
