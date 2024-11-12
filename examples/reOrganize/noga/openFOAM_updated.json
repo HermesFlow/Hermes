@@ -1,0 +1,44 @@
+{
+    "workflow": {
+        "root": null,
+        "Templates": [],
+        "SolvedFields": "p U k epsilon",
+        "AuxFields": "nut",
+        "nodeList": [
+            "TransportProperties",
+            "TurbulenceProperties",
+            "ControlDict",
+            "FvSchemes",
+            "FvSolution",
+            "SnappyHexMesh",
+            "BlockMesh",
+            "BoundaryCondition"
+        ],
+        "nodes": {
+            "TransportProperties": {
+                "type": "openFOAM.constant.momentumTransport"
+            },
+            "TurbulenceProperties": {
+                "type": "openFOAM.constant.physicalProperties"
+            },
+            "ControlDict": {
+                "type": "openFOAM.system.ControlDict"
+            },
+            "FvSchemes": {
+                "type": "openFOAM.system.FvSchemes"
+            },
+            "FvSolution": {
+                "type": "openFOAM.system.FvSolution"
+            },
+            "SnappyHexMesh": {
+                "type": "openFOAM.mesh.SnappyHexMesh"
+            },
+            "BlockMesh": {
+                "type": "openFOAM.mesh.BlockMesh"
+            },
+            "BoundaryCondition": {
+                "type": "BC"
+            }
+        }
+    }
+}

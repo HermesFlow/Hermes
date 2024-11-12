@@ -47,6 +47,16 @@ In the simple workflow, there are different types of nodes-
     3.  System operation nodes
 
 
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   :hidden:
+
+   webGuiNodes/webGuiNodes.rst
+
+
+
 WebGui nodes
 --------------
 
@@ -65,7 +75,7 @@ After Updating the value of each wanted parameter, the data will be saved into t
 The last step will create an openFOAM dictionary from the data been saved at the JSON structure, in the name of the node.
 
 
-Boundry Condition nodes
+Boundary Condition nodes
 ------------------------
 
 
