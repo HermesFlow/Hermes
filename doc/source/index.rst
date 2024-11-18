@@ -70,7 +70,7 @@ named target, and then execute
    Usage/UsingByExample.rst
 
    FreeCAD/FreeCAD.rst
-   simpleWorkflow/intro.rst
+   Nodes/nodeList.rst
    Json/JsonStructure.rst
    CLI/CLI.rst
 

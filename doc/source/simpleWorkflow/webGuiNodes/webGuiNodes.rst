@@ -8,10 +8,6 @@ clicking The node.
    :maxdepth: 2
    :caption: The WebGUI nodes:
 
-   snappyHexMesh.rst
-   controlDict.rst
-   fvSchemes.rst
-   fvSolution.rst
    transportProperties.rst
    turbulence.rst
 
