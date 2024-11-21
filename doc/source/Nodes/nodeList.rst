@@ -44,7 +44,7 @@ Each node contain 3 inputs:
    createEmptyCase.rst
    CopyObjectToCase.rst
    CopyBuildingObject.rst
-   blockMesh.rst
+   blockMesh/blockMesh.rst
    snappyHexMesh.rst
    controlDict.rst
    fvSchemes.rst
