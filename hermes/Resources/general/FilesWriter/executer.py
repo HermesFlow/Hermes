@@ -1,5 +1,6 @@
 from ...executers.abstractExecuter import abstractExecuter
 import errno
+import json
 import os, sys, stat
 
 class FilesWriter(abstractExecuter):
@@ -41,10 +42,16 @@ class FilesWriter(abstractExecuter):
                 except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
+            try:
+                # Check if it is a dict - e.g a list of files.
+                fileContentParsed = json.loads(fileContent[1:-1].replace('"','\\"').replace("'",'"'))
+            except json.decoder.JSONDecodeError as e:
+                fileContentParsed = fileContent
 
-            if isinstance(fileContent,dict):
+
+            if isinstance(fileContentParsed,dict):
                 outputFiles =[]
-                for filenameItr,fileContent in fileContent.items():
+                for filenameItr,fileContent in fileContentParsed.items():
                     finalFileName = os.path.join(newPath,filenameItr)
                     with open(finalFileName, "w") as newfile:
                         newfile.write(fileContent)
@@ -53,7 +60,7 @@ class FilesWriter(abstractExecuter):
             else:
                 outputFiles = newPath
                 with open(newPath, "w") as newfile:
-                    newfile.write(fileContent)
+                    newfile.write(fileContentParsed)
 
             createdFiles[groupName] = outputFiles
 
