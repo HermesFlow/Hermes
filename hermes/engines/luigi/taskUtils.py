@@ -186,7 +186,7 @@ class utils:
                         for value in dict_parampath:
                             if isinstance(value, str):
                                 newValue = self._parseAndEvaluatePath(value, params)
-                            elif isinstance(value, dict) or isinstance(value,list):
+                            elif isinstance(value, dict):  # or isinstance(value,list): leads to a bug.
                                 newValue = self.build_executer_parameters(value, params)
                             else:
                                 newValue = value
@@ -209,6 +209,7 @@ class utils:
                 ret[paramname] = param_ret
             else:
                 ret[paramname] = parampath
+
         return ret
 
 

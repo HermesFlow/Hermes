@@ -11,7 +11,7 @@ class SurfaceFeatures(abstractSystemExecuter):
         retFiles ={}
         if isinstance(inputs['geometryData'],str):
             import json
-            geometryData = json.loads(inputs['geometryData'].replace("'",'"'))
+            geometryData = json.loads(inputs['geometryData'].replace('"',"").replace("'",'"'))
         else:
             geometryData = inputs['geometryData']
 
