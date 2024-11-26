@@ -5,6 +5,7 @@ SnappyHexMesh node is used for automated mesh generation. Its primary purpose is
 high-quality computational meshes for solving problems in computational fluid dynamics (CFD) and other fields. It’s particularly well-suited for complex geometries and supports adaptive refinement, making it a powerful alternative to manual meshing.
 
 
+
 .. raw:: html
 
    <h3>Type</h3>
@@ -52,7 +53,7 @@ The main parameters for the SnappyHexMesh node.
 The modules section is responsible for the general properties of the SnappyHexMesh node.
 
 .. list-table::
-   :widths: 25 20 50
+   :widths: 25 20 250
    :header-rows: 1
    :align: left
 
@@ -72,6 +73,7 @@ The modules section is responsible for the general properties of the SnappyHexMe
      - number
      - Define a tolerance
 
+*Example*
 
 .. code-block:: javascript
 
@@ -91,7 +93,7 @@ The modules section is responsible for the general properties of the SnappyHexMe
 The castellatedMeshControls define the properties to switch on creation of the castellated mesh
 
 .. list-table::
-   :widths: 25 25 50
+   :widths: 25 25 250
    :header-rows: 1
    :align: left
 
@@ -123,6 +125,7 @@ The castellatedMeshControls define the properties to switch on creation of the c
      - vector [ x, y, z]
      - location vector inside the region to be meshed; vector must not coincide with a cell face either before or during refinement.
 
+*Example*
 
 .. code-block:: javascript
 
@@ -144,7 +147,7 @@ The castellatedMeshControls define the properties to switch on creation of the c
 **snapControls**
 
 .. list-table::
-   :widths: 25 20 50
+   :widths: 25 20 250
    :header-rows: 1
    :align: left
 
@@ -176,6 +179,8 @@ The castellatedMeshControls define the properties to switch on creation of the c
      - boolean
      - Snapping to features detected from geometry curvature
 
+*Example*
+
 .. code-block:: javascript
 
     "snapControls": {
@@ -197,16 +202,73 @@ The castellatedMeshControls define the properties to switch on creation of the c
 **addLayersControls**
 
 .. list-table::
-   :widths: 25 20 50
+   :widths: 25 20 250
    :header-rows: 1
    :align: left
 
    * - Sub-Parameter
      - Data Type
      - Description
-   * - Data
+   * - relativeSizes
+     - boolean
+     -  switch that sets whether the specified layer thicknesses are relative to undistorted cell size outside layer or absolute
+   * - expansionRatio
      - number
-     - desc
+     - expansion factor for layer mesh, increase in size from one layer to the next.
+   * - finalLayerThickness
+     - number
+     - thickness of layer nearest the wall, usually in combination with absolute sizes according to the relativeSizes entry.
+   * - minThickness
+     - number
+     - minimum thickness of cell layer, either relative or absolute (as above).
+   * - featureAngle
+     - number
+     - angle above which surface is not extruded.
+   * - slipFeatureAngle
+     - number
+     - controls how the mesh resolves sharp features in the geometry, particularly when "slip" features are involved.
+   * - nLayerIter
+     - number
+     - overall max number of layer addition iterations (typically 50).
+   * - nRelaxedIter
+     - number
+     - max number of iterations after which the controls in the relaxed sub dictionary of meshQuality are used (typically 20).
+   * - nRelaxIter
+     - number
+     - maximum number of snapping relaxation iterations (typcially 5).
+   * - nGrow
+     - number
+     - number of layers of connected faces that are not grown if points do not get extruded; helps convergence of layer addition close to features.
+   * - nSmoothSurfaceNormals
+     - number
+     - number of smoothing iterations of surface normals (typically 1).
+   * - nSmoothNormals
+     - number
+     - number of smoothing iterations of interior mesh movement direction (typically 3).
+   * - nSmoothThickness
+     - number
+     - smooth layer thickness over surface patches (typically 10).
+   * - maxFaceThicknessRatio
+     - number
+     - stop layer growth on highly warped cells (typically 0.5).
+   * - maxThicknessToMedialRatio
+     - number
+     - reduce layer growth where ratio thickness to medial distance is large (typically 0.3)
+   * - minMedianAxisAngle
+     - number
+     - angle used to pick up medial axis points (typically 90).
+   * - nMedialAxisIter
+     - number
+     - Controls the number of iterations for medial axis refinement during the snapping process.
+   * - nBufferCellsNoExtrude
+     - number
+     - create buffer region for new layer terminations (typically 0).
+   * - additionalReporting
+     - boolean
+     - Enables extra output during the meshing process for debugging or analysis.
+
+
+*Example*
 
 .. code-block:: javascript
 
@@ -239,16 +301,60 @@ The castellatedMeshControls define the properties to switch on creation of the c
 **meshQualityControls**
 
 .. list-table::
-   :widths: 25 20 50
+   :widths: 25 20 250
    :header-rows: 1
    :align: left
 
    * - Sub-Parameter
      - Data Type
      - Description
-   * - Data
-     - type
-     - desc
+   * - maxBoundarySkewness
+     - number
+     - max boundary face skewness allowed (typically 20).
+   * - maxInternalSkewness
+     - number
+     - max internal face skewness allowed (typically 4).
+   * - maxConcave
+     - number
+     - max concaveness allowed (typically 80).
+   * - minVol
+     - number
+     - minimum cell pyramid volume (typically 1e-13, large negative number disables).
+   * - minTetQuality
+     - number
+     - minimum quality of tetrahedral cells from cell decomposition; generally deactivated by setting large negative number since v5.0 when new barycentric tracking was introduced, which could handle negative tets.
+   * - minArea
+     - number
+     - minimum face area (typically -1).
+   * - minTwist
+     - number
+     - minimum face twist (typically 0.05).
+   * - minDeterminant
+     - number
+     - minimum normalised cell determinant; 1 = \relax \special {t4ht= hex; ≤ \relax \special {t4ht= 0 = illegal cell (typically 0.001).
+   * - minFaceWeight
+     - number
+     - between 0-0.5 (typically 0.05).
+   * - minVolRatio
+     - number
+     - dbetween 0-1.0 (typically 0.01).
+   * - minTriangleTwist
+     - number
+     - 0 for Fluent compatibility (typically -1).
+   * - nSmoothScale
+     - number
+     - number of error distribution iterations (typically 4).
+   * - errorReduction
+     - number
+     - amount to scale back displacement at error points (typically 0.75).
+   * - relaxed
+     - structure
+     - sub-dictionary that can include modified values for the above keyword entries to be used when nRelaxedIter is exceeded in the layer addition process.
+   * - maxNonOrtho
+     - number
+     - Specifies the maximum acceptable non-orthogonality of mesh cells during the meshing process.
+
+*Example*
 
 .. code-block:: javascript
 
@@ -275,7 +381,10 @@ The castellatedMeshControls define the properties to switch on creation of the c
 
     <hr style="border: 1px dashed;">
 
+*Example*
+
 **geometry**
+
 
 .. list-table::
    :widths: 25 20 50
@@ -292,8 +401,44 @@ The castellatedMeshControls define the properties to switch on creation of the c
 .. code-block:: javascript
 
     "geometry": {
-         "param": 100000,
-     }
+       "objects": {
+           "building": {
+               "objectName": "building",
+               "objectType": "obj",
+               "levels": "1",
+               "refinementRegions": {},
+               "refinementSurfaces": {
+                  "levels": [ 0, 0 ],
+                  "patchType": "wall"
+               },
+               "regions": {
+                  "Walls": {
+                     "name": "Walls",
+                     "type": "wall",
+                     "refinementRegions": {
+                        "mode": "distance",
+                         "levels": [
+                            [ 0.1, 2 ]
+                          ]
+                     },
+                     "refinementSurfaceLevels": [ 0, 0 ]
+                  },
+                  "inlet": {
+                       "name": "inlet",
+                       "type": "patch"
+                  },
+                  "outlet": {
+                      "name": "outlet",
+                      "type": "patch"
+                  }
+               },
+               "layers": {
+                  "nSurfaceLayers": 10
+               }
+           }
+       },
+       "gemeotricalEntities": {}
+    }
 
 
 .. raw:: html
