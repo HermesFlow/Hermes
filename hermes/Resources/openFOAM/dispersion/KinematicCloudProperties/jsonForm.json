@@ -27,15 +27,6 @@
       "patchInteraction": {
         "interactionType": "LocalInteraction",
         "patches": {
-          "cwalls": {
-            "type": "rebound"
-          },
-          "inlet": {
-            "type": "escape"
-          },
-          "outlet": {
-            "type": "escape"
-          }
         }
       }
     }

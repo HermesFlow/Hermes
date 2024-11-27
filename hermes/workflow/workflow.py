@@ -328,8 +328,8 @@ class workflow:
             A node object of the requested node.
 
         """
-        nodeJSON = self.workflowJSON['nodes'][item]
-        return hermesNode(item,nodeJSON)
+        nodeJSON = self.workflowJSON['nodes'].get(item,None)
+        return None if nodeJSON is None else hermesNode(item,nodeJSON)
 
 
     def __delitem__(self, key):

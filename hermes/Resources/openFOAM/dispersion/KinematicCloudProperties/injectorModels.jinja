@@ -5,10 +5,10 @@
 {%- macro injectors(injectorName,injectorData)  -%}
 {%      if injectorData.type =='manualInjection' %}
 {{ManualInjection(injectorName,injectorData)}}
-{%      elif injectorData.type =='continuousInjection' %}
+{%      elif injectorData.type =='Stochastic_ContinuousInjection' %}
 {{ContinuousInjection(injectorName,injectorData)}}
 {%      else %}
-    UNKNOWN Injector, must be either [manualInjection,continuousInjection]
+    UNKNOWN Injector, must be either [manualInjection,Stochastic_ContinuousInjection]
 {%      endif %}
 {%- endmacro %}
 
@@ -37,7 +37,7 @@
 {%- macro ContinuousInjection(injectorName,injectorData) -%}
         {{injectorName}}
         {
-            type            ContinuousInjection;
+            type            Stochastic_ContinuousInjection;
             massTotal       {{injectorData.massTotal}};
             parcelBasisType {{injectorData.parcelBasisType}};
             EOI             {{injectorData.EndOfInjection}};
