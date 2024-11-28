@@ -5,7 +5,7 @@ import os
 import json
 import pathlib
 from importlib import resources
-from ..utils.logging import helpers as hermes_logging
+from ..utils.logging import helpers as hermes_logging,get_classMethod_logger
 from ..utils.jsonutils import loadJSON
 
 class templateCenter:
@@ -40,8 +40,9 @@ class templateCenter:
         """
         Finds a template and return a copy of it  as a dict.
         """
-        self.logger.debug("--------- Start ----------")
-        self.logger.debug(f"Getting template {template}")
+        logger =get_classMethod_logger(self,"getTemplate")
+        logger.info("--------- Start ----------")
+        logger.debug(f"Getting template {template}")
 
         try:
             default = resources.files("hermes.Resources").joinpath(*template.split("."),"jsonForm.json")
@@ -59,17 +60,18 @@ class templateCenter:
 
 
     def _subsituteTemplates(self,basicTemplate):
-        self.logger.debug(f"Process {basicTemplate}")
+        logger = get_classMethod_logger(self, "_subsituteTemplates")
+        logger.info(f"Process {basicTemplate}")
         if 'Template' in basicTemplate.keys():
-            self.logger.debug(f"Replacing template in {basicTemplate} ")
+            logger.debug(f"Replacing template in {basicTemplate} ")
             ret =  "Done" #self.getTemplate(basicTemplate['Template'])
         else:
             for key,value in basicTemplate.items():
-                self.logger.debug(f"processing {key}->{value}")
+                logger.debug(f"processing {key}->{value}")
                 if isinstance(value,dict):
                     basicTemplate[key] = self._subsituteTemplates(value)
             ret = basicTemplate
 
-        self.logger.debug(f"Finish -> {ret}")
+        logger.debug(f"Finish -> {ret}")
         return ret
 
