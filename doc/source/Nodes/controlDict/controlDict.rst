@@ -3,10 +3,16 @@ ControlDict Node
 
 ControlDict is the node manages the settings for the simulation's execution. It defines key parameters such as the start and end times of the simulation, time-step size, solver write intervals, and output control settings (e.g., precision and format of results). Additionally, it specifies whether the simulation runs in steady or transient mode and allows control of optional features like function objects for data sampling and monitoring. Essentially, it serves as the central script for controlling the simulation's runtime behavior.
 
+.. table:: Table of content
+   :align: left
+
+   ================= ============================ =======================
+   `Type <#type_h>`_  `Execution <#Execution_h>`_ `Example <#Example_h>`_
+   ================= ============================ =======================
 
 .. raw:: html
 
-   <h3>Type</h3>
+   <h3 id="type_h">Type</h3>
    <hr>
 
 .. code-block:: javascript
@@ -16,7 +22,7 @@ ControlDict is the node manages the settings for the simulation's execution. It 
 
 .. raw:: html
 
-   <h3>Execution</h3>
+   <h3 id="Execution_h">Execution</h3>
    <hr>
 
 **input_parameters**
@@ -116,6 +122,30 @@ ControlDict is the node manages the settings for the simulation's execution. It 
               "libs": []
             }
     }
+
+`up <#type_h>`_
+
+.. raw:: html
+
+   <h3 id="Example_h">Example</h3>
+   <hr>
+   <h4>JSON File  (input) </h4>
+
+
+.. literalinclude:: controlDict_example.json
+   :language: JSON
+   :linenos:
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>OpenFOAM dictionary (output)</h4>
+
+.. literalinclude:: controlDict
+   :language: OpenFOAM dictionary
+   :linenos:
+
+`up <#type_h>`_
 
 .. raw:: html
 

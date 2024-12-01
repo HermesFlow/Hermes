@@ -4,11 +4,17 @@ SnappyHexMesh Node
 SnappyHexMesh node is used for automated mesh generation. Its primary purpose is to create
 high-quality computational meshes for solving problems in computational fluid dynamics (CFD) and other fields. It’s particularly well-suited for complex geometries and supports adaptive refinement, making it a powerful alternative to manual meshing.
 
+.. table:: Table of content
+   :align: left
+
+   ================= ============================ =======================
+   `Type <#type_h>`_  `Execution <#Execution_h>`_ `Example <#Example_h>`_
+   ================= ============================ =======================
 
 
 .. raw:: html
 
-   <h3>Type</h3>
+   <h3 id="type_h">Type</h3>
    <hr>
 
 .. code-block:: javascript
@@ -18,9 +24,9 @@ high-quality computational meshes for solving problems in computational fluid dy
 
 .. raw:: html
 
-   <h3>Execution</h3>
+   <h3 id="Execution_h">Execution</h3>
    <hr>
-   <h4>input_parameters</h4>
+   <h4 id="input_parameters_h">input_parameters</h4>
 
 The main parameters for the SnappyHexMesh node.
 
@@ -31,24 +37,24 @@ The main parameters for the SnappyHexMesh node.
 
    * - Parameter
      - Description
-   * - modules
+   * - `modules <#modules_h>`_
      - Define general parameters of SnappyHexMesh
-   * - castellatedMeshControls
+   * - `castellatedMeshControls <#castellatedMeshControls_h>`_
      - To switch on creation of the castellated mesh
-   * - snapControls
+   * - `snapControls <#snapControls_h>`_
      - To switch on surface snapping stage
-   * - addLayersControls
+   * - `addLayersControls <#addLayersControls_h>`_
      - To switch on surface layer insertion.
-   * - meshQualityControls
+   * - `meshQualityControls <#meshQualityControls_h>`_
      - Controls for mesh quality.
-   * - geometry
+   * - `geometry <#geometry_h>`_
      - Define all surface geometry used.
 
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="modules_h">modules</h5>
 
-**modules**
 
 The modules section is responsible for the general properties of the SnappyHexMesh node.
 
@@ -84,11 +90,13 @@ The modules section is responsible for the general properties of the SnappyHexMe
         "mergeTolerance": 1e-6
     }
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="castellatedMeshControls_h">castellatedMeshControls</h5>
 
-**castellatedMeshControls**
 
 The castellatedMeshControls define the properties to switch on creation of the castellated mesh
 
@@ -140,11 +148,13 @@ The castellatedMeshControls define the properties to switch on creation of the c
          "locationInMesh": [ 0.2, 0.2, 0.1]
      }
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="snapControls_h">snapControls</h5>
 
-**snapControls**
 
 .. list-table::
    :widths: 25 20 250
@@ -194,12 +204,13 @@ The castellatedMeshControls define the properties to switch on creation of the c
          "implicitFeatureSnap": true
      }
 
+`up <#type_h>`_
 
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="addLayersControls_h">addLayersControls</h5>
 
-**addLayersControls**
 
 .. list-table::
    :widths: 25 20 250
@@ -294,11 +305,12 @@ The castellatedMeshControls define the properties to switch on creation of the c
          "additionalReporting": false
      }
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
-
-**meshQualityControls**
+    <h5 id="meshQualityControls_h">meshQualityControls</h5>
 
 .. list-table::
    :widths: 25 20 250
@@ -377,14 +389,12 @@ The castellatedMeshControls define the properties to switch on creation of the c
          }
      }
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
-
-*Example*
-
-**geometry**
-
+    <h5 id="geometry_h">geometry</h5>
 
 .. list-table::
    :widths: 25 20 50
@@ -397,6 +407,8 @@ The castellatedMeshControls define the properties to switch on creation of the c
    * - Data
      - type
      - desc
+
+*Example*
 
 .. code-block:: javascript
 
@@ -440,19 +452,30 @@ The castellatedMeshControls define the properties to switch on creation of the c
        "gemeotricalEntities": {}
     }
 
+`up <#type_h>`_
+
 
 .. raw:: html
 
-   <h3>Example</h3>
+   <h3 id="Example_h">Example</h3>
    <hr>
+   <h4>JSON File  (input) </h4>
 
-+--------------------------------------------+--------------------------------------------+
-|           **JSON FILE**                    |         **Dictionary**                     |
-+--------------------------------------------+--------------------------------------------+
-| .. literalinclude:: blockMesh_example.json | .. literalinclude:: blockMesh_example.json |
-|   :language: JSON                          |   :language: JSON                          |
-|   :linenos:                                |   :linenos:                                |
-+--------------------------------------------+--------------------------------------------+
+
+.. literalinclude:: snappyHexMesh_example.json
+   :language: JSON
+   :linenos:
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>OpenFOAM dictionary (output)</h4>
+
+.. literalinclude:: snappyHexMeshDict
+   :language: OpenFOAM dictionary
+   :linenos:
+
+`up <#type_h>`_
 
 .. raw:: html
 

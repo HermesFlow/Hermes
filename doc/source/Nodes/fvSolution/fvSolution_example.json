@@ -1,0 +1,112 @@
+{
+  "fvSolution": {
+    "type": "openFOAM.system.FvSolution",
+    "Execution": {
+      "input_parameters": {
+        "fields": {
+          "p": {
+            "solver": "PCG",
+            "preconditioner": "DIC",
+            "tolerance": 1e-08,
+            "relTol": 0.0001,
+            "maxIter": 5000,
+            "final": {
+              "solver": "PCG",
+              "preconditioner": "DIC",
+              "tolerance": 1e-08,
+              "relTol": 0,
+              "maxIter": 5000
+            }
+          },
+          "U": {
+            "solver": "PBiCG",
+            "preconditioner": "DILU",
+            "tolerance": 1e-10,
+            "relTol": 1e-05,
+            "maxIter": 5000,
+            "final": {
+              "solver": "PBiCG",
+              "preconditioner": "DILU",
+              "tolerance": 1e-10,
+              "relTol": 0,
+              "maxIter": 5000
+            }
+          },
+          "epsilon": {
+            "solver": "PBiCG",
+            "preconditioner": "DILU",
+            "tolerance": 1e-08,
+            "relTol": 0.001,
+            "maxIter": 5000,
+            "final": {
+              "solver": "PBiCG",
+              "preconditioner": "DILU",
+              "tolerance": 1e-08,
+              "relTol": 0,
+              "maxIter": 5000
+            }
+          },
+          "k": {
+            "solver": "PBiCG",
+            "preconditioner": "DILU",
+            "tolerance": 1e-08,
+            "relTol": 0.001,
+            "maxIter": 5000,
+            "final": {
+              "solver": "PBiCG",
+              "preconditioner": "DILU",
+              "tolerance": 1e-08,
+              "relTol": 0,
+              "maxIter": 5000
+            }
+          }
+        },
+        "solverProperties": {
+          "algorithm": "SIMPLE",
+          "residualControl": {
+            "p": 0.0001,
+            "U": 0.0001,
+            "k": 0.0001,
+            "epsilon": 0.0001,
+            "p_rgh": 0.0001
+          },
+          "solverFields": {
+            "nNonOrthogonalCorrectors": 2,
+            "pRefCell": 0,
+            "pRefValue": 0,
+            "momentumPredictor": "yes",
+            "nOuterCorrectors": 2,
+            "nCorrectors": 2,
+            "nonlinearSolver": "yes"
+          }
+        },
+        "relaxationFactors": {
+          "fields": {
+            "p": 0.15,
+            "U": 0.15,
+            "k": 0.15,
+            "epsilon": 0.15
+          },
+          "equations": {
+            "p": {
+              "factor": 0.4,
+              "final": 0.4
+            },
+            "U": {
+              "factor": 0.7,
+              "final": 0.7
+            },
+            "k": {
+              "factor": 0.7,
+              "final": 0.7
+            },
+            "epsilon": {
+              "factor": 0.7,
+              "final": 0.7
+            }
+          }
+        }
+      }
+    }
+  }
+}

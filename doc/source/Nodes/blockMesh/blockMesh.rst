@@ -4,10 +4,17 @@ BlockMesh is used to generate structured hexahedral meshes for computational dom
 topology, and properties of the mesh. blockmesh is ideal for creating straightforward, structured meshes for
 simulations where the domain can be broken down into simple geometric blocks.
 
+.. table:: Table of content
+   :align: left
+
+   ================= ============================ =======================
+   `Type <#type_h>`_  `Execution <#Execution_h>`_ `Example <#Example_h>`_
+   ================= ============================ =======================
+
 
 .. raw:: html
 
-   <h3>Type</h3>
+   <h3 id="type_h">Type</h3>
    <hr>
 
 .. code-block:: javascript
@@ -17,9 +24,9 @@ simulations where the domain can be broken down into simple geometric blocks.
 
 .. raw:: html
 
-   <h3>Execution</h3>
+   <h3 id="Execution_h">Execution</h3>
    <hr>
-   <h4>input_parameters</h4>
+   <h4 id="input_parameters_h">input_parameters</h4>
 
 The main parameters for the blockmesh node.
 
@@ -30,20 +37,22 @@ The main parameters for the blockmesh node.
 
    * - Parameter
      - Description
-   * - geometry
+   * - `geometry <#geo_header>`_
      - Define the geometry properties
-   * - boundary
+   * - `boundary  <#boundary_header>`_
      - A list of the Boundary conditions
-   * - vertices
+   * - `vertices  <#vertices_header>`_
      - A list of coordinates of 8 vertices [ x, y, z]
-   * - blocks
+   * - `blocks  <#blocks_header>`_
      - Define the general block properties
+
+
 
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="geo_header">geometry</h5>
 
-**geometry**
 
 The geometry section is responsible for the general properties of the blockmesh geometry. The geometry parameters may
 remain empty, and the default values will be used.
@@ -71,11 +80,12 @@ remain empty, and the default values will be used.
         "grading": [1, 1, 1]
     }
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
-
-**boundary**
+    <h5 id="boundary_header">boundary</h5>
 
 The boundary section contains a list of the boandries of the blockMesh. Each boundary will have 3 parameters: name,
 type and a list of faces.
@@ -111,11 +121,13 @@ type and a list of faces.
        ...
     ]
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="vertices_header">vertices</h5>
 
-**vertices**
 
 The vertices section contains a list of 8 vertices of the blockMesh hexahedral. Each vertex coordinate is defined by
 [x, y, z].
@@ -134,11 +146,13 @@ The vertices section contains a list of 8 vertices of the blockMesh hexahedral. 
        [ -0.5025,  0.5025   0.15  ]
     ]
 
+`up <#type_h>`_
+
 .. raw:: html
 
     <hr style="border: 1px dashed;">
+    <h5 id="blocks_header">blocks</h5>
 
-**blocks**
 
 The blocks section is responsible for the general properties of the block geometry. The geometry parameters may remain
 empty, and the default values will be used.
@@ -166,22 +180,29 @@ empty, and the default values will be used.
         "grading": [1, 1, 1]
     }
 
-
-
-
+`up <#type_h>`_
 
 .. raw:: html
 
-   <h3>Example</h3>
+   <h3 id="Example_h">Example</h3>
    <hr>
+   <h4>JSON File  (input) </h4>
 
-+--------------------------------------------+--------------------------------------------+
-|           **JSON FILE**                    |         **Dictionary**                     |
-+--------------------------------------------+--------------------------------------------+
-| .. literalinclude:: blockMesh_example.json | .. literalinclude:: blockMesh_example.json |
-|   :language: JSON                          |   :language: JSON                          |
-|   :linenos:                                |   :linenos:                                |
-+--------------------------------------------+--------------------------------------------+
+
+.. literalinclude:: blockMesh_example.json
+   :language: JSON
+   :linenos:
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>OpenFOAM dictionary (output)</h4>
+
+.. literalinclude:: blockMeshDict
+   :language: OpenFOAM dictionary
+   :linenos:
+
+`up <#type_h>`_
 
 .. raw:: html
 

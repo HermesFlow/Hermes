@@ -1,0 +1,131 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  7                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters ;
+
+
+
+vertices
+(
+        ( 0.0 -0.5099875793457032 -0.51)
+        ( 20.0 -0.5099875793457032 -0.51)
+        ( 20.0 0.5099875793457032 -0.51)
+        ( 0.0 0.5099875793457032 -0.51)
+        ( 0.0 -0.5099875793457032 0.5099502868652344)
+        ( 20.0 -0.5099875793457032 0.5099502868652344)
+        ( 20.0 0.5099875793457032 0.5099502868652344)
+        ( 0.0 0.5099875793457032 0.5099502868652344)
+);
+
+blocks
+(
+    hex ( 0 1 2 3 4 5 6 7)
+    ( 200 20 20)
+    simpleGrading
+    (
+
+        1
+          1
+          1
+          
+    )
+    
+);
+
+defaultPatch
+{
+    type ;
+}
+
+edges
+(
+);
+
+boundary
+(
+        domain_east
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 3 7 6 2)
+                
+
+            );
+        }
+        domain_west
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 1 5 4 0)
+                
+
+            );
+        }
+        domain_south
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 0 4 7 3)
+                
+
+            );
+        }
+        domain_north
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 2 6 5 1)
+                
+
+            );
+        }
+        domain_ceiling
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 0 3 2 1)
+                
+
+            );
+        }
+        domain_floor
+        {
+            type patch;
+            faces
+            (
+                
+                       ( 4 5 6 7)
+                
+
+            );
+        }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
