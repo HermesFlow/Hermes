@@ -199,7 +199,7 @@ empty, and the default values will be used.
     <h4>OpenFOAM dictionary (output)</h4>
 
 .. literalinclude:: blockMeshDict
-   :language: OpenFOAM dictionary
+   :language: none
    :linenos:
 
 `up <#type_h>`_

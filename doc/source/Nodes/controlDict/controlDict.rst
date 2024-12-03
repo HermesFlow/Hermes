@@ -142,7 +142,7 @@ ControlDict is the node manages the settings for the simulation's execution. It 
     <h4>OpenFOAM dictionary (output)</h4>
 
 .. literalinclude:: controlDict
-   :language: OpenFOAM dictionary
+   :language: none
    :linenos:
 
 `up <#type_h>`_

@@ -472,7 +472,7 @@ The castellatedMeshControls define the properties to switch on creation of the c
     <h4>OpenFOAM dictionary (output)</h4>
 
 .. literalinclude:: snappyHexMeshDict
-   :language: OpenFOAM dictionary
+   :language: none
    :linenos:
 
 `up <#type_h>`_
