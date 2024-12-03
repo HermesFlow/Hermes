@@ -102,7 +102,7 @@ castellatedMeshControls
                         {%- endif %}
 
                         {%- if 'type' in regionData %}
-                        type {{regionData.type}};
+                        patchInfo { type {{regionData.type}}; }
                         {%- endif %}
                 }
             {%- endfor %}
