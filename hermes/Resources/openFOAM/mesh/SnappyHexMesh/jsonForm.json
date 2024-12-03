@@ -7,7 +7,7 @@
         "layers": true,
         "mergeTolerance" : 1e-6
       },
-      "Geometry": {
+      "geometry": {
         "objects": {},
         "refinementSurfaces": {},
         "regions": {},
