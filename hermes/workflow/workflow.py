@@ -456,9 +456,15 @@ class workflow:
             dict
 
         """
+        logger = get_classMethod_logger(self,"parametersJSON")
         retdict = dict()
         for node in self.nodeList:
             hermesNode = self[node]
+            if hermesNode is None:
+                err = f"node: {node} not Found!. "
+                logger.error(err)
+                raise ValueError(err)
+
             retdict[node] = hermesNode.parameters
 
         return retdict

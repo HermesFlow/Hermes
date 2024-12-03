@@ -1,35 +1,6 @@
 {
     "Execution": {
         "input_parameters": {
-            "thermoType" : {
-                "type" : "type",
-                "mixture" : "mixture",
-                "transport" : "transport",
-                "thermo" : "thermoType.thermo",
-                "energy" :"energy",
-                "equationOfState": "equationOfState",
-                "specie" : "thermoType.specie"
-            },
-            "inertSpecie"  : "specie",
-            "species" : {
-                "specie1" : {
-                       "specie" : {
-                           "nMoles" : 1,
-                           "molWeight" : "molWeight"
-                       },
-                       "thermodynamics" : {
-                           "Tlow" : 200,
-                            "Thigh" : 5000,
-                            "Tcommon" : 1000,
-                            "highCpCoeffs"  : [ 1,2,3 ],
-                            "lowCpCoeffs"   : [ 1,2,3 ]
-                       },
-                    "transport" : {
-                        "As"  :              1,
-                        "Ts"  :              1
-                    }
-                }
-            }
         }
     },
     "GUI": {
