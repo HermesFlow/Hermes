@@ -33,7 +33,9 @@ Each node contain 3 inputs:
     1. type - define the functionality of the node and what it supposed to do.
     2. Execution - define the input data that the node needs in order to operate its functionality.
     3. GUI - The data needed to display the nodes data in the GUI.
+
 |
+
 
 
 .. toctree::
