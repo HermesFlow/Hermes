@@ -51,3 +51,8 @@ Each node contain 3 inputs:
    controlDict/controlDict.rst
    fvSchemes/fvSchemes.rst
    fvSolution/fvSolution.rst
+   physicalProperties/physicalProperties.rst
+   momentumTransport/momentumTransport.rst
+   bc/defineNewBoundaryConditions.rst
+   buildAllRun/buildAllRun.rst
+   fileWriter/fileWriter.rst
