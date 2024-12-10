@@ -15,7 +15,7 @@ This node is responsible for writing files.
 
 .. raw:: html
 
-   <h3>Execution</h3>
+   <h3 id="Execution_h">Execution</h3>
    <hr>
 
 **Requirement**
@@ -24,7 +24,7 @@ This node is responsible for writing files.
 
     "requires": "createEmptyCase"
 
-|
+`up <#type_h>`_
 
 .. raw:: html
 
@@ -70,6 +70,14 @@ This node is responsible for writing files.
 .. literalinclude:: fileWriter_example.json
    :language: JSON
    :linenos:
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>Output</h4>
+
+| All The files in the list are being created, and filled with the content mentioned in the JSON.
+|
 
 
 `up <#type_h>`_

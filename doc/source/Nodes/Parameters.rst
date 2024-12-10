@@ -3,11 +3,16 @@ Parameters
 
 Parameters is the node responsible for the general data needed for the case.
 
+.. table:: Table of content
+   :align: left
 
+   ================= ============================ =======================
+   `Type <#type_h>`_  `Execution <#Execution_h>`_ `Example <#Example_h>`_
+   ================= ============================ =======================
 
 .. raw:: html
 
-   <h3>Type</h3>
+   <h3 id="type_h">Type</h3>
    <hr>
 
 .. code-block:: javascript
@@ -17,7 +22,7 @@ Parameters is the node responsible for the general data needed for the case.
 
 .. raw:: html
 
-   <h3>Execution</h3>
+   <h3 id="Execution_h">Execution</h3>
    <hr>
 
 **input_parameters**
@@ -38,6 +43,14 @@ Parameters is the node responsible for the general data needed for the case.
    * - decomposeProcessors
      - Define the number of processors for a parallel run of the simulation.
 
+`up <#type_h>`_
+
+.. raw:: html
+
+   <h3 id="Example_h">Example</h3>
+   <hr>
+   <h4>JSON File(input) </h4>
+
 .. code-block:: javascript
 
     "input_parameters": {
@@ -46,6 +59,14 @@ Parameters is the node responsible for the general data needed for the case.
         "objectFile": "CADobject.obj",
         "decomposeProcessors": 8
     }
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>Output</h4>
+
+| Update the parameters of the simulation.
+|
 
 .. raw:: html
 

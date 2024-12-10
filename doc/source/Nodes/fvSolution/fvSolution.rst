@@ -255,6 +255,7 @@ Relaxation factors reduce the change in a variable between iterations, effective
 
 `up <#type_h>`_
 
+
 .. raw:: html
 
    <hr>

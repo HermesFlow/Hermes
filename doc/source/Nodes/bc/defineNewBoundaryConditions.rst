@@ -124,7 +124,9 @@ the input parameter include a structure of *fields* that contains a list of the 
     <hr style="border: 1px dashed;">
     <h4>OpenFOAM dictionary (output)</h4>
 
-        add_dictionary
+.. literalinclude:: defineNewBoundaryConditions
+   :language: none
+   :linenos:
 
 `up <#type_h>`_
 
