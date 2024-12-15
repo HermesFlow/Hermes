@@ -1,0 +1,11 @@
+{
+  "momentumTransport": {
+    "type": "openFOAM.constant.momentumTransport",
+    "Execution": {
+      "input_parameters": {
+        "simulationType": "RAS",
+        "Model": "LienLeschziner"
+      }
+    }
+  }
+}

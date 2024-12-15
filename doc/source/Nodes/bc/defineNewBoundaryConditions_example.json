@@ -1,0 +1,88 @@
+{
+  "defineNewBoundaryConditions": {
+    "Execution": {
+      "input_parameters": {
+        "fields": {
+          "U": {
+            "boundaryField": {
+              "Walls": {
+                "type": "noSlip"
+              },
+              "inlet": {
+                "type": "zeroGradient"
+              },
+              "outlet": {
+                "type": "zeroGradient"
+              }
+            }
+          },
+          "epsilon": {
+            "internalField": "uniform 0.01",
+            "boundaryField": {
+              "Walls": {
+                "type": "fixedValue",
+                "value": "uniform  6.3e-5"
+              },
+              "inlet": {
+                "type": "zeroGradient"
+              },
+              "outlet": {
+                "type": "zeroGradient"
+              }
+            }
+          },
+          "k": {
+            "internalField": "uniform 0.05",
+            "boundaryField": {
+              "Walls": {
+                "type": "kLowReWallFunction",
+                "refValue": "uniform  0.1",
+                "value": "uniform  0.1"
+              },
+              "inlet": {
+                "type": "fixedValue",
+                "value": "uniform 0.1"
+              },
+              "outlet": {
+                "type": "zeroGradient"
+              }
+            }
+          },
+          "nut": {
+            "internalField": "uniform 2.5",
+            "boundaryField": {
+              "Walls": {
+                "type": "nutLowReWallFunction",
+                "refValue": "uniform  0",
+                "value": "uniform  0"
+              },
+              "inlet": {
+                "type": "fixedValue",
+                "value": "uniform 0.1"
+              },
+              "outlet": {
+                "type": "zeroGradient"
+              }
+            }
+          },
+          "p": {
+            "boundaryField": {
+              "Walls": {
+                "type": "fixedFluxPressure"
+              },
+              "inlet": {
+                "type": "fixedValue",
+                "value": "uniform 1"
+              },
+              "outlet": {
+                "type": "fixedValue",
+                "value": "uniform 0"
+              }
+            }
+          }
+        }
+      }
+    },
+    "type": "openFOAM.system.ChangeDictionary"
+  }
+}

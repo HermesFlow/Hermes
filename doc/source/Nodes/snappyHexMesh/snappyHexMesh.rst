@@ -396,6 +396,10 @@ The castellatedMeshControls define the properties to switch on creation of the c
     <hr style="border: 1px dashed;">
     <h5 id="geometry_h">geometry</h5>
 
+The geometry section has a structure named "objects" which contains all the geometries of the simulations and their
+data. Each geometry will be a structure of its own. The geometry parameter will be as follows:
+
+
 .. list-table::
    :widths: 25 20 50
    :header-rows: 1
@@ -404,11 +408,76 @@ The castellatedMeshControls define the properties to switch on creation of the c
    * - Sub-Parameter
      - Data Type
      - Description
-   * - Data
-     - type
-     - desc
+   * - objectName
+     - string
+     - The name of the object CAD
+   * - objectType
+     - string
+     - The type of the CAD (obj, stl and etc.)
+   * - levels
+     - string
+     - Indicates the refinement level to be applied along the feature edges specified in the corresponding feature file (e.g., an .eMesh file).
+   * - refinementRegions
+     - structure
+     - Specifies the refinement applied to specific regions during mesh generation
+   * - refinementSurfaces
+     - structure
+     - Specifies the refinement applied to mesh cells near surfaces
+   * - regions
+     - structure
+     - Specifies the geometry's surfaces
+   * - layers
+     - structure
+     - It specifies the nSurfaceLayers which is the number of layers of mesh cells to be added adjacent to surfaces in the mesh.
+
+
+**refinementRegions**
+
+.. code-block:: javascript
+
+    refinementRegions
+    {
+        mode   modeType;
+        levels [[distance1 level1] [distance2 level2] ...];
+     }
+
+* modeType - inside | outsdie | distance -based on where refinement is applied
+* distance - Specifies the distance from the region boundary (or surface) where the refinement level is applied.
+* level - indicates the refinement level. Higher levels mean finer mesh. A refinement level n splits each cell into 2^n smaller cells along each axis.
+
+**refinementSurfaces**
+
+.. code-block:: javascript
+
+    refinementSurfaces
+    {
+        patchType   patchType;
+        levels [minLevel maxLevel];
+     }
+
+* patchType - The specified type in patchInfo determines the boundary type for the surface, such as wall, patch, symmetryPlane, etc.
+* minLevel - ensures that no cell adjacent to the surface has a refinement level lower than minLevel
+* maxLevel ensures that no cell adjacent to the surface has a refinement level higher than maxLevel.
+
+**regions**
+
+.. code-block:: javascript
+
+    regionName
+    {
+        name   regionName;
+        type regionType;
+     }
+
+Each region represents a specific part of the domain you want to use for meshing and refinement. The data for each
+region depends on the type of geometry you're using and the role it plays in the meshing process.
+
+* regionName - The name of the boundary condition
+* regionType - surface-based geometry: triSurfaceMesh | patch
+* Each region can also include 'refinementRegions' and 'refinementSurfaces' of its own.
 
 *Example*
+
 
 .. code-block:: javascript
 
@@ -427,13 +496,13 @@ The castellatedMeshControls define the properties to switch on creation of the c
                   "Walls": {
                      "name": "Walls",
                      "type": "wall",
+                     "refinementSurfaceLevels": [ 0, 0 ],
                      "refinementRegions": {
                         "mode": "distance",
                          "levels": [
                             [ 0.1, 2 ]
                           ]
-                     },
-                     "refinementSurfaceLevels": [ 0, 0 ]
+                     }
                   },
                   "inlet": {
                        "name": "inlet",
@@ -472,10 +541,11 @@ The castellatedMeshControls define the properties to switch on creation of the c
     <h4>OpenFOAM dictionary (output)</h4>
 
 .. literalinclude:: snappyHexMeshDict
-   :language: OpenFOAM dictionary
+   :language: none
    :linenos:
 
 `up <#type_h>`_
+
 
 .. raw:: html
 

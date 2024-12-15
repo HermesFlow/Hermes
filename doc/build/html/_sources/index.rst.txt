@@ -71,7 +71,7 @@ named target, and then execute
 
    FreeCAD/FreeCAD.rst
    Nodes/nodeList.rst
-   Json/JsonStructure.rst
+   Programmers/Json/JsonStructure.rst
    CLI/CLI.rst
 
 

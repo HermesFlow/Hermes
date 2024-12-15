@@ -36,13 +36,8 @@ blocks
     ( 200 20 20)
     simpleGrading
     (
-
-        1
-          1
-          1
-          
+        1 1 1
     )
-    
 );
 
 defaultPatch
@@ -61,10 +56,7 @@ boundary
             type patch;
             faces
             (
-                
-                       ( 3 7 6 2)
-                
-
+                 ( 3 7 6 2)
             );
         }
         domain_west
@@ -72,10 +64,7 @@ boundary
             type patch;
             faces
             (
-                
-                       ( 1 5 4 0)
-                
-
+                  ( 1 5 4 0)
             );
         }
         domain_south
@@ -83,10 +72,7 @@ boundary
             type patch;
             faces
             (
-                
-                       ( 0 4 7 3)
-                
-
+                   ( 0 4 7 3)
             );
         }
         domain_north
@@ -94,10 +80,8 @@ boundary
             type patch;
             faces
             (
-                
-                       ( 2 6 5 1)
-                
 
+                   ( 2 6 5 1)
             );
         }
         domain_ceiling
@@ -105,10 +89,7 @@ boundary
             type patch;
             faces
             (
-                
                        ( 0 3 2 1)
-                
-
             );
         }
         domain_floor
@@ -116,10 +97,7 @@ boundary
             type patch;
             faces
             (
-                
                        ( 4 5 6 7)
-                
-
             );
         }
 );
