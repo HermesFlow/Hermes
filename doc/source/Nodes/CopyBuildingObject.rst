@@ -1,4 +1,4 @@
-CopyBuildingObject
+copyBuildingObject
 ===================
 This node is responsible for coping the case object to the wanted path.
 

@@ -1,4 +1,4 @@
-SnappyHexMesh Node
+snappyHexMesh Node
 ===================
 
 SnappyHexMesh node is used for automated mesh generation. Its primary purpose is to create

@@ -37,50 +37,16 @@ The main parameters for the blockmesh node.
 
    * - Parameter
      - Description
-   * - `geometry <#geo_header>`_
-     - Define the geometry properties
+   * - convertToMeters
+     - Scaling factor for the vertex coordinates, e.g. 0.001 scales to mm.
    * - `boundary  <#boundary_header>`_
      - A list of the Boundary conditions
    * - `vertices  <#vertices_header>`_
      - A list of coordinates of 8 vertices [ x, y, z]
    * - `blocks  <#blocks_header>`_
      - Define the general block properties
-
-
-
-.. raw:: html
-
-    <hr style="border: 1px dashed;">
-    <h5 id="geo_header">geometry</h5>
-
-
-The geometry section is responsible for the general properties of the blockmesh geometry. The geometry parameters may
-remain empty, and the default values will be used.
-
-.. list-table::
-   :widths: 25 50
-   :header-rows: 1
-   :align: left
-
-   * - Sub-Parameter
-     - Description
-   * - convertToMeters(scale*)
-     - Scaling factor for the vertex coordinates, e.g. 0.001 scales to mm.
-   * - cellCount
-     - A vector [x,y,z], define the numbers of cells in each direction.
-   * - grading
-     - A vector [x,y,z], define the cell expansion ratios.
-
-
-.. code-block:: javascript
-
-    "geometry": {
-        "convertToMeters": "0.01",
-        "cellCount": [200, 100, 30],
-        "grading": [1, 1, 1]
-    }
-
-`up <#type_h>`_
+   * - defaultPatch
+     - define a default patch.
 
 .. raw:: html
 

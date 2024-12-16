@@ -93,7 +93,7 @@ Specifies how divergence terms ∇⋅(ϕU) are calculated in the equations. This
      - A place to add data or equation.
    * - phi
      - string
-     - phi
+     - refers to the flux ϕ = ρU -> "phi"
    * - noOfOperators
      - number
      -

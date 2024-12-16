@@ -1,4 +1,4 @@
-CopyObjectToCase
+copyObjectToCase
 =================
 This node is responsible for coping a file to a wanted path.
 

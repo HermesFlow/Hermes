@@ -1,4 +1,4 @@
-Parameters
+parameters
 ===========
 
 Parameters is the node responsible for the general data needed for the case.
