@@ -4,7 +4,7 @@ Hermes Nodes
 The openFOAM nodes in Hermes are mainly responsible for creating text files from templates. The templates are adjust
 to the openFOAM input dictionaries structures.
 
-In Addition there is an buildAllRun which responsible for
+In Addition there is an buildAllRun which responsible for writing the file that executes the workflow.
 
 The types of openFOAM nodes are:
 
