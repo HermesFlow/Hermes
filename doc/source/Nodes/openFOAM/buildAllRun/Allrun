@@ -1,0 +1,6 @@
+ foamJob  -append -screen -wait blockMesh 
+ foamJob  -append -screen -wait surfaceFeatures -dict system/building
+ foamJob  -append -screen -wait decomposePar -force
+ foamJob -parallel -append -screen -wait snappyHexMesh -overwrite
+ ls -d processor* | xargs -i cp -r 0.parallel/* ./{}/0/ $1 
+ foamJob -parallel -append -screen -wait changeDictionary 

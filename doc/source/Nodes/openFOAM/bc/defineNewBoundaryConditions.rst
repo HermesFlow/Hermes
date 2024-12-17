@@ -1,5 +1,5 @@
-defineNewBoundaryConditions Node
-================================
+defineNewBoundaryConditions
+============================
 In OpenFOAM, the boundaryField section within a field file (e.g., U for velocity, p for pressure) specifies the
 boundary conditions for that field. These boundary conditions describe how the field behaves at the domain
 boundaries, which significantly affects the simulation results. This node is responsible for defining the boundary condition for all the fields.

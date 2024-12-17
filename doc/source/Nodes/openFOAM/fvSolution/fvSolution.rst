@@ -1,5 +1,5 @@
-fvSolution Node
-===============
+fvSolution
+===========
 The fvSolution node is a key configuration file used to control the solution of equations and the settings for numerical
 solvers. It is located in the system directory of an OpenFOAM case and serves as the primary interface for specifying how the solver behaves during a simulation.
 

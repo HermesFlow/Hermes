@@ -1,5 +1,5 @@
-controlDict Node
-=================
+controlDict
+============
 
 ControlDict is the node manages the settings for the simulation's execution. It defines key parameters such as the start and end times of the simulation, time-step size, solver write intervals, and output control settings (e.g., precision and format of results). Additionally, it specifies whether the simulation runs in steady or transient mode and allows control of optional features like function objects for data sampling and monitoring. Essentially, it serves as the central script for controlling the simulation's runtime behavior.
 

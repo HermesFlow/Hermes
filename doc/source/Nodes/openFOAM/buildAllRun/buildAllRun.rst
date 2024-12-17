@@ -1,6 +1,7 @@
-buildAllRun Node
-=================
-This node is responsible for
+buildAllRun
+============
+The buildAllRun node writes the allRun file that executes the workflow, and the allClean file that cleans the case to
+the case directory.
 
 .. table:: Table of content
    :align: left
@@ -64,20 +65,25 @@ This node is responsible for
 An item in the runFile list will be look as follow
 
 .. list-table::
-   :widths: 25 50
+   :widths: 25 25 50
    :header-rows: 1
    :align: left
 
    * - subParameter
+     - type
      - Description
    * - parallelCase
-     - A boolean value that says if the Case could run in parallel.
+     - boolean
+     - Write the execution for parallel execution
    * - slurm
-     - A boolean value that says if the ____
+     - boolean
+     - A boolean value that says if using SLURM (Simple Linux Utility for Resource Management)
    * - getNumberOfSubdomains
-     - get the __
+     - number
+     - The number of subdomains to use in the run file.
    * - runFile
-     - a list of ____
+     -
+     - a list of nodes
 
 
 .. code-block:: javascript
@@ -100,18 +106,32 @@ An item in the runFile list will be look as follow
 An item in the runFile list will be look as follow
 
 .. list-table::
-   :widths: 25 50
+   :widths: 25 25 50
    :header-rows: 1
    :align: left
 
    * - subParameter
+     - type
      - Description
    * - name
-     - The name of the node
+     - string
+     - The name of the node to execute
    * - couldRunInParallel
-     - A boolean value that says is the node could run in parallel.
+     - boolean
+     - Write as parallel (only if parallel case is True).
    * - parameters
-     - parameters of how to execute the case
+     - null | string
+     - Parameters for each run
+   * - foamJob
+     - boolean
+     - define using foamJob to run this task
+   * - screen
+     - boolean
+     - write log to screen
+   * - wait
+     - boolean
+     - wait to the end of execution before next step
+
 
 
 .. code-block:: javascript
@@ -141,11 +161,21 @@ An item in the runFile list will be look as follow
 .. raw:: html
 
     <hr style="border: 1px dashed;">
-    <h4>Output</h4>
+    <h4>Allrun file (output)</h4>
 
-|
-|
+.. literalinclude:: Allrun
+   :language: none
+   :linenos:
 
+
+.. raw:: html
+
+    <hr style="border: 1px dashed;">
+    <h4>Allclean file (output)</h4>
+
+.. literalinclude:: Allclean
+   :language: none
+   :linenos:
 
 `up <#type_h>`_
 
