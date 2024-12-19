@@ -1,5 +1,5 @@
-Hermes Nodes
-============
+OpenFOAM Nodes
+===============
 
 The openFOAM nodes in Hermes are mainly responsible for creating text files from templates. The templates are adjust
 to the openFOAM input dictionaries structures.
@@ -19,12 +19,14 @@ The types of openFOAM nodes are:
      "openFOAM.constant.physicalProperties"
      "openFOAM.constant.momentumTransport"
      "openFOAM.system.ChangeDictionary"
+     "openFOAM.constant.TurbulenceProperties"
+     "openFOAM.constant.TransportProperties"
 
 |
 
 .. toctree::
    :maxdepth: 2
-   :caption: The Open FOAM Nodes
+   :caption: The OpenFOAM Nodes
 
    buildAllRun/buildAllRun.rst
    blockMesh/blockMesh.rst
@@ -35,3 +37,5 @@ The types of openFOAM nodes are:
    physicalProperties/physicalProperties.rst
    momentumTransport/momentumTransport.rst
    bc/defineNewBoundaryConditions.rst
+   turbulenceProperties/turbulenceProperties.rst
+   transportProperties/transportProperties.rst

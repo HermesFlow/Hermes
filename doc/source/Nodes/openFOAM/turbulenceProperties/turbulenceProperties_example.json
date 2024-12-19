@@ -1,0 +1,11 @@
+{
+  "turbulenceProperties": {
+    "type": "openFOAM.constant.TurbulenceProperties",
+    "Execution": {
+      "input_parameters": {
+        "simulationType": "RAS",
+        "Model": "LienLeschziner"
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "transportProperties": {
+    "type": "openFOAM.constant.TransportProperties",
+    "Execution": {
+      "input_parameters": {
+        "transportModel": "Newtonian",
+        "nu": 1e-05
+      }
+    }
+  }
+}
