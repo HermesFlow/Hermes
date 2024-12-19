@@ -123,7 +123,7 @@ This section defines which solver will be used in the simulation. Also, define t
      - Description
    * - algorithm
      - string
-     - Choose the algorithm of the simulation: SIMPLE | PISO | SIMPLEC | PIMPLE | GAMG
+     - Choose the algorithm of the simulation: SIMPLE | PISO | PIMPLE
    * - residualControl
      - struct
      - Provides convergence criteria for field variables, defining the target residuals below which the solution is considered converged for each field.
