@@ -1,5 +1,5 @@
-SnappyHexMesh Node
-===================
+snappyHexMesh
+==============
 
 SnappyHexMesh node is used for automated mesh generation. Its primary purpose is to create
 high-quality computational meshes for solving problems in computational fluid dynamics (CFD) and other fields. It’s particularly well-suited for complex geometries and supports adaptive refinement, making it a powerful alternative to manual meshing.

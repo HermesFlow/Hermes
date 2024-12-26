@@ -1,5 +1,5 @@
-fileWriter Node
-=================
+fileWriter
+==========
 This node is responsible for writing files.
 
 

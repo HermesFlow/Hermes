@@ -36,23 +36,12 @@ Each node contain 3 inputs:
 
 |
 
-
-
 .. toctree::
    :maxdepth: 2
-   :caption: The Nodes List:
+   :caption: The Nodes List
 
-   Parameters.rst
-   createEmptyCase.rst
-   CopyObjectToCase.rst
-   CopyBuildingObject.rst
-   blockMesh/blockMesh.rst
-   snappyHexMesh/snappyHexMesh.rst
-   controlDict/controlDict.rst
-   fvSchemes/fvSchemes.rst
-   fvSolution/fvSolution.rst
-   physicalProperties/physicalProperties.rst
-   momentumTransport/momentumTransport.rst
-   bc/defineNewBoundaryConditions.rst
-   buildAllRun/buildAllRun.rst
-   fileWriter/fileWriter.rst
+   general/general.rst
+   openFOAM/openFOAM.rst
+
+
+

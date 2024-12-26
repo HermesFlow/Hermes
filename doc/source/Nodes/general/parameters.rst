@@ -1,6 +1,7 @@
-CopyObjectToCase
-=================
-This node is responsible for coping a file to a wanted path.
+parameters
+===========
+
+Parameters is the node responsible for the general data needed for the case.
 
 .. table:: Table of content
    :align: left
@@ -16,28 +17,13 @@ This node is responsible for coping a file to a wanted path.
 
 .. code-block:: javascript
 
-    "type" : "general.CopyFile"
+    "type" : "general.Parameters"
 
 
 .. raw:: html
 
    <h3 id="Execution_h">Execution</h3>
    <hr>
-
-**Requirement**
-
-.. code-block:: javascript
-
-    "requires": "createEmptyCase"
-
-
-
-`up <#type_h>`_
-
-.. raw:: html
-
-   <hr style="border: 1px dashed">
-
 
 **input_parameters**
 
@@ -48,10 +34,14 @@ This node is responsible for coping a file to a wanted path.
 
    * - Parameter
      - Description
-   * - Source
-     - The path of the file want to be copied
-   * - Target
-     - The path to directory that the file will be copied to.
+   * - OFversion
+     - The OpenFOAM version that is used to run the case
+   * - targetDirectory
+     - The directory where the data will be saved
+   * - objectFile
+     - The CAD file of the case
+   * - decomposeProcessors
+     - Define the number of processors for a parallel run of the simulation.
 
 `up <#type_h>`_
 
@@ -59,25 +49,24 @@ This node is responsible for coping a file to a wanted path.
 
    <h3 id="Example_h">Example</h3>
    <hr>
-   <h4>JSON File  (input) </h4>
+   <h4>JSON File(input) </h4>
 
 .. code-block:: javascript
 
     "input_parameters": {
-        "Source": "{Parameters.output.objectFile}",
-        "Target": "{Parameters.output.targetDirectory}/{Parameters.output.objectFile}"
+        "OFversion": "of10",
+        "targetDirectory": "{#moduleName}",
+        "objectFile": "CADobject.obj",
+        "decomposeProcessors": 8
     }
-
 
 .. raw:: html
 
     <hr style="border: 1px dashed;">
     <h4>Output</h4>
 
-| The File is being copied from the "Source" to the "Target" directory.
-
-
-`up <#type_h>`_
+| Update the parameters of the simulation.
+|
 
 .. raw:: html
 

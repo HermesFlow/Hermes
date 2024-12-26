@@ -1,8 +1,21 @@
-momentumTransport Node
-======================
+transportProperties
+====================
+The transportProperties is used to define the transport properties of a fluid or material in a simulation. The dictionary is located in the constant directory of the case setup and is typically employed for solvers involving fluid flow, such as simpleFoam, pimpleFoam, or icoFoam.
 
-The momentumTransport dictionary is used in simulations involving turbulence modeling and fluid flow. It controls properties related to the momentum transport equations, including viscosity, turbulence models, and associated parameters.
 
+|
+
+.. raw:: html
+
+   <hr>
+
+**It can be used with OpenFOAM V7-V10**
+
+.. raw:: html
+
+   <hr>
+
+|
 
 .. table:: Table of content
    :align: left
@@ -18,7 +31,7 @@ The momentumTransport dictionary is used in simulations involving turbulence mod
 
 .. code-block:: javascript
 
-    "type" : "openFOAM.constant.momentumTransport"
+    "type" : "openFOAM.constant.TransportProperties"
 
 
 .. raw:: html
@@ -29,22 +42,20 @@ The momentumTransport dictionary is used in simulations involving turbulence mod
 **input_parameters**
 
 .. list-table::
-   :widths: 25 20 250
+   :widths: 25 25 250
    :header-rows: 1
    :align: left
 
    * - Parameter
      - Data Type
      - Description
-   * - simulationType
+   * - transportModel
      - string
-     - specifies the type of simulation to be performed with respect to turbulence modeling: RAS | laminar | LES
-   * - Model
-     - string
-     - turbulance model depend on the simulationType. RAS: kEpsilon | kOmegaSST | SpalartAllmaras | LienLeschziner; LES: Smagorinsky | WALE
-   * - turbulence
-     - boolean
-     - toggles turbulence modeling (on or off).
+     - Defines how viscosity or transport properties are calculated: Newtonian | sutherland | powerLaw
+   * - nu
+     - number
+     - Kinematic viscosity (m²/s).
+
 
 
 `up <#type_h>`_
@@ -56,7 +67,7 @@ The momentumTransport dictionary is used in simulations involving turbulence mod
    <h4>JSON File  (input) </h4>
 
 
-.. literalinclude:: momentumTransport_example.json
+.. literalinclude:: transportProperties_example.json
    :language: JSON
    :linenos:
 
@@ -65,7 +76,7 @@ The momentumTransport dictionary is used in simulations involving turbulence mod
     <hr style="border: 1px dashed;">
     <h4>OpenFOAM dictionary (output)</h4>
 
-.. literalinclude:: momentumTransport
+.. literalinclude:: transportProperties
    :language: none
    :linenos:
 

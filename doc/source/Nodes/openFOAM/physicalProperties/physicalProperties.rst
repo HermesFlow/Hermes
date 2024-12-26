@@ -1,5 +1,5 @@
-physicalProperties Node
-=======================
+physicalProperties
+===================
 The physicalProperties is used to define the transport properties of a fluid or material in a simulation. The dictionary is located in the constant directory of the case setup and is typically employed for solvers involving fluid flow, such as simpleFoam, pimpleFoam, or icoFoam.
 
 

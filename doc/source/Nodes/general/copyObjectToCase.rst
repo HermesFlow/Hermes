@@ -1,6 +1,6 @@
-CopyBuildingObject
-===================
-This node is responsible for coping the case object to the wanted path.
+copyObjectToCase
+=================
+This node is responsible for coping a file to a wanted path.
 
 .. table:: Table of content
    :align: left
@@ -16,19 +16,21 @@ This node is responsible for coping the case object to the wanted path.
 
 .. code-block:: javascript
 
-    "type" : "general.RunOsCommand"
+    "type" : "general.CopyFile"
 
 
 .. raw:: html
 
    <h3 id="Execution_h">Execution</h3>
-   <hr style="border: 1px solid">
+   <hr>
 
 **Requirement**
 
 .. code-block:: javascript
 
-    "requires": "CopyObjectToCase"
+    "requires": "createEmptyCase"
+
+
 
 `up <#type_h>`_
 
@@ -36,7 +38,8 @@ This node is responsible for coping the case object to the wanted path.
 
    <hr style="border: 1px dashed">
 
-**Node input_parameters**
+
+**input_parameters**
 
 .. list-table::
    :widths: 25 50
@@ -45,10 +48,10 @@ This node is responsible for coping the case object to the wanted path.
 
    * - Parameter
      - Description
-   * - Method
-     - How the OS command is called
-   * - Command
-     - The OS commands goiog to be execute
+   * - Source
+     - The path of the file want to be copied
+   * - Target
+     - The path to directory that the file will be copied to.
 
 `up <#type_h>`_
 
@@ -61,17 +64,17 @@ This node is responsible for coping the case object to the wanted path.
 .. code-block:: javascript
 
     "input_parameters": {
-        "Method": "Command list",
-        "Command": "surfaceMeshConvert {Parameters.output.objectFile} {Parameters.output.targetDirectory}/constant/triSurface/building.obj -scaleIn 0.001 -case {Parameters.output.targetDirectory}"
+        "Source": "{Parameters.output.objectFile}",
+        "Target": "{Parameters.output.targetDirectory}/{Parameters.output.objectFile}"
     }
+
 
 .. raw:: html
 
     <hr style="border: 1px dashed;">
     <h4>Output</h4>
 
-| Coping the buildings objects by running the "Commands" with the "Method" mentioned.
-|
+| The File is being copied from the "Source" to the "Target" directory.
 
 
 `up <#type_h>`_

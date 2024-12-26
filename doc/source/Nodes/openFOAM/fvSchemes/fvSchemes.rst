@@ -1,5 +1,5 @@
-fvSchemes Node
-===============
+fvSchemes
+==========
 
 The fvSchemes dictionary defines the numerical discretization schemes used for solving equations in a simulation. It determines how derivatives, gradients, interpolations, and fluxes are approximated on the computational mesh. Proper selection of schemes is essential for the accuracy, stability, and efficiency of the solution.
 
@@ -93,7 +93,7 @@ Specifies how divergence terms ∇⋅(ϕU) are calculated in the equations. This
      - A place to add data or equation.
    * - phi
      - string
-     - phi
+     - refers to the flux ϕ = ρU -> "phi"
    * - noOfOperators
      - number
      -

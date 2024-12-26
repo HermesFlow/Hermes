@@ -1,5 +1,5 @@
-fvSolution Node
-===============
+fvSolution
+===========
 The fvSolution node is a key configuration file used to control the solution of equations and the settings for numerical
 solvers. It is located in the system directory of an OpenFOAM case and serves as the primary interface for specifying how the solver behaves during a simulation.
 
@@ -123,7 +123,7 @@ This section defines which solver will be used in the simulation. Also, define t
      - Description
    * - algorithm
      - string
-     - Choose the algorithm of the simulation: SIMPLE | PISO | SIMPLEC | PIMPLE | GAMG
+     - Choose the algorithm of the simulation: SIMPLE | PISO | PIMPLE
    * - residualControl
      - struct
      - Provides convergence criteria for field variables, defining the target residuals below which the solution is considered converged for each field.
@@ -131,9 +131,46 @@ This section defines which solver will be used in the simulation. Also, define t
      - struct
      - Define the solver specific parameters (elaborated below)
 
-**SIMPLE Solver**
+**Solvers**
+
+*SIMPLE Solver*
 
 The SIMPLE (Semi-Implicit Method for Pressure-Linked Equations) solver is an algorithm primarily used for solving steady-state problems involving incompressible or weakly compressible flows. It operates by iteratively solving for the velocity and pressure fields to satisfy the momentum and continuity equations.
+
+*PIMPLE Solver*
+
+The PIMPLE solver in OpenFOAM is a combination of the PISO (Pressure-Implicit with Splitting of Operators) and SIMPLE (Semi-Implicit Method for Pressure-Linked Equations) algorithms. It is used for solving transient (time-dependent) or steady-state incompressible and compressible flow problems in CFD simulations.
+
+*PISO Solver*
+
+The PISO (Pressure-Implicit with Splitting of Operators) algorithm is a pressure-velocity coupling method in OpenFOAM. It is specifically designed for transient (time-dependent) simulations of incompressible or compressible flows. It is widely used in Computational Fluid Dynamics (CFD) because of its robustness and accuracy for unsteady problems.
+
+**Solvers Comparison**
+
+.. list-table::
+   :widths: 25 25 25 25
+   :header-rows: 1
+   :align: left
+
+   * - Algorithm
+     - Application
+     - Iterations
+     - Time Dependency
+   * - SIMPLE
+     - Steady-state simulations
+     - Single iteration per time step
+     - No time dependency
+   * - PISO
+     - Transient simulations
+     - Multiple corrector steps
+     - Strong time dependency
+   * - PIMPLE
+     - Pseudo-transient or transient
+     - Combines SIMPLE and PISO; flexible
+     - Handles large time steps
+
+
+**Solvers Parameters**
 
 .. list-table::
    :widths: 25 20 250
@@ -157,13 +194,13 @@ The SIMPLE (Semi-Implicit Method for Pressure-Linked Equations) solver is an alg
      - determines whether to solve the momentum equation (velocity prediction) before solving the pressure correction equation.
    * - nOuterCorrectors
      - number
-     - Specifies the number of outer correction loops performed during each SIMPLE iteration.
+     - Specifies the number of outer correction loops performed during each iteration.
    * - nCorrectors
      - number
-     - Determines the number of inner pressure-velocity correction loops (SIMPLE correctors) performed during each time step.
+     - Determines the number of inner pressure-velocity correction loops (SIMPLE/PISO correctors) performed during each time step.
    * - nonlinearSolver
      - string
-     - Specifies the nonlinear solver method used for the SIMPLE algorithm.
+     - Specifies the nonlinear solver method used for the algorithm.
 
 
 .. code-block:: javascript
@@ -185,6 +222,11 @@ The SIMPLE (Semi-Implicit Method for Pressure-Linked Equations) solver is an alg
           "nonlinearSolver": "fixedPoint"
        }
     }
+
+
+
+
+
 
 `up <#type_h>`_
 
