@@ -1,0 +1,51 @@
+{
+  "buildAllRun": {
+    "type": "openFOAM.BuildAllrun",
+    "requires": "createEmptyCase",
+    "Execution": {
+      "input_parameters": {
+        "casePath": "{Parameters.output.targetDirectory}",
+        "caseExecution": {
+          "parallelCase": true,
+          "slurm": false,
+          "getNumberOfSubdomains": 10,
+          "runFile": []
+        },
+        "parallelCase": true,
+        "runFile": [
+          {
+            "name": "blockMesh",
+            "couldRunInParallel": false,
+            "parameters": null
+          },
+          {
+            "name": "surfaceFeatures",
+            "parameters": "-dict system/building",
+            "couldRunInParallel": false
+          },
+          {
+            "name": "decomposePar",
+            "parameters": "-force",
+            "couldRunInParallel": false
+          },
+          {
+            "name": "snappyHexMesh",
+            "parameters": "-overwrite",
+            "couldRunInParallel": true
+          },
+          {
+            "name": "ls -d processor* | xargs -i cp -r 0.parallel/* ./{}/0/ $1",
+            "parameters": null,
+            "couldRunInParallel": false,
+            "foamJob": false
+          },
+          {
+            "name": "changeDictionary",
+            "parameters": null,
+            "couldRunInParallel": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "blockMesh": {
+    "type": "openFOAM.mesh.BlockMesh",
+    "Execution": {
+      "input_parameters": {
+        "geometry": {},
+        "boundary": [
+          {
+            "name": "domain_east",
+            "type": "patch",
+            "faces": [
+              [3, 7, 6, 2]
+            ]
+          },
+          {
+            "name": "domain_west",
+            "type": "patch",
+            "faces": [
+              [1, 5, 4, 0]
+            ]
+          },
+          {
+            "name": "domain_south",
+            "type": "patch",
+            "faces": [
+              [0, 4, 7, 3]
+            ]
+          },
+          {
+            "name": "domain_north",
+            "type": "patch",
+            "faces": [
+              [2, 6, 5, 1]
+            ]
+          },
+          {
+            "name": "domain_ceiling",
+            "type": "patch",
+            "faces": [
+              [0, 3, 2, 1]
+            ]
+          },
+          {
+            "name": "domain_floor",
+            "type": "patch",
+            "faces": [
+              [4, 5, 6, 7]
+            ]
+          }
+        ],
+        "vertices": [
+          [0.0 , -0.5099875793457032, -0.51              ],
+          [20.0, -0.5099875793457032, -0.51              ],
+          [20.0,  0.5099875793457032, -0.51              ],
+          [0.0 ,  0.5099875793457032, -0.51              ],
+          [0.0 , -0.5099875793457032,  0.5099502868652344],
+          [20.0, -0.5099875793457032,  0.5099502868652344],
+          [20.0,  0.5099875793457032,  0.5099502868652344],
+          [0.0 ,  0.5099875793457032,  0.5099502868652344]
+        ],
+        "convertToMeters": "1",
+        "blocks": [
+          {
+            "hex": [0, 1, 2, 3, 4, 5, 6, 7],
+            "cellCount": [200, 20, 20],
+            "grading": [1, 1, 1]
+          }
+        ]
+      }
+    }
+  }
+}

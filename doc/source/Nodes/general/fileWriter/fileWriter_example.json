@@ -1,0 +1,58 @@
+{
+  "fileWriter": {
+    "Execution": {
+      "input_parameters": {
+        "directoryPath": ".",
+        "Files": {
+          "blockMesh": {
+            "fileName": "system/blockMeshDict",
+            "fileContent": "{blockMesh.output.openFOAMfile}"
+          },
+          "decomposePar": {
+            "fileName": "system/decomposeParDict",
+            "fileContent": "{decomposePar.output.openFOAMfile}"
+          },
+          "snappyHexMeshDict": {
+            "fileName": "system/snappyHexMeshDict",
+            "fileContent": "{snappyHexMesh.output.openFOAMfile}"
+          },
+          "g": {
+            "fileName": "constant/g",
+            "fileContent": "{g.output.openFOAMfile}"
+          },
+          "controlDict": {
+            "fileName": "system/controlDict",
+            "fileContent": "{controlDict.output.openFOAMfile}"
+          },
+          "fvSchemes": {
+            "fileName": "system/fvSchemes",
+            "fileContent": "{fvSchemes.output.openFOAMfile}"
+          },
+          "fvSolution": {
+            "fileName": "system/fvSolution",
+            "fileContent": "{fvSolution.output.openFOAMfile}"
+          },
+          "physicalProperties": {
+            "fileName": "constant/physicalProperties",
+            "fileContent": "{physicalProperties.output.openFOAMfile}"
+          },
+          "momentumTransport": {
+            "fileName": "constant/momentumTransport",
+            "fileContent": "{momentumTransport.output.openFOAMfile}"
+          },
+          "changeDictionary": {
+            "fileName": "system/changeDictionaryDict",
+            "fileContent": "{defineNewBoundaryConditions.output.openFOAMfile}"
+          },
+          "surfaceFeatures": {
+            "fileName": "system",
+            "fileContent": "{surfaceFeatures.output.openFOAMfile}"
+          }
+        },
+        "casePath": "{Parameters.output.targetDirectory}"
+      }
+    },
+    "requires": "createEmptyCase",
+    "type": "general.FilesWriter"
+  }
+}

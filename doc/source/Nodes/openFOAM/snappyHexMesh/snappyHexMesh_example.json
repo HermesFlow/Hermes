@@ -1,0 +1,135 @@
+{
+  "snappyHexMesh": {
+    "type": "openFOAM.mesh.SnappyHexMesh",
+    "Execution": {
+      "input_parameters": {
+        "modules": {
+          "castellatedMesh": true,
+          "snap": true,
+          "layers": true,
+          "mergeTolerance": 1e-06
+        },
+        "Geometry": {
+          "objects": {},
+          "refinementSurfaces": {},
+          "regions": {},
+          "layers": {
+            "nSurfaceLayers": 10
+          }
+        },
+        "castellatedMeshControls": {
+          "maxLocalCells": 100000,
+          "maxGlobalCells": 100000000,
+          "minRefinementCells": 40,
+          "maxLoadUnbalance": 0.1,
+          "nCellsBetweenLevels": 8,
+          "resolveFeatureAngle": 30,
+          "allowFreeStandingZoneFaces": true,
+          "locationInMesh": [
+            5.0,
+            0,
+            0
+          ]
+        },
+        "snapControls": {
+          "nSmoothPatch": 5,
+          "tolerance": 6.0,
+          "nSolveIter": 200,
+          "nRelaxIter": 5,
+          "nFeatureSnapIter": 10,
+          "explicitFeatureSnap": false,
+          "multiRegionFeatureSnap": false,
+          "implicitFeatureSnap": true
+        },
+        "addLayersControls": {
+          "relativeSizes": true,
+          "expansionRatio": 1.05,
+          "finalLayerThickness": 0.9,
+          "minThickness": 0.01,
+          "featureAngle": 100,
+          "slipFeatureAngle": 30,
+          "nLayerIter": 50,
+          "nRelaxedIter": 20,
+          "nRelaxIter": 5,
+          "nGrow": 0,
+          "nSmoothSurfaceNormals": 1,
+          "nSmoothNormals": 3,
+          "nSmoothThickness": 10,
+          "maxFaceThicknessRatio": 0.5,
+          "maxThicknessToMedialRatio": 0.3,
+          "minMedianAxisAngle": 90,
+          "nMedialAxisIter": 10,
+          "nBufferCellsNoExtrude": 0,
+          "additionalReporting": false
+        },
+        "meshQualityControls": {
+          "maxNonOrtho": 65,
+          "maxBoundarySkewness": 20,
+          "maxInternalSkewness": 4,
+          "maxConcave": 80,
+          "minVol": 1e-13,
+          "minTetQuality": -1e+30,
+          "minArea": -1,
+          "minTwist": 0.02,
+          "minDeterminant": 0.001,
+          "minFaceWeight": 0.05,
+          "minVolRatio": 0.01,
+          "minTriangleTwist": -1,
+          "nSmoothScale": 4,
+          "errorReduction": 0.75,
+          "relaxed": {
+            "maxNonOrtho": 75
+          }
+        },
+        "geometry": {
+          "objects": {
+            "building": {
+              "objectName": "building",
+              "objectType": "obj",
+              "levels": "1",
+              "refinementRegions": {},
+              "refinementSurfaces": {
+                "levels": [
+                  0,
+                  0
+                ],
+                "patchType": "wall"
+              },
+              "regions": {
+                "Walls": {
+                  "name": "Walls",
+                  "type": "wall",
+                  "refinementRegions": {
+                    "mode": "distance",
+                    "levels": [
+                      [
+                        0.1,
+                        2
+                      ]
+                    ]
+                  },
+                  "refinementSurfaceLevels": [
+                    0,
+                    0
+                  ]
+                },
+                "inlet": {
+                  "name": "inlet",
+                  "type": "patch"
+                },
+                "outlet": {
+                  "name": "outlet",
+                  "type": "patch"
+                }
+              },
+              "layers": {
+                "nSurfaceLayers": 10
+              }
+            }
+          },
+          "gemeotricalEntities": {}
+        }
+      }
+    }
+  }
+}

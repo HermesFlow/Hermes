@@ -1,0 +1,33 @@
+{
+  "physicalProperties": {
+    "type": "openFOAM.constant.physicalProperties",
+    "Execution": {
+      "input_parameters": {
+        "transportModel": "Newtonian",
+        "nu": 1e-05,
+        "parameters": {
+          "beta": {
+            "printName": true,
+            "dimensions": "[0 0 0 -1 0 0 0]",
+            "value": 0.0033333333333333335
+          },
+          "Tref": {
+            "printName": true,
+            "dimensions": "[0 0 0 1 0 0 0]",
+            "value": 300
+          },
+          "Pr": {
+            "printName": true,
+            "dimensions": "[0 0 0 0 0 0 0]",
+            "value": 0.7
+          },
+          "Prt": {
+            "printName": true,
+            "dimensions": "[0 0 0 0 0 0 0]",
+            "value": 1
+          }
+        }
+      }
+    }
+  }
+}

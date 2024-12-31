@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Using Hermes workflow" href="Usage/UsingByExample.html" />
 
-    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>Hermes 3.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -158,9 +158,33 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Usage/UsingByExample.html">Using Hermes workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FreeCAD/FreeCAD.html">FreeCAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simpleWorkflow/intro.html">Simple Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Json/JsonStructure.html">The JSON Structure</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="CLI/CLI.html">Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Nodes/nodeList.html">Hermes Nodes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Hermes Nodes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="Nodes/general/general.html">General Nodes</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of General Nodes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/general/parameters.html">parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/general/createEmptyCase.html">createEmptyCase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/general/copyObjectToCase.html">copyObjectToCase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/general/copyBuildingObject.html">copyBuildingObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/general/fileWriter/fileWriter.html">fileWriter</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="Nodes/openFOAM/openFOAM.html">OpenFOAM Nodes</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of OpenFOAM Nodes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/buildAllRun/buildAllRun.html">buildAllRun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/blockMesh/blockMesh.html">blockMesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/snappyHexMesh/snappyHexMesh.html">snappyHexMesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/controlDict/controlDict.html">controlDict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/fvSchemes/fvSchemes.html">fvSchemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/fvSolution/fvSolution.html">fvSolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/physicalProperties/physicalProperties.html">physicalProperties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/momentumTransport/momentumTransport.html">momentumTransport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/bc/defineNewBoundaryConditions.html">defineNewBoundaryConditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/turbulenceProperties/turbulenceProperties.html">turbulenceProperties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Nodes/openFOAM/transportProperties/transportProperties.html">transportProperties</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Programmers/Json/JsonStructure.html">The JSON Structure</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="CLI/CLI.html">Command Line Interface</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Command Line Interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI/expandPipeline.html">Expand Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI/buildPython.html">Built a Python File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI/executePythonPipeline.html">Run a Python Pipeline File</a></li>
@@ -201,7 +225,7 @@
         </div>
         <article role="main">
           <section id="welcome-to-hermes-s-documentation">
-<h1>Welcome to Hermes’s documentation!<a class="headerlink" href="#welcome-to-hermes-s-documentation" title="Permalink to this heading">#</a></h1>
+<h1>Welcome to Hermes’s documentation!<a class="headerlink" href="#welcome-to-hermes-s-documentation" title="Link to this heading">#</a></h1>
 <p>Hermes is a package that aims to simplify the batch operation of programs. Different than
 other packages (..), the workflow is specified in JSON format, which allows queries and comparison of different workflows
 using MongoDB.</p>
@@ -211,44 +235,44 @@ concomitant execution of all the node withc respect to their depencies.</p>
 <p>An additional workbench was programmed using the opensource CAD program FreeCAD, so simplify the definition of
 boundary conditions and complex objects in the simulation.</p>
 <section id="minute-tutorial">
-<h2>10 minute Tutorial<a class="headerlink" href="#minute-tutorial" title="Permalink to this heading">#</a></h2>
+<h2>10 minute Tutorial<a class="headerlink" href="#minute-tutorial" title="Link to this heading">#</a></h2>
 <p>This tutorial shows how to run a Hermes workflow that will copy the directory named source to a directory
 named target, and then execute</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;workflow&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="s2">&quot;root&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="s2">&quot;nodeList&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="w"></span>
-<span class="w">        </span><span class="p">],</span><span class="w"></span>
-<span class="w">        </span><span class="s2">&quot;nodes&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;source&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;target&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;dirs_exist_ok&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
-<span class="w">                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                </span><span class="p">},</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.CopyDirectory&quot;</span><span class="w"></span>
-<span class="w">            </span><span class="p">},</span><span class="w"></span>
-<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;ModulePath&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorial1&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;ClassName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorialPrinter&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;MethodName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;printDirectories&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                        </span><span class="s2">&quot;Parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Source}&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                            </span><span class="s2">&quot;target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Target}&quot;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">}</span><span class="w"></span>
-<span class="w">                    </span><span class="p">}</span><span class="w"></span>
-<span class="w">                </span><span class="p">},</span><span class="w"></span>
-<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.RunPythonCode&quot;</span><span class="w"></span>
-<span class="w">            </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;workflow&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;root&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;nodeList&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="s2">&quot;nodes&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;CopyDirectory&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s2">&quot;Source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;source&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;Target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;dirs_exist_ok&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.CopyDirectory&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="s2">&quot;RunPythonCode&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;Execution&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="s2">&quot;input_parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s2">&quot;ModulePath&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorial1&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;ClassName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tutorialPrinter&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;MethodName&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;printDirectories&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s2">&quot;Parameters&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                            </span><span class="s2">&quot;source&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Source}&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="s2">&quot;target&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{CopyDirectory.output.Target}&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;general.RunPythonCode&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
@@ -260,14 +284,13 @@ named target, and then execute</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="FreeCAD/FreeCAD.html">FreeCAD</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simpleWorkflow/intro.html">Simple Workflow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="simpleWorkflow/intro.html#workflow-steps">Workflow Steps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simpleWorkflow/intro.html#the-nodes-for-an-openfoam">The nodes for an openFOAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Nodes/nodeList.html">Hermes Nodes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Nodes/nodeList.html#the-basic-json-structure-of-a-node">The Basic Json Structure Of A Node</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Json/JsonStructure.html">The JSON Structure</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Json/JsonStructure.html#the-react-jsonschema-form">The react-jsonschema-form</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Json/JsonStructure.html#hermes-workflow-json-structure">Hermes workflow JSON structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Programmers/Json/JsonStructure.html">The JSON Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Programmers/Json/JsonStructure.html#the-react-jsonschema-form">The react-jsonschema-form</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Programmers/Json/JsonStructure.html#hermes-workflow-json-structure">Hermes workflow JSON structure</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="CLI/CLI.html">Command Line Interface</a><ul>
@@ -281,7 +304,7 @@ named target, and then execute</p>
 </section>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -348,9 +371,9 @@ named target, and then execute</p>
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/furo.js"></script>
+</div><script src="_static/documentation_options.js?v=4f6ddb47"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
     </body>
 </html>

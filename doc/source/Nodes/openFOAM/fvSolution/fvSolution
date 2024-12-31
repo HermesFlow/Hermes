@@ -1,0 +1,174 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    
+p
+{
+    solver              PCG;
+    preconditioner      DIC;
+    tolerance           1e-08;
+    
+    relTol              0.0001;
+    
+    maxIter             5000;
+    }
+
+pFinal
+{
+    solver              PCG;
+    preconditioner      DIC;
+    tolerance           1e-08;
+    
+    relTol              0;
+    
+    maxIter             5000;
+    }
+
+U
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-10;
+    
+    relTol              1e-05;
+    
+    maxIter             5000;
+    }
+
+UFinal
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-10;
+    
+    relTol              0;
+    
+    maxIter             5000;
+    }
+
+epsilon
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-08;
+    
+    relTol              0.001;
+    
+    maxIter             5000;
+    }
+
+epsilonFinal
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-08;
+    
+    relTol              0;
+    
+    maxIter             5000;
+    }
+
+k
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-08;
+    
+    relTol              0.001;
+    
+    maxIter             5000;
+    }
+
+kFinal
+{
+    solver              PBiCG;
+    preconditioner      DILU;
+    tolerance           1e-08;
+    
+    relTol              0;
+    
+    maxIter             5000;
+    }
+
+
+}
+
+SIMPLE
+{
+    
+    residualControl
+    {
+        p    0.0001;
+        U    0.0001;
+        k    0.0001;
+        epsilon    0.0001;
+        p_rgh    0.0001;
+        
+    }
+    
+
+    
+        nNonOrthogonalCorrectors 2;
+        pRefCell 0;
+        pRefValue 0;
+        momentumPredictor yes;
+        nOuterCorrectors 2;
+        nCorrectors 2;
+        nonlinearSolver yes;
+        
+    
+}
+
+relaxationFactors
+{
+    
+    fields
+    {
+        p 0.15;
+        U 0.15;
+        k 0.15;
+        epsilon 0.15;
+        
+    }
+    
+
+    
+    equations
+    {
+        p   0.4;
+         
+          pfinal   0.4;
+          
+        U   0.7;
+         
+          Ufinal   0.7;
+          
+        k   0.7;
+         
+          kfinal   0.7;
+          
+        epsilon   0.7;
+         
+          epsilonfinal   0.7;
+          
+        
+    }
+    
+}
+
+// ************************************************************************* //

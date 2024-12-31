@@ -1,0 +1,31 @@
+{
+  "controlDict": {
+    "type": "openFOAM.system.ControlDict",
+    "Execution": {
+      "input_parameters": {
+        "values": {
+          "application": "simpleFoam",
+          "startFrom": "startTime",
+          "startTime": 0,
+          "stopAt": "endTime",
+          "endTime": 60,
+          "deltaT": 1,
+          "writeControl": "adjustableRunTime",
+          "writeInterval": 0.1,
+          "runTimeModifiable": true,
+          "interpolate": true,
+          "adjustTimeStep": true,
+          "purgeWrite": 0,
+          "writeFormat": "ascii",
+          "writePrecision": 7,
+          "writeCompression": false,
+          "timeFormat": "general",
+          "timePrecision": 6,
+          "maxCo": 0.5,
+          "functions": [],
+          "libs": []
+        }
+      }
+    }
+  }
+}
