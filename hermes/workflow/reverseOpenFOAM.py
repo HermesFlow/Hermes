@@ -1,0 +1,160 @@
+from __future__ import annotations
+
+from PyFoam.RunDictionary.ParsedParameterFile import ParsedParameterFile
+from PyFoam.Basics.DataStructures import BoolProxy
+from ..Resources.reTemplateCenter import templateCenter
+from ..utils.logging import get_classMethod_logger
+from pathlib import Path
+from typing import Any, Dict, Tuple, Optional
+import json, copy, pydoc
+
+# Json encoder
+class FoamJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, BoolProxy):
+            return bool(o)
+        return super().default(o)
+
+# Convert Python dictionary into a JSON-formatted string
+def save_json(data, save_name):
+    with open(save_name, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, sort_keys=True, ensure_ascii=False, cls=FoamJSONEncoder)
+
+#  To retrieve the correct template class or default node structure for the dictionary
+def locate_class(path: str):
+    try:
+        return pydoc.locate(path), None
+    except Exception as e:
+        return None, e
+
+# Extract Keys and Values from a dictionary and Replace or Add Keys in the JSON Structure
+def merge_into(dst: Any, src: Any, list_strategy: str = "replace") -> Any:
+    """
+    Merge src into dst (in-place for dicts). Return the merged value.
+    dict+dict -> recursive; list+list -> replace|extend; scalars -> overwrite.
+    """
+    if isinstance(dst, dict) and isinstance(src, dict):
+        for k, v in src.items():
+            if k in dst:
+                dst[k] = merge_into(dst[k], v, list_strategy)
+            else:
+                dst[k] = copy.deepcopy(v)
+        return dst
+    if isinstance(dst, list) and isinstance(src, list):
+        return (dst + copy.deepcopy(src)) if list_strategy == "extend" else copy.deepcopy(src)
+    return copy.deepcopy(src)
+
+def ensure_path(d: Dict[str, Any], keys: Tuple[str, ...]) -> Dict[str, Any]:
+    cur = d
+    for k in keys:
+        cur = cur.setdefault(k, {})
+    return cur
+
+class DictionaryReverser:
+    def __init__(self, dictionary_path: str, template_paths=None):
+        self.log = get_classMethod_logger(self, "__init__")
+        self.dictionary_path = dictionary_path
+
+        self.ppf: Optional[ParsedParameterFile] = None
+        self.dict_data: Optional[Dict[str, Any]] = None
+        self.dict_name: Optional[str] = None
+        self.domain: Optional[str] = None
+        self.subdomain: Optional[str] = None
+        self.node_type: Optional[str] = None
+
+        self._template_center = templateCenter(template_paths)
+        self._converter_cache: Dict[str, Tuple[Optional[type], Optional[Exception]]] = {}
+
+    # Read OpenFOAM dictionary with PyFoam
+    def parse(self) -> None:
+        """Read dict file, capture content and identify node_type."""
+        p = Path(self.dictionary_path)
+        self.ppf = ParsedParameterFile(str(p))
+        self.dict_data = copy.deepcopy(self.ppf.content)
+
+        # Prefer filename stem, fallback to header object
+        stem = p.stem.strip()
+        header_obj = str(self.ppf.header.get("object", "")).strip()
+
+        if stem:
+            obj = stem
+        elif header_obj:
+            obj = header_obj
+        else:
+            raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
+
+        self.dict_name = obj
+
+        # infer subdomain by path or well-known names
+        lower = p.as_posix().lower()
+        obj_l = self.dict_name.lower()
+
+        sys_names = {
+            "controldict", "fvschemes", "fvsolution",
+            "decomposepardict", "fvconstraints", "fvoptions",
+            "blockmeshdict", "snappyhexmeshdict", "changedictionarydict"
+        }
+        const_names = {
+            "transportproperties", "thermophysicalproperties",
+            "turbulenceproperties", "rasproperties",
+            "momentumtransport", "physicalproperties", "g"
+        }
+
+        if "/system/" in lower or obj_l in sys_names:
+            self.subdomain = "system"
+        elif "/constant/" in lower or obj_l in const_names:
+            self.subdomain = "constant"
+        else:
+            self.subdomain = "system"  # best-effort default
+
+        self.domain = "openFOAM"
+        pascal = self.dict_name[0].upper() + self.dict_name[1:]
+        self.node_type = f"{self.domain}.{self.subdomain}.{pascal}"
+        self.log.debug(f"Detected node_type={self.node_type}")
+
+    #Load JSON Template
+    def load_template(self) -> Dict[str, Any]:
+        if not self.node_type:
+            raise RuntimeError("node_type not set; call parse() first")
+        if self.node_type not in self._template_center:
+            raise KeyError(f"No template found for node_type '{self.node_type}'")
+        return copy.deepcopy(self._template_center[self.node_type])
+
+
+    # Locate the converter class for the dictionary
+    def locate_converter_class(self):
+        # Expected: hermes.Resources.openFOAM.system.ControlDict.convertData.copyDataControlDict
+        cls_name = f"copyData{self.dict_name[0].upper()}{self.dict_name[1:]}"
+        path = f"hermes.Resources.{self.domain}.{self.subdomain}.{self.dict_name[0].upper()}{self.dict_name[1:]}.convertData.{cls_name}"
+        converter, err = locate_class(path)
+        return converter, err, path
+
+    def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
+        """
+        Build the final JSON node (Python dict).
+        - Prefer class-specific converter if available.
+        - Else, merge dict content into Execution.input_parameters.values.
+        """
+        if self.ppf is None:
+            self.parse()
+
+        template = self.load_template()
+
+        converter, err, path = self.locate_converter_class()
+        if converter is not None and hasattr(converter, "updateDictionaryToJson"):
+            self.log.debug(f"Using converter: {path}")
+            converter.updateDictionaryToJson(template, self.dict_data)
+        else:
+            if converter is None:
+                self.log.debug(f"No converter at {path} (err: {err}). Falling back to generic merge.")
+            values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
+            merge_into(values_leaf, self.dict_data, list_strategy=list_strategy)
+
+        template["type"] = self.node_type
+        return template
+
+    def to_json_str(self, node: dict) -> str:
+        return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)
+
+    def save_node(self, node: dict, out_path: str):
+        save_json(node, out_path)
