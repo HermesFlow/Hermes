@@ -30,8 +30,10 @@ def locate_class(path: str):
 # Extract Keys and Values from a dictionary and Replace or Add Keys in the JSON Structure
 def merge_into(dst: Any, src: Any, list_strategy: str = "replace") -> Any:
     """
-    Merge src into dst (in-place for dicts). Return the merged value.
-    dict+dict -> recursive; list+list -> replace|extend; scalars -> overwrite.
+    Merge src into dst recursively. Works in-place for dicts.
+    - dict + dict: recurse and insert new keys
+    - list + list: replace or extend based on strategy
+    - scalar + scalar or mismatched types: overwrite
     """
     if isinstance(dst, dict) and isinstance(src, dict):
         for k, v in src.items():
@@ -40,9 +42,16 @@ def merge_into(dst: Any, src: Any, list_strategy: str = "replace") -> Any:
             else:
                 dst[k] = copy.deepcopy(v)
         return dst
+
     if isinstance(dst, list) and isinstance(src, list):
-        return (dst + copy.deepcopy(src)) if list_strategy == "extend" else copy.deepcopy(src)
+        if list_strategy == "extend":
+            return dst + copy.deepcopy(src)
+        else:  # "replace"
+            return copy.deepcopy(src)
+
+    # If types are different or scalar: replace
     return copy.deepcopy(src)
+
 
 def ensure_path(d: Dict[str, Any], keys: Tuple[str, ...]) -> Dict[str, Any]:
     cur = d
@@ -130,11 +139,6 @@ class DictionaryReverser:
         return converter, err, path
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
-        """
-        Build the final JSON node (Python dict).
-        - Prefer class-specific converter if available.
-        - Else, merge dict content into Execution.input_parameters.values.
-        """
         if self.ppf is None:
             self.parse()
 
@@ -144,11 +148,36 @@ class DictionaryReverser:
         if converter is not None and hasattr(converter, "updateDictionaryToJson"):
             self.log.debug(f"Using converter: {path}")
             converter.updateDictionaryToJson(template, self.dict_data)
+
+            try:
+                values_leaf = template["Execution"]["input_parameters"]["values"]
+            except KeyError as e:
+                raise RuntimeError("Template is missing Execution/input_parameters/values") from e
+
+            # 🩹 Move flat keys into values_leaf
+            for k in list(template.keys()):
+                if k not in {"Execution", "type"}:
+                    values_leaf[k] = template.pop(k)
+
+            # ✅ Add missing default for 'interpolate'
+            values_leaf.setdefault("interpolate", True)
+
+            # Normalize quirks
+            if isinstance(values_leaf.get("functions"), dict):
+                values_leaf["functions"] = []
+            if isinstance(values_leaf.get("libs"), dict):
+                values_leaf["libs"] = []
+
         else:
-            if converter is None:
-                self.log.debug(f"No converter at {path} (err: {err}). Falling back to generic merge.")
+            self.log.debug(f"No converter at {path} (err: {err}). Falling back to direct insert.")
             values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
-            merge_into(values_leaf, self.dict_data, list_strategy=list_strategy)
+            merge_into(values_leaf, self.dict_data or {}, list_strategy)
+            values_leaf.setdefault("interpolate", True)
+
+            if isinstance(values_leaf.get("functions"), dict):
+                values_leaf["functions"] = []
+            if isinstance(values_leaf.get("libs"), dict):
+                values_leaf["libs"] = []
 
         template["type"] = self.node_type
         return template
