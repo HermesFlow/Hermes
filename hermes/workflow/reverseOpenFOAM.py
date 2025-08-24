@@ -15,12 +15,12 @@ class FoamJSONEncoder(json.JSONEncoder):
             return bool(o)
         return super().default(o)
 
-# Convert Python dictionary into a JSON-formatted string
+# Convert Python dictionary into a JSON
 def save_json(data, save_name):
     with open(save_name, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, sort_keys=True, ensure_ascii=False, cls=FoamJSONEncoder)
 
-#  To retrieve the correct template class or default node structure for the dictionary
+#  To retrieve the correct template
 def locate_class(path: str):
     try:
         return pydoc.locate(path), None
@@ -125,9 +125,12 @@ class DictionaryReverser:
     def load_template(self) -> Dict[str, Any]:
         if not self.node_type:
             raise RuntimeError("node_type not set; call parse() first")
-        if self.node_type not in self._template_center:
-            raise KeyError(f"No template found for node_type '{self.node_type}'")
-        return copy.deepcopy(self._template_center[self.node_type])
+        try:
+            # ask templateCenter for the template directly
+            return copy.deepcopy(self._template_center[self.node_type])
+        except FileNotFoundError as e:
+            raise KeyError(f"No template found for node_type '{self.node_type}'") from e
+
 
 
     # Locate the converter class for the dictionary
@@ -142,45 +145,47 @@ class DictionaryReverser:
         if self.ppf is None:
             self.parse()
 
-        template = self.load_template()
+        # 1) Load the full template once
+        template_full = self.load_template()
 
+        # 2) Keep only the Execution branch from the template
+        template = {
+            "Execution": copy.deepcopy(template_full.get("Execution", {}))
+        }
+
+        # 3) Run converter
         converter, err, path = self.locate_converter_class()
         if converter is not None and hasattr(converter, "updateDictionaryToJson"):
             self.log.debug(f"Using converter: {path}")
+            # Converter may write flat keys at the root of 'template'
             converter.updateDictionaryToJson(template, self.dict_data)
-
-            try:
-                values_leaf = template["Execution"]["input_parameters"]["values"]
-            except KeyError as e:
-                raise RuntimeError("Template is missing Execution/input_parameters/values") from e
-
-            # 🩹 Move flat keys into values_leaf
-            for k in list(template.keys()):
-                if k not in {"Execution", "type"}:
-                    values_leaf[k] = template.pop(k)
-
-            # ✅ Add missing default for 'interpolate'
-            values_leaf.setdefault("interpolate", True)
-
-            # Normalize quirks
-            if isinstance(values_leaf.get("functions"), dict):
-                values_leaf["functions"] = []
-            if isinstance(values_leaf.get("libs"), dict):
-                values_leaf["libs"] = []
-
         else:
             self.log.debug(f"No converter at {path} (err: {err}). Falling back to direct insert.")
+            # Ensure values path exists and merge dict_data into it
             values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
             merge_into(values_leaf, self.dict_data or {}, list_strategy)
-            values_leaf.setdefault("interpolate", True)
 
-            if isinstance(values_leaf.get("functions"), dict):
-                values_leaf["functions"] = []
-            if isinstance(values_leaf.get("libs"), dict):
-                values_leaf["libs"] = []
+        # 4) Ensure 'values' exists
+        values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
 
-        template["type"] = self.node_type
-        return template
+        # 5) If converter wrote flat keys at the root, move them into values
+        for k in list(template.keys()):
+            if k not in {"Execution", "type"}:
+                values_leaf[k] = template.pop(k)
+
+        # 6) Add defaults / normalizations
+        values_leaf.setdefault("interpolate", True)
+        if isinstance(values_leaf.get("functions"), dict):
+            values_leaf["functions"] = []
+        if isinstance(values_leaf.get("libs"), dict):
+            values_leaf["libs"] = []
+
+        # 7) Final node:
+        node = {
+            "Execution": template["Execution"],
+            "type": self.node_type
+        }
+        return node
 
     def to_json_str(self, node: dict) -> str:
         return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)
