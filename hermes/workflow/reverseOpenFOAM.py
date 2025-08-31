@@ -1,35 +1,44 @@
 from __future__ import annotations
 
 from PyFoam.RunDictionary.ParsedParameterFile import ParsedParameterFile
-from PyFoam.Basics.DataStructures import BoolProxy
+from PyFoam.Basics.DataStructures import Vector, BoolProxy
 from ..Resources.reTemplateCenter import templateCenter
 from ..utils.logging import get_classMethod_logger
 from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json, copy, pydoc
 
-# Json encoder
+
 class FoamJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, BoolProxy):
             return bool(o)
+        elif isinstance(o, Vector):
+            return list(o.vals)  # ✅ Important: use .vals to get the underlying list
         return super().default(o)
 
-# Convert Python dictionary into a JSON
+
+
 def save_json(data, save_name):
+    """
+    Convert Python dictionary into a JSON
+    """
     with open(save_name, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, sort_keys=True, ensure_ascii=False, cls=FoamJSONEncoder)
 
-#  To retrieve the correct template
+
 def locate_class(path: str):
+    """
+    Load a Python class given its full path and returns it.
+    """
     try:
         return pydoc.locate(path), None
     except Exception as e:
         return None, e
 
-# Extract Keys and Values from a dictionary and Replace or Add Keys in the JSON Structure
 def merge_into(dst: Any, src: Any, list_strategy: str = "replace") -> Any:
     """
+    Extract Keys and Values from a dictionary and Replace or Add Keys in the JSON Structure.
     Merge src into dst recursively. Works in-place for dicts.
     - dict + dict: recurse and insert new keys
     - list + list: replace or extend based on strategy
@@ -52,14 +61,21 @@ def merge_into(dst: Any, src: Any, list_strategy: str = "replace") -> Any:
     # If types are different or scalar: replace
     return copy.deepcopy(src)
 
-
 def ensure_path(d: Dict[str, Any], keys: Tuple[str, ...]) -> Dict[str, Any]:
+    """
+    Make sure a nested dictionary path exists inside a dict,
+    creating empty dicts along the way, and return the innermost dict
+    """
     cur = d
     for k in keys:
         cur = cur.setdefault(k, {})
     return cur
 
+
 class DictionaryReverser:
+    """
+    DictionaryReverser class set up all the states the reverser will need when parsing and building JSON nodes from OpenFOAM dictionaries.
+    """
     def __init__(self, dictionary_path: str, template_paths=None):
         self.log = get_classMethod_logger(self, "__init__")
         self.dictionary_path = dictionary_path
@@ -74,55 +90,42 @@ class DictionaryReverser:
         self._template_center = templateCenter(template_paths)
         self._converter_cache: Dict[str, Tuple[Optional[type], Optional[Exception]]] = {}
 
-    # Read OpenFOAM dictionary with PyFoam
     def parse(self) -> None:
-        """Read dict file, capture content and identify node_type."""
+        """
+        Read the OpenFOAM dictionary with PyFoam, capture content, and infer
+        node identifiers (domain/subdomain/node_type) directly from the input
+        (header + path).
+        """
         p = Path(self.dictionary_path)
         self.ppf = ParsedParameterFile(str(p))
         self.dict_data = copy.deepcopy(self.ppf.content)
 
-        # Prefer filename stem, fallback to header object
-        stem = p.stem.strip()
+        #Object name (dict_name)
         header_obj = str(self.ppf.header.get("object", "")).strip()
-
-        if stem:
-            obj = stem
-        elif header_obj:
-            obj = header_obj
-        else:
+        stem = p.stem.strip()
+        obj = header_obj or stem
+        if not obj:
             raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
-
         self.dict_name = obj
 
-        # infer subdomain by path or well-known names
-        lower = p.as_posix().lower()
-        obj_l = self.dict_name.lower()
-
-        sys_names = {
-            "controldict", "fvschemes", "fvsolution",
-            "decomposepardict", "fvconstraints", "fvoptions",
-            "blockmeshdict", "snappyhexmeshdict", "changedictionarydict"
-        }
-        const_names = {
-            "transportproperties", "thermophysicalproperties",
-            "turbulenceproperties", "rasproperties",
-            "momentumtransport", "physicalproperties", "g"
-        }
-
-        if "/system/" in lower or obj_l in sys_names:
-            self.subdomain = "system"
-        elif "/constant/" in lower or obj_l in const_names:
-            self.subdomain = "constant"
-        else:
-            self.subdomain = "system"  # best-effort default
+        # Subdomain: prefer header 'location' (/0 or '/system' or '/constant'), else parent dir name
+        header_loc = str(self.ppf.header.get("location", "")).strip()  # e.g. "/system", "/constant", "/0"
+        subdomain = header_loc.strip().strip("/").split("/")[-1] if header_loc else p.parent.name
+        self.subdomain = subdomain or "system"
 
         self.domain = "openFOAM"
-        pascal = self.dict_name[0].upper() + self.dict_name[1:]
+        pascal = self.dict_name[0].upper() + self.dict_name[1:] # Check if this is matches template file
         self.node_type = f"{self.domain}.{self.subdomain}.{pascal}"
-        self.log.debug(f"Detected node_type={self.node_type}")
 
-    #Load JSON Template
+        self.log.debug(
+            f"Detected node_type={self.node_type} "
+            f"(object='{self.dict_name}', location='{header_loc}', parent='{p.parent.name}')"
+        )
+
     def load_template(self) -> Dict[str, Any]:
+        """
+        Look up and return a fresh copy of the JSON template corresponding to this dictionary type, based on its node_type.
+        """
         if not self.node_type:
             raise RuntimeError("node_type not set; call parse() first")
         try:
@@ -135,56 +138,177 @@ class DictionaryReverser:
 
     # Locate the converter class for the dictionary
     def locate_converter_class(self):
-        # Expected: hermes.Resources.openFOAM.system.ControlDict.convertData.copyDataControlDict
+        """
+        Figure out if a special-purpose converter exists for this dictionary type, and if so, return it.
+        Try to locate a converter class (copyData<DictName>) for the current dictionary type.
+        Converter classes are responsible for custom logic when translating
+        dictionary content to JSON .
+        """
         cls_name = f"copyData{self.dict_name[0].upper()}{self.dict_name[1:]}"
         path = f"hermes.Resources.{self.domain}.{self.subdomain}.{self.dict_name[0].upper()}{self.dict_name[1:]}.convertData.{cls_name}"
         converter, err = locate_class(path)
         return converter, err, path
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
+        """
+        Build a node.
+        - Always create: Execution -> input_parameters
+        - Special case: for controlDict, put data under .../values
+        - If a converter exists, let it update a minimal structure and normalize results
+        """
         if self.ppf is None:
             self.parse()
 
-        # 1) Load the full template once
-        template_full = self.load_template()
+        # Decide if this is a controlDict node (case-insensitive)
+        is_control = (self.dict_name.lower() == "controldict") or \
+                     (self.node_type and self.node_type.endswith(".ControlDict"))
 
-        # 2) Keep only the Execution branch from the template
-        template = {
-            "Execution": copy.deepcopy(template_full.get("Execution", {}))
-        }
+        # Minimal base skeleton
+        base = {"Execution": {"input_parameters": {}}}
 
-        # 3) Run converter
+        # For controlDict we want .../values to exist
+        if is_control:
+            ensure_path(base, ("Execution", "input_parameters", "values"))
+
+        # Try a converter on a copy of the minimal base; otherwise, direct-merge dict_data
         converter, err, path = self.locate_converter_class()
         if converter is not None and hasattr(converter, "updateDictionaryToJson"):
             self.log.debug(f"Using converter: {path}")
-            # Converter may write flat keys at the root of 'template'
-            converter.updateDictionaryToJson(template, self.dict_data)
+            work = copy.deepcopy(base)
+            converter.updateDictionaryToJson(work, self.dict_data)
+
+            # Choose the leaf we will populate/normalize
+            leaf = ensure_path(work, ("Execution", "input_parameters", "values")) if is_control \
+                else work["Execution"]["input_parameters"]
+
+            # If converter wrote flat keys at the root, move them under the leaf
+            for k in list(work.keys()):
+                if k not in {"Execution", "type"}:
+                    leaf[k] = work.pop(k)
+
+            # If the converter produced nothing, fallback to merging dict_data
+            if not leaf:
+                merge_into(leaf, self.dict_data or {}, list_strategy)
+
+            node = {"Execution": work["Execution"], "type": self.node_type}
         else:
             self.log.debug(f"No converter at {path} (err: {err}). Falling back to direct insert.")
-            # Ensure values path exists and merge dict_data into it
-            values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
-            merge_into(values_leaf, self.dict_data or {}, list_strategy)
+            leaf = ensure_path(base, ("Execution", "input_parameters", "values")) if is_control \
+                else base["Execution"]["input_parameters"]
+            merge_into(leaf, self.dict_data or {}, list_strategy)
+            node = {"Execution": base["Execution"], "type": self.node_type}
 
-        # 4) Ensure 'values' exists
-        values_leaf = ensure_path(template, ("Execution", "input_parameters", "values"))
+        if is_control:
+            values_leaf = ensure_path(node, ("Execution", "input_parameters", "values"))
+        else:
+            values_leaf = node["Execution"]["input_parameters"]
 
-        # 5) If converter wrote flat keys at the root, move them into values
-        for k in list(template.keys()):
-            if k not in {"Execution", "type"}:
-                values_leaf[k] = template.pop(k)
-
-        # 6) Add defaults / normalizations
-        values_leaf.setdefault("interpolate", True)
         if isinstance(values_leaf.get("functions"), dict):
             values_leaf["functions"] = []
         if isinstance(values_leaf.get("libs"), dict):
             values_leaf["libs"] = []
 
-        # 7) Final node:
-        node = {
-            "Execution": template["Execution"],
-            "type": self.node_type
-        }
+        if self.dict_name == "snappyHexMeshDict":
+
+            ip = node["Execution"]["input_parameters"]
+
+            # Normalize modules
+            modules_keys = ["castellatedMesh", "snap", "addLayers", "mergeTolerance"]
+            modules = {}
+            for key in modules_keys:
+                if key in ip:
+                    val = ip.pop(key)
+                    # Rename "addLayers" to "layers" for normalization
+                    if key == "addLayers":
+                        modules["layers"] = val
+                    else:
+                        modules[key] = val
+            if modules:
+                ip["modules"] = modules
+
+            # Fix geometry
+            geometry = ip.get("geometry", {})
+            objects = {}
+            to_remove = []
+
+            for k, v in geometry.items():
+                if k.endswith(".obj"):
+                    name = k.replace(".obj", "")
+                    obj = {
+                        "objectName": name,
+                        "objectType": "obj",
+                    }
+                    if isinstance(v, dict):
+                        obj.update(v)
+                    objects[name] = obj
+                    to_remove.append(k)
+
+            for k in to_remove:
+                del geometry[k]
+            if objects:
+                geometry["objects"] = objects
+
+            geometry.setdefault("gemeotricalEntities", {})
+
+            # Map features[*].file to geometry.objects[*].levels
+            features = ip.get("castellatedMeshControls", {}).get("features", [])
+            for feature in features:
+                file = feature.get("file", "").strip('"')
+                name = Path(file).stem  # e.g. "building.eMesh" -> "building"
+                if name in geometry["objects"]:
+                    geometry["objects"][name]["levels"] = str(feature.get("level"))
+
+            # Ensure addLayersControls exists
+            alc = ip.setdefault("addLayersControls", {})
+
+            # Add missing default fields
+            alc.setdefault("nRelaxedIter", 20)
+            alc.setdefault("nMedialAxisIter", 10)
+            alc.setdefault("additionalReporting", False)
+
+            # Migrate nSurfaceLayers from layers -> building.layers
+            nsl = None
+            if "layers" in alc:
+                try:
+                    layers = alc["layers"]
+                    if isinstance(layers, dict):
+                        nsl = layers.pop("nSurfaceLayers", None)
+                        # Remove 'layers' if empty after popping
+                        if not layers:
+                            del alc["layers"]
+                except KeyError:
+                    pass
+                if nsl is not None:
+                    for obj in geometry["objects"].values():
+                        obj.setdefault("layers", {})["nSurfaceLayers"] = nsl
+
+            # Migrate refinementSurfaces and refinementRegions
+            cmc = ip.get("castellatedMeshControls", {})
+            rs = cmc.get("refinementSurfaces", {})
+            rr = cmc.get("refinementRegions", {})
+
+            for name, obj in geometry["objects"].items():
+                if name in rs:
+                    surf = rs[name]
+                    obj["refinementSurfaces"] = {
+                        "levels": surf.get("level", [0, 0]),
+                        "patchType": surf.get("patchInfo", {}).get("type", "wall")
+                    }
+
+                    for rname, rinfo in surf.get("regions", {}).items():
+                        region = obj.setdefault("regions", {}).get(rname, {})
+                        region["refinementSurfaceLevels"] = rinfo.get("level", [0, 0])
+                        region["type"] = rinfo.get("type", "wall")
+                        obj["regions"][rname] = region
+
+                for rname, rinfo in rr.items():
+                    if "regions" in obj and rname in obj["regions"]:
+                        obj["refinementRegions"] = {}
+                        obj["regions"][rname]["refinementRegions"] = {
+                            "mode": rinfo.get("mode"),
+                            "levels": rinfo.get("levels")
+                        }
+
         return node
 
     def to_json_str(self, node: dict) -> str:
