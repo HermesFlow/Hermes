@@ -8,73 +8,80 @@ from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json, copy, pydoc
 
-
 def unwrap_booleans_and_vectors(obj):
     """
-    Recursively unwrap PyFoam-style 'val' booleans and 'vals' vectors
-    into native Python bools and lists.
+    Recursively unwrap PyFoam-style BoolProxy and Vector objects
+    into native Python types.
     """
-    if isinstance(obj, dict):
-        if "val" in obj and isinstance(obj["val"], bool):
-            return obj["val"]
-        if "vals" in obj and isinstance(obj["vals"], list):
-            return [unwrap_booleans_and_vectors(v) for v in obj["vals"]]
+    if isinstance(obj, BoolProxy):
+        return bool(obj)
+    elif isinstance(obj, Vector):
+        return list(obj.vals)
+    elif isinstance(obj, dict):
         return {k: unwrap_booleans_and_vectors(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [unwrap_booleans_and_vectors(v) for v in obj]
-    return obj
+    else:
+        return obj
 
+def unwrap_and_clean_snappy_node(node: dict) -> dict:
+    """
+    Final cleanup of snappyHexMeshDict reversed node to match schema.
+    Ensures geometry/regions/modules/etc. are in correct places.
+    """
+    if not isinstance(node, dict):
+        return {
+            "Execution": {"input_parameters": {}},
+            "type": "openFOAM.mesh.SnappyHexMesh"
+        }
 
-def unwrap_and_clean_snappy_node(node):
-    """
-    Normalize the reversed snappyHexMeshDict node structure so it matches
-    the expected schema from the Hermes pipeline.
-    """
     execution = node.get("Execution", {})
     params = execution.get("input_parameters", {})
 
-    # ✅ Deep convert PyFoam objects to native first
-    params_native = to_native(params)
+    # Ensure we have a dict
+    if not isinstance(params, dict):
+        params = {}
 
-    # ✅ Then unwrap BoolProxy and Vector types
-    cleaned = unwrap_booleans_and_vectors(params_native)
+    # Unwrap PyFoam booleans and vectors
+    cleaned = unwrap_booleans_and_vectors(params)
 
-    # 2. Fix 'geometry' field nesting and cleanup
+    # Defensive nesting
     geometry = cleaned.get("geometry", {})
+    if not isinstance(geometry, dict):
+        geometry = {}
     objects = geometry.get("objects", {})
     if not isinstance(objects, dict):
         objects = {}
-        geometry["objects"] = objects
+    building = objects.get("building", {})
+    if not isinstance(building, dict):
+        building = {}
 
-    if "building" in objects:
-        building = objects["building"]
-
-        # Promote refinementSurfaceLevels
-        regions = building.get("regions", {})
+    # Promote Walls refinement data
+    regions = building.get("regions", {})
+    if isinstance(regions, dict):
         walls = regions.get("Walls", {})
+        if isinstance(walls, dict):
+            if "refinementSurfaceLevels" in walls:
+                building["refinementSurfaces"] = {
+                    "levels": walls["refinementSurfaceLevels"],
+                    "patchType": walls.get("type", "wall")
+                }
+            if "refinementRegions" in walls:
+                building["refinementRegions"] = walls["refinementRegions"]
+            # Ensure inlet/outlet type
+            for rn in ("inlet", "outlet"):
+                if rn in regions and isinstance(regions[rn], dict):
+                    regions[rn].setdefault("type", "patch")
+            building["regions"] = regions
 
-        level = walls.get("refinementSurfaceLevels")
-        patch_type = walls.get("type", "wall")
-
-        if level:
-            building["refinementSurfaces"] = {
-                "levels": level,
-                "patchType": patch_type
-            }
-
-        refinement_regions = walls.get("refinementRegions")
-        if refinement_regions:
-            building["refinementRegions"] = refinement_regions
-
-        for k in ["name", "type"]:
-            walls.pop(k, None)
-            building.pop(k, None)
+    objects["building"] = building
+    geometry["objects"] = objects
+    cleaned["geometry"] = geometry
 
     return {
         "Execution": {"input_parameters": cleaned},
         "type": node.get("type", "openFOAM.mesh.SnappyHexMesh")
     }
-
 
 
 def to_native(obj):
@@ -189,6 +196,7 @@ class DictionaryReverser:
         (header + path).
         """
         p = Path(self.dictionary_path)
+        print(p)
         self.ppf = ParsedParameterFile(str(p))
         self.dict_data = copy.deepcopy(self.ppf.content)
 
@@ -241,150 +249,177 @@ class DictionaryReverser:
         converter, err = locate_class(path)
         return converter, err, path
 
-    def _handle_snappy_dict(self, ip: Dict[str, Any]):
-        # Normalize modules
+    def handle_snappy_dict(self, ip: Dict[str, Any]):
+        # 1) modules {castellatedMesh,snap,layers,mergeTolerance}
+        ip = to_native(ip)
+
         modules = {}
-        for key in ["castellatedMesh", "snap", "addLayers", "mergeTolerance"]:
+        for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
             if key in ip:
                 val = ip.pop(key)
                 modules["layers" if key == "addLayers" else key] = val
         if modules:
             ip["modules"] = modules
 
-        cmc = ip.get("castellatedMeshControls", {})
-
-        # Fix locationInMesh format
+        # 2) normalize castellatedMeshControls.locationInMesh
+        raw_cmc = ip.setdefault("castellatedMeshControls", {})
+        cmc = to_native(raw_cmc)
         try:
-            loc = cmc["locationInMesh"]
+            loc = cmc.get("locationInMesh")
             if isinstance(loc, str):
                 parts = loc.strip("()").split()
                 cmc["locationInMesh"] = [float(p) for p in parts]
         except Exception as e:
             self.log.warning(f"Failed to normalize locationInMesh: {e}")
 
-        # Migrate features[*].file -> geometry.objects[*].levels
+        # 3) prepare geometry + objects
         geometry = ip.setdefault("geometry", {})
         objects = geometry.setdefault("objects", {})
 
-        # Ensure we have a 'building' object
-        building = objects.setdefault("building", {})  # <-- this line fixes the NameError
-
-        building.setdefault("objectName", "building")
-        building.setdefault("objectType", "obj")
-
-        # Safely migrate features[*].file -> geometry.objects[*].levels
+        # 3a) SAFE hoist of *.obj entries into objects[name]
+        #     Work from a native snapshot so we never call PyFoam __getitem__ on 'building.obj'
         try:
-            features = cmc["features"]
-        except KeyError:
-            features = None
+            native_geom = to_native(geometry)
+            for k, v in list(native_geom.items()):
+                if isinstance(k, str) and k.endswith(".obj"):
+                    # Determine object name
+                    name = None
+                    if isinstance(v, dict):
+                        name = v.get("name")
+                    if not name:
+                        from pathlib import Path as _P
+                        name = _P(k).stem
+
+                    tgt = objects.setdefault(name, {})
+                    if isinstance(v, dict):
+                        tgt.update(v)
+
+                    # Expected headers on the object
+                    tgt.setdefault("objectName", name)
+                    tgt.setdefault("objectType", "obj")
+
+                    # Try to remove the *.obj key from the PyFoam map (ignore failures)
+                    try:
+                        if hasattr(geometry, "pop"):
+                            geometry.pop(k, None)
+                    except Exception:
+                        pass
         except Exception as e:
-            self.log.warning(f"Unexpected error when accessing 'features': {e}")
-            features = None
+            self.log.warning(f"Failed hoisting triSurface objects: {e}")
 
-        if features:
-            for feature in features:
-                file = feature.get("file", "").strip('"')
-                name = Path(file).stem
-                if name in objects:
-                    objects[name]["levels"] = str(feature.get("level"))
-            # Remove the original features block
-            try:
-                del cmc["features"]
-            except Exception:
-                pass
+        # 4) ensure typo-preserved key
+        geometry.setdefault("gemeotricalEntities", {})
 
-        # Ensure nested structure
-        geometry.setdefault("gemeotricalEntities", {})  # Probably typo — should be "geometricalEntities"?
+        # 5) Ensure a building object exists and has expected headers
         building = objects.setdefault("building", {})
         building.setdefault("objectName", "building")
         building.setdefault("objectType", "obj")
-        building.setdefault("refinementRegions", {})
 
-        # Promote refinementSurfaces and refinementRegions from castellatedMeshControls to geometry
-        for key in ["refinementSurfaces", "refinementRegions"]:
-            val = cmc.get(key)
-            if val is not None:
-                # Do NOT pop, just clone if needed
-                try:
-                    if key == "refinementRegions":
-                        walls = building.setdefault("regions", {}).setdefault("Walls", {})
-                        walls[key] = val
-                    elif key == "refinementSurfaces":
-                        building[key] = {
-                            "levels": val.get("building", {}).get("level", []),
-                            "patchType": val.get("building", {}).get("patchInfo", {}).get("type", "wall")
-                        }
-                except Exception as e:
-                    self.log.warning(f"Failed to promote {key}: {e}")
+        # 6) Migrate features[*].file -> objects[*].levels (string "1" expected)
+        features = None
+        try:
+            features = cmc.get("features", None)
+        except Exception as e:
+            self.log.warning(f"Could not safely access 'features': {e}")
 
-        # Promote nested fields for compatibility
-        regions = building.get("regions", {})
-        walls = regions.get("Walls", {})
+        if features:
+            for feature in to_native(features):
+                file = str(feature.get("file", "")).strip('"')
+                lvl = feature.get("level")
+                name = (Path(file).stem if file else None) or "building"
+                if name in objects and lvl is not None:
+                    objects[name]["levels"] = str(lvl)
+            try:
+                cmc.pop("features", None)
+            except Exception:
+                pass
+        ip["castellatedMeshControls"] = cmc
 
-        if "refinementSurfaceLevels" in walls:
-            building["refinementSurfaces"] = {
-                "levels": walls["refinementSurfaceLevels"],
-                "patchType": walls.get("type", "wall")
-            }
+        # 7) Promote refinementSurfaces / refinementRegions from cmc into 'building' + Walls
+        ref_surfs = cmc.pop("refinementSurfaces", {}) or {}
+        ref_regs = cmc.pop("refinementRegions", {}) or {}
 
-        if "refinementRegions" in walls:
-            building["refinementRegions"] = walls["refinementRegions"]
+        # build/ensure regions
+        regions = building.setdefault("regions", {})
+        walls = regions.setdefault("Walls", {"name": "Walls"})
+        regions.setdefault("inlet", {"name": "inlet", "type": "patch"})
+        regions.setdefault("outlet", {"name": "outlet", "type": "patch"})
 
-        for region_name in ["inlet", "outlet"]:
-            if region_name in regions:
-                regions[region_name].setdefault("type", "patch")
+        # refinementSurfaces -> building.refinementSurfaces + Walls.refinementSurfaceLevels
+        try:
+            bsurf = to_native(ref_surfs).get("building", {})
+            if isinstance(bsurf, dict):
+                levels = bsurf.get("level", [])
+                ptype = bsurf.get("patchInfo", {}).get("type", "wall")
+                if levels:
+                    building["refinementSurfaces"] = {
+                        "levels": levels,
+                        "patchType": ptype
+                    }
+                    walls["refinementSurfaceLevels"] = levels
+                    walls["type"] = ptype
+        except Exception as e:
+            self.log.warning(f"Failed to promote refinementSurfaces: {e}")
 
-        for field in ["name", "type"]:
-            building.pop(field, None)
+        # refinementRegions -> building.refinementRegions + Walls.refinementRegions
+        try:
+            regs = to_native(ref_regs)
+            if "Walls" in regs:
+                building["refinementRegions"] = regs["Walls"]
+                walls["refinementRegions"] = regs["Walls"]
+        except Exception as e:
+            self.log.warning(f"Failed to promote refinementRegions: {e}")
 
-        # addLayersControls defaults
-        alc = ip.setdefault("addLayersControls", {})
+        # 8) Clean name/type duplication on building (keep on walls)
+        for fld in ("name", "type"):
+            building.pop(fld, None)
+
+        # 9) addLayersControls defaults and move nSurfaceLayers
+        raw_alc = ip.setdefault("addLayersControls", {})
+        alc = to_native(raw_alc)
+
         alc.setdefault("nRelaxedIter", 20)
         alc.setdefault("nMedialAxisIter", 10)
         alc.setdefault("additionalReporting", False)
 
-        # Move nSurfaceLayers from addLayersControls to geometry.objects.building
-        try:
-            layers = alc["layers"]
-        except KeyError:
-            layers = None
-        except Exception as e:
-            self.log.warning(f"Failed to access addLayersControls.layers: {e}")
-            layers = None
+        layers_block = alc.get("layers")
 
-        if layers and isinstance(layers, dict):
-            nsl = layers.pop("nSurfaceLayers", None)
-
-            if nsl is not None:
-                building.setdefault("layers", {})["nSurfaceLayers"] = nsl
-
-            # Clean up: remove 'layers' only if now empty
-            if not layers:
+        nsl = None
+        if isinstance(layers_block, dict):
+            nsl = layers_block.pop("nSurfaceLayers", None)
+            if not layers_block:
                 try:
-                    del alc["layers"]
+                    alc.pop("layers", None)
                 except Exception:
-                    alc["layers"] = {}  # If deletion fails, ensure it's at least clean
+                    pass
+        ip["addLayersControls"] = alc
 
-        # Final cleanup
+        if nsl is not None:
+            building.setdefault("layers", {})["nSurfaceLayers"] = nsl
+
+        # 10) Duplicate top-level geometry mirrors required by expected JSON
+        #     (these "empty shells" live alongside geometry.objects)
+        #     geometry.layers.nSurfaceLayers should mirror building.layers.nSurfaceLayers
+        top_layers = {}
+        if nsl is not None:
+            top_layers["nSurfaceLayers"] = nsl
+        geometry["layers"] = top_layers or {"nSurfaceLayers": building.get("layers", {}).get("nSurfaceLayers", 10)}
+        geometry.setdefault("refinementSurfaces", {})
+        geometry.setdefault("regions", {})
+
+        # 11) Reassign geometry to contain ONLY wanted keys (drop any lingering '*.obj')
+        ip["geometry"] = {
+            "objects": objects,
+            "gemeotricalEntities": geometry.get("gemeotricalEntities", {}),
+            "refinementSurfaces": geometry.get("refinementSurfaces", {}),
+            "regions": geometry.get("regions", {}),
+            "layers": geometry.get("layers", {}),
+        }
+
+        # 12) If writeFlags is empty -> remove
         if not ip.get("writeFlags"):
             ip.pop("writeFlags", None)
 
-
-        # Fix geometry naming: convert "building.obj" → objects["building"]
-        raw_geom = ip.get("geometry", {})
-        geom_objs = raw_geom.setdefault("objects", {})
-
-        for k in list(raw_geom.keys()):
-            if k.endswith(".obj"):
-                obj_data = raw_geom.pop(k)
-                name = obj_data.get("name", Path(k).stem)
-                geom_objs[name] = obj_data
-
-        # Reassign with typo preserved
-        ip["geometry"] = {
-            "objects": geom_objs,
-            "gemeotricalEntities": geometry.get("gemeotricalEntities", {}),
-        }
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
@@ -433,13 +468,12 @@ class DictionaryReverser:
 
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
-            self._handle_snappy_dict(final_leaf)
+            self.handle_snappy_dict(final_leaf)
 
-        if self.dict_name == "snappyHexMeshDict":
-            self._handle_snappy_dict(final_leaf)
-            node = unwrap_and_clean_snappy_node(node)  # <== clean structure
+            #node = unwrap_and_clean_snappy_node(node)
 
-        return to_native(node)
+        #return to_native(node)
+        return node
 
     def to_json_str(self, node: dict) -> str:
         return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)

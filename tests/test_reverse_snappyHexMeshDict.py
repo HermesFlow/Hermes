@@ -12,7 +12,7 @@ def test_reverse_snappyHexMeshDict_against_input(tmp_path: Path):
     """
 
     # Load expected JSON input file
-    input_file_path = Path("/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_1.json")
+    input_file_path = Path("/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json")
     with open(input_file_path, "r") as f:
         input_json = json.load(f)
 
@@ -20,12 +20,6 @@ def test_reverse_snappyHexMeshDict_against_input(tmp_path: Path):
 
     # Locate source dictionary file
     src = Path("/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/snappyHexMeshDict")
-    if not src.exists():
-        alt = Path("/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict")
-        if alt.exists():
-            src = alt
-        else:
-            pytest.skip("snappyHexMeshDict not found on this machine; skipping test.")
 
     # Create a temporary isolated system directory
     system_dir = tmp_path / "system"

@@ -19,6 +19,8 @@ castellatedMesh {{utils.toBool(modules.castellatedMesh)}};
 snap            {{utils.toBool(modules.snap)}};
 addLayers       {{utils.toBool(modules.layers)}};
 
+
+
 geometry
 {
     {%- for geometryName,geometryData in geometry.objects.items() %}
@@ -102,7 +104,7 @@ castellatedMeshControls
                         {%- endif %}
 
                         {%- if 'type' in regionData %}
-                        patchInfo { type {{regionData.type}}; }
+                        type {{regionData.type}};
                         {%- endif %}
                 }
             {%- endfor %}
@@ -175,37 +177,37 @@ addLayersControls
 {
     // Per final patch (so not geometry!) the layer information
     layers
-    {
+
         {%- for geometryName,geometryData in geometry.objects.items() %}
         {%- set objLayers=geometryData.layers %}
-        {%- for geometryLayerName,geometryLayerData in objLayers.items() %}
-            {{geometryLayerName}}
+        {%- if objLayers|length > 0 -%}
+            {{geometryData.name}}
             {
-                {%- if 'nSurfaceLayers' in geometryLayerData %}
-                nSurfaceLayers {{geometryLayerData.nSurfaceLayers}};
+                {%- if 'nSurfaceLayers' in objLayers %}
+                nSurfaceLayers {{objLayers.nSurfaceLayers}};
                 {%- endif -%}
 
-                {%- if 'expansionRatio' in geometryLayerData %}
-                expansionRatio {{geometryLayerData.expansionRatio}};
+                {%- if 'expansionRatio' in objLayers %}
+                expansionRatio {{objLayers.expansionRatio}};
                 {%- endif -%}
 
-                {%- if 'finalLayerThickness' in geometryLayerData %}
-                finalLayerThickness {{geometryLayerData.finalLayerThickness}};
+                {%- if 'finalLayerThickness' in objLayers %}
+                finalLayerThickness {{objLayers.finalLayerThickness}};
                 {%- endif -%}
 
-                {%- if 'thickness' in geometryLayerData %}
-                thickness {{geometryLayerData.thickness}};
+                {%- if 'thickness' in objLayers %}
+                thickness {{objLayers.thickness}};
                 {%- endif -%}
 
-                {%- if 'firstLayerThickness' in geometryLayerData %}
-                firstLayerThickness {{geometryLayerData.firstLayerThickness}};
+                {%- if 'firstLayerThickness' in objLayers %}
+                firstLayerThickness {{objLayers.firstLayerThickness}};
                 {%- endif -%}
 
-                {%- if 'minThickness' in geometryLayerData %}
-                minThickness {{geometryLayerData.minThickness}};
-                {%- endif %}
-            }
-        {%- endfor %}
+                {%- if 'minThickness' in objLayers %}
+                minThickness {{objLayers.minThickness}};
+                {%- endif -%}
+
+        {%- endif %}
         {%- if 'regions' in geometryData %}
         {%- for regionName,regionData in geometryData.regions.items() %}
 
