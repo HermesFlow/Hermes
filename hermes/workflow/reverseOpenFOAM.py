@@ -246,13 +246,14 @@ class DictionaryReverser:
 
         # 3) prepare geometry + objects
         geometry = ip.setdefault("geometry", {})
+        normalize_in_place(geometry)
+
         objects = geometry.setdefault("objects", {})
         normalize_in_place(objects)
 
         # 3a) SAFE hoist of *.obj entries into objects[name]
         #     Work from a native snapshot so we never call PyFoam __getitem__ on 'building.obj'
         try:
-            normalize_in_place(geometry)
             for k, v in list(geometry.items()):
                 if isinstance(k, str) and k.endswith(".obj"):
                     # Determine object name
