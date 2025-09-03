@@ -8,80 +8,44 @@ from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json, copy, pydoc
 
+
+def normalize_in_place(d: Dict[str, Any]) -> Dict[str, Any]:
+    native = to_native(d)
+    if native is not d:
+        d.clear()
+        d.update(native)
+    return d
+
+
 def unwrap_booleans_and_vectors(obj):
     """
-    Recursively unwrap PyFoam-style BoolProxy and Vector objects
-    into native Python types.
+    Recursively unwrap PyFoam BoolProxy/Vector AND dict-shaped wrappers
+    like {"val": true, "textual": "true"} and {"vals": [...]} into native
+    Python bools and lists.
     """
+    # Direct PyFoam types
     if isinstance(obj, BoolProxy):
         return bool(obj)
-    elif isinstance(obj, Vector):
+    if isinstance(obj, Vector):
         return list(obj.vals)
-    elif isinstance(obj, dict):
+
+    # Dict-shaped wrappers (often appear after to_native or PyFoam internals)
+    if isinstance(obj, dict):
+        # bool wrapper: {"val": True, "textual": "true"}
+        if "val" in obj and isinstance(obj["val"], (bool, int, float, str)):
+            # Prefer the real Python value; for booleans this yields True/False
+            return unwrap_booleans_and_vectors(obj["val"])
+        # vector wrapper: {"vals": [ ... ]}
+        if "vals" in obj and isinstance(obj["vals"], list):
+            return [unwrap_booleans_and_vectors(v) for v in obj["vals"]]
+        # generic dict
         return {k: unwrap_booleans_and_vectors(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
+
+    # Lists
+    if isinstance(obj, list):
         return [unwrap_booleans_and_vectors(v) for v in obj]
-    else:
-        return obj
 
-def unwrap_and_clean_snappy_node(node: dict) -> dict:
-    """
-    Final cleanup of snappyHexMeshDict reversed node to match schema.
-    Ensures geometry/regions/modules/etc. are in correct places.
-    """
-    if not isinstance(node, dict):
-        return {
-            "Execution": {"input_parameters": {}},
-            "type": "openFOAM.mesh.SnappyHexMesh"
-        }
-
-    execution = node.get("Execution", {})
-    params = execution.get("input_parameters", {})
-
-    # Ensure we have a dict
-    if not isinstance(params, dict):
-        params = {}
-
-    # Unwrap PyFoam booleans and vectors
-    cleaned = unwrap_booleans_and_vectors(params)
-
-    # Defensive nesting
-    geometry = cleaned.get("geometry", {})
-    if not isinstance(geometry, dict):
-        geometry = {}
-    objects = geometry.get("objects", {})
-    if not isinstance(objects, dict):
-        objects = {}
-    building = objects.get("building", {})
-    if not isinstance(building, dict):
-        building = {}
-
-    # Promote Walls refinement data
-    regions = building.get("regions", {})
-    if isinstance(regions, dict):
-        walls = regions.get("Walls", {})
-        if isinstance(walls, dict):
-            if "refinementSurfaceLevels" in walls:
-                building["refinementSurfaces"] = {
-                    "levels": walls["refinementSurfaceLevels"],
-                    "patchType": walls.get("type", "wall")
-                }
-            if "refinementRegions" in walls:
-                building["refinementRegions"] = walls["refinementRegions"]
-            # Ensure inlet/outlet type
-            for rn in ("inlet", "outlet"):
-                if rn in regions and isinstance(regions[rn], dict):
-                    regions[rn].setdefault("type", "patch")
-            building["regions"] = regions
-
-    objects["building"] = building
-    geometry["objects"] = objects
-    cleaned["geometry"] = geometry
-
-    return {
-        "Execution": {"input_parameters": cleaned},
-        "type": node.get("type", "openFOAM.mesh.SnappyHexMesh")
-    }
+    return obj
 
 
 def to_native(obj):
@@ -251,19 +215,27 @@ class DictionaryReverser:
 
     def handle_snappy_dict(self, ip: Dict[str, Any]):
         # 1) modules {castellatedMesh,snap,layers,mergeTolerance}
-        ip = to_native(ip)
+        normalize_in_place(ip)
 
         modules = {}
+        sentinel = object()
         for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
-            if key in ip:
-                val = ip.pop(key)
+            val = ip.pop(key, sentinel)
+            if val is not sentinel:
+                # coerce BoolProxy to bool if needed
+                try:
+                    from PyFoam.Basics.DataStructures import BoolProxy
+                    if isinstance(val, BoolProxy):
+                        val = bool(val)
+                except Exception:
+                    pass
                 modules["layers" if key == "addLayers" else key] = val
         if modules:
             ip["modules"] = modules
 
         # 2) normalize castellatedMeshControls.locationInMesh
-        raw_cmc = ip.setdefault("castellatedMeshControls", {})
-        cmc = to_native(raw_cmc)
+        cmc = ip.setdefault("castellatedMeshControls", {})
+        normalize_in_place(cmc)
         try:
             loc = cmc.get("locationInMesh")
             if isinstance(loc, str):
@@ -275,12 +247,13 @@ class DictionaryReverser:
         # 3) prepare geometry + objects
         geometry = ip.setdefault("geometry", {})
         objects = geometry.setdefault("objects", {})
+        normalize_in_place(objects)
 
         # 3a) SAFE hoist of *.obj entries into objects[name]
         #     Work from a native snapshot so we never call PyFoam __getitem__ on 'building.obj'
         try:
-            native_geom = to_native(geometry)
-            for k, v in list(native_geom.items()):
+            normalize_in_place(geometry)
+            for k, v in list(geometry.items()):
                 if isinstance(k, str) and k.endswith(".obj"):
                     # Determine object name
                     name = None
@@ -345,6 +318,13 @@ class DictionaryReverser:
         regions.setdefault("inlet", {"name": "inlet", "type": "patch"})
         regions.setdefault("outlet", {"name": "outlet", "type": "patch"})
 
+        # Ensure inlet/outlet always have type patch even if they already exist
+        for rn in ("inlet", "outlet"):
+            if rn in regions and isinstance(regions[rn], dict):
+                regions[rn].setdefault("type", "patch")
+            else:
+                regions[rn] = {"name": rn, "type": "patch"}
+
         # refinementSurfaces -> building.refinementSurfaces + Walls.refinementSurfaceLevels
         try:
             bsurf = to_native(ref_surfs).get("building", {})
@@ -365,8 +345,10 @@ class DictionaryReverser:
         try:
             regs = to_native(ref_regs)
             if "Walls" in regs:
-                building["refinementRegions"] = regs["Walls"]
                 walls["refinementRegions"] = regs["Walls"]
+            # Ensure building has an empty dict (as per expected)
+            building["refinementRegions"] = building.get("refinementRegions", {}) or {}
+
         except Exception as e:
             self.log.warning(f"Failed to promote refinementRegions: {e}")
 
@@ -375,8 +357,8 @@ class DictionaryReverser:
             building.pop(fld, None)
 
         # 9) addLayersControls defaults and move nSurfaceLayers
-        raw_alc = ip.setdefault("addLayersControls", {})
-        alc = to_native(raw_alc)
+        alc = ip.setdefault("addLayersControls", {})
+        normalize_in_place(alc)
 
         alc.setdefault("nRelaxedIter", 20)
         alc.setdefault("nMedialAxisIter", 10)
@@ -420,6 +402,10 @@ class DictionaryReverser:
         if not ip.get("writeFlags"):
             ip.pop("writeFlags", None)
 
+        # Final unwrap: remove BoolProxy/Vector wrappers everywhere
+        final_native = unwrap_booleans_and_vectors(ip)
+        ip.clear()
+        ip.update(final_native)
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
@@ -469,10 +455,12 @@ class DictionaryReverser:
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
             self.handle_snappy_dict(final_leaf)
+            # One more unwrap pass (in place) on the whole input_parameters
+            normalize_in_place(final_leaf)  # to drop any PyFoam mapping shells
+            final_native = unwrap_booleans_and_vectors(final_leaf)
+            final_leaf.clear()
+            final_leaf.update(final_native)
 
-            #node = unwrap_and_clean_snappy_node(node)
-
-        #return to_native(node)
         return node
 
     def to_json_str(self, node: dict) -> str:
