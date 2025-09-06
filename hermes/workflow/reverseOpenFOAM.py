@@ -8,6 +8,24 @@ from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json, copy, pydoc
 
+def to_native(obj):
+    """
+    Recursively convert PyFoam dict-like objects to native Python types.
+    """
+    if isinstance(obj, dict):
+        try:
+            return {k: to_native(v) for k, v in obj.items()}
+        except Exception:
+            try:
+                return {k: to_native(obj[k]) for k in list(obj)}
+            except Exception:
+                return str(obj)
+    elif isinstance(obj, list):
+        return [to_native(i) for i in obj]
+    elif hasattr(obj, "__dict__"):
+        return to_native(vars(obj))
+    else:
+        return obj
 
 def normalize_in_place(d: Dict[str, Any]) -> Dict[str, Any]:
     native = to_native(d)
@@ -48,37 +66,13 @@ def unwrap_booleans_and_vectors(obj):
     return obj
 
 
-def to_native(obj):
-    """
-    Recursively convert PyFoam dict-like objects to native Python types.
-    """
-    if isinstance(obj, dict):
-        try:
-            return {k: to_native(v) for k, v in obj.items()}
-        except Exception:
-            try:
-                return {k: to_native(obj[k]) for k in list(obj)}
-            except Exception:
-                return str(obj)
-    elif isinstance(obj, list):
-        return [to_native(i) for i in obj]
-    elif hasattr(obj, "__dict__"):
-        return to_native(vars(obj))
-    else:
-        return obj
-
-
-
 class FoamJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, BoolProxy):
             return bool(o)
         elif isinstance(o, Vector):
-            return list(o.vals)  # ✅ Important: use .vals to get the underlying list
+            return list(o.vals)
         return super().default(o)
-
-
-
 
 
 def save_json(data, save_name):
@@ -214,7 +208,6 @@ class DictionaryReverser:
         return converter, err, path
 
     def handle_snappy_dict(self, ip: Dict[str, Any]):
-        # 1) modules {castellatedMesh,snap,layers,mergeTolerance}
         normalize_in_place(ip)
 
         modules = {}
@@ -222,7 +215,6 @@ class DictionaryReverser:
         for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
             val = ip.pop(key, sentinel)
             if val is not sentinel:
-                # coerce BoolProxy to bool if needed
                 try:
                     from PyFoam.Basics.DataStructures import BoolProxy
                     if isinstance(val, BoolProxy):
@@ -233,7 +225,6 @@ class DictionaryReverser:
         if modules:
             ip["modules"] = modules
 
-        # 2) normalize castellatedMeshControls.locationInMesh
         cmc = ip.setdefault("castellatedMeshControls", {})
         normalize_in_place(cmc)
         try:
@@ -244,58 +235,38 @@ class DictionaryReverser:
         except Exception as e:
             self.log.warning(f"Failed to normalize locationInMesh: {e}")
 
-        # 3) prepare geometry + objects
         geometry = ip.setdefault("geometry", {})
         normalize_in_place(geometry)
 
         objects = geometry.setdefault("objects", {})
         normalize_in_place(objects)
 
-        # 3a) SAFE hoist of *.obj entries into objects[name]
-        #     Work from a native snapshot so we never call PyFoam __getitem__ on 'building.obj'
         try:
             for k, v in list(geometry.items()):
                 if isinstance(k, str) and k.endswith(".obj"):
-                    # Determine object name
-                    name = None
-                    if isinstance(v, dict):
-                        name = v.get("name")
+                    name = v.get("name") if isinstance(v, dict) else None
                     if not name:
-                        from pathlib import Path as _P
-                        name = _P(k).stem
-
+                        name = Path(k).stem
                     tgt = objects.setdefault(name, {})
                     if isinstance(v, dict):
                         tgt.update(v)
-
-                    # Expected headers on the object
                     tgt.setdefault("objectName", name)
                     tgt.setdefault("objectType", "obj")
-
-                    # Try to remove the *.obj key from the PyFoam map (ignore failures)
-                    try:
-                        if hasattr(geometry, "pop"):
-                            geometry.pop(k, None)
-                    except Exception:
-                        pass
+                    geometry.pop(k, None)
         except Exception as e:
             self.log.warning(f"Failed hoisting triSurface objects: {e}")
 
-        # 4) ensure typo-preserved key
         geometry.setdefault("gemeotricalEntities", {})
 
-        # 5) Ensure a building object exists and has expected headers
         building = objects.setdefault("building", {})
+        # Check for original flat structure before any transformation
+        originally_flat = "refinementSurfaceLevels" in building
+
         building.setdefault("objectName", "building")
         building.setdefault("objectType", "obj")
 
-        # 6) Migrate features[*].file -> objects[*].levels (string "1" expected)
-        features = None
-        try:
-            features = cmc.get("features", None)
-        except Exception as e:
-            self.log.warning(f"Could not safely access 'features': {e}")
-
+        # Promote feature levels to object
+        features = cmc.get("features", None)
         if features:
             for feature in to_native(features):
                 file = str(feature.get("file", "")).strip('"')
@@ -303,61 +274,115 @@ class DictionaryReverser:
                 name = (Path(file).stem if file else None) or "building"
                 if name in objects and lvl is not None:
                     objects[name]["levels"] = str(lvl)
-            try:
-                cmc.pop("features", None)
-            except Exception:
-                pass
+            cmc.pop("features", None)
+
         ip["castellatedMeshControls"] = cmc
 
-        # 7) Promote refinementSurfaces / refinementRegions from cmc into 'building' + Walls
         ref_surfs = cmc.pop("refinementSurfaces", {}) or {}
         ref_regs = cmc.pop("refinementRegions", {}) or {}
 
-        # build/ensure regions
+        # Setup region defaults
         regions = building.setdefault("regions", {})
-        walls = regions.setdefault("Walls", {"name": "Walls"})
-        regions.setdefault("inlet", {"name": "inlet", "type": "patch"})
-        regions.setdefault("outlet", {"name": "outlet", "type": "patch"})
 
-        # Ensure inlet/outlet always have type patch even if they already exist
-        for rn in ("inlet", "outlet"):
-            if rn in regions and isinstance(regions[rn], dict):
-                regions[rn].setdefault("type", "patch")
-            else:
-                regions[rn] = {"name": rn, "type": "patch"}
+        # Track which regions originally had a "name" key — snapshot BEFORE mutating regions
+        original_region_has_name = {
+            r: (isinstance(d, dict) and "name" in d)
+            for r, d in regions.items()
+        }
 
-        # refinementSurfaces -> building.refinementSurfaces + Walls.refinementSurfaceLevels
+        # Access Walls without creating it (avoid side effects in snapshot)
+        walls = regions.get("Walls", {})
+
+        # --- Promote building-level refinementSurfaces and region-specific overrides
         try:
             bsurf = to_native(ref_surfs).get("building", {})
+            global_levels = []
+            global_ptype = "wall"
+
             if isinstance(bsurf, dict):
-                levels = bsurf.get("level", [])
-                ptype = bsurf.get("patchInfo", {}).get("type", "wall")
-                if levels:
+                # building-level (expected in your diff)
+                global_levels = bsurf.get("level", []) or []
+                global_ptype = bsurf.get("patchInfo", {}).get("type", "wall")
+
+                # Always keep building.refinementSurfaces when global levels exist
+                if global_levels:
                     building["refinementSurfaces"] = {
-                        "levels": levels,
-                        "patchType": ptype
+                        "levels": global_levels,
+                        "patchType": global_ptype
                     }
-                    walls["refinementSurfaceLevels"] = levels
-                    walls["type"] = ptype
+
+                # Always echo global levels/type to 'Walls' if present (to match expected JSON)
+                if isinstance(walls, dict) and isinstance(global_levels, list) and global_levels:
+                    walls.setdefault("refinementSurfaceLevels", global_levels)
+                    # don't inject name; only set type if missing
+                    if "type" not in walls and isinstance(global_ptype, str):
+                        walls["type"] = global_ptype
+
+                # region-specific (mirror refSurfs; optionally inherit-if-zero)
+                rregions = bsurf.get("regions", {})
+                if isinstance(rregions, dict):
+                    for rname, rdef in rregions.items():
+                        if not isinstance(rdef, dict):
+                            continue
+                        region_entry = regions.get(rname)
+                        if not isinstance(region_entry, dict):
+                            region_entry = {}
+                            regions[rname] = region_entry
+
+                        r_levels = rdef.get("level")
+                        r_type = rdef.get("type")
+
+                        # --- apply inheritance only if originally_flat ---
+                        if originally_flat:
+                            # (0 0) -> inherit building levels
+                            if isinstance(r_levels, list) and r_levels == [0, 0] and global_levels:
+                                r_levels = global_levels
+                            # patch -> inherit building type
+                            if r_type == "patch" and global_ptype:
+                                r_type = global_ptype
+                        else:
+                            # when not flat originally:
+                            #  - never write region refinementSurfaceLevels for [0,0]
+                            #  - keep 'patch' if that’s what the region had
+                            if isinstance(r_levels, list) and r_levels == [0, 0]:
+                                r_levels = None  # don't emit key
+
+                        # write-back only when we have concrete values
+                        if isinstance(r_levels, list):
+                            region_entry["refinementSurfaceLevels"] = r_levels
+                        if isinstance(r_type, str):
+                            region_entry["type"] = r_type
+
+
         except Exception as e:
-            self.log.warning(f"Failed to promote refinementSurfaces: {e}")
+            self.log.warning(f"Failed to promote refinementSurfaces/regions: {e}")
 
-        # refinementRegions -> building.refinementRegions + Walls.refinementRegions
+
+
+        # Promote refinementRegions (match expected: keep empty {} on building)
         try:
-            regs = to_native(ref_regs)
-            if "Walls" in regs:
-                walls["refinementRegions"] = regs["Walls"]
-            # Ensure building has an empty dict (as per expected)
-            building["refinementRegions"] = building.get("refinementRegions", {}) or {}
+            regs = to_native(ref_regs) if ref_regs else {}
+            bld_rr = regs.get("building")
+            if isinstance(bld_rr, dict):
+                building["refinementRegions"] = bld_rr
+            else:
+                # expected shows empty {} even when none were defined
+                building.setdefault("refinementRegions", {})
 
+            w_rr = regs.get("Walls")
+            if isinstance(w_rr, dict):
+                walls["refinementRegions"] = w_rr
+            else:
+                # if it wasn't present, don't force it on Walls
+                walls.pop("refinementRegions", None)
         except Exception as e:
             self.log.warning(f"Failed to promote refinementRegions: {e}")
 
-        # 8) Clean name/type duplication on building (keep on walls)
-        for fld in ("name", "type"):
+        # Remove only helper keys we might have injected earlier
+        for fld in ("name", "type"):  # <<< include "type" again to drop building.type
             building.pop(fld, None)
 
-        # 9) addLayersControls defaults and move nSurfaceLayers
+        # Add layers handling (only if explicitly provided)
         alc = ip.setdefault("addLayersControls", {})
         normalize_in_place(alc)
 
@@ -366,45 +391,98 @@ class DictionaryReverser:
         alc.setdefault("additionalReporting", False)
 
         layers_block = alc.get("layers")
-
         nsl = None
         if isinstance(layers_block, dict):
             nsl = layers_block.pop("nSurfaceLayers", None)
             if not layers_block:
-                try:
-                    alc.pop("layers", None)
-                except Exception:
-                    pass
+                alc.pop("layers", None)
+
         ip["addLayersControls"] = alc
 
         if nsl is not None:
             building.setdefault("layers", {})["nSurfaceLayers"] = nsl
+            # only write geometry.layers if we actually have a value
+            geometry.setdefault("layers", {})["nSurfaceLayers"] = nsl
 
-        # 10) Duplicate top-level geometry mirrors required by expected JSON
-        #     (these "empty shells" live alongside geometry.objects)
-        #     geometry.layers.nSurfaceLayers should mirror building.layers.nSurfaceLayers
-        top_layers = {}
-        if nsl is not None:
-            top_layers["nSurfaceLayers"] = nsl
-        geometry["layers"] = top_layers or {"nSurfaceLayers": building.get("layers", {}).get("nSurfaceLayers", 10)}
+        # Do NOT force-create empty geometry keys; only ensure 'objects' exists
+        geometry.setdefault("objects", objects)
+
+        # Ensure empty blocks exist to match expected structure
         geometry.setdefault("refinementSurfaces", {})
         geometry.setdefault("regions", {})
 
-        # 11) Reassign geometry to contain ONLY wanted keys (drop any lingering '*.obj')
-        ip["geometry"] = {
-            "objects": objects,
-            "gemeotricalEntities": geometry.get("gemeotricalEntities", {}),
-            "refinementSurfaces": geometry.get("refinementSurfaces", {}),
-            "regions": geometry.get("regions", {}),
-            "layers": geometry.get("layers", {}),
-        }
+        # If these keys weren’t present originally, leave them absent
+        # (no setdefault to {} here)
+        ip["geometry"] = geometry
 
-        # 12) If writeFlags is empty -> remove
-        if not ip.get("writeFlags"):
+        # Clean optional flags without creating diffs
+        if "writeFlags" in ip and not ip.get("writeFlags"):
             ip.pop("writeFlags", None)
 
-        # Final unwrap: remove BoolProxy/Vector wrappers everywhere
+        # 🔄 FINAL unwrap + cleanup
+        normalize_in_place(ip)
+
         final_native = unwrap_booleans_and_vectors(ip)
+
+        try:
+            building = final_native["geometry"]["objects"]["building"]
+            regions = building.get("regions", {})
+
+            for rname, rdef in list(regions.items()):
+                if isinstance(rdef, dict):
+                    # drop 'name' only if it wasn't present in the original input
+                    if not original_region_has_name.get(rname, False):
+                        rdef.pop("name", None)
+
+            walls = regions.get("Walls", {})
+
+            rs = building.get("refinementSurfaces")
+            if isinstance(rs, dict):
+                gl = rs.get("levels")
+                pt = rs.get("patchType", "wall")
+                rr = building.get("regions", {})
+
+                def mirrors_global_or_placeholder(d):
+                    if not isinstance(d, dict):
+                        return True
+                    lvl = d.get("refinementSurfaceLevels", None)
+                    typ = d.get("type", None)
+                    lvl_ok = (lvl is None) or (lvl == gl) or (lvl == [0, 0])
+                    typ_ok = (typ is None) or (typ == pt) or (typ == "patch")
+                    return lvl_ok and typ_ok
+
+                # Decide whether to flatten
+                will_flatten = False
+                if originally_flat:
+                    will_flatten = True
+                elif isinstance(gl, list) and gl != [0, 0] and all(
+                        mirrors_global_or_placeholder(d) for d in rr.values()):
+                    will_flatten = True
+
+                if will_flatten:
+                    # Push global values down to regions where missing/placeholder
+                    for rname, rdef in (rr.items() if isinstance(rr, dict) else []):
+                        if not isinstance(rdef, dict):
+                            continue
+                        lvl = rdef.get("refinementSurfaceLevels", None)
+                        typ = rdef.get("type", None)
+                        if (lvl is None) or (lvl == [0, 0]):
+                            if isinstance(gl, list):
+                                rdef["refinementSurfaceLevels"] = gl
+                        if (typ is None) or (typ == "patch"):
+                            if isinstance(pt, str):
+                                rdef["type"] = pt
+
+                    # Flatten building
+                    building["refinementSurfaceLevels"] = gl or []
+                    building["patchType"] = pt
+                    building.pop("refinementSurfaces", None)
+
+
+        except Exception as e:
+            self.log.warning(f"Final cleanup failed: {e}")
+
+
         ip.clear()
         ip.update(final_native)
 
