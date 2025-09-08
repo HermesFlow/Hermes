@@ -11,15 +11,7 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
     if isinstance(geo.get("gemeotricalEntities", None), dict) and not geo["gemeotricalEntities"]:
         geo.pop("gemeotricalEntities", None)
 
-
-@pytest.mark.parametrize(
-    "case_name, input_json_path, dict_path",
-    [
-        (
-            "pipe_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/blockMeshDict",
-        ),
+"""
         (
             "LargeRoom_2",
             "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
@@ -30,6 +22,21 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
             "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/blockMeshDict",
         ),
+"""
+@pytest.mark.parametrize(
+    "case_name, input_json_path, dict_path",
+    [
+        (
+            "pipe_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/blockMeshDict",
+        ),
+        (
+                "LargeRoom_2",
+                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/blockMeshDict",
+        ),
+
 
     ],
 )

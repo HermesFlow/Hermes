@@ -230,52 +230,7 @@ def handle_add_layers_controls(
     ip["geometry"] = geometry
 
 # Helpers for blockMeshDict normalization
-def parse_block_entries(raw_blocks: list) -> list:
-    """
-    Parses OpenFOAM-style 'blocks' from either:
-    - List-style block definitions (e.g. ['hex', [0..7], [nx, ny, nz], 'simpleGrading', [gx, gy, gz]])
-    - Dictionary-style block definitions (with 'hex', 'n' or 'nCells', 'grading' keys)
 
-    Returns a list of dictionaries with keys: 'hex', 'cellCount', and 'grading'
-    """
-    parsed_blocks = []
-    i = 0
-    while i < len(raw_blocks):
-        block = raw_blocks[i]
-
-        if isinstance(block, dict):
-            # Dictionary-style block
-            parsed_blocks.append({
-                "hex": block.get("hex", []),
-                "cellCount": block.get("n") or block.get("nCells") or [1, 1, 1],
-                "grading": block.get("grading", [1, 1, 1])
-            })
-            i += 1
-
-        elif isinstance(block, str) and block == "hex":
-            try:
-                hex_points = raw_blocks[i + 1]
-                cell_count = raw_blocks[i + 2]
-                grading_type = raw_blocks[i + 3]
-                grading = raw_blocks[i + 4]
-
-                if not (isinstance(hex_points, list) and isinstance(cell_count, list)):
-                    raise ValueError("Invalid block format")
-
-                parsed_blocks.append({
-                    "hex": hex_points,
-                    "cellCount": cell_count,
-                    "grading": grading
-                })
-                i += 5  # Move to next block
-            except (IndexError, ValueError) as e:
-                print(f"⚠️ Skipping invalid block at index {i}: {e}")
-                i += 1
-        else:
-            print(f"⚠️ Unrecognized block entry at index {i}: {block}")
-            i += 1
-
-    return parsed_blocks
 
 
 # ------- JSON Handling -------
@@ -575,11 +530,11 @@ class DictionaryReverser:
 
         convert_to_meters = str(raw.get("convertToMeters", "1"))
         vertices = raw.get("vertices", [])
+        default_patch = raw.get("defaultPatch")  # ← Optional
 
         # --- Parse blocks ---
         blocks = []
         raw_blocks = raw.get("blocks", [])
-
         i = 0
         while i < len(raw_blocks):
             if raw_blocks[i] == "hex":
@@ -589,16 +544,18 @@ class DictionaryReverser:
                     grading_raw = raw_blocks[i + 4]
 
                     # Convert cell count string to list of ints
-                    if isinstance(cell_count_raw, str):
-                        cell_count = list(map(int, cell_count_raw.strip("()").split()))
-                    else:
-                        cell_count = cell_count_raw
+                    cell_count = (
+                        list(map(int, cell_count_raw.strip("()").split()))
+                        if isinstance(cell_count_raw, str)
+                        else cell_count_raw
+                    )
 
                     # Convert grading string to list of floats
-                    if isinstance(grading_raw, str):
-                        grading = list(map(float, grading_raw.strip("()").split()))
-                    else:
-                        grading = grading_raw
+                    grading = (
+                        list(map(float, grading_raw.strip("()").split()))
+                        if isinstance(grading_raw, str)
+                        else grading_raw
+                    )
 
                     blocks.append({
                         "hex": hex_points,
@@ -613,10 +570,22 @@ class DictionaryReverser:
             else:
                 i += 1
 
+        # --- Fallback: Use 'geometry' if no blocks parsed ---
+        geometry = raw.get("geometry", {})
+        if not blocks and isinstance(geometry, dict):
+            cell_count = geometry.get("cellCount")
+            grading = geometry.get("grading", [1, 1, 1])
+            if isinstance(cell_count, list) and len(cell_count) == 3:
+                blocks.append({
+                    "hex": list(range(8)),  # Default 8-point cube
+                    "cellCount": cell_count,
+                    "grading": grading
+                })
+                # Keep geometry untouched — it may be expected in the output
+
         # --- Parse boundary ---
         boundary = []
         raw_boundary = raw.get("boundary", {})
-
         if isinstance(raw_boundary, dict):
             for name, bdef in raw_boundary.items():
                 if not isinstance(bdef, dict):
@@ -641,15 +610,20 @@ class DictionaryReverser:
                 })
                 i += 2
 
-        # --- Final structure ---
-        ip.clear()
-        ip.update({
+        # --- Final output ---
+        final_dict = {
             "convertToMeters": convert_to_meters,
             "vertices": vertices,
             "blocks": blocks,
             "boundary": boundary,
-            "geometry": {}
-        })
+            "geometry": geometry,
+        }
+
+        if isinstance(default_patch, dict) and default_patch.get("type") is not None:
+            final_dict["defaultPatch"] = default_patch
+
+        ip.clear()
+        ip.update(final_dict)
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
