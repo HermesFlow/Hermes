@@ -16,7 +16,7 @@ FoamFile
 
 {%- import "openFOAM/utils.jinja"  as utils %}
 
-convertToMeters {{geometry.convertToMeters}};
+convertToMeters {{convertToMeters}};
 
 {% if params %}
 {{utils.handleValue(params)}}
