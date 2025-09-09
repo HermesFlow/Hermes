@@ -6,10 +6,20 @@ from ..Resources.reTemplateCenter import templateCenter
 from ..utils.logging import get_classMethod_logger
 from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
-import json, copy, pydoc
+import json, copy, pydoc, re
+from collections.abc import Mapping
+
+
 
 
 # ------ Helpers Functions ------
+def as_dict(obj):
+    if isinstance(obj, Mapping):
+        return {k: as_dict(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [as_dict(i) for i in obj]
+    else:
+        return obj
 # Helper to convert PyFoam dict-like objects to native Python types
 def to_native(obj):
     """
@@ -40,21 +50,22 @@ def normalize_in_place(d: Dict[str, Any]) -> Dict[str, Any]:
         d.update(native)
     return d
 
+"""
 def unwrap_special_type(val):
-    """
-    Unwrap BoolProxy and Vector to native Python values.
-    """
+    
+    #Unwrap BoolProxy and Vector to native Python values.
+
     if isinstance(val, BoolProxy):
         return bool(val)
     if isinstance(val, Vector):
         return list(val.vals)
     return val
 
+
 def unwrap_booleans_and_vectors(obj):
-    """
-    Recursively unwrap PyFoam BoolProxy/Vector and dict-shaped wrappers
-    into native Python bools and lists.
-    """
+
+    #Recursively unwrap PyFoam BoolProxy/Vector and dict-shaped wrappers into native Python bools and lists.
+    
     unwrap_special_type(obj)
     # Dict-shaped wrappers (often appear after to_native or PyFoam internals)
     if isinstance(obj, dict):
@@ -73,6 +84,52 @@ def unwrap_booleans_and_vectors(obj):
         return [unwrap_booleans_and_vectors(v) for v in obj]
 
     return obj
+"""
+def unwrap_special_type(val):
+    """
+    Unwrap PyFoam's special types and vector strings to native Python.
+    """
+    # PyFoam boolean
+    if isinstance(val, BoolProxy):
+        return bool(val)
+
+    # PyFoam vector
+    if isinstance(val, Vector):
+        return list(val.vals)
+
+    # Stringified vector: e.g. "(5 0 0)"
+    if isinstance(val, str):
+        match = re.match(r'^\(\s*([^\)]+)\s*\)$', val)
+        if match:
+            parts = match.group(1).split()
+            try:
+                return [float(p) for p in parts]
+            except ValueError:
+                pass  # Not a numeric vector — skip
+
+    return val
+
+def unwrap_booleans_and_vectors(obj):
+    """
+    Recursively unwrap special PyFoam types to native Python.
+    """
+    obj = unwrap_special_type(obj)
+
+    if isinstance(obj, dict):
+        # Handle wrapped bool or vector structures
+        if "val" in obj and isinstance(obj["val"], (bool, int, float, str)):
+            return unwrap_booleans_and_vectors(obj["val"])
+        if "vals" in obj and isinstance(obj["vals"], list):
+            return [unwrap_booleans_and_vectors(v) for v in obj["vals"]]
+
+        return {k: unwrap_booleans_and_vectors(v) for k, v in obj.items()}
+
+    elif isinstance(obj, list):
+        return [unwrap_booleans_and_vectors(v) for v in obj]
+
+    return obj
+
+
 
 # Helpers for snappyHexMeshDict normalization
 def extract_modules(ip: Dict[str, Any]) -> None:
@@ -325,9 +382,13 @@ class DictionaryReverser:
         (header + path).
         """
         p = Path(self.dictionary_path)
-        print(p)
         self.ppf = ParsedParameterFile(str(p))
-        self.dict_data = copy.deepcopy(self.ppf.content)
+
+        # Parse and deep copy
+        raw_data = copy.deepcopy(self.ppf.content)
+
+        # Clean it from PyFoam wrappers like BoolProxy, Vector, etc.
+        self.dict_data = unwrap_booleans_and_vectors(raw_data)
 
         #Object name (dict_name)
         header_obj = str(self.ppf.header.get("object", "")).strip()
@@ -378,11 +439,108 @@ class DictionaryReverser:
         converter, err = locate_class(path)
         return converter, err, path
 
+    def convert_snappy_dict_to_v2(self, raw_dict):
+        """
+        Convert OpenFOAM snappyHexMeshDict (parsed) into structured version 2 input JSON.
+        """
+        input_parameters = copy.deepcopy(raw_dict)
+        input_parameters = unwrap_booleans_and_vectors(input_parameters)
+
+        # ----------------------------
+        # 1. Extract modules
+        # ----------------------------
+        modules = {}
+        for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
+            if key in input_parameters:
+                modules["layers" if key == "addLayers" else key] = input_parameters.pop(key)
+        input_parameters["modules"] = modules
+
+        # ----------------------------
+        # 2. Preserve and extend addLayersControls
+        # ----------------------------
+        alc = copy.deepcopy(input_parameters.get("addLayersControls", {}))
+        nsl = alc.pop("nSurfaceLayers", 10)
+        alc.pop("layers", None)
+        """
+        alc_layers = alc.setdefault("layers", {})
+        if nsl is not 10:
+            alc_layers["nSurfaceLayers"] = nsl
+        """
+        alc["additionalReporting"] = alc.get("additionalReporting", False)
+
+        alc["nMedialAxisIter"] = alc.get("nMedialAxisIter", 10)
+        alc["nRelaxedIter"] = alc.get("nRelaxedIter", 20)
+
+        input_parameters["addLayersControls"] = alc
+
+        # ----------------------------
+        # 3. Convert geometry section
+        # ----------------------------
+        geometry = input_parameters.get("geometry", {})
+        new_geometry = {
+            "objects": {},
+            "refinementSurfaces": {},
+            "regions": {},
+            "layers": {"nSurfaceLayers": nsl},
+        }
+
+        cmc = input_parameters.get("castellatedMeshControls", {})
+        ref_regions = cmc.get("refinementRegions", {})
+
+        for name, obj in geometry.items():
+            if not isinstance(obj, dict):
+                continue
+
+            object_name = obj.get("name", name)
+            object_type = obj.get("objectType", "obj")
+
+            building = {
+                "objectName": object_name,
+                "objectType": object_type,
+                "levels": obj.get("levels", "1"),
+                "refinementRegions": {},
+                "refinementSurfaces": {
+                    "levels": [0, 0],
+                    "patchType": "wall"
+                },
+                "regions": {},
+                "layers": {
+                    "nSurfaceLayers": nsl
+                }
+            }
+
+            for region_name, region_data in obj.get("regions", {}).items():
+                region_type = region_data.get("type", "wall" if region_name == "Walls" else "patch")
+                region_entry = {
+                    "type": region_type
+                }
+
+                # Add default refinementSurfaceLevels for all regions
+                region_entry["refinementSurfaceLevels"] = [0, 0]
+
+                # Inject refinementRegions from castellatedMeshControls
+                if region_name in ref_regions:
+                    region_entry["refinementRegions"] = ref_regions[region_name]
+
+                building["regions"][region_name] = region_entry
+
+            new_geometry["objects"][object_name] = building
+
+        input_parameters["geometry"] = new_geometry
+
+        # ----------------------------
+        # 4. Clean up castellatedMeshControls
+        # ----------------------------
+        for key in ("features", "refinementSurfaces", "refinementRegions"):
+            input_parameters.get("castellatedMeshControls", {}).pop(key, None)
+
+        return input_parameters
+
+    """
     def handle_snappy_dict(self, ip: Dict[str, Any]):
-        """
-            Normalize a snappyHexMeshDict-like dictionary into the JSON node shape
-            used by the workflow.
-        """
+        
+            #Normalize a snappyHexMeshDict-like dictionary into the JSON node shape used by the workflow.
+        
         # 0) Basic normalization
         normalize_in_place(ip)
 
@@ -520,6 +678,8 @@ class DictionaryReverser:
         # 10) Replace incoming dict with normalized final
         ip.clear()
         ip.update(final_native)
+    """
+
 
     def handle_block_mesh_dict(self, ip: Dict[str, Any]) -> None:
         """
@@ -625,6 +785,8 @@ class DictionaryReverser:
         ip.clear()
         ip.update(final_dict)
 
+
+
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
             self.parse()
@@ -672,6 +834,15 @@ class DictionaryReverser:
 
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
+            v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
+            final_leaf.clear()
+            final_leaf.update(copy.deepcopy(v2_structured))
+            node["version"] = 2
+
+
+
+        """ 
+        if self.dict_name == "snappyHexMeshDict":
             print("➡️ Handling snappyHexMeshDict with handle_snappy_dict()")
         if self.dict_name == "snappyHexMeshDict":
             self.handle_snappy_dict(final_leaf)
@@ -680,6 +851,7 @@ class DictionaryReverser:
             final_native = unwrap_booleans_and_vectors(final_leaf)
             final_leaf.clear()
             final_leaf.update(final_native)
+        """
 
         # blockMeshDict special handling
         if self.dict_name == "blockMeshDict":

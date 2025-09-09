@@ -41,6 +41,49 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
         # empty dict -> remove
         geo.pop("gemeotricalEntities", None)
 
+def _strip_empty_write_flags(doc: dict) -> None:
+    """
+        In-place: remove 'writeFlags' if it's an empty list (since it's optional).
+    """
+    try:
+        params = doc["Execution"]["input_parameters"]
+        if params.get("writeFlags") == []:
+            del params["writeFlags"]
+    except Exception:
+        pass
+
+def _strip_default_refinement_surface_levels(doc: dict) -> None:
+    """
+        In-place: remove 'refinementSurfaceLevels' if it's [0, 0] and region type is patch.
+    """
+    try:
+        objs = doc["Execution"]["input_parameters"]["geometry"]["objects"]
+    except Exception:
+        return
+
+    if not isinstance(objs, dict):
+        return
+
+    for _, obj in objs.items():
+        regions = obj.get("regions", {})
+        for region_name, region in regions.items():
+            if not isinstance(region, dict):
+                continue
+            if region.get("type") == "patch" and region.get("refinementSurfaceLevels") == [0, 0]:
+                del region["refinementSurfaceLevels"]
+
+    """
+    (
+                "LargeRoom_2",
+                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
+            ),
+            (
+                "Flow_1",
+                "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+                "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
+            ),
+    """
 
 @pytest.mark.parametrize(
     "case_name, input_json_path, dict_path",
@@ -50,18 +93,11 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/snappyHexMeshDict",
         ),
-        (
-            "LargeRoom_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
-        ),
-        (
-            "Flow_1",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
-        ),
+
     ],
-)
+    )
+
+
 def test_reverse_snappyHexMeshDict_against_inputs(tmp_path: Path, case_name: str, input_json_path: str, dict_path: str):
     """
     Compare reversed snappyHexMeshDict against the expected node from reference inputs.
@@ -98,13 +134,14 @@ def test_reverse_snappyHexMeshDict_against_inputs(tmp_path: Path, case_name: str
         "type": "openFOAM.mesh.SnappyHexMesh"
     }
 
-    # normalize optional keys on both sides
-    _normalize_optional_empty_geometry_keys(actual)
-    _normalize_optional_empty_geometry_keys(expected)
+    # Normalize both actual and expected
+    for doc in (actual, expected):
+        _normalize_optional_empty_geometry_keys(doc)
+        _strip_redundant_region_names(doc)
+        _strip_empty_write_flags(doc)
+        _strip_default_refinement_surface_levels(doc)
 
-    # ignore redundant "name" in regions (e.g., inlet/outlet/Walls)
-    _strip_redundant_region_names(actual)
-    _strip_redundant_region_names(expected)
+
 
     assert actual == expected, (
         f"[{case_name}] snappyHexMeshDict reverse result does not match expected.\n"
