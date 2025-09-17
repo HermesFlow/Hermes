@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  7                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja" as utils %}
+{%- set p = input_parameters %}
+
+convertToMeters {{ p.convertToMeters }};
+
+vertices
+(
+    {%- for v in p.vertices %}
+    {{ utils.toPoint(v) }}
+    {%- endfor %}
+);
+
+blocks
+(
+    {%- for b in p.blocks %}
+    hex {{ utils.toPoint(b.hex) }} {{ utils.toPoint(b.cellCount) }}
+    simpleGrading
+    (
+        {%- for g in b.grading %}
+            {%- if g is sequence %}
+            (
+                {%- for sub in g %}
+                ( {{ sub.fracDir }} {{ sub.fracCells }} {{ sub.expansion }} )
+                {%- endfor %}
+            )
+            {%- else %}
+            {{ g }}
+            {%- endif %}
+        {%- endfor %}
+    )
+    {%- endfor %}
+);
+
+edges
+(
+    {%- for e in p.edges %}
+        {%- if e.type == "arc" %}
+        arc {{ e.point1 }} {{ e.point2 }} {{ utils.toPoint(e.pointM) }}
+        {%- endif %}
+    {%- endfor %}
+);
+
+boundary
+(
+    {%- for b in p.boundary %}
+    {{ b.name }}
+    {
+        type {{ b.type }};
+        faces
+        (
+            {%- for f in b.faces %}
+            {{ utils.toPoint(f) }}
+            {%- endfor %}
+        );
+        {%- if b.type == "cyclic" and b.neighbourPatch %}
+        neighbourPatch {{ b.neighbourPatch }};
+        {%- endif %}
+    }
+    {%- endfor %}
+);
+
+defaultPatch
+{
+    type {{ p.defaultPatch }};
+}
+
+mergePatchPairs();

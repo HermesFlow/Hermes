@@ -734,14 +734,12 @@ class DictionaryReverser:
         # 10) Replace incoming dict with normalized final
         ip.clear()
         ip.update(final_native)
-    """
+   
 
 
     def handle_block_mesh_dict(self, ip: Dict[str, Any]) -> None:
-        """
-        Normalize a blockMeshDict-like dictionary into the JSON node shape
-        used by the workflow.
-        """
+        #Normalize a blockMeshDict-like dictionary into the JSON node shape used by the workflow.
+        
         raw = unwrap_booleans_and_vectors(self.dict_data or {})
 
         convert_to_meters = str(raw.get("convertToMeters", "1"))
@@ -840,8 +838,148 @@ class DictionaryReverser:
 
         ip.clear()
         ip.update(final_dict)
+    """
 
+    def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Converts parsed blockMeshDict into version 2 structure compatible with jinjaTemplate.v2.
+        """
 
+        result = {
+            "Execution": {
+                "input_parameters": {}
+            },
+            "type": "openFOAM.mesh.BlockMesh",
+            "version": 2
+        }
+
+        params = result["Execution"]["input_parameters"]
+
+        # 1. Top-level scalar fields
+        if "convertToMeters" in parsed_dict:
+            params["convertToMeters"] = str(parsed_dict["convertToMeters"])
+
+        # 2. Vertices
+        if "vertices" in parsed_dict:
+            params["vertices"] = parsed_dict["vertices"]
+
+        # 3. Blocks
+        if "blocks" in parsed_dict and isinstance(parsed_dict["blocks"], list):
+            blocks_out = []
+            raw_blocks = parsed_dict["blocks"]
+
+            i = 0
+            while i < len(raw_blocks):
+                blk = raw_blocks[i]
+
+                if isinstance(blk, str) and blk.startswith("hex"):
+                    try:
+                        # Extract hex indices from "hex (0 1 2 3 4 5 6 7)"
+                        hex_indices = blk.replace("hex", "").strip()
+                        hex_indices = hex_indices.strip("()").split()
+                        hex_indices = [int(x) for x in hex_indices]
+
+                        # Next line: cell count
+                        cell_count = raw_blocks[i + 1].strip("()").split()
+                        cell_count = [int(x) for x in cell_count]
+
+                        # Next-next line should be 'simpleGrading'
+                        grading_line = raw_blocks[i + 3].strip("()").split()
+                        grading = [float(x) if '.' in x else int(x) for x in grading_line]
+
+                        blocks_out.append({
+                            "hex": hex_indices,
+                            "cellCount": cell_count,
+                            "grading": grading,
+                        })
+                        i += 5  # Move to next block
+                    except Exception as e:
+                        print(f"Error parsing block at index {i}: {e}")
+                        i += 1
+                else:
+                    i += 1
+
+            params["blocks"] = blocks_out
+
+        # 4. Boundary
+        if "boundary" in parsed_dict:
+            boundary_out = []
+            for bnd in parsed_dict["boundary"]:
+                if not isinstance(bnd, dict):
+                    print("Skipping invalid boundary entry:", bnd)
+                    continue
+                entry = {
+                    "name": bnd.get("name"),
+                    "type": bnd.get("type"),
+                    "faces": bnd.get("faces", []),
+                }
+                boundary_out.append(entry)
+            params["boundary"] = boundary_out
+
+        # 5. Geometry (optional empty)
+        params["geometry"] = {}
+
+        return result
+
+    def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
+        result = {
+            "Execution": {
+                "input_parameters": {}
+            },
+            "type": "openFOAM.mesh.BlockMesh",
+            "version": 2
+        }
+
+        params = result["Execution"]["input_parameters"]
+
+        # Init once
+        out_dict = {}
+
+        # 1. convertToMeters
+        if "convertToMeters" in parsed_dict:
+            params["convertToMeters"] = str(parsed_dict["convertToMeters"])
+
+        # 2. vertices
+        if "vertices" in parsed_dict:
+            params["vertices"] = parsed_dict["vertices"]
+
+        # 3. blocks
+        if "blocks" in parsed_dict:
+            blocks_raw = parsed_dict["blocks"]
+            blocks_out = []
+
+            for blk in blocks_raw:
+                if isinstance(blk, dict):
+                    blocks_out.append({
+                        "hex": blk.get("hex", []),
+                        "cellCount": blk.get("cellCount", []),
+                        "grading": blk.get("grading", [])
+                    })
+                else:
+                    print("⚠️ Skipping non-dict block:", blk)
+
+            out_dict["blocks"] = blocks_out
+
+        # 4. boundary
+        if "boundary" in parsed_dict:
+            boundary_out = []
+            for bnd in parsed_dict["boundary"]:
+                if not isinstance(bnd, dict):
+                    print("Skipping invalid boundary entry:", bnd)
+                    continue
+                entry = {
+                    "name": bnd.get("name"),
+                    "type": bnd.get("type"),
+                    "faces": bnd.get("faces", []),
+                }
+                boundary_out.append(entry)
+            out_dict["boundary"] = boundary_out
+
+        # 5. geometry + merge
+        params["geometry"] = {}
+        params.update(out_dict)  # ✅ merge everything here
+
+        return result
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
@@ -890,6 +1028,7 @@ class DictionaryReverser:
 
         if is_control:
             convert_bools_to_lowercase(final_leaf)
+            node["version"] = 2
 
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
@@ -899,28 +1038,14 @@ class DictionaryReverser:
             final_leaf.update(copy.deepcopy(v2_structured))
             node["version"] = 2
 
-        """ 
-        if self.dict_name == "snappyHexMeshDict":
-            print("➡️ Handling snappyHexMeshDict with handle_snappy_dict()")
-        if self.dict_name == "snappyHexMeshDict":
-            self.handle_snappy_dict(final_leaf)
-            # One more unwrap pass (in place) on the whole input_parameters
-            normalize_in_place(final_leaf)  # to drop any PyFoam mapping shells
-            final_native = unwrap_booleans_and_vectors(final_leaf)
-            final_leaf.clear()
-            final_leaf.update(final_native)
-        """
 
         # blockMeshDict special handling
         if self.dict_name == "blockMeshDict":
-            print("➡️ Handling blockMeshDict with handle_block_mesh_dict()")
-
-        if self.dict_name == "blockMeshDict":
-            self.handle_block_mesh_dict(final_leaf)
-            normalize_in_place(final_leaf)
-            final_native = unwrap_booleans_and_vectors(final_leaf)
+            v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
             final_leaf.clear()
-            final_leaf.update(final_native)
+            final_leaf.update(copy.deepcopy(v2_structured["Execution"]["input_parameters"]))
+
+            node["version"] = 2
 
         return node
 

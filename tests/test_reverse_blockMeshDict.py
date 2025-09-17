@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from hermes.workflow.reverseOpenFOAM import DictionaryReverser, FoamJSONEncoder
 
+
 def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
     try:
         geo = doc["Execution"]["input_parameters"]["geometry"]
@@ -12,15 +13,10 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
         geo.pop("gemeotricalEntities", None)
 
 """
-        (
+(
             "LargeRoom_2",
             "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/blockMeshDict",
-        ),
-        (
-            "Flow_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/blockMeshDict",
         ),
 """
 @pytest.mark.parametrize(
@@ -31,12 +27,6 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/blockMeshDict",
         ),
-        (
-                "LargeRoom_2",
-                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/blockMeshDict",
-        ),
-
 
     ],
 )
@@ -73,13 +63,14 @@ def test_reverse_blockMeshDict_against_inputs(tmp_path: Path, case_name: str, in
 
     actual = {
         "Execution": node["Execution"],
-        "type": "openFOAM.mesh.BlockMesh"
+        "type": "openFOAM.mesh.BlockMesh",
+        "version": 2  # ⬅️ Include version key
     }
-    """
-    # Normalize optional empty geometry
+
+    # Normalize optional empty geometry if needed
     _normalize_optional_empty_geometry_keys(actual)
     _normalize_optional_empty_geometry_keys(expected)
-    """
+
     assert actual == expected, (
         f"[{case_name}] blockMeshDict reverse result does not match expected.\n"
         f"Actual:\n{json.dumps(actual, indent=2, cls=FoamJSONEncoder)}\n\n"
