@@ -439,13 +439,12 @@ class DictionaryReverser:
         converter, err = locate_class(path)
         return converter, err, path
 
+
     def convert_snappy_dict_to_v2(self, raw_dict):
         """
         Convert OpenFOAM snappyHexMeshDict (parsed) into structured version 2 input JSON.
         """
         input_parameters = copy.deepcopy(raw_dict)
-        input_parameters = unwrap_booleans_and_vectors(input_parameters)
-
         # ----------------------------
         # 1. Extract modules
         # ----------------------------
@@ -461,22 +460,17 @@ class DictionaryReverser:
         alc = copy.deepcopy(input_parameters.get("addLayersControls", {}))
         nsl = alc.pop("nSurfaceLayers", 10)
         alc.pop("layers", None)
-        """
-        alc_layers = alc.setdefault("layers", {})
-        if nsl is not 10:
-            alc_layers["nSurfaceLayers"] = nsl
-        """
         alc["additionalReporting"] = alc.get("additionalReporting", False)
-
         alc["nMedialAxisIter"] = alc.get("nMedialAxisIter", 10)
         alc["nRelaxedIter"] = alc.get("nRelaxedIter", 20)
-
         input_parameters["addLayersControls"] = alc
 
         # ----------------------------
         # 3. Convert geometry section
         # ----------------------------
-        geometry = input_parameters.get("geometry", {})
+        original_geometry = input_parameters.get("geometry", {})
+        geometry_objects = original_geometry.get("objects", original_geometry)
+
         new_geometry = {
             "objects": {},
             "refinementSurfaces": {},
@@ -485,47 +479,85 @@ class DictionaryReverser:
         }
 
         cmc = input_parameters.get("castellatedMeshControls", {})
-        ref_regions = cmc.get("refinementRegions", {})
+        refinement_regions = cmc.get("refinementRegions", {})
+        refinement_surfaces = cmc.get("refinementSurfaces", {})
 
-        for name, obj in geometry.items():
+        for name, obj in geometry_objects.items():
             if not isinstance(obj, dict):
                 continue
 
-            object_name = obj.get("name", name)
+            object_name = name[:-4] if name.endswith(".obj") else name
             object_type = obj.get("objectType", "obj")
 
             building = {
                 "objectName": object_name,
                 "objectType": object_type,
                 "levels": obj.get("levels", "1"),
-                "refinementRegions": {},
-                "refinementSurfaces": {
-                    "levels": [0, 0],
-                    "patchType": "wall"
-                },
+                "layers": {"nSurfaceLayers": nsl},
                 "regions": {},
-                "layers": {
-                    "nSurfaceLayers": nsl
-                }
+                "refinementRegions": obj.get("refinementRegions", {}),
             }
 
-            for region_name, region_data in obj.get("regions", {}).items():
-                region_type = region_data.get("type", "wall" if region_name == "Walls" else "patch")
-                region_entry = {
-                    "type": region_type
-                }
+            # Add refinementSurfaces block inside object
+            ref_surf_key = object_name
+            if "refinementSurfaceLevels" in obj or ref_surf_key in refinement_surfaces:
+                levels = obj.get("refinementSurfaceLevels")
+                if not levels:
+                    levels = refinement_surfaces.get(ref_surf_key, {}).get("levels") or \
+                             refinement_surfaces.get(ref_surf_key, {}).get("level", [0, 0])
+                patch_type = obj.get("patchType") or \
+                             refinement_surfaces.get(ref_surf_key, {}).get("patchType") or \
+                             refinement_surfaces.get(ref_surf_key, {}).get("patchInfo", {}).get("type", "wall")
 
-                # Add default refinementSurfaceLevels for all regions
-                region_entry["refinementSurfaceLevels"] = [0, 0]
+                if levels is not None and patch_type is not None:
+                    building["refinementSurfaces"] = {
+                        "levels": levels,
+                        "patchType": patch_type
+                    }
 
-                # Inject refinementRegions from castellatedMeshControls
-                if region_name in ref_regions:
-                    region_entry["refinementRegions"] = ref_regions[region_name]
+            # fallback refinementRegions from castellatedMeshControls
+            if not building["refinementRegions"] and name in refinement_regions:
+                building["refinementRegions"] = refinement_regions[name]
+
+            # ----------------------------
+            # Regions
+            # ----------------------------
+            input_regions = obj.get("regions", {})
+
+            # Pull from castellatedMeshControls if available
+            ref_surf_regions = (
+                refinement_surfaces.get(ref_surf_key, {}).get("regions", {})
+            )
+
+            for region_name, region_data in input_regions.items():
+                region_entry = {}
+
+                # Explicitly preserve known keys
+                for k in ("type", "refinementRegions", "refinementSurfaceLevels", "name"):
+                    if k in region_data:
+                        region_entry[k] = region_data[k]
+
+                # Fill in from refinementSurfaces -> regions if needed
+                fallback_region_data = ref_surf_regions.get(region_name, {})
+                if "type" not in region_entry and "type" in fallback_region_data:
+                    region_entry["type"] = fallback_region_data["type"]
+                if "refinementSurfaceLevels" not in region_entry and "level" in fallback_region_data:
+                    region_entry["refinementSurfaceLevels"] = fallback_region_data["level"]
+
+                # Fill in from refinementRegions if needed
+                if "refinementRegions" not in region_entry and region_name in refinement_regions:
+                    region_entry["refinementRegions"] = refinement_regions[region_name]
+
+                # Final fallback
+                if "type" not in region_entry or not region_entry["type"]:
+                    region_entry["type"] = "patch"
 
                 building["regions"][region_name] = region_entry
 
             new_geometry["objects"][object_name] = building
 
+        # Add empty top-level refinementSurfaces for completeness
+        new_geometry["refinementSurfaces"] = {}
         input_parameters["geometry"] = new_geometry
 
         # ----------------------------

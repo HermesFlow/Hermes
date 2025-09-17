@@ -72,19 +72,18 @@ def _strip_default_refinement_surface_levels(doc: dict) -> None:
             if region.get("type") == "patch" and region.get("refinementSurfaceLevels") == [0, 0]:
                 del region["refinementSurfaceLevels"]
 
-    """
-    (
-                "LargeRoom_2",
-                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-                "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
-            ),
-            (
-                "Flow_1",
-                "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-                "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
-            ),
-    """
-
+"""
+(
+            "LargeRoom_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
+        ),
+        (
+            "Flow_1",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
+        ),
+"""
 @pytest.mark.parametrize(
     "case_name, input_json_path, dict_path",
     [
@@ -131,7 +130,8 @@ def test_reverse_snappyHexMeshDict_against_inputs(tmp_path: Path, case_name: str
     # Wrap it to match structure of input JSON
     actual = {
         "Execution": node["Execution"],
-        "type": "openFOAM.mesh.SnappyHexMesh"
+        "type": "openFOAM.mesh.SnappyHexMesh",
+        #"version": node["version"]
     }
 
     # Normalize both actual and expected
