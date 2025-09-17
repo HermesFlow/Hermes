@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja" as utils %}
+{%- set v = input_parameters.values %}
+
+application         {{ v.application }};
+startFrom           {{ v.startFrom }};
+startTime           {{ v.startTime }};
+stopAt              {{ v.stopAt }};
+endTime             {{ v.endTime }};
+deltaT              {{ v.deltaT }};
+writeControl        {{ v.writeControl }};
+writeInterval       {{ v.writeInterval }};
+purgeWrite          {{ v.purgeWrite }};
+writeFormat         {{ v.writeFormat }};
+writePrecision      {{ v.writePrecision }};
+writeCompression    {{ utils.toBool(v.writeCompression) }};
+timeFormat          {{ v.timeFormat }};
+timePrecision       {{ v.timePrecision }};
+runTimeModifiable   {{ utils.toBool(v.runTimeModifiable) }};
+adjustTimeStep      {{ utils.toBool(v.adjustTimeStep) }};
+maxCo               {{ v.maxCo }};
+
+{%- if v.libs %}
+libs
+(
+    {%- for lib in v.libs %}
+    "lib{{ lib }}.so";
+    {%- endfor %}
+);
+{%- endif %}
+
+{%- if v.functions %}
+functions
+{
+    {%- for fn in v.functions %}
+    {{ fn }};
+    {%- endfor %}
+}
+{%- endif %}

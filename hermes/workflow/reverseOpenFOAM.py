@@ -888,6 +888,9 @@ class DictionaryReverser:
             if isinstance(final_leaf.get(key), dict):
                 final_leaf[key] = []
 
+        if is_control:
+            convert_bools_to_lowercase(final_leaf)
+
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
             v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
