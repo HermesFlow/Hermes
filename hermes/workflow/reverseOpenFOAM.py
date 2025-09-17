@@ -13,6 +13,19 @@ from collections.abc import Mapping
 
 
 # ------ Helpers Functions ------
+def convert_bools_to_lowercase(obj):
+    if isinstance(obj, dict):
+        return {k: convert_bools_to_lowercase(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_bools_to_lowercase(v) for v in obj]
+    elif obj is True:
+        return "true"
+    elif obj is False:
+        return "false"
+    else:
+        return obj
+
+
 def as_dict(obj):
     if isinstance(obj, Mapping):
         return {k: as_dict(v) for k, v in obj.items()}
@@ -498,6 +511,12 @@ class DictionaryReverser:
                 "refinementRegions": obj.get("refinementRegions", {}),
             }
 
+            # Move inline refinementSurfaceLevels + patchType directly onto the object
+            if "refinementSurfaceLevels" in obj:
+                building["refinementSurfaceLevels"] = obj["refinementSurfaceLevels"]
+            if "patchType" in obj:
+                building["patchType"] = obj["patchType"]
+
             # Add refinementSurfaces block inside object
             ref_surf_key = object_name
             if "refinementSurfaceLevels" in obj or ref_surf_key in refinement_surfaces:
@@ -516,8 +535,13 @@ class DictionaryReverser:
                     }
 
             # fallback refinementRegions from castellatedMeshControls
-            if not building["refinementRegions"] and name in refinement_regions:
-                building["refinementRegions"] = refinement_regions[name]
+            if not building["refinementRegions"]:
+                # Try object name first
+                if object_name in refinement_regions:
+                    building["refinementRegions"] = refinement_regions[object_name]
+                # Then try full filename (e.g. building.obj) as fallback
+                elif name in refinement_regions:
+                    building["refinementRegions"] = refinement_regions[name]
 
             # ----------------------------
             # Regions
@@ -867,11 +891,10 @@ class DictionaryReverser:
         # SnappyHexMeshDict special handling
         if self.dict_name == "snappyHexMeshDict":
             v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
+            v2_structured = convert_bools_to_lowercase(v2_structured)  # normalize booleans
             final_leaf.clear()
             final_leaf.update(copy.deepcopy(v2_structured))
             node["version"] = 2
-
-
 
         """ 
         if self.dict_name == "snappyHexMeshDict":

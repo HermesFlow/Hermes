@@ -52,6 +52,21 @@ def _strip_empty_write_flags(doc: dict) -> None:
     except Exception:
         pass
 
+def _convert_bools_to_lowercase_strings(obj):
+    """
+    Recursively convert Python True/False to "true"/"false" strings.
+    """
+    if isinstance(obj, dict):
+        return {k: _convert_bools_to_lowercase_strings(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_convert_bools_to_lowercase_strings(v) for v in obj]
+    elif obj is True:
+        return "true"
+    elif obj is False:
+        return "false"
+    return obj
+
+
 def _strip_default_refinement_surface_levels(doc: dict) -> None:
     """
         In-place: remove 'refinementSurfaceLevels' if it's [0, 0] and region type is patch.
@@ -73,16 +88,8 @@ def _strip_default_refinement_surface_levels(doc: dict) -> None:
                 del region["refinementSurfaceLevels"]
 
 """
-(
-            "LargeRoom_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
-        ),
-        (
-            "Flow_1",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
-        ),
+
+        
 """
 @pytest.mark.parametrize(
     "case_name, input_json_path, dict_path",
@@ -91,6 +98,16 @@ def _strip_default_refinement_surface_levels(doc: dict) -> None:
             "pipe_2",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/snappyHexMeshDict",
+        ),
+        (
+            "LargeRoom_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/snappyHexMeshDict",
+        ),
+        (
+            "Flow_1",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/snappyHexMeshDict",
         ),
 
     ],
@@ -141,6 +158,8 @@ def test_reverse_snappyHexMeshDict_against_inputs(tmp_path: Path, case_name: str
         _strip_empty_write_flags(doc)
         _strip_default_refinement_surface_levels(doc)
 
+    actual = _convert_bools_to_lowercase_strings(actual)
+    expected = _convert_bools_to_lowercase_strings(expected)
 
 
     assert actual == expected, (
