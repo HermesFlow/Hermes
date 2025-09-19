@@ -148,7 +148,7 @@ def test_reverse_snappyHexMeshDict_against_inputs(tmp_path: Path, case_name: str
     actual = {
         "Execution": node["Execution"],
         "type": "openFOAM.mesh.SnappyHexMesh",
-        #"version": node["version"]
+        "version": node["version"]
     }
 
     # Normalize both actual and expected

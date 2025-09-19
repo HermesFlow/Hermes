@@ -922,6 +922,8 @@ class DictionaryReverser:
         return result
 
     def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
+        #print("🧪 DEBUG: parsed_dict['blocks'] =", parsed_dict.get("blocks"))
+
         result = {
             "Execution": {
                 "input_parameters": {}
@@ -944,19 +946,28 @@ class DictionaryReverser:
             params["vertices"] = parsed_dict["vertices"]
 
         # 3. blocks
-        if "blocks" in parsed_dict:
+        if "blocks" in parsed_dict and isinstance(parsed_dict["blocks"], list):
             blocks_raw = parsed_dict["blocks"]
             blocks_out = []
 
-            for blk in blocks_raw:
-                if isinstance(blk, dict):
-                    blocks_out.append({
-                        "hex": blk.get("hex", []),
-                        "cellCount": blk.get("cellCount", []),
-                        "grading": blk.get("grading", [])
-                    })
-                else:
-                    print("⚠️ Skipping non-dict block:", blk)
+            i = 0
+            while i + 4 < len(blocks_raw):
+                if blocks_raw[i] == "hex" and isinstance(blocks_raw[i + 1], list):
+                    try:
+                        hex_indices = blocks_raw[i + 1]
+                        cell_count = blocks_raw[i + 2]
+                        grading = blocks_raw[i + 4]  # Skip over "simpleGrading"
+
+                        block_entry = {
+                            "hex": hex_indices,
+                            "cellCount": cell_count,
+                            "grading": grading
+                        }
+
+                        blocks_out.append(block_entry)
+                    except Exception as e:
+                        print(f"⚠️ Failed parsing block at index {i}: {e}")
+                i += 5  # Move to next block
 
             out_dict["blocks"] = blocks_out
 
@@ -1044,7 +1055,6 @@ class DictionaryReverser:
             v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
             final_leaf.clear()
             final_leaf.update(copy.deepcopy(v2_structured["Execution"]["input_parameters"]))
-
             node["version"] = 2
 
         return node
