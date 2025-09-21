@@ -403,6 +403,21 @@ class DictionaryReverser:
         # Clean it from PyFoam wrappers like BoolProxy, Vector, etc.
         self.dict_data = unwrap_booleans_and_vectors(raw_data)
 
+        # Normalize boundary from alternating [name, dict, name, dict, ...]
+        if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
+            boundary_list = self.dict_data["boundary"]
+            normalized = []
+            i = 0
+            while i < len(boundary_list) - 1:
+                name = boundary_list[i]
+                body = boundary_list[i + 1]
+                if isinstance(name, str) and isinstance(body, dict):
+                    entry = {"name": name}
+                    entry.update(body)
+                    normalized.append(entry)
+                i += 2
+            self.dict_data["boundary"] = normalized
+
         #Object name (dict_name)
         header_obj = str(self.ppf.header.get("object", "")).strip()
         stem = p.stem.strip()
@@ -424,6 +439,11 @@ class DictionaryReverser:
             f"Detected node_type={self.node_type} "
             f"(object='{self.dict_name}', location='{header_loc}', parent='{p.parent.name}')"
         )
+
+        print("\n--- DEBUG PARSE ---")
+        print("raw_data['boundary'] =", raw_data.get("boundary"))
+        print("dict_data['boundary'] =", self.dict_data.get("boundary"))
+        print("-------------------\n")
 
     def load_template(self) -> Dict[str, Any]:
         """
@@ -901,20 +921,47 @@ class DictionaryReverser:
 
             params["blocks"] = blocks_out
 
-        # 4. Boundary
+        # 4. boundary
         if "boundary" in parsed_dict:
             boundary_out = []
-            for bnd in parsed_dict["boundary"]:
+
+            for idx, bnd in enumerate(parsed_dict["boundary"]):
                 if not isinstance(bnd, dict):
                     print("Skipping invalid boundary entry:", bnd)
                     continue
+
+                name = bnd.get("name")
+
+                # Case 1: boundary stored as { "domain_east": {...} }
+                if name is None and len(bnd) == 1:
+                    patch_name, inner = next(iter(bnd.items()))
+                    entry = {
+                        "name": patch_name,
+                        "type": inner.get("type"),
+                        "faces": inner.get("faces", []),
+                    }
+                    boundary_out.append(entry)
+                    continue
+
+                # Case 2: name exists as a field
+                if name is not None:
+                    entry = {
+                        "name": name,
+                        "type": bnd.get("type"),
+                        "faces": bnd.get("faces", []),
+                    }
+                    boundary_out.append(entry)
+                    continue
+
+                # Case 3: fallback (no name at all → assign placeholder)
                 entry = {
-                    "name": bnd.get("name"),
+                    "name": f"patch_{idx}",
                     "type": bnd.get("type"),
                     "faces": bnd.get("faces", []),
                 }
                 boundary_out.append(entry)
-            params["boundary"] = boundary_out
+
+            out_dict["boundary"] = boundary_out
 
         # 5. Geometry (optional empty)
         params["geometry"] = {}
@@ -974,16 +1021,30 @@ class DictionaryReverser:
         # 4. boundary
         if "boundary" in parsed_dict:
             boundary_out = []
+
             for bnd in parsed_dict["boundary"]:
+                # Each bnd is expected to be a dict like:
+                # { "name": ..., "type": ..., "faces": [...] }
                 if not isinstance(bnd, dict):
                     print("Skipping invalid boundary entry:", bnd)
                     continue
+
+                name = bnd.get("name", None)
+
+                # Sometimes name is stored as key instead of a field
+                # e.g., {"domain_east": {"type": ..., "faces": [...]}}
+                if name is None and len(bnd) == 1:
+                    # Try to unpack { "domain_east": { ... } }
+                    name, inner = next(iter(bnd.items()))
+                    bnd = inner
+
                 entry = {
-                    "name": bnd.get("name"),
+                    "name": name,
                     "type": bnd.get("type"),
                     "faces": bnd.get("faces", []),
                 }
                 boundary_out.append(entry)
+
             out_dict["boundary"] = boundary_out
 
         # 5. geometry + merge
