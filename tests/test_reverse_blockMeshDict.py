@@ -12,13 +12,7 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
     if isinstance(geo.get("gemeotricalEntities", None), dict) and not geo["gemeotricalEntities"]:
         geo.pop("gemeotricalEntities", None)
 
-"""
-(
-            "LargeRoom_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/blockMeshDict",
-        ),
-"""
+
 @pytest.mark.parametrize(
     "case_name, input_json_path, dict_path",
     [
@@ -27,7 +21,16 @@ def _normalize_optional_empty_geometry_keys(doc: dict) -> None:
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/blockMeshDict",
         ),
-
+        (
+            "LargeRoom_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/blockMeshDict",
+        ),
+        (
+            "Flow_1",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/blockMeshDict",
+        ),
     ],
 )
 def test_reverse_blockMeshDict_against_inputs(tmp_path: Path, case_name: str, input_json_path: str, dict_path: str):

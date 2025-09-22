@@ -860,10 +860,12 @@ class DictionaryReverser:
         ip.update(final_dict)
     """
 
+    """
+
     def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Converts parsed blockMeshDict into version 2 structure compatible with jinjaTemplate.v2.
-        """
+        
+        #Converts parsed blockMeshDict into version 2 structure compatible with jinjaTemplate.v2.
+        
 
         result = {
             "Execution": {
@@ -967,9 +969,10 @@ class DictionaryReverser:
         params["geometry"] = {}
 
         return result
+        
+    """
 
     def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
-        #print("🧪 DEBUG: parsed_dict['blocks'] =", parsed_dict.get("blocks"))
 
         result = {
             "Execution": {
@@ -981,9 +984,6 @@ class DictionaryReverser:
 
         params = result["Execution"]["input_parameters"]
 
-        # Init once
-        out_dict = {}
-
         # 1. convertToMeters
         if "convertToMeters" in parsed_dict:
             params["convertToMeters"] = str(parsed_dict["convertToMeters"])
@@ -993,48 +993,46 @@ class DictionaryReverser:
             params["vertices"] = parsed_dict["vertices"]
 
         # 3. blocks
+        blocks_out = []
         if "blocks" in parsed_dict and isinstance(parsed_dict["blocks"], list):
             blocks_raw = parsed_dict["blocks"]
-            blocks_out = []
 
-            i = 0
-            while i + 4 < len(blocks_raw):
-                if blocks_raw[i] == "hex" and isinstance(blocks_raw[i + 1], list):
-                    try:
-                        hex_indices = blocks_raw[i + 1]
-                        cell_count = blocks_raw[i + 2]
-                        grading = blocks_raw[i + 4]  # Skip over "simpleGrading"
+            # Case A: already structured list of dicts
+            if all(isinstance(b, dict) for b in blocks_raw):
+                blocks_out.extend(blocks_raw)
+            # Case B: flat token list
+            else:
+                i = 0
+                while i + 4 < len(blocks_raw):
+                    if blocks_raw[i] == "hex" and isinstance(blocks_raw[i + 1], list):
+                        try:
+                            hex_indices = blocks_raw[i + 1]
+                            cell_count = blocks_raw[i + 2]
+                            grading = blocks_raw[i + 4]  # Skip over "simpleGrading"
 
-                        block_entry = {
-                            "hex": hex_indices,
-                            "cellCount": cell_count,
-                            "grading": grading
-                        }
+                            block_entry = {
+                                "hex": hex_indices,
+                                "cellCount": cell_count,
+                                "grading": grading
+                            }
+                            blocks_out.append(block_entry)
+                        except Exception as e:
+                            print(f"⚠️ Failed parsing block at index {i}: {e}")
+                    i += 5
 
-                        blocks_out.append(block_entry)
-                    except Exception as e:
-                        print(f"⚠️ Failed parsing block at index {i}: {e}")
-                i += 5  # Move to next block
-
-            out_dict["blocks"] = blocks_out
+        params["blocks"] = blocks_out
 
         # 4. boundary
         if "boundary" in parsed_dict:
             boundary_out = []
-
             for bnd in parsed_dict["boundary"]:
-                # Each bnd is expected to be a dict like:
-                # { "name": ..., "type": ..., "faces": [...] }
                 if not isinstance(bnd, dict):
                     print("Skipping invalid boundary entry:", bnd)
                     continue
 
-                name = bnd.get("name", None)
+                name = bnd.get("name")
 
-                # Sometimes name is stored as key instead of a field
-                # e.g., {"domain_east": {"type": ..., "faces": [...]}}
                 if name is None and len(bnd) == 1:
-                    # Try to unpack { "domain_east": { ... } }
                     name, inner = next(iter(bnd.items()))
                     bnd = inner
 
@@ -1045,11 +1043,10 @@ class DictionaryReverser:
                 }
                 boundary_out.append(entry)
 
-            out_dict["boundary"] = boundary_out
+            params["boundary"] = boundary_out
 
-        # 5. geometry + merge
+        # 5. geometry is always {}
         params["geometry"] = {}
-        params.update(out_dict)  # ✅ merge everything here
 
         return result
 
