@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    {% for fieldName, solverData in fields.items() %}
+        {{ fieldName }}
+        {
+            solver          {{ solverData.solver }};
+            {% if solverData.preconditioner is defined %}
+            preconditioner  {{ solverData.preconditioner }};
+            {% endif %}
+            {% if solverData.smoother is defined %}
+            smoother        {{ solverData.smoother }};
+            {% endif %}
+            tolerance       {{ solverData.tolerance }};
+            relTol          {{ solverData.relTol }};
+        }
+
+        {% if solverData.final is defined %}
+        {{ fieldName }}Final
+        {
+            solver          {{ solverData.final.solver }};
+            {% if solverData.final.preconditioner is defined %}
+            preconditioner  {{ solverData.final.preconditioner }};
+            {% endif %}
+            {% if solverData.final.smoother is defined %}
+            smoother        {{ solverData.final.smoother }};
+            {% endif %}
+            tolerance       {{ solverData.final.tolerance }};
+            relTol          {{ solverData.final.relTol }};
+        }
+        {% endif %}
+    {% endfor %}
+}
+
+{{ solverProperties.algorithm }}
+{
+    {% if solverProperties.residualControl is defined %}
+    residualControl
+    {
+        {% for fieldName, factor in solverProperties.residualControl.items() %}
+        {{ fieldName }}    {{ factor }};
+        {% endfor %}
+    }
+    {% endif %}
+
+    {% if solverProperties.solverFields is defined %}
+        {% for field, fieldValue in solverProperties.solverFields.items() %}
+        {{ field }}    {{ fieldValue }};
+        {% endfor %}
+    {% endif %}
+}
+
+relaxationFactors
+{
+    {% if relaxationFactors.fields is defined %}
+    fields
+    {
+        {% for fieldName, factor in relaxationFactors.fields.items() %}
+        {{ fieldName }}    {{ factor }};
+        {% endfor %}
+    }
+    {% endif %}
+
+    {% if relaxationFactors.equations is defined %}
+    equations
+    {
+        {% for fieldName, factorData in relaxationFactors.equations.items() %}
+        {{ fieldName }}    {{ factorData.factor }};
+        {% if factorData.final is defined %}
+        {{ fieldName }}Final    {{ factorData.final }};
+        {% endif %}
+        {% endfor %}
+    }
+    {% endif %}
+}
+
+// ************************************************************************* //

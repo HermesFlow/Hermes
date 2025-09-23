@@ -29,22 +29,29 @@ def _normalize_parsed_dict(data):
     """
     Recursively normalize PyFoam parsed dict so downstream code sees consistent types.
     - Strings with whitespace -> split into list of tokens
-    - Already a list of strings -> leave as-is
+    - "yes"/"no"/"true"/"false" -> boolean
+    - Already a list -> normalize elements
     - Dicts -> recurse
     - Everything else -> unchanged
     """
     if isinstance(data, dict):
         return {k: _normalize_parsed_dict(v) for k, v in data.items()}
+
     elif isinstance(data, list):
-        # if it's a list of strings -> keep
-        if all(isinstance(x, str) for x in data):
-            return data
         return [_normalize_parsed_dict(x) for x in data]
+
     elif isinstance(data, str):
+        val = data.strip().lower()
+        if val in ("yes", "true", "on", "1"):
+            return True
+        if val in ("no", "false", "off", "0"):
+            return False
         parts = data.split()
-        return parts if len(parts) > 1 else data
+        return parts if len(parts) > 1 else data.strip()
+
     else:
         return data
+
 
 
 def as_dict(obj):
@@ -634,365 +641,6 @@ class DictionaryReverser:
 
         return input_parameters
 
-    """
-    def handle_snappy_dict(self, ip: Dict[str, Any]):
-        
-            #Normalize a snappyHexMeshDict-like dictionary into the JSON node shape used by the workflow.
-        
-        # 0) Basic normalization
-        normalize_in_place(ip)
-
-        # 1) Collect modules into a single block
-        extract_modules(ip)
-
-        # 2) castellatedMeshControls normalization
-        cmc = ip.setdefault("castellatedMeshControls", {})
-        normalize_in_place(cmc)
-        # locationInMesh may arrive as "(x y z)"; normalize to list[float]
-        normalize_location_in_mesh(cmc, self.log)
-
-        # 3) Geometry/Object hoisting
-        geometry = ip.setdefault("geometry", {})
-        normalize_in_place(geometry)
-        hoist_geometry_objects(geometry, self.log)
-        objects = geometry.setdefault("objects", {})
-        normalize_in_place(objects)
-        geometry.setdefault("gemeotricalEntities", {}) # The pipeline sometimes keeps this optional container (typo kept for compatibility)
-
-        # Work on 'building' object
-        building = objects.setdefault("building", {})
-        originally_flat = "refinementSurfaceLevels" in building
-        building.setdefault("objectName", "building")
-        building.setdefault("objectType", "obj")
-
-        # 4) Promote feature files (optional)
-        features = cmc.get("features")
-        if features:
-            for feature in to_native(features):
-                file = str(feature.get("file", "")).strip('"')
-                lvl = feature.get("level")
-                name = (Path(file).stem if file else None) or "building"
-                if name in objects and lvl is not None:
-                    objects[name]["levels"] = str(lvl)
-            cmc.pop("features", None)
-
-        # Capture & remove refinement sections from cmc (we will place them in geometry/objects)
-        ref_surfs = cmc.pop("refinementSurfaces", {}) or {}
-        ref_regs = cmc.pop("refinementRegions", {}) or {}
-
-        # 5) Regions: snapshot and setup
-        regions = building.setdefault("regions", {})
-
-        # Snapshot which regions originally had a 'name' key
-        original_region_has_name = {
-            r: (isinstance(d, dict) and "name" in d)
-            for r, d in regions.items()
-        }
-
-        # Access Walls without creating it (avoid side effects in snapshot)
-        walls = regions.get("Walls", {})
-
-        # 6) Promote refinementSurfaces (global + region overrides)
-        promote_refinement_surfaces(building, regions, walls, ref_surfs, originally_flat, self.log)
-
-        # 7) Promote refinementRegions
-        promote_refinement_regions(building, walls, ref_regs, self.log)
-
-        # Remove helper keys if they accidentally appeared on 'building'
-        for fld in ("name", "type"):
-            building.pop(fld, None)
-
-        # 8) addLayersControls: lift nSurfaceLayers
-        handle_add_layers_controls(ip, building, geometry)
-
-        # Remove empty writeFlags only if it exists
-        if "writeFlags" in ip and not ip.get("writeFlags"):
-            ip.pop("writeFlags", None)
-
-        # 9) Final normalization & flattening rules
-        normalize_in_place(ip)
-        final_native = unwrap_booleans_and_vectors(ip)
-
-        try:
-            building = final_native["geometry"]["objects"]["building"]
-            regions = building.get("regions", {})
-
-            # Drop redundant 'name' only if it wasn't in the original input
-            for rname, rdef in list(regions.items()):
-                if isinstance(rdef, dict):
-                    # drop 'name' only if it wasn't present in the original input
-                    if not original_region_has_name.get(rname, False):
-                        rdef.pop("name", None)
-
-           # walls = regions.get("Walls", {})
-
-            # Decide whether to flatten nested building.refinementSurfaces
-            rs = building.get("refinementSurfaces")
-            if isinstance(rs, dict):
-                gl = rs.get("levels")
-                pt = rs.get("patchType", "wall")
-                rr = building.get("regions", {})
-
-                def mirrors_global_or_placeholder(d):
-                    if not isinstance(d, dict):
-                        return True
-                    lvl = d.get("refinementSurfaceLevels", None)
-                    typ = d.get("type", None)
-                    lvl_ok = (lvl is None) or (lvl == gl) or (lvl == [0, 0])
-                    typ_ok = (typ is None) or (typ == pt) or (typ == "patch")
-                    return lvl_ok and typ_ok
-
-                # Flatten if originally flat, or if global is non-zero and
-                # all regions don't contradict (only mirror/placeholder)
-                will_flatten = False
-                if originally_flat:
-                    will_flatten = True
-                elif isinstance(gl, list) and gl != [0, 0] and all(
-                        mirrors_global_or_placeholder(d) for d in rr.values()):
-                    will_flatten = True
-
-                if will_flatten:
-                    # Push global to regions where missing or placeholders
-                    for rname, rdef in (rr.items() if isinstance(rr, dict) else []):
-                        if not isinstance(rdef, dict):
-                            continue
-                        lvl = rdef.get("refinementSurfaceLevels", None)
-                        typ = rdef.get("type", None)
-                        if (lvl is None) or (lvl == [0, 0]):
-                            if isinstance(gl, list):
-                                rdef["refinementSurfaceLevels"] = gl
-                        if (typ is None) or (typ == "patch"):
-                            if isinstance(pt, str):
-                                rdef["type"] = pt
-
-                    # Replace nested with flat keys on building
-                    building["refinementSurfaceLevels"] = gl or []
-                    building["patchType"] = pt
-                    building.pop("refinementSurfaces", None)
-
-        except Exception as e:
-            self.log.warning(f"Final cleanup failed: {e}")
-
-        # 10) Replace incoming dict with normalized final
-        ip.clear()
-        ip.update(final_native)
-   
-
-
-    def handle_block_mesh_dict(self, ip: Dict[str, Any]) -> None:
-        #Normalize a blockMeshDict-like dictionary into the JSON node shape used by the workflow.
-        
-        raw = unwrap_booleans_and_vectors(self.dict_data or {})
-
-        convert_to_meters = str(raw.get("convertToMeters", "1"))
-        vertices = raw.get("vertices", [])
-        default_patch = raw.get("defaultPatch")  # ← Optional
-
-        # --- Parse blocks ---
-        blocks = []
-        raw_blocks = raw.get("blocks", [])
-        i = 0
-        while i < len(raw_blocks):
-            if raw_blocks[i] == "hex":
-                try:
-                    hex_points = raw_blocks[i + 1]
-                    cell_count_raw = raw_blocks[i + 2]
-                    grading_raw = raw_blocks[i + 4]
-
-                    # Convert cell count string to list of ints
-                    cell_count = (
-                        list(map(int, cell_count_raw.strip("()").split()))
-                        if isinstance(cell_count_raw, str)
-                        else cell_count_raw
-                    )
-
-                    # Convert grading string to list of floats
-                    grading = (
-                        list(map(float, grading_raw.strip("()").split()))
-                        if isinstance(grading_raw, str)
-                        else grading_raw
-                    )
-
-                    blocks.append({
-                        "hex": hex_points,
-                        "cellCount": cell_count,
-                        "grading": grading
-                    })
-
-                    i += 5  # Move to next block
-                except Exception as e:
-                    print(f"Failed parsing block at index {i}: {e}")
-                    i += 1
-            else:
-                i += 1
-
-        # --- Fallback: Use 'geometry' if no blocks parsed ---
-        geometry = raw.get("geometry", {})
-        if not blocks and isinstance(geometry, dict):
-            cell_count = geometry.get("cellCount")
-            grading = geometry.get("grading", [1, 1, 1])
-            if isinstance(cell_count, list) and len(cell_count) == 3:
-                blocks.append({
-                    "hex": list(range(8)),  # Default 8-point cube
-                    "cellCount": cell_count,
-                    "grading": grading
-                })
-                # Keep geometry untouched — it may be expected in the output
-
-        # --- Parse boundary ---
-        boundary = []
-        raw_boundary = raw.get("boundary", {})
-        if isinstance(raw_boundary, dict):
-            for name, bdef in raw_boundary.items():
-                if not isinstance(bdef, dict):
-                    continue
-                boundary.append({
-                    "name": name,
-                    "type": bdef.get("type", "patch"),
-                    "faces": bdef.get("faces", [])
-                })
-        elif isinstance(raw_boundary, list):
-            i = 0
-            while i < len(raw_boundary) - 1:
-                name = raw_boundary[i]
-                bdef = raw_boundary[i + 1]
-                if not isinstance(name, str) or not isinstance(bdef, dict):
-                    i += 1
-                    continue
-                boundary.append({
-                    "name": name,
-                    "type": bdef.get("type", "patch"),
-                    "faces": bdef.get("faces", [])
-                })
-                i += 2
-
-        # --- Final output ---
-        final_dict = {
-            "convertToMeters": convert_to_meters,
-            "vertices": vertices,
-            "blocks": blocks,
-            "boundary": boundary,
-            "geometry": geometry,
-        }
-
-        if isinstance(default_patch, dict) and default_patch.get("type") is not None:
-            final_dict["defaultPatch"] = default_patch
-
-        ip.clear()
-        ip.update(final_dict)
-    """
-
-    """
-
-    def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
-        
-        #Converts parsed blockMeshDict into version 2 structure compatible with jinjaTemplate.v2.
-        
-
-        result = {
-            "Execution": {
-                "input_parameters": {}
-            },
-            "type": "openFOAM.mesh.BlockMesh",
-            "version": 2
-        }
-
-        params = result["Execution"]["input_parameters"]
-
-        # 1. Top-level scalar fields
-        if "convertToMeters" in parsed_dict:
-            params["convertToMeters"] = str(parsed_dict["convertToMeters"])
-
-        # 2. Vertices
-        if "vertices" in parsed_dict:
-            params["vertices"] = parsed_dict["vertices"]
-
-        # 3. Blocks
-        if "blocks" in parsed_dict and isinstance(parsed_dict["blocks"], list):
-            blocks_out = []
-            raw_blocks = parsed_dict["blocks"]
-
-            i = 0
-            while i < len(raw_blocks):
-                blk = raw_blocks[i]
-
-                if isinstance(blk, str) and blk.startswith("hex"):
-                    try:
-                        # Extract hex indices from "hex (0 1 2 3 4 5 6 7)"
-                        hex_indices = blk.replace("hex", "").strip()
-                        hex_indices = hex_indices.strip("()").split()
-                        hex_indices = [int(x) for x in hex_indices]
-
-                        # Next line: cell count
-                        cell_count = raw_blocks[i + 1].strip("()").split()
-                        cell_count = [int(x) for x in cell_count]
-
-                        # Next-next line should be 'simpleGrading'
-                        grading_line = raw_blocks[i + 3].strip("()").split()
-                        grading = [float(x) if '.' in x else int(x) for x in grading_line]
-
-                        blocks_out.append({
-                            "hex": hex_indices,
-                            "cellCount": cell_count,
-                            "grading": grading,
-                        })
-                        i += 5  # Move to next block
-                    except Exception as e:
-                        print(f"Error parsing block at index {i}: {e}")
-                        i += 1
-                else:
-                    i += 1
-
-            params["blocks"] = blocks_out
-
-        # 4. boundary
-        if "boundary" in parsed_dict:
-            boundary_out = []
-
-            for idx, bnd in enumerate(parsed_dict["boundary"]):
-                if not isinstance(bnd, dict):
-                    print("Skipping invalid boundary entry:", bnd)
-                    continue
-
-                name = bnd.get("name")
-
-                # Case 1: boundary stored as { "domain_east": {...} }
-                if name is None and len(bnd) == 1:
-                    patch_name, inner = next(iter(bnd.items()))
-                    entry = {
-                        "name": patch_name,
-                        "type": inner.get("type"),
-                        "faces": inner.get("faces", []),
-                    }
-                    boundary_out.append(entry)
-                    continue
-
-                # Case 2: name exists as a field
-                if name is not None:
-                    entry = {
-                        "name": name,
-                        "type": bnd.get("type"),
-                        "faces": bnd.get("faces", []),
-                    }
-                    boundary_out.append(entry)
-                    continue
-
-                # Case 3: fallback (no name at all → assign placeholder)
-                entry = {
-                    "name": f"patch_{idx}",
-                    "type": bnd.get("type"),
-                    "faces": bnd.get("faces", []),
-                }
-                boundary_out.append(entry)
-
-            out_dict["boundary"] = boundary_out
-
-        # 5. Geometry (optional empty)
-        params["geometry"] = {}
-
-        return result
-        
-    """
 
     def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
 
@@ -1205,6 +853,73 @@ class DictionaryReverser:
 
         return result
 
+    def convert_fvSolution_dict_to_v2(self, parsed_dict: dict) -> dict:
+        result = {
+            "Execution": {"input_parameters": {}},
+            "type": "openFOAM.system.FvSolution",
+            "version": 2,
+        }
+
+        params = result["Execution"]["input_parameters"]
+
+        # -------------------------
+        # 1. solvers -> fields
+        # -------------------------
+        fields_out = {}
+        if "solvers" in parsed_dict:
+            for name, solver in parsed_dict["solvers"].items():
+                if name.lower().endswith("final"):
+                    base = name[:-5]  # strip "Final"
+                    fields_out.setdefault(base, {})["final"] = solver
+                else:
+                    fields_out.setdefault(name, {}).update(solver)
+
+        if fields_out:
+            params["fields"] = fields_out
+
+        # -------------------------
+        # 2. solverProperties (SIMPLE/PISO/PIMPLE)
+        # -------------------------
+        for algo in ("SIMPLE", "PISO", "PIMPLE"):
+            if algo in parsed_dict:
+                sp = {}
+                sp["algorithm"] = algo
+                if "residualControl" in parsed_dict[algo]:
+                    sp["residualControl"] = parsed_dict[algo]["residualControl"]
+                # keep solverFields as-is, but stringify booleans back to yes/no
+                solver_fields = {
+                    k: ("yes" if v is True else "no" if v is False else v)
+                    for k, v in parsed_dict[algo].items()
+                    if k not in ("residualControl",)
+                }
+                if solver_fields:
+                    sp["solverFields"] = solver_fields
+                params["solverProperties"] = sp
+
+        # -------------------------
+        # 3. relaxationFactors
+        # -------------------------
+        if "relaxationFactors" in parsed_dict:
+            rf = parsed_dict["relaxationFactors"]
+            out_rf = {}
+
+            if "fields" in rf:
+                out_rf["fields"] = rf["fields"]
+
+            if "equations" in rf:
+                eqs = {}
+                for k, v in rf["equations"].items():
+                    if k.lower().endswith("final"):
+                        base = k[:-5]
+                        eqs.setdefault(base, {})["final"] = v
+                    else:
+                        eqs.setdefault(k, {})["factor"] = v
+                out_rf["equations"] = eqs
+
+            params["relaxationFactors"] = out_rf
+
+        return result
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -1222,7 +937,10 @@ class DictionaryReverser:
             v2_structured = self.convert_fv_schemes_dict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
-        # Add more dictionary types here as needed (fvSolution, decomposeParDict, etc.)
+        if dict_name == "fvSolution":
+            v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
+            return v2_structured["Execution"]["input_parameters"]
+
         return None
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
