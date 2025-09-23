@@ -25,6 +25,27 @@ def convert_bools_to_lowercase(obj):
     else:
         return obj
 
+def _normalize_parsed_dict(data):
+    """
+    Recursively normalize PyFoam parsed dict so downstream code sees consistent types.
+    - Strings with whitespace -> split into list of tokens
+    - Already a list of strings -> leave as-is
+    - Dicts -> recurse
+    - Everything else -> unchanged
+    """
+    if isinstance(data, dict):
+        return {k: _normalize_parsed_dict(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        # if it's a list of strings -> keep
+        if all(isinstance(x, str) for x in data):
+            return data
+        return [_normalize_parsed_dict(x) for x in data]
+    elif isinstance(data, str):
+        parts = data.split()
+        return parts if len(parts) > 1 else data
+    else:
+        return data
+
 
 def as_dict(obj):
     if isinstance(obj, Mapping):
@@ -402,6 +423,7 @@ class DictionaryReverser:
 
         # Clean it from PyFoam wrappers like BoolProxy, Vector, etc.
         self.dict_data = unwrap_booleans_and_vectors(raw_data)
+        self.dict_data = _normalize_parsed_dict(self.dict_data)
 
         # Normalize boundary from alternating [name, dict, name, dict, ...]
         if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
@@ -1050,6 +1072,159 @@ class DictionaryReverser:
 
         return result
 
+    def convert_fv_schemes_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert fvSchemes dictionary (parsed by PyFoam) into Hermes v2 JSON format.
+        """
+
+        result = {
+            "Execution": {"input_parameters": {}},
+            "type": "openFOAM.system.FvSchemes",
+            "version": 2,
+        }
+
+        params = result["Execution"]["input_parameters"]
+
+        # -------------------------
+        # Defaults
+        # -------------------------
+        defaults = {}
+        if "ddtSchemes" in parsed_dict and "default" in parsed_dict["ddtSchemes"]:
+            defaults["ddtScheme"] = parsed_dict["ddtSchemes"]["default"]
+
+        if "gradSchemes" in parsed_dict and "default" in parsed_dict["gradSchemes"]:
+            grad_tokens = parsed_dict["gradSchemes"]["default"]
+            if isinstance(grad_tokens, str):
+                grad_tokens = grad_tokens.split()
+            defaults["gradSchemes"] = {
+                "type": grad_tokens[0],
+                "name": grad_tokens[1] if len(grad_tokens) > 1 else "",
+            }
+
+        if "divSchemes" in parsed_dict and "default" in parsed_dict["divSchemes"]:
+            div_tokens = parsed_dict["divSchemes"]["default"]
+            if isinstance(div_tokens, str):
+                div_tokens = div_tokens.split()
+            defaults["divSchemes"] = {
+                "type": div_tokens[0],
+                "name": div_tokens[1] if len(div_tokens) > 1 else "",
+                "parameters": " ".join(div_tokens[2:]),
+            }
+
+        if "laplacianSchemes" in parsed_dict and "default" in parsed_dict["laplacianSchemes"]:
+            lap_tokens = parsed_dict["laplacianSchemes"]["default"]
+            if isinstance(lap_tokens, str):
+                lap_tokens = lap_tokens.split()
+            defaults["laplacianSchemes"] = {
+                "type": lap_tokens[0],
+                "name": lap_tokens[1] if len(lap_tokens) > 1 else "",
+                "parameters": " ".join(lap_tokens[2:]),
+            }
+
+        if "interpolationSchemes" in parsed_dict and "default" in parsed_dict["interpolationSchemes"]:
+            defaults["interpolationSchemes"] = parsed_dict["interpolationSchemes"]["default"]
+
+        if "snGradSchemes" in parsed_dict and "default" in parsed_dict["snGradSchemes"]:
+            defaults["snGradSchemes"] = parsed_dict["snGradSchemes"]["default"]
+
+        if "wallDist" in parsed_dict and "method" in parsed_dict["wallDist"]:
+            defaults["wallDist"] = parsed_dict["wallDist"]["method"]
+
+        params["default"] = defaults
+
+        # -------------------------
+        # Field-specific schemes
+        # -------------------------
+        fields_out = {}
+
+        # divSchemes
+        if "divSchemes" in parsed_dict:
+            for key, val in parsed_dict["divSchemes"].items():
+                if key == "default":
+                    continue
+                tokens = val if isinstance(val, list) else val.split()
+                entry = {
+                    "noOfOperators": key.count(",") + (1 if key.startswith("div(") else 0),
+                    "type": tokens[0],
+                    "name": tokens[1] if len(tokens) > 1 else "",
+                    "parameters": " ".join(tokens[2:]),
+                }
+                if key.startswith("div(") and "," in key:
+                    entry["phi"] = key.split("(")[1].split(",")[0]
+                    field_name = key.split(",")[1].rstrip(")")
+                elif key.startswith("div("):
+                    field_name = key[4:-1]
+                else:
+                    field_name = key
+                fields_out.setdefault(field_name, {}).setdefault("divSchemes", []).append(entry)
+
+        # laplacianSchemes
+        if "laplacianSchemes" in parsed_dict:
+            for key, val in parsed_dict["laplacianSchemes"].items():
+                if key == "default":
+                    continue
+                tokens = val if isinstance(val, list) else val.split()
+                entry = {
+                    "noOfOperators": key.count(",") + 1,
+                    "type": tokens[0],
+                    "name": tokens[1] if len(tokens) > 1 else "",
+                    "parameters": " ".join(tokens[2:]),
+                }
+                if key.startswith("laplacian(") and "," in key:
+                    inner = key[10:-1]
+                    coeff, fld = inner.split(",", 1)
+                    entry["coefficient"] = coeff.strip()
+                    field_name = fld.strip()
+                else:
+                    field_name = key
+                fields_out.setdefault(field_name, {}).setdefault("laplacianSchemes", []).append(entry)
+
+        # -------------------------
+        # fluxRequired
+        # -------------------------
+        default_flux = False
+        if "fluxRequired" in parsed_dict and "default" in parsed_dict["fluxRequired"]:
+            raw_default = parsed_dict["fluxRequired"]["default"]
+            if isinstance(raw_default, str):
+                default_flux = raw_default.strip().lower() == "yes"
+            elif isinstance(raw_default, bool):
+                default_flux = raw_default
+
+        # Step 1: apply default to all fields we’ve seen
+        for fld in fields_out.keys():
+            fields_out[fld]["fluxRequired"] = default_flux
+
+        # Step 2: override for explicitly listed fields
+        if "fluxRequired" in parsed_dict:
+            for fld in parsed_dict["fluxRequired"]:
+                if fld == "default":
+                    continue
+                fields_out.setdefault(fld, {})["fluxRequired"] = True
+
+        params["fields"] = fields_out
+
+        return result
+
+    def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
+        """
+        Apply v2 conversion for supported OpenFOAM dictionaries.
+        Returns a v2-structured node or None if no conversion is defined.
+        """
+        if dict_name == "snappyHexMeshDict":
+            v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
+            return convert_bools_to_lowercase(v2_structured)  # normalize booleans
+
+        if dict_name == "blockMeshDict":
+            v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
+            return v2_structured["Execution"]["input_parameters"]
+
+        if dict_name == "fvSchemes":
+            v2_structured = self.convert_fv_schemes_dict_to_v2(final_leaf)
+            return v2_structured["Execution"]["input_parameters"]
+
+        # Add more dictionary types here as needed (fvSolution, decomposeParDict, etc.)
+        return None
+
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
             self.parse()
@@ -1099,20 +1274,11 @@ class DictionaryReverser:
             convert_bools_to_lowercase(final_leaf)
             node["version"] = 2
 
-        # SnappyHexMeshDict special handling
-        if self.dict_name == "snappyHexMeshDict":
-            v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
-            v2_structured = convert_bools_to_lowercase(v2_structured)  # normalize booleans
+        # Apply v2 conversion if available
+        v2_structured = self.apply_v2_conversion(self.dict_name, final_leaf)
+        if v2_structured is not None:
             final_leaf.clear()
             final_leaf.update(copy.deepcopy(v2_structured))
-            node["version"] = 2
-
-
-        # blockMeshDict special handling
-        if self.dict_name == "blockMeshDict":
-            v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
-            final_leaf.clear()
-            final_leaf.update(copy.deepcopy(v2_structured["Execution"]["input_parameters"]))
             node["version"] = 2
 
         return node
