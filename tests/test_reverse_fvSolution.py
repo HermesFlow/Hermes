@@ -3,14 +3,7 @@ from pathlib import Path
 import pytest
 from hermes.workflow.reverseOpenFOAM import DictionaryReverser, FoamJSONEncoder
 
-"""
 
-        (
-            "Flow_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/fvSolution",
-        ),
-"""
 
 @pytest.mark.parametrize(
     "case_name, input_json_path, dict_path",
@@ -24,6 +17,11 @@ from hermes.workflow.reverseOpenFOAM import DictionaryReverser, FoamJSONEncoder
             "LargeRoom_2",
             "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/fvSolution",
+        ),
+(
+            "Flow_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/fvSolution",
         ),
 
     ],
