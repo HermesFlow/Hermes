@@ -837,12 +837,13 @@ class DictionaryReverser:
           - solvers + Final merged into fields[field].final
           - solverProperties: algorithm + residualControl + solverFields
           - If SIMPLE has no nCorrectors in file, inject top-level default nCorrectors=3
-          - Do NOT promote keys that are present in the block; they stay in solverFields
           - relaxationFactors: merge *Final into {factor, final}
+          - cacheAgglomeration is dropped
+          - Do not inject solverProperties.relaxationFactors unless it existed in the block
+          - Always keep root-level solver fields (no deduplication against final)
         """
 
         def _yn(v):
-            # stringify bools to yes/no for OpenFOAM style, leave others as-is
             if isinstance(v, bool):
                 return "yes" if v else "no"
             if isinstance(v, str):
@@ -865,11 +866,15 @@ class DictionaryReverser:
         # -------------------------
         fields_out = {}
         for name, solver in (parsed_dict.get("solvers") or {}).items():
+            # drop cacheAgglomeration (never carried over)
+            solver = {k: v for k, v in solver.items() if k != "cacheAgglomeration"}
+
             if isinstance(name, str) and name.lower().endswith("final"):
-                base = name[:-5]  # strip 'Final'
+                base = name[:-5]
                 fields_out.setdefault(base, {})["final"] = solver
             else:
                 fields_out.setdefault(name, {}).update(solver)
+
         if fields_out:
             params["fields"] = fields_out
 
@@ -886,25 +891,27 @@ class DictionaryReverser:
             if isinstance(rc, dict):
                 sp["residualControl"] = rc
 
-            # everything else inside solverFields (no promotions for present keys)
+            # everything else into solverFields
             solver_fields = {}
             for k, v in block.items():
                 if k == "residualControl":
                     continue
                 solver_fields[k] = _yn(v)
-
             if solver_fields:
                 sp["solverFields"] = solver_fields
 
-            # Special rule to satisfy the second test:
-            # If SIMPLE and nCorrectors missing entirely in the file, inject default 3 at top-level
+            # Special rule: if SIMPLE and nCorrectors missing, inject default 3
             if algo_name == "SIMPLE" and "nCorrectors" not in block:
                 sp["nCorrectors"] = 3
+
+            # DO NOT auto-inject relaxationFactors unless explicitly present in SIMPLE block
+            if "relaxationFactors" in block:
+                sp["relaxationFactors"] = block.get("relaxationFactors") or {}
 
             params["solverProperties"] = sp
 
         # -------------------------
-        # 3) relaxationFactors
+        # 3) relaxationFactors (top-level)
         # -------------------------
         rf = parsed_dict.get("relaxationFactors")
         if isinstance(rf, dict):
