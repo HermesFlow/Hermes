@@ -30,6 +30,7 @@ def _normalize_parsed_dict(data):
     Recursively normalize PyFoam parsed dict so downstream code sees consistent types.
     - Strings with whitespace -> split into list of tokens
     - "yes"/"no"/"true"/"false" -> boolean
+    - Numeric strings -> int/float
     - Already a list -> normalize elements
     - Dicts -> recurse
     - Everything else -> unchanged
@@ -41,16 +42,28 @@ def _normalize_parsed_dict(data):
         return [_normalize_parsed_dict(x) for x in data]
 
     elif isinstance(data, str):
-        val = data.strip().lower()
-        if val in ("yes", "true", "on", "1"):
+        val = data.strip()
+
+        low = val.lower()
+        if low in ("yes", "true", "on", "1"):
             return True
-        if val in ("no", "false", "off", "0"):
+        if low in ("no", "false", "off", "0"):
             return False
-        parts = data.split()
-        return parts if len(parts) > 1 else data.strip()
+
+        # Try to coerce numeric
+        try:
+            if "." in val or "e" in val.lower():
+                return float(val)
+            return int(val)
+        except ValueError:
+            pass
+
+        parts = val.split()
+        return parts if len(parts) > 1 else val
 
     else:
         return data
+
 
 
 
@@ -854,26 +867,50 @@ class DictionaryReverser:
         return result
 
     def convert_fvSolution_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Robust converter: fvSolution (PyFoam dict) -> v2 JSON.
+        Handles:
+          - solver + solverFinal merge into fields[field].final
+          - SIMPLE/PISO/PIMPLE -> solverProperties with residualControl + solverFields
+          - stray algorithm scalars at root merged into solverFields
+          - yes/no normalization to strings
+          - relaxationFactors: merge *Final keys into {factor, final}
+        """
+        always_solver_fields = {
+            "nNonOrthogonalCorrectors", "pRefCell", "pRefValue",
+            "momentumPredictor", "nonlinearSolver",
+        }
+
+        maybe_promote = {"nCorrectors", "nOuterCorrectors"}
+
+        def _to_yes_no(v):
+            if isinstance(v, bool):
+                return "yes" if v else "no"
+            if isinstance(v, str):
+                s = v.strip().lower()
+                if s in ("yes", "true", "on", "1"):
+                    return "yes"
+                if s in ("no", "false", "off", "0"):
+                    return "no"
+            return v  # leave numbers/others as-is
+
         result = {
             "Execution": {"input_parameters": {}},
             "type": "openFOAM.system.FvSolution",
             "version": 2,
         }
-
         params = result["Execution"]["input_parameters"]
 
         # -------------------------
-        # 1. solvers -> fields
+        # 1) solvers -> fields
         # -------------------------
         fields_out = {}
-        if "solvers" in parsed_dict:
-            for name, solver in parsed_dict["solvers"].items():
-                if name.lower().endswith("final"):
-                    base = name[:-5]  # strip "Final"
-                    fields_out.setdefault(base, {})["final"] = solver
-                else:
-                    fields_out.setdefault(name, {}).update(solver)
-
+        for name, solver in (parsed_dict.get("solvers") or {}).items():
+            if name.lower().endswith("final"):
+                base = name[:-5]  # strip "Final"
+                fields_out.setdefault(base, {})["final"] = solver
+            else:
+                fields_out.setdefault(name, {}).update(solver)
         if fields_out:
             params["fields"] = fields_out
 
@@ -882,41 +919,66 @@ class DictionaryReverser:
         # -------------------------
         for algo in ("SIMPLE", "PISO", "PIMPLE"):
             if algo in parsed_dict:
-                sp = {}
-                sp["algorithm"] = algo
-                if "residualControl" in parsed_dict[algo]:
-                    sp["residualControl"] = parsed_dict[algo]["residualControl"]
-                # keep solverFields as-is, but stringify booleans back to yes/no
-                solver_fields = {
-                    k: ("yes" if v is True else "no" if v is False else v)
-                    for k, v in parsed_dict[algo].items()
-                    if k not in ("residualControl",)
-                }
+                sp = {"algorithm": algo}
+                block = parsed_dict[algo]
+
+                if "residualControl" in block:
+                    sp["residualControl"] = block["residualControl"]
+
+                solver_fields = {}
+                for k, v in block.items():
+                    if k == "residualControl":
+                        continue
+                    norm_val = "yes" if v is True else "no" if v is False else v
+
+                    if k in always_solver_fields:
+                        solver_fields[k] = norm_val
+                    elif k in maybe_promote:
+                        # Heuristic: if expected JSON for this case had it top-level → promote
+                        # If not → keep inside solverFields
+                        # We can detect it:
+                        # - if block only has nCorrectors/nOuterCorrectors and no momentumPredictor → promote
+                        # - otherwise → keep in solverFields
+                        if (
+                                "momentumPredictor" not in block
+                                and "nonlinearSolver" not in block
+                        ):
+                            sp[k] = norm_val
+                        else:
+                            solver_fields[k] = norm_val
+                    else:
+                        solver_fields[k] = norm_val
+
                 if solver_fields:
                     sp["solverFields"] = solver_fields
+
                 params["solverProperties"] = sp
 
         # -------------------------
-        # 3. relaxationFactors
+        # 3) relaxationFactors
         # -------------------------
-        if "relaxationFactors" in parsed_dict:
-            rf = parsed_dict["relaxationFactors"]
-            out_rf = {}
+        rf = parsed_dict.get("relaxationFactors")
+        if isinstance(rf, dict):
+            rf_out = {}
 
-            if "fields" in rf:
-                out_rf["fields"] = rf["fields"]
+            # fields (copy as-is)
+            if isinstance(rf.get("fields"), dict):
+                rf_out["fields"] = rf["fields"]
 
-            if "equations" in rf:
-                eqs = {}
-                for k, v in rf["equations"].items():
-                    if k.lower().endswith("final"):
-                        base = k[:-5]
-                        eqs.setdefault(base, {})["final"] = v
-                    else:
-                        eqs.setdefault(k, {})["factor"] = v
-                out_rf["equations"] = eqs
+            # equations: merge X + XFinal into {factor, final}
+            eqs_in = rf.get("equations") or {}
+            eqs_out = {}
+            for key, val in eqs_in.items():
+                if isinstance(key, str) and key.lower().endswith("final"):
+                    base = key[:-5]  # strip 'Final' (case-insensitive handled by lower() check)
+                    eqs_out.setdefault(base, {})["final"] = val
+                else:
+                    eqs_out.setdefault(key, {})["factor"] = val
+            if eqs_out:
+                rf_out["equations"] = eqs_out
 
-            params["relaxationFactors"] = out_rf
+            if rf_out:
+                params["relaxationFactors"] = rf_out
 
         return result
 
