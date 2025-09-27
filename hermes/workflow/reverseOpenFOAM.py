@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from PyFoam.RunDictionary.ParsedParameterFile import ParsedParameterFile
+from PyFoam.RunDictionary.ParsedParameterFile import Field
 from PyFoam.Basics.DataStructures import Vector, BoolProxy
 from ..Resources.reTemplateCenter import templateCenter
 from ..utils.logging import get_classMethod_logger
@@ -105,7 +106,7 @@ def normalize_in_place(d: Dict[str, Any]) -> Dict[str, Any]:
 
 def unwrap_special_type(val):
     """
-    Unwrap PyFoam's special types and vector strings to native Python.
+    Unwrap PyFoam's special types and vector/field strings to native Python.
     """
     # PyFoam boolean
     if isinstance(val, BoolProxy):
@@ -115,6 +116,15 @@ def unwrap_special_type(val):
     if isinstance(val, Vector):
         return list(val.vals)
 
+    # PyFoam Field (e.g. internalField uniform 0.01;)
+    if isinstance(val, Field):
+        try:
+            # Fields stringify nicely in OpenFOAM syntax
+            return str(val).strip()
+        except Exception:
+            # fallback: treat as list if something weird happens
+            return list(val)
+
     # Stringified vector: e.g. "(5 0 0)"
     if isinstance(val, str):
         match = re.match(r'^\(\s*([^\)]+)\s*\)$', val)
@@ -123,7 +133,7 @@ def unwrap_special_type(val):
             try:
                 return [float(p) for p in parts]
             except ValueError:
-                pass  # Not a numeric vector — skip
+                pass  # Not a numeric vector — keep as-is
 
     return val
 
@@ -407,7 +417,14 @@ class DictionaryReverser:
 
         # Clean it from PyFoam wrappers like BoolProxy, Vector, etc.
         self.dict_data = unwrap_booleans_and_vectors(raw_data)
-        self.dict_data = _normalize_parsed_dict(self.dict_data)
+       # self.dict_data = _normalize_parsed_dict(self.dict_data)
+        unwrapped = unwrap_booleans_and_vectors(raw_data)
+
+        # ⬇️ Only normalize for dicts that benefit from tokenization
+        if self.dict_name == "changeDictionaryDict":
+            self.dict_data = unwrapped
+        else:
+            self.dict_data = _normalize_parsed_dict(unwrapped)
 
         # Normalize boundary from alternating [name, dict, name, dict, ...]
         if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
@@ -936,6 +953,76 @@ class DictionaryReverser:
 
         return result
 
+    def convert_changeDictionary_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert parsed changeDictionary file (boundary condition definitions) into v2 JSON.
+        Returns a full structured node (Execution, type, version).
+        """
+        fields_out = {}
+
+        def clean_value(val):
+            val = unwrap_booleans_and_vectors(val)
+
+            # Keep numbers & bools native
+            if isinstance(val, (int, float, bool)):
+                return val
+
+            # Handle strings
+            if isinstance(val, str):
+                s = val.strip()
+
+                # Normalize multiple spaces (important for "uniform  6.3e-5")
+                s = " ".join(s.split())
+
+                # Handle "uniform ..." and "nonuniform ..."
+                if s.startswith("uniform") or s.startswith("nonuniform"):
+                    parts = s.split(maxsplit=1)
+
+                    if len(parts) == 2:
+                        keyword, raw_val = parts
+                        try:
+                            return [keyword, float(raw_val)]  # convert numeric
+                        except ValueError:
+                            return [keyword, raw_val]  # keep as string
+                    else:
+                        return [s]  # only keyword present
+
+                return s  # plain string
+
+            return str(val).strip()
+
+        for field_name, field_data in parsed_dict.items():
+            if field_name in ("FoamFile",):
+                continue
+
+            field_entry = {}
+
+            if "internalField" in field_data:
+                field_entry["internalField"] = clean_value(field_data["internalField"])
+
+            if "boundaryField" in field_data:
+                bfields = {}
+                for patch_name, patch_data in field_data["boundaryField"].items():
+                    patch_entry = {}
+                    for key, val in patch_data.items():
+                        patch_entry[key] = clean_value(val)
+                    bfields[patch_name] = patch_entry
+                field_entry["boundaryField"] = bfields
+
+            fields_out[field_name] = field_entry
+
+        return {
+            "defineNewBoundaryConditions": {
+                "Execution": {
+                    "input_parameters": {
+                        "fields": fields_out  # ✅ wrapped here
+                    }
+                },
+                "type": "openFOAM.system.ChangeDictionary",
+                "version": 2,
+            }
+        }
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -956,6 +1043,14 @@ class DictionaryReverser:
         if dict_name == "fvSolution":
             v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
+
+        if dict_name == "changeDictionaryDict":
+            v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
+            return {
+                "fields": copy.deepcopy(
+                    v2_structured["defineNewBoundaryConditions"]["Execution"]["input_parameters"]["fields"]
+                )
+            }
 
         return None
 
