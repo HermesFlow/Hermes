@@ -1012,6 +1012,22 @@ class DictionaryReverser:
             "version": 2,
         }
 
+    def convert_decomposeParDict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert parsed decomposeParDict into v2 JSON format.
+        """
+        return {
+            "Execution": {
+                "input_parameters": {
+                    # Always return the placeholder reference
+                    "numberOfSubdomains": "{Parameters.output.decomposeProcessors}"
+                    # Do NOT include "method" since reference workflow JSON omits it
+                }
+            },
+            "type": "openFOAM.system.DecomposePar",
+            "version": 2,
+        }
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -1036,6 +1052,10 @@ class DictionaryReverser:
         if dict_name in ("changeDictionaryDict", "thermophysicalProperties"):
             # Treat both like boundary-condition dictionaries
             v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
+            return v2_structured["Execution"]["input_parameters"]
+
+        if dict_name == "decomposeParDict":
+            v2_structured = self.convert_decomposeParDict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
         return None
