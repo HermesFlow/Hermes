@@ -4,16 +4,8 @@ import pytest
 from hermes.workflow.reverseOpenFOAM import DictionaryReverser, FoamJSONEncoder
 
 """
- (
-            "LargeRoom_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/changeDictionaryDict",
-        ),
-(
-            "Flow_2",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
-            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/changeDictionaryDict",
-        ),
+ 
+
 """
 
 @pytest.mark.parametrize(
@@ -23,6 +15,16 @@ from hermes.workflow.reverseOpenFOAM import DictionaryReverser, FoamJSONEncoder
             "pipe_2",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/pipe_2.json",
             "/Users/sapiriscfdc/Costumers/Hermes/pipe/caseConfiguration/system/changeDictionaryDict",
+        ),
+        (
+            "LargeRoom_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/LargeRoom_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/LargeRoomSimpleFoam/caseConfiguration/system/changeDictionaryDict",
+        ),
+        (
+            "Flow_2",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/Flow_2.json",
+            "/Users/sapiriscfdc/Costumers/Hermes/EWTModel/caseConfiguration/system/changeDictionaryDict",
         ),
 
 

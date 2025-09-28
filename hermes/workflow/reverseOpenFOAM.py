@@ -956,8 +956,9 @@ class DictionaryReverser:
     def convert_changeDictionary_to_v2(self, parsed_dict: dict) -> dict:
         """
         Convert parsed changeDictionary file (boundary condition definitions) into v2 JSON.
-        Returns a full structured node (Execution, type, version).
+        Returns a full structured node wrapped in "defineNewBoundaryConditions".
         """
+
         fields_out = {}
 
         def clean_value(val):
@@ -967,29 +968,18 @@ class DictionaryReverser:
             if isinstance(val, (int, float, bool)):
                 return val
 
-            # Handle strings
+            # If it's a list that looks like ["uniform", "0.1"], join it back
+            if isinstance(val, list) and all(isinstance(v, str) for v in val):
+                return " ".join(val)
+
+            # Preserve "uniform ..." and "nonuniform ..." as single strings
             if isinstance(val, str):
                 s = val.strip()
-
-                # Normalize multiple spaces (important for "uniform  6.3e-5")
-                s = " ".join(s.split())
-
-                # Handle "uniform ..." and "nonuniform ..."
                 if s.startswith("uniform") or s.startswith("nonuniform"):
-                    parts = s.split(maxsplit=1)
+                    return s
+                return s
 
-                    if len(parts) == 2:
-                        keyword, raw_val = parts
-                        try:
-                            return [keyword, float(raw_val)]  # convert numeric
-                        except ValueError:
-                            return [keyword, raw_val]  # keep as string
-                    else:
-                        return [s]  # only keyword present
-
-                return s  # plain string
-
-            return str(val).strip()
+            return val
 
         for field_name, field_data in parsed_dict.items():
             if field_name in ("FoamFile",):
@@ -1011,16 +1001,15 @@ class DictionaryReverser:
 
             fields_out[field_name] = field_entry
 
+        # 🔎 DEBUG PRINT
+        import pprint
+        print("\n[DEBUG] fields_out:")
+        pprint.pprint(fields_out, width=120)
+
         return {
-            "defineNewBoundaryConditions": {
-                "Execution": {
-                    "input_parameters": {
-                        "fields": fields_out  # ✅ wrapped here
-                    }
-                },
-                "type": "openFOAM.system.ChangeDictionary",
-                "version": 2,
-            }
+            "Execution": {"input_parameters": {"fields": fields_out}},
+            "type": "openFOAM.system.ChangeDictionary",
+            "version": 2,
         }
 
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
@@ -1044,13 +1033,10 @@ class DictionaryReverser:
             v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
-        if dict_name == "changeDictionaryDict":
+        if dict_name in ("changeDictionaryDict", "thermophysicalProperties"):
+            # Treat both like boundary-condition dictionaries
             v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
-            return {
-                "fields": copy.deepcopy(
-                    v2_structured["defineNewBoundaryConditions"]["Execution"]["input_parameters"]["fields"]
-                )
-            }
+            return v2_structured["Execution"]["input_parameters"]
 
         return None
 
