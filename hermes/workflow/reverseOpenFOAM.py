@@ -1028,6 +1028,28 @@ class DictionaryReverser:
             "version": 2,
         }
 
+    def convert_surfaceFeatures_to_v2(self, leaf: dict) -> dict:
+        subset = leaf.get("subsetFeatures", {})
+
+        def to_bool(val: str) -> bool:
+            val = str(val).strip().lower()
+            return val in ("no", "false")  # treat "no" as True, "yes" as False
+
+        return {
+            "Execution": {
+                "input_parameters": {
+                    "OFversion": "{Parameters.output.OFversion}",
+                    "geometryData": "{snappyHexMesh.input_parameters.geometry.objects}",
+                    "includeAngle": int(leaf.get("includedAngle", 150)),
+                    "nonManifoldEdges": to_bool(subset.get("nonManifoldEdges", "no")),
+                    "openEdges": to_bool(subset.get("openEdges", "no")),
+                },
+                "type": "openFOAM.systemExecuters.surfaceFeaturesDict",
+            },
+            "type": "openFOAM.system.SurfaceFeatures",
+            "version": 2,
+        }
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -1057,6 +1079,9 @@ class DictionaryReverser:
         if dict_name == "decomposeParDict":
             v2_structured = self.convert_decomposeParDict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
+
+        if dict_name == "surfaceFeaturesDict":
+            return self.convert_surfaceFeatures_to_v2(final_leaf)
 
         return None
 
@@ -1111,10 +1136,16 @@ class DictionaryReverser:
 
         # Apply v2 conversion if available
         v2_structured = self.apply_v2_conversion(self.dict_name, final_leaf)
+
         if v2_structured is not None:
-            final_leaf.clear()
-            final_leaf.update(copy.deepcopy(v2_structured))
-            node["version"] = 2
+            if self.dict_name == "surfaceFeaturesDict":
+                # For surfaceFeaturesDict, use the full node (not just input_parameters)
+                node = v2_structured
+            else:
+                # For other dictionaries, keep the existing Execution structure
+                final_leaf.clear()
+                final_leaf.update(copy.deepcopy(v2_structured))
+                node["version"] = 2
 
         return node
 
