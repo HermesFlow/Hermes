@@ -1036,6 +1036,171 @@ class DictionaryReverser:
             "version": 2,
         }
 
+    def convert_g_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert 'g' file to Hermes v2 format.
+
+        Example OpenFOAM:
+        dimensions      [0 1 -2 0 0 0 0];
+        value           (0 0 -9.81);
+
+        Hermes v2 input_parameters:
+        {
+            "x": 0,
+            "y": 0,
+            "z": -9.81
+        }
+        """
+        val = parsed_dict.get("value", [0, 0, -9.81])
+        if isinstance(val, str):
+            # Convert string "(0 0 -9.81)" to list
+            val = val.strip("()").split()
+            val = [float(v) for v in val]
+
+        return {
+            "x": val[0] if len(val) > 0 else 0,
+            "y": val[1] if len(val) > 1 else 0,
+            "z": val[2] if len(val) > 2 else -9.81
+        }
+
+    def convert_momentum_transport_to_v2(self, parsed_dict: dict, as_node: bool = False) -> dict:
+        """
+        Convert RASProperties/turbulenceProperties dictionary into Hermes v2 momentumTransport node.
+        Set `as_node=True` to return the full Hermes node, otherwise returns just input_parameters.
+        """
+        input_parameters = {
+            "simulationType": parsed_dict.get("simulationType", "RAS"),
+            "Model": None,
+            "turbulence": False,
+            "printCoeffs": False
+        }
+
+        sim_type = input_parameters["simulationType"]
+        sim_block = parsed_dict.get(sim_type, {})
+
+        if isinstance(sim_block, dict):
+            input_parameters["Model"] = sim_block.get(f"{sim_type}Model", "")
+            input_parameters["turbulence"] = str(sim_block.get("turbulence", "off")).strip().lower() == "on"
+            input_parameters["printCoeffs"] = str(sim_block.get("printCoeffs", "off")).strip().lower() == "on"
+
+        if as_node:
+            return {
+                "Execution": {
+                    "input_parameters": input_parameters
+                },
+                "type": "openFOAM.constant.momentumTransport",
+                "version": 2
+            }
+
+        return input_parameters
+
+    def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert transportProperties dictionary into Hermes v2 physicalProperties node.
+        """
+        result = {
+            "transportModel": parsed_dict.get("transportModel", "Newtonian"),
+        }
+
+        if "nu" in parsed_dict:
+            result["nu"] = parsed_dict["nu"]
+
+        if "rhoInf" in parsed_dict:
+            result["rhoInf"] = parsed_dict["rhoInf"]
+
+        # Catch any other parameters
+        parameters = {}
+        for key, value in parsed_dict.items():
+            if key in ("FoamFile", "transportModel", "nu", "rhoInf"):
+                continue
+
+            if isinstance(value, list) and len(value) == 2:
+                # Assume structure: [dimensions, value]
+                parameters[key] = {
+                    "dimensions": value[0],
+                    "value": value[1]
+                }
+            elif isinstance(value, dict) and "dimensions" in value and "value" in value:
+                parameters[key] = {
+                    "dimensions": value["dimensions"],
+                    "value": value["value"]
+                }
+
+        if parameters:
+            result["parameters"] = parameters
+
+        return result
+
+    def convert_transport_properties_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert OpenFOAM transportProperties into Hermes v2 JSON format.
+
+        Supports: transportModel, nu, rhoInf (optional), and additional parameters.
+        """
+        input_parameters = {}
+
+        # Required fields
+        input_parameters["transportModel"] = parsed_dict.get("transportModel")
+        input_parameters["nu"] = parsed_dict.get("nu")
+
+        # Optional rhoInf
+        if "rhoInf" in parsed_dict:
+            input_parameters["rhoInf"] = parsed_dict["rhoInf"]
+
+        # Collect any additional parameters (e.g., for non-Newtonian models)
+        reserved = {"transportModel", "nu", "rhoInf", "FoamFile"}
+        extras = {}
+        for key, value in parsed_dict.items():
+            if key in reserved:
+                continue
+            extras[key] = {
+                "dimensions": value.get("dimensions", "[0 0 0 0 0 0 0]") if isinstance(value,
+                                                                                       dict) else "[0 0 0 0 0 0 0]",
+                "value": value.get("value", value) if isinstance(value, dict) else value
+            }
+
+        if extras:
+            input_parameters["parameters"] = extras
+
+        return {
+            "Execution": {
+                "input_parameters": input_parameters
+            },
+            "type": "openFOAM.constant.PhysicalProperties",
+            "version": 2
+        }
+
+    def convert_turbulence_properties_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert OpenFOAM turbulenceProperties (RASProperties) dictionary to Hermes v2 format.
+        """
+        input_parameters = {}
+
+        # Get simulationType
+        simulation_type = parsed_dict.get("simulationType", "laminar")
+        input_parameters["simulationType"] = simulation_type
+
+        # If non-laminar, expect a nested block: RAS or LES, depending on simulationType
+        if simulation_type.lower() != "laminar":
+            model_block = parsed_dict.get(simulation_type, {})
+            input_parameters["Model"] = model_block.get(f"{simulation_type}Model", "")
+
+            # turbulence and printCoeffs
+            input_parameters["turbulence"] = (
+                    str(model_block.get("turbulence", "off")).strip().lower() == "on"
+            )
+            input_parameters["printCoeffs"] = (
+                    str(model_block.get("printCoeffs", "off")).strip().lower() == "on"
+            )
+
+        return {
+            "Execution": {
+                "input_parameters": input_parameters
+            },
+            "type": "openFOAM.constant.momentumTransport",  # stays as this for now
+            "version": 2
+        }
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -1062,12 +1227,25 @@ class DictionaryReverser:
             v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
+        if dict_name == "transportProperties":
+            v2_structured = self.convert_transport_properties_to_v2(final_leaf)
+            return v2_structured["Execution"]["input_parameters"]
+
         if dict_name == "decomposeParDict":
             v2_structured = self.convert_decomposeParDict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
         if dict_name == "surfaceFeaturesDict":
             return self.convert_surfaceFeatures_to_v2(final_leaf)
+
+        if dict_name == "g":
+            return self.convert_g_dict_to_v2(final_leaf)
+
+        if dict_name == "RASProperties":
+            return self.convert_momentum_transport_to_v2(final_leaf)
+
+        if dict_name == "transportProperties":
+            return self.convert_physical_properties_to_v2(final_leaf)
 
         return None
 

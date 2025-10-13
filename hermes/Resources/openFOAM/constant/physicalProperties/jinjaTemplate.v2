@@ -1,0 +1,36 @@
+def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
+    """
+    Convert transportProperties dictionary into Hermes v2 physicalProperties node.
+    """
+    result = {
+        "transportModel": parsed_dict.get("transportModel", "Newtonian"),
+    }
+
+    if "nu" in parsed_dict:
+        result["nu"] = parsed_dict["nu"]
+
+    if "rhoInf" in parsed_dict:
+        result["rhoInf"] = parsed_dict["rhoInf"]
+
+    # Catch any other parameters
+    parameters = {}
+    for key, value in parsed_dict.items():
+        if key in ("FoamFile", "transportModel", "nu", "rhoInf"):
+            continue
+
+        if isinstance(value, list) and len(value) == 2:
+            # Assume structure: [dimensions, value]
+            parameters[key] = {
+                "dimensions": value[0],
+                "value": value[1]
+            }
+        elif isinstance(value, dict) and "dimensions" in value and "value" in value:
+            parameters[key] = {
+                "dimensions": value["dimensions"],
+                "value": value["value"]
+            }
+
+    if parameters:
+        result["parameters"] = parameters
+
+    return result

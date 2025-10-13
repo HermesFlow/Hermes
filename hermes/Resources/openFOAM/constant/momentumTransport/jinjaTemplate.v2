@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      RASProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType {{ input_parameters.simulationType }};
+
+{% if input_parameters.simulationType != 'laminar' %}
+{{ input_parameters.simulationType }}
+{
+    {{ input_parameters.simulationType }}Model     {{ input_parameters.Model }};
+
+    {% if input_parameters.turbulence %}turbulence   on;
+    {% else %}turbulence   off;
+    {% endif %}
+
+    {% if input_parameters.printCoeffs %}printCoeffs on;
+    {% else %}printCoeffs off;
+    {% endif %}
+}
+{% endif %}
+
+// ************************************************************************* //
