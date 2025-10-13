@@ -1,0 +1,175 @@
+import argparse
+import json
+from pathlib import Path
+from .reverseOpenFOAM import DictionaryReverser
+
+class HermesEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Handle OpenFOAM-like classes (e.g., Dimension, Vector, etc.)
+        if hasattr(obj, '__dict__'):
+            return obj.__dict__
+        if hasattr(obj, '__str__'):
+            return str(obj)
+        return super().default(obj)
+
+# Ordered nodes for Hermes workflow (preferred display order)
+DEFAULT_NODE_ORDER = [
+    "Parameters",
+    "blockMesh",
+    "snappyHexMesh",
+    "surfaceFeatures",
+    "decomposePar",
+    "controlDict",
+    "fvSchemes",
+    "fvSolution",
+    "physicalProperties",
+    "momentumTransport",
+    "defineNewBoundaryConditions",
+    "buildAllRun",
+    "fileWriter"
+]
+
+# Map from OpenFOAM dict filenames to Hermes node names
+DICT_TO_NODE_NAME = {
+    "blockMeshDict": "blockMesh",
+    "snappyHexMeshDict": "snappyHexMesh",
+    "surfaceFeaturesDict": "surfaceFeatures",
+    "decomposeParDict": "decomposePar",
+    "controlDict": "controlDict",
+    "fvSchemes": "fvSchemes",
+    "fvSolution": "fvSolution",
+    "changeDictionaryDict": "defineNewBoundaryConditions",
+    "thermophysicalProperties": "physicalProperties",
+    "momentumTransport": "momentumTransport",
+    "g": "g"
+}
+
+
+def find_dicts(case_path: Path) -> dict[str, Path]:
+    """
+    Find dictionary files in system/, constant/, and 0/
+    """
+    found = {}
+    for subdir in ["system", "constant", "0"]:
+        sub_path = case_path / subdir
+        if not sub_path.exists():
+            continue
+        for file in sub_path.iterdir():
+            if file.is_file():
+                found[file.name] = file
+    return found
+
+
+def build_workflow(case_path: Path, template_paths=None) -> dict:
+    """
+    Build Hermes-style workflow JSON by reversing all OpenFOAM dictionaries.
+    """
+    all_dicts = find_dicts(case_path)
+    print(f"🔍 Found {len(all_dicts)} dictionary files.")
+    nodes = {}
+
+    for filename, filepath in all_dicts.items():
+        try:
+            print(f"🔄 Reversing: {filename}")
+            reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
+            reverser.parse()
+            node = reverser.build_node()
+            mapped_name = DICT_TO_NODE_NAME.get(filename, Path(filename).stem)
+            if mapped_name in nodes:
+                print(f"⚠️ Warning: Overwriting node '{mapped_name}' from file {filename}")
+            nodes[mapped_name] = node
+            print(f"✅ Success: {filename} → node: {mapped_name}")
+        except Exception as e:
+            print(f"❌ Error reversing {filename}: {e}")
+
+    # Inject Hermes-specific nodes
+    nodes["Parameters"] = {
+        "Execution": {
+            "input_parameters": {
+                "OFversion": "of10",
+                "targetDirectory": "{#moduleName}",
+                "objectFile": "EWTModel.obj",
+                "decomposeProcessors": 16
+            }
+        },
+        "type": "general.Parameters"
+    }
+
+    nodes["buildAllRun"] = {
+        "Execution": {
+            "input_parameters": {
+                "casePath": "{Parameters.output.targetDirectory}",
+                "caseExecution": {
+                    "parallelCase": True,
+                    "slurm": False,
+                    "getNumberOfSubdomains": 10,
+                    "runFile": []
+                },
+                "parallelCase": True,
+                "runFile": []
+            },
+            "requires": "createEmptyCase"
+        },
+        "type": "openFOAM.BuildAllrun"
+    }
+
+    nodes["fileWriter"] = {
+        "Execution": {
+            "input_parameters": {
+                "directoryPath": ".",
+                "Files": {},
+                "casePath": "{Parameters.output.targetDirectory}"
+            },
+            "requires": "createEmptyCase"
+        },
+        "type": "general.FilesWriter"
+    }
+
+    # Finalize node list
+    ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]
+    remaining_nodes = [n for n in nodes if n not in ordered_nodes]
+    node_list = ordered_nodes + remaining_nodes
+
+    # Construct workflow
+    workflow = {
+        "workflow": {
+            "root": None,
+            "solver": "simpleFoam",
+            "SolvedFields": "p U k epsilon nut",
+            "AuxFields": "",
+            "Templates": [],
+            "nodeList": node_list,
+            "nodes": nodes
+        }
+    }
+
+    return workflow
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Reverse OpenFOAM case folder to Hermes workflow JSON")
+    parser.add_argument("case_path", type=str, help="Path to the OpenFOAM case folder")
+    parser.add_argument("--output", "-o", type=str, help="Optional path to save JSON")
+    parser.add_argument("--template-paths", "-t", nargs="*", help="Optional template paths")
+    parser.add_argument("--save", action="store_true", help="Save the result to file instead of printing")
+
+    args = parser.parse_args()
+    case_path = Path(args.case_path)
+
+    if not case_path.exists():
+        print(f"Error: Path does not exist: {case_path}")
+        return
+
+    workflow = build_workflow(case_path, template_paths=args.template_paths)
+
+    if args.save and args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(workflow, f, indent=4, ensure_ascii=False, cls=HermesEncoder)
+        print(f"Saved Hermes workflow to: {args.output}")
+    else:
+        print(json.dumps(workflow, indent=4, ensure_ascii=False, cls=HermesEncoder))
+
+
+
+if __name__ == "__main__":
+    main()

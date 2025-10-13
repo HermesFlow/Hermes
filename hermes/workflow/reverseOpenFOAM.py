@@ -426,37 +426,37 @@ class DictionaryReverser:
         else:
             self.dict_data = _normalize_parsed_dict(unwrapped)
 
-        # Normalize boundary from alternating [name, dict, name, dict, ...]
-        if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
-            boundary_list = self.dict_data["boundary"]
-            normalized = []
-            i = 0
-            while i < len(boundary_list) - 1:
-                name = boundary_list[i]
-                body = boundary_list[i + 1]
-                if isinstance(name, str) and isinstance(body, dict):
-                    entry = {"name": name}
-                    entry.update(body)
-                    normalized.append(entry)
-                i += 2
-            self.dict_data["boundary"] = normalized
+            # Normalize boundary from alternating [name, dict, name, dict, ...]
+            if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
+                boundary_list = self.dict_data["boundary"]
+                normalized = []
+                i = 0
+                while i < len(boundary_list) - 1:
+                    name = boundary_list[i]
+                    body = boundary_list[i + 1]
+                    if isinstance(name, str) and isinstance(body, dict):
+                        entry = {"name": name}
+                        entry.update(body)
+                        normalized.append(entry)
+                    i += 2
+                self.dict_data["boundary"] = normalized
 
-        #Object name (dict_name)
-        header_obj = str(self.ppf.header.get("object", "")).strip()
-        stem = p.stem.strip()
-        obj = header_obj or stem
-        if not obj:
-            raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
-        self.dict_name = obj
+            # Object name (dict_name)
+            header_obj = str(self.ppf.header.get("object", "")).strip()
+            stem = p.stem.strip()
+            obj = header_obj or stem
+            if not obj:
+                raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
+            self.dict_name = obj
 
-        # Subdomain: prefer header 'location' (/0 or '/system' or '/constant'), else parent dir name
-        header_loc = str(self.ppf.header.get("location", "")).strip()  # e.g. "/system", "/constant", "/0"
-        subdomain = header_loc.strip().strip("/").split("/")[-1] if header_loc else p.parent.name
-        self.subdomain = subdomain or "system"
+            # Subdomain: prefer header 'location' (/0 or '/system' or '/constant'), else parent dir name
+            header_loc = str(self.ppf.header.get("location", "")).strip()  # e.g. "/system", "/constant", "/0"
+            subdomain = header_loc.strip().strip("/").split("/")[-1] if header_loc else p.parent.name
+            self.subdomain = subdomain or "system"
 
-        self.domain = "openFOAM"
-        pascal = self.dict_name[0].upper() + self.dict_name[1:] # Check if this is matches template file
-        self.node_type = f"{self.domain}.{self.subdomain}.{pascal}"
+            self.domain = "openFOAM"
+            pascal = self.dict_name[0].upper() + self.dict_name[1:]  # Check if this is matches template file
+            self.node_type = f"{self.domain}.{self.subdomain}.{pascal}"
 
         self.log.debug(
             f"Detected node_type={self.node_type} "
@@ -467,20 +467,6 @@ class DictionaryReverser:
         print("raw_data['boundary'] =", raw_data.get("boundary"))
         print("dict_data['boundary'] =", self.dict_data.get("boundary"))
         print("-------------------\n")
-
-    def load_template(self) -> Dict[str, Any]:
-        """
-        Look up and return a fresh copy of the JSON template corresponding to this dictionary type, based on its node_type.
-        """
-        if not self.node_type:
-            raise RuntimeError("node_type not set; call parse() first")
-        try:
-            # ask templateCenter for the template directly
-            return copy.deepcopy(self._template_center[self.node_type])
-        except FileNotFoundError as e:
-            raise KeyError(f"No template found for node_type '{self.node_type}'") from e
-
-
 
     # Locate the converter class for the dictionary
     def locate_converter_class(self):
