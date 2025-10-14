@@ -314,7 +314,7 @@ def handle_add_layers_controls(
     geometry.setdefault("regions", {})
     ip["geometry"] = geometry
 
-# Helpers for blockMeshDict normalization
+
 
 
 
@@ -405,6 +405,23 @@ class DictionaryReverser:
         self._template_center = templateCenter(template_paths)
         self._converter_cache: Dict[str, Tuple[Optional[type], Optional[Exception]]] = {}
 
+    def _normalize_booleans(self, data):
+        """
+        Recursively converts string booleans ("true", "false") into actual Python bools (True, False).
+        """
+        if isinstance(data, dict):
+            return {k: self._normalize_booleans(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [self._normalize_booleans(v) for v in data]
+        elif isinstance(data, str):
+            if data.lower() == "true":
+                return True
+            elif data.lower() == "false":
+                return False
+            return data
+        else:
+            return data
+
     def parse(self) -> None:
         """
         Read the OpenFOAM dictionary with PyFoam, capture content, and infer
@@ -470,6 +487,8 @@ class DictionaryReverser:
         print("dict_data['boundary'] =", self.dict_data.get("boundary"))
         print("-------------------\n")
 
+
+
     # Locate the converter class for the dictionary
     def locate_converter_class(self):
         """
@@ -488,7 +507,9 @@ class DictionaryReverser:
         """
         Convert OpenFOAM snappyHexMeshDict (parsed) into structured version 2 input JSON.
         """
+        raw_dict = self._normalize_booleans(raw_dict)
         input_parameters = copy.deepcopy(raw_dict)
+
         # ----------------------------
         # 1. Extract modules
         # ----------------------------
@@ -1231,8 +1252,7 @@ class DictionaryReverser:
         Returns a v2-structured node or None if no conversion is defined.
         """
         if dict_name == "snappyHexMeshDict":
-            v2_structured = self.convert_snappy_dict_to_v2(final_leaf)
-            return convert_bools_to_lowercase(v2_structured)  # normalize booleans
+            return self.convert_snappy_dict_to_v2(final_leaf)
 
         if dict_name == "blockMeshDict":
             v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
