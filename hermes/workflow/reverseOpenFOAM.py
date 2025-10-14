@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from PyFoam.RunDictionary.ParsedParameterFile import ParsedParameterFile
 from PyFoam.RunDictionary.ParsedParameterFile import Field
-from PyFoam.Basics.DataStructures import Vector, BoolProxy
+from PyFoam.Basics.DataStructures import Vector, BoolProxy, Dimension
 from ..Resources.reTemplateCenter import templateCenter
 from ..utils.logging import get_classMethod_logger
 from pathlib import Path
@@ -328,6 +328,8 @@ class FoamJSONEncoder(json.JSONEncoder):
             return bool(o)
         elif isinstance(o, Vector):
             return list(o.vals)
+        elif isinstance(o, Dimension):
+            return str(o)
         return super().default(o)
 
 
@@ -1096,34 +1098,75 @@ class DictionaryReverser:
 
     def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
         """
-        Convert transportProperties dictionary into Hermes v2 physicalProperties node.
+        Convert physicalProperties (or transportProperties) dictionary into Hermes v2 physicalProperties node.
+        Supports both simple and extended (printName) parameter styles.
         """
         result = {
             "transportModel": parsed_dict.get("transportModel", "Newtonian"),
         }
 
+        # Handle nu as top-level if present
         if "nu" in parsed_dict:
-            result["nu"] = parsed_dict["nu"]
+            val = parsed_dict["nu"]
+            if isinstance(val, list):
+                # e.g. [dimension, value] or [printName, dimension, value]
+                if len(val) == 2:
+                    result["nu"] = val[1]
+                elif len(val) == 3:
+                    result["nu"] = val[2]
+                else:
+                    result["nu"] = val
+            else:
+                result["nu"] = val
 
+        # Optional rhoInf
         if "rhoInf" in parsed_dict:
             result["rhoInf"] = parsed_dict["rhoInf"]
 
-        # Catch any other parameters
         parameters = {}
+        reserved = {"FoamFile", "transportModel", "nu", "rhoInf"}
+
         for key, value in parsed_dict.items():
-            if key in ("FoamFile", "transportModel", "nu", "rhoInf"):
+            if key in reserved:
                 continue
 
-            if isinstance(value, list) and len(value) == 2:
-                # Assume structure: [dimensions, value]
+            # Case 1: list form (common in parsed OpenFOAM)
+            if isinstance(value, list):
+                if len(value) == 2:
+                    # [dimensions, value]
+                    dimensions, val = value
+                    parameters[key] = {
+                        "dimensions": str(dimensions),
+                        "value": [key, str(dimensions), val]
+                    }
+                elif len(value) == 3:
+                    # [printName, dimensions, value]
+                    print_name, dimensions, val = value
+                    parameters[key] = {
+                        "dimensions": str(dimensions),
+                        "value": [print_name, str(dimensions), val]
+                    }
+                else:
+                    # fallback: assume last entry is numeric
+                    parameters[key] = {
+                        "dimensions": "[0 0 0 0 0 0 0]",
+                        "value": [key, "[0 0 0 0 0 0 0]", value[-1] if value else 0]
+                    }
+
+            # Case 2: dict form
+            elif isinstance(value, dict):
+                dims = str(value.get("dimensions", "[0 0 0 0 0 0 0]"))
+                val = value.get("value")
                 parameters[key] = {
-                    "dimensions": value[0],
-                    "value": value[1]
+                    "dimensions": dims,
+                    "value": [key, dims, val]
                 }
-            elif isinstance(value, dict) and "dimensions" in value and "value" in value:
+
+            # Case 3: simple scalar fallback
+            else:
                 parameters[key] = {
-                    "dimensions": value["dimensions"],
-                    "value": value["value"]
+                    "dimensions": "[0 0 0 0 0 0 0]",
+                    "value": [key, "[0 0 0 0 0 0 0]", value]
                 }
 
         if parameters:
@@ -1133,31 +1176,37 @@ class DictionaryReverser:
 
     def convert_transport_properties_to_v2(self, parsed_dict: dict) -> dict:
         """
-        Convert OpenFOAM transportProperties into Hermes v2 JSON format.
-
-        Supports: transportModel, nu, rhoInf (optional), and additional parameters.
+        Convert OpenFOAM transportProperties dictionary into Hermes v2 JSON format.
+        Handles: transportModel, nu, optional rhoInf, and optional extra parameters.
         """
         input_parameters = {}
 
         # Required fields
-        input_parameters["transportModel"] = parsed_dict.get("transportModel")
+        input_parameters["transportModel"] = parsed_dict.get("transportModel", "Newtonian")
         input_parameters["nu"] = parsed_dict.get("nu")
 
         # Optional rhoInf
         if "rhoInf" in parsed_dict:
             input_parameters["rhoInf"] = parsed_dict["rhoInf"]
 
-        # Collect any additional parameters (e.g., for non-Newtonian models)
+        # Reserved keys not treated as additional parameters
         reserved = {"transportModel", "nu", "rhoInf", "FoamFile"}
         extras = {}
+
         for key, value in parsed_dict.items():
             if key in reserved:
                 continue
-            extras[key] = {
-                "dimensions": value.get("dimensions", "[0 0 0 0 0 0 0]") if isinstance(value,
-                                                                                       dict) else "[0 0 0 0 0 0 0]",
-                "value": value.get("value", value) if isinstance(value, dict) else value
-            }
+
+            if isinstance(value, dict):
+                extras[key] = {
+                    "dimensions": value.get("dimensions", "[0 0 0 0 0 0 0]"),
+                    "value": value.get("value")
+                }
+            else:
+                extras[key] = {
+                    "dimensions": "[0 0 0 0 0 0 0]",
+                    "value": value
+                }
 
         if extras:
             input_parameters["parameters"] = extras
@@ -1166,40 +1215,15 @@ class DictionaryReverser:
             "Execution": {
                 "input_parameters": input_parameters
             },
-            "type": "openFOAM.constant.PhysicalProperties",
+            "type": "openFOAM.constant.transportProperties",
             "version": 2
         }
 
     def convert_turbulence_properties_to_v2(self, parsed_dict: dict) -> dict:
         """
-        Convert OpenFOAM turbulenceProperties (RASProperties) dictionary to Hermes v2 format.
+        Alias: turbulenceProperties is the same as momentumTransport (RASProperties).
         """
-        input_parameters = {}
-
-        # Get simulationType
-        simulation_type = parsed_dict.get("simulationType", "laminar")
-        input_parameters["simulationType"] = simulation_type
-
-        # If non-laminar, expect a nested block: RAS or LES, depending on simulationType
-        if simulation_type.lower() != "laminar":
-            model_block = parsed_dict.get(simulation_type, {})
-            input_parameters["Model"] = model_block.get(f"{simulation_type}Model", "")
-
-            # turbulence and printCoeffs
-            input_parameters["turbulence"] = (
-                    str(model_block.get("turbulence", "off")).strip().lower() == "on"
-            )
-            input_parameters["printCoeffs"] = (
-                    str(model_block.get("printCoeffs", "off")).strip().lower() == "on"
-            )
-
-        return {
-            "Execution": {
-                "input_parameters": input_parameters
-            },
-            "type": "openFOAM.constant.momentumTransport",  # stays as this for now
-            "version": 2
-        }
+        return self.convert_momentum_transport_to_v2(parsed_dict, as_node=True)
 
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
@@ -1241,10 +1265,10 @@ class DictionaryReverser:
         if dict_name == "g":
             return self.convert_g_dict_to_v2(final_leaf)
 
-        if dict_name == "RASProperties":
+        if dict_name in ("RASProperties", "turbulenceProperties"):
             return self.convert_momentum_transport_to_v2(final_leaf)
 
-        if dict_name == "transportProperties":
+        if dict_name == "physicalProperties":
             return self.convert_physical_properties_to_v2(final_leaf)
 
         return None

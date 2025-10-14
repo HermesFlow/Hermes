@@ -69,16 +69,35 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     nodes = {}
 
     for filename, filepath in all_dicts.items():
+        dict_name = Path(filename).stem
+
         try:
             print(f"🔄 Reversing: {filename}")
             reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
-            reverser.parse()
-            node = reverser.build_node()
-            mapped_name = DICT_TO_NODE_NAME.get(filename, Path(filename).stem)
-            if mapped_name in nodes:
-                print(f"⚠️ Warning: Overwriting node '{mapped_name}' from file {filename}")
-            nodes[mapped_name] = node
-            print(f"✅ Success: {filename} → node: {mapped_name}")
+            parsed = reverser.parse()
+
+            # Try a custom converter if one exists on the class
+            converter_fn_name = f"convert_{dict_name}_to_v2"
+            if hasattr(reverser, converter_fn_name):
+                converter_fn = getattr(reverser, converter_fn_name)
+                input_params = converter_fn(parsed)
+                print(f"✅ Used custom converter: {converter_fn_name}")
+            else:
+                input_params = reverser.convert_generic_dict_to_v2(parsed)
+                print(f"⚠️ Using generic converter for: {dict_name}")
+
+            node = {
+                "Execution": {
+                    "input_parameters": input_params
+                },
+                "type": f"openFOAM.constant.{dict_name}",
+                "version": 2
+            }
+
+            if dict_name in nodes:
+                print(f"⚠️ Warning: Overwriting node '{dict_name}'")
+            nodes[dict_name] = node
+
         except Exception as e:
             print(f"❌ Error reversing {filename}: {e}")
 
