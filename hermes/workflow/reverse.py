@@ -15,10 +15,10 @@ class HermesEncoder(json.JSONEncoder):
 # Ordered nodes for Hermes workflow (preferred display order)
 DEFAULT_NODE_ORDER = [
     "Parameters",
-    "blockMesh",
-    "snappyHexMesh",
+    "blockMeshDict",
+    "snappyHexMeshDict",
     "surfaceFeatures",
-    "decomposePar",
+    "decomposeParDict",
     "controlDict",
     "fvSchemes",
     "fvSolution",
@@ -75,18 +75,17 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
             print(f"🔄 Reversing: {filename}")
             reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
             reverser.parse()
-            node = reverser.build_node()
+            node_dict = reverser.build_node()
 
-            mapped_name = DICT_TO_NODE_NAME.get(filename, dict_name)
+            # Update directly with returned dict: {dict_name: node}
+            nodes.update(node_dict)
 
-            if mapped_name in nodes:
-                print(f"⚠️ Warning: Overwriting node '{mapped_name}'")
-            nodes[mapped_name] = node
-
-            print(f"✅ Finished: {mapped_name}")
+            print(f"✅ Finished: {list(node_dict.keys())[0]}")
 
         except Exception as e:
             print(f"❌ Error reversing {filename}: {e}")
+
+    """
 
     # Inject Hermes-specific nodes
     nodes["Parameters"] = {
@@ -130,6 +129,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         },
         "type": "general.FilesWriter"
     }
+    """
 
     # Finalize node list
     ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]

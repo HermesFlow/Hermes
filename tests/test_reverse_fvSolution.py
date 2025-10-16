@@ -56,12 +56,8 @@ def test_reverse_fvSolution_against_inputs(tmp_path: Path, case_name: str, input
     print("File contents:\n", dst.read_text())
 
     node = reverser.build_node()
-
-    actual = {
-        "Execution": node["Execution"],
-        "type": "openFOAM.system.FvSolution",
-        "version": 2,
-    }
+    #print("Reversed node:", json.dumps(node, indent=2, cls=FoamJSONEncoder))
+    actual = node
 
     assert actual == expected, (
         f"[{case_name}] fvSolution reverse result does not match expected.\n"

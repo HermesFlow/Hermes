@@ -1264,9 +1264,9 @@ class DictionaryReverser:
 
         if dict_name == "fvSolution":
             v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return v2_structured
 
-        if dict_name in ("changeDictionaryDict", "thermophysicalProperties"):
+        if dict_name == "changeDictionaryDict":
             # Treat both like boundary-condition dictionaries
             v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
@@ -1280,7 +1280,8 @@ class DictionaryReverser:
             return v2_structured["Execution"]["input_parameters"]
 
         if dict_name == "surfaceFeaturesDict":
-            return self.convert_surfaceFeatures_to_v2(final_leaf)
+            node = self.convert_surfaceFeatures_to_v2(final_leaf)
+            return {"surfaceFeatures": node}
 
         if dict_name == "g":
             return self.convert_g_dict_to_v2(final_leaf)
@@ -1345,6 +1346,9 @@ class DictionaryReverser:
         # Apply v2 conversion if available
         v2_structured = self.apply_v2_conversion(self.dict_name, final_leaf)
 
+        print(f"\n🧪 apply_v2_conversion() returned for {self.dict_name}:")
+        print(json.dumps(v2_structured, indent=4, default=str))
+
         if v2_structured is not None:
             if self.dict_name == "surfaceFeaturesDict":
                 # For surfaceFeaturesDict, use the full node (not just input_parameters)
@@ -1355,7 +1359,8 @@ class DictionaryReverser:
                 final_leaf.update(copy.deepcopy(v2_structured))
                 node["version"] = 2
 
-        return node
+        return node if self.dict_name == "surfaceFeaturesDict" else {self.dict_name: node}
+
 
     def to_json_str(self, node: dict) -> str:
         return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)
