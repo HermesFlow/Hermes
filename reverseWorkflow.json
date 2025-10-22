@@ -1,7 +1,0 @@
-{
-    "workflow": {
-        "solver": "simpleFoam",
-        "nodeList": [],
-        "nodes": {}
-    }
-}

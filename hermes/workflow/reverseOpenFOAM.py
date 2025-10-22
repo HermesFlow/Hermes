@@ -9,11 +9,67 @@ from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 import json, copy, pydoc, re
 from collections.abc import Mapping
+import re
 
 
 
 
 # ------ Helpers Functions ------
+
+def preprocess_blockMeshDict(raw_text: str, parsed_dict: dict) -> dict:
+    # 1. Extract variables like v 0.577; ma -0.707...
+    variables = {
+        match[0]: float(match[1])
+        for match in re.findall(r'(\w+)\s+([-\d.eE]+);', raw_text)
+    }
+
+    # Expand expressions like $v into numeric values
+    def expand(val):
+        if isinstance(val, str) and val.startswith('$'):
+            return variables.get(val[1:], val)
+        return float(val)
+
+    # 2. Expand variables in vertices
+    if "vertices" in parsed_dict:
+        parsed_dict["vertices"] = [
+            [expand(x) for x in triplet]
+            for triplet in parsed_dict["vertices"]
+        ]
+
+    # 3. Extract edges
+    edges = []
+    edge_block = re.search(r'edges\s*\((.*?)\);', raw_text, re.DOTALL)
+    if edge_block:
+        edge_lines = re.findall(r'(\w+)\s+(\d+)\s+(\d+)\s+\(([^()]+)\)', edge_block.group(1))
+        for etype, start, end, coords in edge_lines:
+            point = [expand(c) for c in coords.strip().split()]
+            edges.append({
+                "type": etype,
+                "start": int(start),
+                "end": int(end),
+                "point": point
+            })
+
+    # 4. Extract faces
+    faces = []
+    face_block = re.search(r'faces\s*\((.*?)\);', raw_text, re.DOTALL)
+    if face_block:
+        face_lines = re.findall(r'project\s+\(([\d\s]+)\)\s+(\w+)', face_block.group(1))
+        for verts_str, geometry in face_lines:
+            verts = [int(v) for v in verts_str.strip().split()]
+            faces.append({
+                "type": "project",
+                "vertices": verts,
+                "geometry": geometry
+            })
+
+    # 5. Inject into parsed_dict
+    parsed_dict["edges"] = edges
+    parsed_dict["faces"] = faces
+
+    return parsed_dict
+
+
 def convert_bools_to_lowercase(obj):
     if isinstance(obj, dict):
         return {k: convert_bools_to_lowercase(v) for k, v in obj.items()}
@@ -472,10 +528,12 @@ class DictionaryReverser:
             header_loc = str(self.ppf.header.get("location", "")).strip()  # e.g. "/system", "/constant", "/0"
             subdomain = header_loc.strip().strip("/").split("/")[-1] if header_loc else p.parent.name
             self.subdomain = subdomain or "system"
+            # Sanitize any quoted subdomain (like "constant")
+            self.subdomain = self.subdomain.strip('"').strip("'")
 
             self.domain = "openFOAM"
             pascal = self.dict_name[0].upper() + self.dict_name[1:]  # Check if this is matches template file
-            self.node_type = f"{self.domain}.{self.subdomain}.{pascal}"
+            self.node_type = f"{self.domain}.{self.subdomain}.{pascal}".replace('"', '').replace("'", "")
 
         self.log.debug(
             f"Detected node_type={self.node_type} "
@@ -718,8 +776,27 @@ class DictionaryReverser:
 
             params["boundary"] = boundary_out
 
-        # 5. geometry is always {}
-        params["geometry"] = {}
+        # 5. geometry
+        if "geometry" in parsed_dict:
+            params["geometry"] = parsed_dict["geometry"]
+        else:
+            params["geometry"] = {}
+
+        # 6. edges
+        if "edges" in parsed_dict:
+            edges_out = []
+            for entry in parsed_dict["edges"]:
+                if isinstance(entry, dict):
+                    edges_out.append(entry)
+            params["edges"] = edges_out
+
+        # 7. faces
+        if "faces" in parsed_dict:
+            faces_out = []
+            for entry in parsed_dict["faces"]:
+                if isinstance(entry, dict):
+                    faces_out.append(entry)
+            params["faces"] = faces_out
 
         return result
 
@@ -1255,6 +1332,14 @@ class DictionaryReverser:
             return self.convert_snappy_dict_to_v2(final_leaf)
 
         if dict_name == "blockMeshDict":
+            print("✅ DEBUG: raw_text before preprocessing:")
+            print(getattr(self, "raw_text", "❌ NO raw_text FOUND"))
+
+            if hasattr(self, "raw_text") and isinstance(self.raw_text, str):
+                final_leaf = preprocess_blockMeshDict(self.raw_text, final_leaf)
+            else:
+                print("❌ WARNING: raw_text not found or not a string")
+
             v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
             return v2_structured["Execution"]["input_parameters"]
 
@@ -1329,7 +1414,26 @@ class DictionaryReverser:
             self.log.debug(f"No converter at {path} (err: {err}). Falling back to direct insert.")
             merge_into(leaf, self.dict_data or {}, list_strategy)
 
-        node = {"Execution": target["Execution"], "type": self.node_type}
+        # Replace the type for known overrides
+        override_types = {
+            "blockMeshDict": "openFOAM.mesh.BlockMesh",
+            "snappyHexMeshDict": "openFOAM.mesh.SnappyHexMesh",
+            "fvSchemes": "openFOAM.system.FvSchemes",
+            "fvSolution": "openFOAM.system.FvSolution",
+            "decomposeParDict": "openFOAM.system.DecomposePar",
+            "controlDict": "openFOAM.system.ControlDict",
+            "surfaceFeaturesDict": "openFOAM.system.SurfaceFeatures",
+            "transportProperties": "openFOAM.constant.transportProperties",
+            "turbulenceProperties": "openFOAM.constant.momentumTransport",
+            "RASProperties": "openFOAM.constant.momentumTransport",
+            "changeDictionaryDict": "openFOAM.system.ChangeDictionary"
+        }
+
+        override_type = override_types.get(self.dict_name, self.node_type)
+
+        node = {"Execution": target["Execution"], "type": override_type}
+
+        #node["type"] = node["type"].replace('\\"', '').replace('"', '')
 
         # Normalize quirks
         final_leaf = ensure_path(node, ("Execution", "input_parameters", "values")) if is_control \

@@ -5,7 +5,6 @@ from .reverseOpenFOAM import DictionaryReverser
 
 class HermesEncoder(json.JSONEncoder):
     def default(self, obj):
-        # Handle OpenFOAM-like classes (e.g., Dimension, Vector, etc.)
         if hasattr(obj, '__dict__'):
             return obj.__dict__
         if hasattr(obj, '__str__'):
@@ -71,65 +70,24 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     for filename, filepath in all_dicts.items():
         dict_name = Path(filename).stem
 
+        # 🚫 Skip most files from 0/ unless specifically needed
+        if filepath.parts[-2] == "0" and dict_name not in ("changeDictionaryDict",):
+            print(f"⚠️ Skipping field file from 0/: {filename}")
+            continue
+
         try:
             print(f"🔄 Reversing: {filename}")
             reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
             reverser.parse()
             node_dict = reverser.build_node()
 
-            # Update directly with returned dict: {dict_name: node}
+            # Update with returned dict: {dict_name: node}
             nodes.update(node_dict)
 
             print(f"✅ Finished: {list(node_dict.keys())[0]}")
 
         except Exception as e:
             print(f"❌ Error reversing {filename}: {e}")
-
-    """
-
-    # Inject Hermes-specific nodes
-    nodes["Parameters"] = {
-        "Execution": {
-            "input_parameters": {
-                "OFversion": "of10",
-                "targetDirectory": "{#moduleName}",
-                "objectFile": "EWTModel.obj",
-                "decomposeProcessors": 16
-            }
-        },
-        "type": "general.Parameters"
-    }
-
-    nodes["buildAllRun"] = {
-        "Execution": {
-            "input_parameters": {
-                "casePath": "{Parameters.output.targetDirectory}",
-                "caseExecution": {
-                    "parallelCase": True,
-                    "slurm": False,
-                    "getNumberOfSubdomains": 10,
-                    "runFile": []
-                },
-                "parallelCase": True,
-                "runFile": []
-            },
-            "requires": "createEmptyCase"
-        },
-        "type": "openFOAM.BuildAllrun"
-    }
-
-    nodes["fileWriter"] = {
-        "Execution": {
-            "input_parameters": {
-                "directoryPath": ".",
-                "Files": {},
-                "casePath": "{Parameters.output.targetDirectory}"
-            },
-            "requires": "createEmptyCase"
-        },
-        "type": "general.FilesWriter"
-    }
-    """
 
     # Finalize node list
     ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]
@@ -171,10 +129,9 @@ def main():
     if args.save and args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             json.dump(workflow, f, indent=4, ensure_ascii=False, cls=HermesEncoder)
-        print(f"Saved Hermes workflow to: {args.output}")
+        print(f"✅ Saved Hermes workflow to: {args.output}")
     else:
         print(json.dumps(workflow, indent=4, ensure_ascii=False, cls=HermesEncoder))
-
 
 
 if __name__ == "__main__":
