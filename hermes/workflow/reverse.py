@@ -59,10 +59,28 @@ def find_dicts(case_path: Path) -> dict[str, Path]:
     return found
 
 
+def build_parameters_node(case_path: Path) -> dict:
+    """
+    Create a Parameters node based on the folder name and guessed values.
+    """
+    case_name = case_path.name
+
+    return {
+        "Parameters": {
+            "Execution": {
+                "input_parameters": {
+                    "OFversion": "of10",
+                    "targetDirectory": case_name,
+                    "objectFile": f"{case_name}.obj",
+                    "decomposeProcessors": 4
+                }
+            },
+            "type": "general.Parameters"
+        }
+    }
+
+
 def build_workflow(case_path: Path, template_paths=None) -> dict:
-    """
-    Build Hermes-style workflow JSON by reversing all OpenFOAM dictionaries.
-    """
     all_dicts = find_dicts(case_path)
     print(f"🔍 Found {len(all_dicts)} dictionary files.")
     nodes = {}
@@ -70,7 +88,6 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     for filename, filepath in all_dicts.items():
         dict_name = Path(filename).stem
 
-        # 🚫 Skip most files from 0/ unless specifically needed
         if filepath.parts[-2] == "0" and dict_name not in ("changeDictionaryDict",):
             print(f"⚠️ Skipping field file from 0/: {filename}")
             continue
@@ -80,21 +97,135 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
             reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
             reverser.parse()
             node_dict = reverser.build_node()
-
-            # Update with returned dict: {dict_name: node}
             nodes.update(node_dict)
-
             print(f"✅ Finished: {list(node_dict.keys())[0]}")
-
         except Exception as e:
             print(f"❌ Error reversing {filename}: {e}")
 
-    # Finalize node list
+    # Inject Parameters node if missing
+    if "Parameters" not in nodes:
+        nodes.update(build_parameters_node(case_path))
+
+    # Full buildAllRun steps
+    run_steps = [
+        {
+            "name": "blockMesh",
+            "parameters": None,
+            "couldRunInParallel": False
+        },
+        {
+            "name": "surfaceFeatures",
+            "parameters": "-dict system/building",
+            "couldRunInParallel": False
+        },
+        {
+            "name": "decomposePar",
+            "parameters": "-force",
+            "couldRunInParallel": False
+        },
+        {
+            "name": "snappyHexMesh",
+            "parameters": "-overwrite",
+            "couldRunInParallel": True
+        },
+        {
+            "name": "ls -d processor* | xargs -i cp -r 0.parallel/* ./{}/0/ $1",
+            "parameters": None,
+            "couldRunInParallel": False,
+            "foamJob": False
+        },
+        {
+            "name": "changeDictionary",
+            "parameters": None,
+            "couldRunInParallel": True
+        }
+    ]
+
+    # Add buildAllRun node
+    nodes["buildAllRun"] = {
+        "Execution": {
+            "input_parameters": {
+                "casePath": "{Parameters.output.targetDirectory}",
+                "caseExecution": {
+                    "parallelCase": True,
+                    "slurm": False,
+                    "getNumberOfSubdomains": 10,
+                    "runFile": run_steps
+                },
+                "parallelCase": True,
+                "runFile": run_steps
+            }
+        },
+        "requires": "createEmptyCase",
+        "type": "openFOAM.BuildAllrun"
+    }
+
+    # Full fileWriter files
+    files = {
+        "blockMesh": {
+            "fileName": "system/blockMeshDict",
+            "fileContent": "{blockMesh.output.openFOAMfile}"
+        },
+        "decomposePar": {
+            "fileName": "system/decomposeParDict",
+            "fileContent": "{decomposePar.output.openFOAMfile}"
+        },
+        "snappyHexMeshDict": {
+            "fileName": "system/snappyHexMeshDict",
+            "fileContent": "{snappyHexMesh.output.openFOAMfile}"
+        },
+        "g": {
+            "fileName": "constant/g",
+            "fileContent": "{g.output.openFOAMfile}"
+        },
+        "controlDict": {
+            "fileName": "system/controlDict",
+            "fileContent": "{controlDict.output.openFOAMfile}"
+        },
+        "fvSchemes": {
+            "fileName": "system/fvSchemes",
+            "fileContent": "{fvSchemes.output.openFOAMfile}"
+        },
+        "fvSolution": {
+            "fileName": "system/fvSolution",
+            "fileContent": "{fvSolution.output.openFOAMfile}"
+        },
+        "physicalProperties": {
+            "fileName": "constant/physicalProperties",
+            "fileContent": "{physicalProperties.output.openFOAMfile}"
+        },
+        "momentumTransport": {
+            "fileName": "constant/momentumTransport",
+            "fileContent": "{momentumTransport.output.openFOAMfile}"
+        },
+        "changeDictionary": {
+            "fileName": "system/changeDictionaryDict",
+            "fileContent": "{defineNewBoundaryConditions.output.openFOAMfile}"
+        },
+        "surfaceFeatures": {
+            "fileName": "system",
+            "fileContent": "{surfaceFeatures.output.openFOAMfile}"
+        }
+    }
+
+    # Add fileWriter node
+    nodes["fileWriter"] = {
+        "Execution": {
+            "input_parameters": {
+                "directoryPath": ".",
+                "Files": files,
+                "casePath": "{Parameters.output.targetDirectory}"
+            }
+        },
+        "requires": "createEmptyCase",
+        "type": "general.FilesWriter"
+    }
+
+    # Finalize nodeList
     ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]
     remaining_nodes = [n for n in nodes if n not in ordered_nodes]
     node_list = ordered_nodes + remaining_nodes
 
-    # Construct workflow
     workflow = {
         "workflow": {
             "root": None,
@@ -110,6 +241,8 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     return workflow
 
 
+
+
 def main():
     parser = argparse.ArgumentParser(description="Reverse OpenFOAM case folder to Hermes workflow JSON")
     parser.add_argument("case_path", type=str, help="Path to the OpenFOAM case folder")
@@ -121,7 +254,7 @@ def main():
     case_path = Path(args.case_path)
 
     if not case_path.exists():
-        print(f"Error: Path does not exist: {case_path}")
+        print(f"❌ Error: Path does not exist: {case_path}")
         return
 
     workflow = build_workflow(case_path, template_paths=args.template_paths)

@@ -1328,6 +1328,8 @@ class DictionaryReverser:
         Apply v2 conversion for supported OpenFOAM dictionaries.
         Returns a v2-structured node or None if no conversion is defined.
         """
+        print(f"🪵 apply_v2_conversion: dict_name = {dict_name}")
+
         if dict_name == "snappyHexMeshDict":
             return self.convert_snappy_dict_to_v2(final_leaf)
 
@@ -1371,7 +1373,8 @@ class DictionaryReverser:
         if dict_name == "g":
             return self.convert_g_dict_to_v2(final_leaf)
 
-        if dict_name in ("RASProperties", "turbulenceProperties"):
+        if dict_name in ("RASProperties", "turbulenceProperties", "momentumTransport"):
+            print(f"🟢 Converting momentumTransport via convert_momentum_transport_to_v2()")
             return self.convert_momentum_transport_to_v2(final_leaf)
 
         if dict_name == "physicalProperties":
@@ -1426,7 +1429,9 @@ class DictionaryReverser:
             "transportProperties": "openFOAM.constant.transportProperties",
             "turbulenceProperties": "openFOAM.constant.momentumTransport",
             "RASProperties": "openFOAM.constant.momentumTransport",
-            "changeDictionaryDict": "openFOAM.system.ChangeDictionary"
+            "changeDictionaryDict": "openFOAM.system.ChangeDictionary",
+            "momentumTransport": "openFOAM.constant.momentumTransport",
+            "physicalProperties": "openFOAM.constant.physicalProperties"
         }
 
         override_type = override_types.get(self.dict_name, self.node_type)
