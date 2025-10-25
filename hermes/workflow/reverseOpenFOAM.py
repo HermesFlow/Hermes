@@ -490,8 +490,9 @@ class DictionaryReverser:
         # Parse and deep copy
         raw_data = copy.deepcopy(self.ppf.content)
 
-        # Clean it from PyFoam wrappers like BoolProxy, Vector, etc.
-        self.dict_data = unwrap_booleans_and_vectors(raw_data)
+        # Drop FoamFile block to avoid legacy headers
+        raw_data.pop("FoamFile", None)
+
        # self.dict_data = _normalize_parsed_dict(self.dict_data)
         unwrapped = unwrap_booleans_and_vectors(raw_data)
 
@@ -805,6 +806,8 @@ class DictionaryReverser:
         Convert fvSchemes dictionary (parsed by PyFoam) into Hermes v2 JSON format.
         """
 
+        parsed_dict.pop("FoamFile", None)
+
         result = {
             "Execution": {"input_parameters": {}},
             "type": "openFOAM.system.FvSchemes",
@@ -934,18 +937,6 @@ class DictionaryReverser:
         return result
 
     def convert_fvSolution_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Robust converter: fvSolution (PyFoam dict) -> v2 JSON.
-        Rules:
-          - solvers + Final merged into fields[field].final
-          - solverProperties: algorithm + residualControl + solverFields
-          - If SIMPLE has no nCorrectors in file, inject top-level default nCorrectors=3
-          - relaxationFactors: merge *Final into {factor, final}
-          - cacheAgglomeration is dropped
-          - Do not inject solverProperties.relaxationFactors unless it existed in the block
-          - Always keep root-level solver fields (no deduplication against final)
-        """
-
         def _yn(v):
             if isinstance(v, bool):
                 return "yes" if v else "no"
@@ -965,77 +956,40 @@ class DictionaryReverser:
         params = result["Execution"]["input_parameters"]
 
         # -------------------------
-        # 1) solvers -> fields
+        # 1. solvers (keep all)
         # -------------------------
-        fields_out = {}
-        for name, solver in (parsed_dict.get("solvers") or {}).items():
-            # drop cacheAgglomeration (never carried over)
-            solver = {k: v for k, v in solver.items() if k != "cacheAgglomeration"}
-
-            if isinstance(name, str) and name.lower().endswith("final"):
-                base = name[:-5]
-                fields_out.setdefault(base, {})["final"] = solver
-            else:
-                fields_out.setdefault(name, {}).update(solver)
-
-        if fields_out:
+        solvers_dict = parsed_dict.get("solvers", {})
+        if solvers_dict:
+            fields_out = {}
+            for name, solver in solvers_dict.items():
+                cleaned = {k: _yn(v) for k, v in solver.items()}
+                fields_out[name] = cleaned
             params["fields"] = fields_out
 
         # -------------------------
-        # 2) solverProperties (SIMPLE/PISO/PIMPLE)
+        # 2. SIMPLE / PISO / PIMPLE block
         # -------------------------
-        algo_name = next((a for a in ("SIMPLE", "PISO", "PIMPLE") if a in parsed_dict), None)
-        if algo_name:
-            block = parsed_dict[algo_name] or {}
-            sp = {"algorithm": algo_name}
-
-            # residualControl -> top-level
-            rc = block.get("residualControl")
-            if isinstance(rc, dict):
-                sp["residualControl"] = rc
-
-            # everything else into solverFields
-            solver_fields = {}
-            for k, v in block.items():
-                if k == "residualControl":
-                    continue
-                solver_fields[k] = _yn(v)
-            if solver_fields:
-                sp["solverFields"] = solver_fields
-
-            # Special rule: if SIMPLE and nCorrectors missing, inject default 3
-            if algo_name == "SIMPLE" and "nCorrectors" not in block:
-                sp["nCorrectors"] = 3
-
-            # DO NOT auto-inject relaxationFactors unless explicitly present in SIMPLE block
-            if "relaxationFactors" in block:
-                sp["relaxationFactors"] = block.get("relaxationFactors") or {}
-
-            params["solverProperties"] = sp
+        for algo in ("SIMPLE", "PISO", "PIMPLE"):
+            if algo in parsed_dict:
+                algo_block = parsed_dict[algo]
+                converted = {k: _yn(v) for k, v in algo_block.items()}
+                params["solverProperties"] = {
+                    "algorithm": algo,
+                    **converted
+                }
+                break
 
         # -------------------------
-        # 3) relaxationFactors (top-level)
+        # 3. relaxationFactors
         # -------------------------
         rf = parsed_dict.get("relaxationFactors")
         if isinstance(rf, dict):
-            rf_out = {}
-            if "fields" in rf and isinstance(rf["fields"], dict):
-                rf_out["fields"] = rf["fields"]
-
-            eqs_in = rf.get("equations") or {}
-            if isinstance(eqs_in, dict):
-                eqs_out = {}
-                for key, val in eqs_in.items():
-                    if isinstance(key, str) and key.lower().endswith("final"):
-                        base = key[:-5]
-                        eqs_out.setdefault(base, {})["final"] = val
-                    else:
-                        eqs_out.setdefault(key, {})["factor"] = val
-                if eqs_out:
-                    rf_out["equations"] = eqs_out
-
-            if rf_out:
-                params["relaxationFactors"] = rf_out
+            rf_cleaned = {}
+            for section, val in rf.items():
+                if isinstance(val, dict):
+                    rf_cleaned[section] = {k: v for k, v in val.items()}
+            if rf_cleaned:
+                params["relaxationFactors"] = rf_cleaned
 
         return result
 
@@ -1323,6 +1277,40 @@ class DictionaryReverser:
         """
         return self.convert_momentum_transport_to_v2(parsed_dict, as_node=True)
 
+    def convert_mesh_quality_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert a meshQualityDict parsed dictionary to Hermes v2 node format.
+        Supports both full dictionaries and include-only templates.
+        """
+        result = {
+            "Execution": {
+                "input_parameters": {}
+            },
+            "type": "openFOAM.system.MeshQualityDict",
+            "version": 2
+        }
+
+        input_params = result["Execution"]["input_parameters"]
+
+        # Case: include-only format
+        if "0" in parsed_dict and isinstance(parsed_dict["0"], list):
+            input_params["0"] = parsed_dict["0"]
+            return result
+
+        # Handle main keys
+        for key, value in parsed_dict.items():
+            if key == "relaxed" and isinstance(value, dict):
+                # Preserve nested relaxed block
+                input_params["relaxed"] = {}
+                for rk, rv in value.items():
+                    input_params["relaxed"][rk] = rv
+            elif isinstance(value, (str, int, float, bool, list, dict)):
+                input_params[key] = value
+            else:
+                print(f"⚠️ Skipping unknown meshQualityDict key: {key} -> {value}")
+
+        return result
+
     def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
         """
         Apply v2 conversion for supported OpenFOAM dictionaries.
@@ -1334,20 +1322,11 @@ class DictionaryReverser:
             return self.convert_snappy_dict_to_v2(final_leaf)
 
         if dict_name == "blockMeshDict":
-            print("✅ DEBUG: raw_text before preprocessing:")
-            print(getattr(self, "raw_text", "❌ NO raw_text FOUND"))
-
-            if hasattr(self, "raw_text") and isinstance(self.raw_text, str):
-                final_leaf = preprocess_blockMeshDict(self.raw_text, final_leaf)
-            else:
-                print("❌ WARNING: raw_text not found or not a string")
-
-            v2_structured = self.convert_block_mesh_dict_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return self.convert_block_mesh_dict_to_v2(final_leaf)
 
         if dict_name == "fvSchemes":
             v2_structured = self.convert_fv_schemes_dict_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return v2_structured
 
         if dict_name == "fvSolution":
             v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
@@ -1356,15 +1335,15 @@ class DictionaryReverser:
         if dict_name == "changeDictionaryDict":
             # Treat both like boundary-condition dictionaries
             v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return v2_structured
 
         if dict_name == "transportProperties":
             v2_structured = self.convert_transport_properties_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return v2_structured
 
         if dict_name == "decomposeParDict":
             v2_structured = self.convert_decomposeParDict_to_v2(final_leaf)
-            return v2_structured["Execution"]["input_parameters"]
+            return v2_structured
 
         if dict_name == "surfaceFeaturesDict":
             node = self.convert_surfaceFeatures_to_v2(final_leaf)
@@ -1372,6 +1351,9 @@ class DictionaryReverser:
 
         if dict_name == "g":
             return self.convert_g_dict_to_v2(final_leaf)
+
+        if dict_name == "meshQualityDict":
+            return self.convert_mesh_quality_dict_to_v2(final_leaf)
 
         if dict_name in ("RASProperties", "turbulenceProperties", "momentumTransport"):
             print(f"🟢 Converting momentumTransport via convert_momentum_transport_to_v2()")
@@ -1438,8 +1420,6 @@ class DictionaryReverser:
 
         node = {"Execution": target["Execution"], "type": override_type}
 
-        #node["type"] = node["type"].replace('\\"', '').replace('"', '')
-
         # Normalize quirks
         final_leaf = ensure_path(node, ("Execution", "input_parameters", "values")) if is_control \
             else node["Execution"]["input_parameters"]
@@ -1458,6 +1438,22 @@ class DictionaryReverser:
         print(f"\n🧪 apply_v2_conversion() returned for {self.dict_name}:")
         print(json.dumps(v2_structured, indent=4, default=str))
 
+        if isinstance(v2_structured, dict) and "Execution" in v2_structured and "input_parameters" in v2_structured[
+            "Execution"]:
+            final_leaf.clear()
+            final_leaf.update(copy.deepcopy(v2_structured["Execution"]["input_parameters"]))
+            node["type"] = v2_structured.get("type", node["type"])
+            node["version"] = v2_structured.get("version", 2)
+
+        elif isinstance(v2_structured, dict):  # Flat format (e.g., blockMeshDict, fvSchemes)
+            final_leaf.clear()
+            final_leaf.update(copy.deepcopy(v2_structured))
+            node["version"] = 2
+
+        else:
+            print(f"⚠️ No structured v2 data returned for {self.dict_name}")
+
+        """
         if v2_structured is not None:
             if self.dict_name == "surfaceFeaturesDict":
                 # For surfaceFeaturesDict, use the full node (not just input_parameters)
@@ -1467,9 +1463,9 @@ class DictionaryReverser:
                 final_leaf.clear()
                 final_leaf.update(copy.deepcopy(v2_structured))
                 node["version"] = 2
+            """
 
-        return node if self.dict_name == "surfaceFeaturesDict" else {self.dict_name: node}
-
+        return {self.dict_name: node}
 
     def to_json_str(self, node: dict) -> str:
         return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)

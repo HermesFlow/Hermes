@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website: https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      meshQualityDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja" as utils %}
+{%- set p = input_parameters %}
+
+maxNonOrtho         {{ p.maxNonOrtho }};
+maxBoundarySkewness {{ p.maxBoundarySkewness }};
+maxInternalSkewness {{ p.maxInternalSkewness }};
+maxConcave          {{ p.maxConcave }};
+minVol              {{ p.minVol }};
+minTetQuality       {{ p.minTetQuality }};
+minArea             {{ p.minArea }};
+minTwist            {{ p.minTwist }};
+minDeterminant      {{ p.minDeterminant }};
+minFaceWeight       {{ p.minFaceWeight }};
+minVolRatio         {{ p.minVolRatio }};
+minTriangleTwist    {{ p.minTriangleTwist }};
+nSmoothScale        {{ p.nSmoothScale }};
+errorReduction      {{ p.errorReduction }};
+
+{%- if p.relaxed is defined %}
+relaxed
+{
+    maxNonOrtho {{ p.relaxed.maxNonOrtho }};
+}
+{%- endif %}
+
+// ************************************************************************* //

@@ -1,0 +1,26 @@
+{
+  "title": "Mesh Quality Settings",
+  "type": "object",
+  "properties": {
+    "0": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Include path or template directives"
+    },
+    "maxNonOrtho": {
+      "type": "number",
+      "default": 65
+    },
+    "maxBoundarySkewness": {
+      "type": "number",
+      "default": 20
+    },
+    "minVol": {
+      "type": "number",
+      "default": 1e-13
+    }
+  },
+  "required": []
+}

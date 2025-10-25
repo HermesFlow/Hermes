@@ -1,20 +1,15 @@
-from pathlib import Path
-
-# Define the path and content for jinjaTemplate.v2
-template_path = Path("/mnt/data/jinjaTemplate.v2")
-template_content = """
 /*--------------------------------*- C++ -*----------------------------------*\\
 | =========                 |                                                 |
 | \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\\\    /   O peration     | Version:  3.0.1                                 |
-|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\\\    /   O peration     | Website:  https://openfoam.org                             |
+|   \\\\  /    A nd           | Version:  10                |
 |    \\\\/     M anipulation  |                                                 |
 \\*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
+    location    "system";
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -62,7 +57,7 @@ castellatedMeshControls
         {%- for geometryName, geometryData in p.geometry.objects.items() %}
         {
             file "{{ geometryData.objectName }}.eMesh";
-            level {{ geometryData.levels }};
+            level {{ geometryData.get('levels', 1) }};
         }
         {%- endfor %}
     );
@@ -72,8 +67,11 @@ castellatedMeshControls
         {%- for geometryName, geometryData in p.geometry.objects.items() %}
         {{ geometryName }}
         {
-            level {{ utils.toPoint(geometryData.get('refinementSurfaceLevels', geometryData.refinementSurfaces.levels)) }};
-            patchInfo { type {{ geometryData.get('patchType', geometryData.refinementSurfaces.patchType) }}; }
+            {%- set levels = geometryData.get('refinementSurfaceLevels') or geometryData.get('refinementSurfaces', {}).get('levels', [1, 1]) %}
+            {%- set patch_type = geometryData.get('patchType') or geometryData.get('refinementSurfaces', {}).get('patchType', 'wall') %}
+
+            level {{ utils.toPoint(levels) }};
+            patchInfo { type {{ patch_type }}; }
 
             {%- if 'regions' in geometryData %}
             regions {
@@ -91,6 +89,7 @@ castellatedMeshControls
         }
         {%- endfor %}
     }
+
 
     refinementRegions
     {
