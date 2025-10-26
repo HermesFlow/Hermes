@@ -1,70 +1,73 @@
 from ....general import JinjaTransform
+import logging
+import json
 
 class BlockMesh(JinjaTransform):
     """
-        Transforms JSON->blockMeshDict using the jinja template in jinjaTemplates.openFOAM.mesh.BlockMesh
+    Transforms JSON -> blockMeshDict using the Jinja template.
 
-        The JSON format is:
+    Supports both v1 and v2 input formats:
+    - v1: raw structured inputs
+    - v2: Hermes-style input_parameters with versioning
 
-        {
-            "geometry": {
-                    "convertToMeters" : "...",
-                    "cellCount" : (50,50,30)
-                    "grading" : [ x x x ]
-            },
-            "boundary" : [
-                {
-                    "Name" : "...",
-                    "Type" : (wall|patch|cyclic|symmetry)
-                    "faces" : [
-                        (1,2,3),
-                        (4,5,6),
-                        ...
-                    ],
-                    "neighbourPatch" : ".."  # only if Type is cyclic.
-                },....
-            ],
-            vertices : [
-                (0,0,0),
-                (0,1,2),
-                (1,1,2),
-                   .
-                   .
-                   .
-            ]
-        }
+    JSON format (v1):
+    {
+        "geometry": {
+            "convertToMeters": 1,
+            "cellCount": (50, 50, 30),
+            "grading": [1, 1, 1]
+        },
+        "boundary": [...],
+        "vertices": [...]
+    }
 
-
-Noga:
-    We should talk about when (and how) the FreeCAD webGUI is translated to this JSON.
-
-    I think that the 'run' method should be sufficiently smart to identify
-    an alternative JSON that arrives from the webGUI and then just translate it.
-    I suggest that you would send me the JSON format of the webGUI and then we can discuss about how to convert it.
-
-"""
+    JSON format (v2):
+    {
+        "Execution": {
+            "input_parameters": {
+                "geometry": {...},
+                "boundary": [...],
+                "vertices": [...]
+            }
+        },
+        "type": "openFOAM.mesh.BlockMesh",
+        "version": 2
+    }
+    """
 
     def _defaultParameters(self):
         return dict(
             output=["status"],
             inputs=["classpath", "function"],
-            webGUI=dict(JSONSchema="webGUI/BlockMeshExecuter_JSONchema.json",
-                        UISchema="webGUI/BlockMeshExecuter_UISchema.json"),
+            webGUI=dict(
+                JSONSchema="webGUI/BlockMeshExecuter_JSONchema.json",
+                UISchema="webGUI/BlockMeshExecuter_UISchema.json"
+            ),
             parameters={}
         )
 
     def run(self, **inputs):
+        logger = logging.getLogger("luigi-interface")
+        logger.info("Running BlockMesh executer")
+        logger.debug("Received inputs:\n" + json.dumps(inputs, indent=4))
 
-        # get the  name of the template
-        templateName = "openFOAM/mesh/BlockMesh/jinjaTemplate"
+        version = inputs.get("version", 1)
 
-        ## Noga:
-        # 1. Check here if inputs['geometry'] is from webGUI. if it is: convert to the right form
-        # 2. Check here if inputs['boundary'] is from webGUI. if it is: convert to the right form
-        # 3. Check here if inputs['vertices'] is from webGUI. if it is: convert to the right form
+        if version == 2:
+            try:
+                ip = inputs["Execution"]["input_parameters"]
+            except KeyError:
+                raise ValueError("Missing Execution.input_parameters in version 2 input")
 
-        template = self._getTemplate(templateName)
-        # render jinja for the choosen template
-        output = template.render(**inputs)
+            render_inputs = {
+                "input_parameters": ip
+            }
+            template_name = "openFOAM/mesh/BlockMesh/jinjaTemplate.v2"
+        else:
+            render_inputs = inputs
+            template_name = "openFOAM/mesh/BlockMesh/jinjaTemplate"
+
+        template = self._getTemplate(template_name)
+        output = template.render(**render_inputs)
 
         return dict(openFOAMfile=output)

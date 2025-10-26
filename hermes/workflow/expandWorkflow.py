@@ -103,6 +103,8 @@ class expandWorkflow:
             logger.debug(f"Got template, now updating map {fullNodeData}")
             self.updateMap(fullNodeData,nodeData)
 
+            fullNodeData["type"] = nodeData.get("type", fullNodeData.get("type"))
+
             JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
 
         logger.debug(json.dumps(JsonObjectfromFile,indent=4))

@@ -89,7 +89,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         dict_name = Path(filename).stem
 
         if filepath.parts[-2] == "0" and dict_name not in ("changeDictionaryDict",):
-            print(f"⚠️ Skipping field file from 0/: {filename}")
+            print(f"Skipping field file from 0/: {filename}")
             continue
 
         try:
@@ -103,12 +103,12 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
 
             # Normalize the name based on mapping
             hermes_name = DICT_TO_NODE_NAME.get(dict_name, dict_name)
-            print(f"✅ Adding {hermes_name} to nodes")
+            print(f"Adding {hermes_name} to nodes")
             nodes[hermes_name] = node_dict[dict_name]
 
-            print(f"✅ Finished: {list(node_dict.keys())[0]}")
+            print(f"Finished: {list(node_dict.keys())[0]}")
         except Exception as e:
-            print(f"❌ Error reversing {filename}: {e}")
+            print(f"Error reversing {filename}: {e}")
 
     # Inject Parameters node if missing
     if "Parameters" not in nodes:
@@ -247,7 +247,7 @@ def main():
     case_path = Path(args.case_path)
 
     if not case_path.exists():
-        print(f"❌ Error: Path does not exist: {case_path}")
+        print(f"Error: Path does not exist: {case_path}")
         return
 
     workflow = build_workflow(case_path, template_paths=args.template_paths)
@@ -255,7 +255,7 @@ def main():
     if args.save and args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             json.dump(workflow, f, indent=4, ensure_ascii=False, cls=HermesEncoder)
-        print(f"✅ Saved Hermes workflow to: {args.output}")
+        print(f"Saved Hermes workflow to: {args.output}")
     else:
         print(json.dumps(workflow, indent=4, ensure_ascii=False, cls=HermesEncoder))
 

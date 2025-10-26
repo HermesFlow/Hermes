@@ -1,34 +1,41 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version: 10                                     |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
+    location    "constant";
     object      physicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+{% if transportModel is defined %}
 transportModel  {{ transportModel }};
+{% endif %}
 
-nu              [0 2 -1 0 0 0 0] {{ nu }};
+{% if nu is defined %}
+nu              {{ nu }};
+{% endif %}
 
 {% if rhoInf is defined %}
-rhoInf          [1 -3 0 0 0 0 0] {{ rhoInf }};
+rhoInf          {{ rhoInf }};
 {% endif %}
 
+{# Optional parameters block (only used if present) #}
 {% if parameters is defined %}
 {% for name, data in parameters.items() %}
-{% if data.value is sequence and data.value|length == 3 %}
-{{ name }} {{ data.value[0] }} {{ data.value[1] }} {{ data.value[2] }};
-{% else %}
-{{ name }} {{ name if data.get('printName', false) else '' }} {{ data.dimensions }} {{ data.value }};
-{% endif %}
+    {# If 'value' is a scalar string or number, render directly #}
+    {% if data.value is string or data.value is number %}
+{{ name }}  {{ data.value }};
+    {% else %}
+    {# If it's a list or dict (e.g., old reverse format), handle gracefully #}
+{{ name }}  {{ data.value[-1] }};
+    {% endif %}
 {% endfor %}
 {% endif %}
 

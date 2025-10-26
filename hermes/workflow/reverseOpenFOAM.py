@@ -749,7 +749,7 @@ class DictionaryReverser:
                             }
                             blocks_out.append(block_entry)
                         except Exception as e:
-                            print(f"⚠️ Failed parsing block at index {i}: {e}")
+                            print(f"Failed parsing block at index {i}: {e}")
                     i += 5
 
         params["blocks"] = blocks_out
@@ -1150,30 +1150,33 @@ class DictionaryReverser:
 
     def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
         """
-        Convert physicalProperties (or transportProperties) dictionary into Hermes v2 physicalProperties node.
-        Supports both simple and extended (printName) parameter styles.
+        Convert physicalProperties (or transportProperties) dictionary into Hermes v2 format.
+        Supports both modern and legacy styles (with dimensions, printName, etc.).
+        Produces clean JSON ready for Jinja rendering.
         """
         result = {
             "transportModel": parsed_dict.get("transportModel", "Newtonian"),
         }
 
-        # Handle nu as top-level if present
+        # Handle nu as top-level scalar
         if "nu" in parsed_dict:
             val = parsed_dict["nu"]
             if isinstance(val, list):
-                # e.g. [dimension, value] or [printName, dimension, value]
-                if len(val) == 2:
-                    result["nu"] = val[1]
-                elif len(val) == 3:
-                    result["nu"] = val[2]
-                else:
-                    result["nu"] = val
+                result["nu"] = val[-1]  # always last element is the numeric value
+            elif isinstance(val, dict):
+                result["nu"] = val.get("value", val)
             else:
                 result["nu"] = val
 
         # Optional rhoInf
         if "rhoInf" in parsed_dict:
-            result["rhoInf"] = parsed_dict["rhoInf"]
+            val = parsed_dict["rhoInf"]
+            if isinstance(val, list):
+                result["rhoInf"] = val[-1]
+            elif isinstance(val, dict):
+                result["rhoInf"] = val.get("value", val)
+            else:
+                result["rhoInf"] = val
 
         parameters = {}
         reserved = {"FoamFile", "transportModel", "nu", "rhoInf"}
@@ -1182,44 +1185,30 @@ class DictionaryReverser:
             if key in reserved:
                 continue
 
-            # Case 1: list form (common in parsed OpenFOAM)
+            clean_val = None
+            dims = "[0 0 0 0 0 0 0]"
+
+            # Handle old-style list
             if isinstance(value, list):
-                if len(value) == 2:
-                    # [dimensions, value]
-                    dimensions, val = value
-                    parameters[key] = {
-                        "dimensions": str(dimensions),
-                        "value": [key, str(dimensions), val]
-                    }
-                elif len(value) == 3:
-                    # [printName, dimensions, value]
-                    print_name, dimensions, val = value
-                    parameters[key] = {
-                        "dimensions": str(dimensions),
-                        "value": [print_name, str(dimensions), val]
-                    }
-                else:
-                    # fallback: assume last entry is numeric
-                    parameters[key] = {
-                        "dimensions": "[0 0 0 0 0 0 0]",
-                        "value": [key, "[0 0 0 0 0 0 0]", value[-1] if value else 0]
-                    }
+                clean_val = value[-1] if len(value) > 0 else None
 
-            # Case 2: dict form
+            # Handle dict-style
             elif isinstance(value, dict):
-                dims = str(value.get("dimensions", "[0 0 0 0 0 0 0]"))
-                val = value.get("value")
-                parameters[key] = {
-                    "dimensions": dims,
-                    "value": [key, dims, val]
-                }
+                clean_val = value.get("value", None)
+                dims = str(value.get("dimensions", dims))
 
-            # Case 3: simple scalar fallback
+            # Handle plain scalar
             else:
-                parameters[key] = {
-                    "dimensions": "[0 0 0 0 0 0 0]",
-                    "value": [key, "[0 0 0 0 0 0 0]", value]
-                }
+                clean_val = value
+
+            # If clean_val is still a list (like ['viscosityModel', '[0 ...]', 'constant'])
+            if isinstance(clean_val, list) and len(clean_val) == 3:
+                clean_val = clean_val[-1]
+
+            parameters[key] = {
+                "dimensions": dims,
+                "value": clean_val
+            }
 
         if parameters:
             result["parameters"] = parameters
@@ -1307,7 +1296,7 @@ class DictionaryReverser:
             elif isinstance(value, (str, int, float, bool, list, dict)):
                 input_params[key] = value
             else:
-                print(f"⚠️ Skipping unknown meshQualityDict key: {key} -> {value}")
+                print(f"Skipping unknown meshQualityDict key: {key} -> {value}")
 
         return result
 
@@ -1316,7 +1305,7 @@ class DictionaryReverser:
         Apply v2 conversion for supported OpenFOAM dictionaries.
         Returns a v2-structured node or None if no conversion is defined.
         """
-        print(f"🪵 apply_v2_conversion: dict_name = {dict_name}")
+        print(f"apply_v2_conversion: dict_name = {dict_name}")
 
         if dict_name == "snappyHexMeshDict":
             return self.convert_snappy_dict_to_v2(final_leaf)
@@ -1356,7 +1345,7 @@ class DictionaryReverser:
             return self.convert_mesh_quality_dict_to_v2(final_leaf)
 
         if dict_name in ("RASProperties", "turbulenceProperties", "momentumTransport"):
-            print(f"🟢 Converting momentumTransport via convert_momentum_transport_to_v2()")
+            print(f"Converting momentumTransport via convert_momentum_transport_to_v2()")
             return self.convert_momentum_transport_to_v2(final_leaf)
 
         if dict_name == "physicalProperties":
@@ -1435,7 +1424,7 @@ class DictionaryReverser:
         # Apply v2 conversion if available
         v2_structured = self.apply_v2_conversion(self.dict_name, final_leaf)
 
-        print(f"\n🧪 apply_v2_conversion() returned for {self.dict_name}:")
+        print(f"\n apply_v2_conversion() returned for {self.dict_name}:")
         print(json.dumps(v2_structured, indent=4, default=str))
 
         if isinstance(v2_structured, dict) and "Execution" in v2_structured and "input_parameters" in v2_structured[
@@ -1451,7 +1440,7 @@ class DictionaryReverser:
             node["version"] = 2
 
         else:
-            print(f"⚠️ No structured v2 data returned for {self.dict_name}")
+            print(f"No structured v2 data returned for {self.dict_name}")
 
         """
         if v2_structured is not None:
