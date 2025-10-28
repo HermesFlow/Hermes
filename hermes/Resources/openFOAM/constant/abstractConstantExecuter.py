@@ -7,13 +7,9 @@ class abstractConstantExecuter(JinjaTransform):
         super().__init__(JSON)
         self.templateName =f"openFOAM/constant/{templateName}/jinjaTemplate"
 
-
     def run(self, **inputs):
+        inputs = inputs or {}
+        inputs.setdefault("template", self.templateName)
+        return super().run(**inputs)
 
-
-        template = self._getTemplate(self.templateName)
-
-        # render jinja for the choosen template
-        output = template.render(**inputs)
-        return dict(openFOAMfile=output)
 

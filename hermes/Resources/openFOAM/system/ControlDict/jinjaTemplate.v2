@@ -16,7 +16,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 {%- import "openFOAM/utils.jinja" as utils %}
-{%- set v = input_parameters.values %}
+{%- set v = values %}
 
 application         {{ v.application }};
 startFrom           {{ v.startFrom }};

@@ -49,7 +49,10 @@ class RunPythonCode(abstractExecuter):
             raise(e)
 
         objcls = getattr(modulecls, inputs["ClassName"])
-        newobj = objcls()
+        #newobj = objcls()
+        full_json = inputs["Parameters"].get("fullJSON", {})  # default to empty
+        newobj = objcls(full_json)
+
         func   = getattr(newobj,inputs["MethodName"])
         ret = func(**inputs['Parameters'])
         return dict(pythonExecuter="pythonExecuter",Return=ret)

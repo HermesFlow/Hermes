@@ -144,31 +144,49 @@ class JinjaTransform(abstractExecuter):
             logger.warning("[JinjaTransform] parameters is not a dict; coercing to empty dict")
             parameters = {}
 
-        # Build safe context
         ctx = {}
-        ctx.update(parameters)  # direct keys
 
-        # Compatibility keys
-        ctx.setdefault("values", parameters.get("values", parameters))
-        ctx.setdefault("default", parameters.get("default", {}))
-        ctx.setdefault("fields", parameters.get("fields", {}))
+        if isinstance(parameters, dict):
+            ctx.update(parameters)
+
+            # Promote known nested keys to top-level in context
+            nested_keys_to_promote = [
+                "fields",
+                "default",
+                "values",
+                "solverProperties",
+                "relaxationFactors",
+                "parameters"
+            ]
+
+            for key in nested_keys_to_promote:
+                if key not in ctx:
+                    val = parameters.get(key)
+                    if isinstance(val, dict):
+                        ctx[key] = val
+
+        # Always fallback defaults for robustness
+        ctx.setdefault("solverProperties", {})
+        ctx.setdefault("fields", {})
+        ctx.setdefault("default", {})
+        ctx.setdefault("values", parameters if isinstance(parameters, dict) else {})
         ctx.setdefault("parameters", parameters)
+        ctx.setdefault("input_parameters", parameters)
 
-        for key, value in parameters.items():
-            if isinstance(value, dict):
-                ctx.setdefault(key, value)
-
-        # also include some top-level JSON fields in the context for templates that may need them
-        # (like 'type' or 'version')
+        # Add top-level metadata
         if isinstance(self._JSON, dict):
             ctx.setdefault("type", self._JSON.get("type"))
             ctx.setdefault("version", self._JSON.get("version"))
 
-        logger.debug(f"[JinjaTransform] Rendering context keys: {sorted(list(ctx.keys()))}")
+        logger.debug(f"[JinjaTransform] Final rendering context keys: {sorted(ctx.keys())}")
+
 
         # Get template and render
         template = self._getTemplate(template_name)
         try:
+            import pprint
+            logger.debug("[JinjaTransform] Context passed to template:\n" + pprint.pformat(ctx))
+
             output = template.render(**ctx)
         except Exception as e:
             # Log with context for easier debugging
@@ -176,5 +194,7 @@ class JinjaTransform(abstractExecuter):
             # optional: attach a snippet of the context keys
             logger.debug(f"[JinjaTransform] Context (shallow): { {k: type(v).__name__ for k,v in ctx.items()} }")
             raise
+
+        logger.warning(f"[DEBUG-JT] Node type: {node_type}, Version: {version}")
 
         return dict(openFOAMfile=output)

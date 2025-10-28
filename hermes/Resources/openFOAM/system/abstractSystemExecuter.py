@@ -1,5 +1,6 @@
 from ...general.JinjaTransform.executer import JinjaTransform
 import logging
+import json
 
 class abstractSystemExecuter(JinjaTransform):
     def __init__(self, JSON, templateName):
@@ -9,6 +10,9 @@ class abstractSystemExecuter(JinjaTransform):
 
     def run(self, **executer_parameters):
         logger = logging.getLogger("abstractSystemExecuter")
+
+        print("### DEBUG: abstractSystemExecuter JSON:")
+        print(json.dumps(self._JSON, indent=2))  # <--- use print instead of logger.debug
 
         version = self._JSON.get("version", 1)
         logger.debug(f"[abstractSystemExecuter] Detected version: {version}")
@@ -27,8 +31,15 @@ class abstractSystemExecuter(JinjaTransform):
             # version 1 fallback
             templateName = f"openFOAM/system/{self.templateName}/jinjaTemplate"
             parameters = self._JSON
-            logger.debug(f"Using version 1 template: {templateName}")
+            logger.debug(f"[abstractSystemExecuter] Using version 1 template: {templateName}")
 
         # Pass to JinjaTransform
-        from hermes.Resources.general.JinjaTransform.executer import JinjaTransform
-        return JinjaTransform(self._JSON).run(template=templateName, parameters=parameters)
+        #from hermes.Resources.general.JinjaTransform.executer import JinjaTransform
+        # return JinjaTransform(self._JSON).run(template=templateName, parameters=parameters)
+        # return JinjaTransform(self._JSON).run(parameters=parameters)
+
+        logger.debug(f"abstractSystemExecuter got JSON:\n{json.dumps(self._JSON, indent=2)}")
+
+        return super().run(template=templateName, parameters=parameters)
+
+

@@ -22,58 +22,61 @@ convertToMeters {{ p.convertToMeters }};
 
 vertices
 (
-    {%- for v in p.vertices %}
-    {{ utils.toPoint(v) }}
-    {%- endfor %}
+{%- for v in p.vertices %}
+    ({{ v[0] }} {{ v[1] }} {{ v[2] }})
+{%- endfor %}
 );
+
 
 blocks
 (
-    {%- for b in p.blocks %}
-    hex {{ utils.toPoint(b.hex) }} {{ utils.toPoint(b.cellCount) }}
-    simpleGrading
+{%- for b in p.blocks %}
+    hex ({{ b.hex | join(" ") }}) ({{ b.cellCount | join(" ") }}) simpleGrading
     (
-        {%- for g in b.grading %}
-            {%- if g is sequence %}
-            (
-                {%- for sub in g %}
-                ( {{ sub.fracDir }} {{ sub.fracCells }} {{ sub.expansion }} )
-                {%- endfor %}
-            )
-            {%- else %}
-            {{ g }}
-            {%- endif %}
-        {%- endfor %}
-    )
+    {%- for g in b.grading %}
+        {%- if g is sequence %}
+        (
+            {%- for sub in g %}
+            ({{ sub.fracDir }} {{ sub.fracCells }} {{ sub.expansion }})
+            {%- endfor %}
+        )
+        {%- else %}
+        {{ g }}
+        {%- endif %}
     {%- endfor %}
+    )
+{%- endfor %}
 );
+
 
 edges
 (
-    {%- for e in p.edges %}
-        {%- if e.type == "arc" %}
-        arc {{ e.point1 }} {{ e.point2 }} {{ utils.toPoint(e.pointM) }}
-        {%- endif %}
-    {%- endfor %}
+{%- for e in p.edges %}
+    {%- if e.type == "arc" %}
+    arc {{ e.point1[0] }} {{ e.point1[1] }} {{ e.point1[2] }} {{ e.point2[0] }} {{ e.point2[1] }} {{ e.point2[2] }} ({{ e.pointM[0] }} {{ e.pointM[1] }} {{ e.pointM[2] }})
+    {%- endif %}
+{%- endfor %}
 );
+
 
 boundary
 (
-    {%- for b in p.boundary %}
+{%- for b in p.boundary %}
     {{ b.name }}
     {
         type {{ b.type }};
         faces
         (
-            {%- for f in b.faces %}
+{%- for f in b.faces %}
             {{ utils.toPoint(f) }}
-            {%- endfor %}
+{%- endfor %}
         );
-        {%- if b.type == "cyclic" and b.neighbourPatch %}
+{%- if b.type == "cyclic" and b.neighbourPatch %}
         neighbourPatch {{ b.neighbourPatch }};
-        {%- endif %}
+{%- endif %}
     }
-    {%- endfor %}
+
+{%- endfor %}
 );
 
 defaultPatch
@@ -82,3 +85,4 @@ defaultPatch
 }
 
 mergePatchPairs();
+

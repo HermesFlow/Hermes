@@ -198,7 +198,9 @@ class workflow:
         return rootTaskName
 
     def _getTaskJSON(self, nodeName):
-        return self._workflowJSON["workflow"]["nodes"].get(nodeName,None)
+        node = self._workflowJSON["workflow"]["nodes"].get(nodeName, None)
+        print(f"### DEBUG: _getTaskJSON('{nodeName}') returns:\n{json.dumps(node, indent=2)}")
+        return node
 
     def _createFinalNode(self):
         """

@@ -260,3 +260,9 @@ t
         ret = self.taskfullname +"\n"
         ret += "".join(["\t%s->%s\n" % (key,value.taskfullname) for key,value in self._requiredTasks.items()])
         return ret
+
+    def run(self, **kwargs):
+        ExecuterClass = self.getExecuterPackage()
+        # Pass the FULL task JSON (which includes version/type)
+        executer_instance = ExecuterClass(self.taskJSON)
+        return executer_instance.run(**kwargs)

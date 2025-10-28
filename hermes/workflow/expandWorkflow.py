@@ -104,6 +104,7 @@ class expandWorkflow:
             self.updateMap(fullNodeData,nodeData)
 
             fullNodeData["type"] = nodeData.get("type", fullNodeData.get("type"))
+            fullNodeData["version"] = nodeData.get("version", fullNodeData.get("version"))
 
             JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
 

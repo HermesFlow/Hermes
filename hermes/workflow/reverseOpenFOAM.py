@@ -784,12 +784,38 @@ class DictionaryReverser:
             params["geometry"] = {}
 
         # 6. edges
+        edges_out = []
+
         if "edges" in parsed_dict:
-            edges_out = []
-            for entry in parsed_dict["edges"]:
-                if isinstance(entry, dict):
-                    edges_out.append(entry)
-            params["edges"] = edges_out
+            raw_edges = parsed_dict["edges"]
+
+            # If flat list of "arc" tokens
+            if isinstance(raw_edges, list):
+                i = 0
+                while i + 3 < len(raw_edges):
+                    if raw_edges[i] == "arc":
+                        try:
+                            point1 = raw_edges[i + 1]
+                            point2 = raw_edges[i + 2]
+                            pointM = raw_edges[i + 3]
+
+                            edge_entry = {
+                                "type": "arc",
+                                "point1": point1,
+                                "point2": point2,
+                                "pointM": pointM
+                            }
+                            edges_out.append(edge_entry)
+                            i += 4
+                        except Exception as e:
+                            print(f"Failed parsing edge at index {i}: {e}")
+                            i += 1
+                    else:
+                        i += 1  # Skip any unexpected tokens
+            else:
+                print("Unexpected edges format:", raw_edges)
+
+        params["edges"] = edges_out
 
         # 7. faces
         if "faces" in parsed_dict:
@@ -1119,34 +1145,39 @@ class DictionaryReverser:
 
     def convert_momentum_transport_to_v2(self, parsed_dict: dict, as_node: bool = False) -> dict:
         """
-        Convert RASProperties/turbulenceProperties dictionary into Hermes v2 momentumTransport node.
-        Set `as_node=True` to return the full Hermes node, otherwise returns just input_parameters.
+        Convert a parsed OpenFOAM momentumTransport dictionary to Hermes v2 format.
+        Relies only on the parsed input, doesn't use hardcoded defaults.
         """
-        input_parameters = {
-            "simulationType": parsed_dict.get("simulationType", "RAS"),
-            "Model": None,
-            "turbulence": False,
-            "printCoeffs": False
-        }
+        # Extract simulation type (e.g., RAS, LES, laminar)
+        sim_type = parsed_dict.get("simulationType", "").strip()
 
-        sim_type = input_parameters["simulationType"]
+        # Get the corresponding block (e.g., parsed_dict["RAS"])
         sim_block = parsed_dict.get(sim_type, {})
 
-        if isinstance(sim_block, dict):
-            input_parameters["Model"] = sim_block.get(f"{sim_type}Model", "")
-            input_parameters["turbulence"] = str(sim_block.get("turbulence", "off")).strip().lower() == "on"
-            input_parameters["printCoeffs"] = str(sim_block.get("printCoeffs", "off")).strip().lower() == "on"
+        # Build the input_parameters purely from parsed_dict
+        input_parameters = {
+            "simulationType": sim_type,
+            "Model": sim_block.get("model") or sim_block.get(f"{sim_type}Model") or "",
+            "turbulence": self._as_bool(sim_block.get("turbulence")),
+            "printCoeffs": self._as_bool(sim_block.get("printCoeffs")),
+        }
 
         if as_node:
             return {
-                "Execution": {
-                    "input_parameters": input_parameters
-                },
+                "Execution": {"input_parameters": input_parameters},
                 "type": "openFOAM.constant.momentumTransport",
-                "version": 2
+                "version": 2,
             }
 
         return input_parameters
+
+    def _as_bool(self, value):
+        """Convert typical OpenFOAM 'on'/'off' or booleans to True/False."""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() in ("on", "true", "yes", "1")
+        return False
 
     def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
         """
