@@ -16,6 +16,17 @@ import re
 
 # ------ Helpers Functions ------
 
+def parse_vector(token):
+    if isinstance(token, list):
+        return token
+    if isinstance(token, str) and token.startswith('(') and token.endswith(')'):
+        try:
+            return [float(v) for v in token[1:-1].split()]
+        except ValueError as e:
+            print(f" Could not parse vector: {token} -> {e}")
+    return None
+
+
 def preprocess_blockMeshDict(raw_text: str, parsed_dict: dict) -> dict:
     # 1. Extract variables like v 0.577; ma -0.707...
     variables = {
@@ -788,32 +799,42 @@ class DictionaryReverser:
 
         if "edges" in parsed_dict:
             raw_edges = parsed_dict["edges"]
+            print("Raw edges tokens:", raw_edges)  # Debug
 
-            # If flat list of "arc" tokens
             if isinstance(raw_edges, list):
                 i = 0
-                while i + 3 < len(raw_edges):
+                while i < len(raw_edges):
                     if raw_edges[i] == "arc":
                         try:
                             point1 = raw_edges[i + 1]
                             point2 = raw_edges[i + 2]
                             pointM = raw_edges[i + 3]
 
+                            #  Fix wrong type — if point2 is actually a vector
+                            if isinstance(point2, list):
+                                print(f"⚠ Misaligned tokens at index {i}, shifting")
+                                pointM = point2
+                                point2 = 'FIXME'
+                                i += 3  # Skip the 3 tokens only, don't crash
+                                continue
+
+                            # 🛠️ Convert if valid
                             edge_entry = {
                                 "type": "arc",
-                                "point1": point1,
-                                "point2": point2,
-                                "pointM": pointM
+                                "point1": int(point1),
+                                "point2": int(point2),
+                                "pointM": pointM if isinstance(pointM, list) else parse_vector(pointM)
                             }
                             edges_out.append(edge_entry)
                             i += 4
+
                         except Exception as e:
-                            print(f"Failed parsing edge at index {i}: {e}")
+                            print(f" Failed parsing edge at index {i}: {e}")
                             i += 1
                     else:
-                        i += 1  # Skip any unexpected tokens
-            else:
-                print("Unexpected edges format:", raw_edges)
+                        i += 1
+        else:
+            print("No 'edges' in parsed_dict")
 
         params["edges"] = edges_out
 
@@ -963,6 +984,12 @@ class DictionaryReverser:
         return result
 
     def convert_fvSolution_dict_to_v2(self, parsed_dict: dict) -> dict:
+        """
+        Convert an fvSolution OpenFOAM dictionary into Hermes v2 JSON format.
+        This version keeps only user-defined (non-auto-generated) fields,
+        and removes solver variants or automatically expanded values.
+        """
+
         def _yn(v):
             if isinstance(v, bool):
                 return "yes" if v else "no"
@@ -981,41 +1008,55 @@ class DictionaryReverser:
         }
         params = result["Execution"]["input_parameters"]
 
-        # -------------------------
-        # 1. solvers (keep all)
-        # -------------------------
+        # ------------------------------------------------------------
+        # 1. solvers — only keep user-defined solver names
+        # ------------------------------------------------------------
         solvers_dict = parsed_dict.get("solvers", {})
         if solvers_dict:
             fields_out = {}
             for name, solver in solvers_dict.items():
-                cleaned = {k: _yn(v) for k, v in solver.items()}
+                # Skip OpenFOAM-generated variants
+                if name.endswith("Final") or name in ("U", "p") and "Final" in name:
+                    continue
+                # Only keep user-relevant keys
+                cleaned = {}
+                for k in ("solver", "smoother", "tolerance", "relTol", "preconditioner", "maxIter"):
+                    if k in solver:
+                        cleaned[k] = solver[k]
                 fields_out[name] = cleaned
             params["fields"] = fields_out
 
-        # -------------------------
+        # ------------------------------------------------------------
         # 2. SIMPLE / PISO / PIMPLE block
-        # -------------------------
+        # ------------------------------------------------------------
         for algo in ("SIMPLE", "PISO", "PIMPLE"):
             if algo in parsed_dict:
                 algo_block = parsed_dict[algo]
-                converted = {k: _yn(v) for k, v in algo_block.items()}
-                params["solverProperties"] = {
-                    "algorithm": algo,
-                    **converted
-                }
+                solver_properties = {"algorithm": algo}
+
+                if "residualControl" in algo_block:
+                    solver_properties["residualControl"] = algo_block["residualControl"]
+
+                if "consistent" in algo_block:
+                    solver_properties["consistent"] = _yn(algo_block["consistent"])
+
+                params["solverProperties"] = solver_properties
                 break
 
-        # -------------------------
-        # 3. relaxationFactors
-        # -------------------------
+        # ------------------------------------------------------------
+        # 3. relaxationFactors — keep only user-defined equations
+        # ------------------------------------------------------------
         rf = parsed_dict.get("relaxationFactors")
         if isinstance(rf, dict):
-            rf_cleaned = {}
-            for section, val in rf.items():
-                if isinstance(val, dict):
-                    rf_cleaned[section] = {k: v for k, v in val.items()}
-            if rf_cleaned:
-                params["relaxationFactors"] = rf_cleaned
+            rf_out = {}
+            eq_val = rf.get("equations")
+            if eq_val:
+                # keep minimal: if scalar, wrap in dict
+                if isinstance(eq_val, (float, int)):
+                    rf_out["equations"] = {".*": eq_val}
+                elif isinstance(eq_val, dict):
+                    rf_out["equations"] = eq_val
+            params["relaxationFactors"] = rf_out
 
         return result
 

@@ -17,7 +17,11 @@ FoamFile
 solvers
 {
     {% for fieldName, solverData in fields.items() %}
+        {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+        "{{ fieldName }}"
+        {% else %}
         {{ fieldName }}
+        {% endif %}
         {
             solver          {{ solverData.solver }};
             {% if solverData.preconditioner is defined %}
@@ -25,6 +29,9 @@ solvers
             {% endif %}
             {% if solverData.smoother is defined %}
             smoother        {{ solverData.smoother }};
+            {% endif %}
+            {% if solverData.maxIter is defined %}
+            maxIter         {{ solverData.maxIter }};
             {% endif %}
             tolerance       {{ solverData.tolerance }};
             relTol          {{ solverData.relTol }};
@@ -40,12 +47,16 @@ solvers
             {% if solverData.final.smoother is defined %}
             smoother        {{ solverData.final.smoother }};
             {% endif %}
+            {% if solverData.final.maxIter is defined %}
+            maxIter         {{ solverData.final.maxIter }};
+            {% endif %}
             tolerance       {{ solverData.final.tolerance }};
             relTol          {{ solverData.final.relTol }};
         }
         {% endif %}
     {% endfor %}
 }
+
 
 {% if solverProperties is defined %}
 {{ solverProperties.algorithm }}
@@ -78,17 +89,29 @@ relaxationFactors
     }
     {% endif %}
 
-    {% if relaxationFactors.equations is defined %}
-    equations
+{% if relaxationFactors.equations is defined %}
+equations
+{
+    {% for fieldName, factorData in relaxationFactors.equations.items() %}
+        {% if factorData is mapping %}
+    "{{ fieldName }}"
     {
-        {% for fieldName, factorData in relaxationFactors.equations.items() %}
-        {{ fieldName }}    {{ factorData.factor }};
+        factor {{ factorData.factor }};
         {% if factorData.final is defined %}
-        {{ fieldName }}Final    {{ factorData.final }};
+        final {{ factorData.final }};
         {% endif %}
-        {% endfor %}
     }
-    {% endif %}
+        {% else %}
+    "{{ fieldName }}"    {{ factorData }};
+        {% endif %}
+    {% endfor %}
 }
+{% endif %}
+
+
+
+}
+
+
 
 // ************************************************************************* //

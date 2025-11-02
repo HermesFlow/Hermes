@@ -18,14 +18,13 @@ FoamFile
 
 solvers
 {
-    {% for fieldName,solverData in fields.items() -%}
-       {{solvers.solver(fieldName,solverData,False)}}
-       {%- if 'final' in solverData -%}
-       {{solvers.solver(fieldName,solverData.final,True)}}
-       {%- else -%}
-       {{solvers.solver(fieldName,solverData,True)}}
-       {%- endif -%}
-    {%- endfor %}
+    {% for fieldName, solverData in fields.items() %}
+        {{ solvers.solver(fieldName, solverData, False) }}
+        {% if solverData.final is defined %}
+            {{ solvers.solver(fieldName + "Final", solverData.final, False) }}
+        {% endif %}
+    {% endfor %}
+
 
 }
 
@@ -61,12 +60,22 @@ relaxationFactors
     {% if 'equations' in relaxationFactors %}
     equations
     {
-        {% for fieldName, factorData in relaxationFactors.equations.items() -%}
-        {{fieldName}}   {{factorData['factor']}};
-         {%if 'final' in factorData%}
-          {{fieldName}}final   {{factorData['final']}};
-          {%endif%}
+        {% for fieldName, factorData in relaxationFactors.equations.items() %}
+            {% if factorData is mapping %}
+                {% if factorData.factor is defined %}
+                {{ fieldName }}    {{ factorData.factor }};
+                {% endif %}
+                {% if factorData.final is defined %}
+                {{ fieldName }}Final    {{ factorData.final }};
+                {% endif %}
+
+                }
+            {% else %}
+                {{ fieldName }}    {{ factorData }};
+            {% endif %}
         {% endfor %}
+
+
     }
     {% endif %}
 }

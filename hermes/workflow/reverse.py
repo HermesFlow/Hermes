@@ -82,7 +82,7 @@ def build_parameters_node(case_path: Path) -> dict:
 
 def build_workflow(case_path: Path, template_paths=None) -> dict:
     all_dicts = find_dicts(case_path)
-    print(f"🔍 Found {len(all_dicts)} dictionary files.")
+    print(f" Found {len(all_dicts)} dictionary files.")
     nodes = {}
 
     for filename, filepath in all_dicts.items():
@@ -93,10 +93,10 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
             continue
 
         try:
-            print(f"🔄 Reversing: {filename}")
+            print(f" Reversing: {filename}")
             reverser = DictionaryReverser(str(filepath), template_paths=template_paths)
             reverser.parse()
-            print(f"🧪 Checking {filename} as {dict_name}")
+            print(f" Checking {filename} as {dict_name}")
 
             node_dict = reverser.build_node()
 

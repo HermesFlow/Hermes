@@ -37,17 +37,21 @@ blocks
     simpleGrading
     (
 
-        {% for grd in blck.grading -%}
-            {%- if grd is sequence -%}
+        {%- for grd in blck.grading %}
+        {%- if grd is string %}
+            {# Split any concatenated float string like "0.47186850.038571" #}
+            {{ grd | replace(')', '') | replace('(', '') | regex_replace('([0-9])([-.])', '\\1 \\2') | replace('  ', ' ') }}
+        {%- elif grd is sequence %}
             (
-            {% for dtl in grd -%}
-                ( {{dtl.fracDir}} {{dtl.fracCells}} {{dtl.expansion}} )
-            {% endfor -%}
+                {%- for dtl in grd %}
+                    ({{ dtl.fracDir }} {{ dtl.fracCells }} {{ dtl.expansion }})
+                {%- endfor %}
             )
-            {%- else -%}
-                {{grd}}
-            {%- endif %}
-          {% endfor %}
+        {%- else %}
+            {{ grd }}
+        {%- endif %}
+    {%- endfor %}
+
     )
     {% endfor %}
 );
@@ -60,11 +64,12 @@ defaultPatch
 edges
 (
     {%- for edge in edges %}
-        {%- if edge['type'] =='arc' %}
-            arc {{edge.point1}} {{edge.point2}} {{utils.toPoint(edge.pointM)}}
+        {%- if edge.type == "arc" %}
+        arc {{ edge.point1 }} {{ edge.point2 }} {{ utils.toPoint(edge.pointM) }}
         {%- endif %}
     {%- endfor %}
 );
+
 
 boundary
 (
