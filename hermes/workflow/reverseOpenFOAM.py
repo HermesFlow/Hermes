@@ -905,7 +905,7 @@ class DictionaryReverser:
             defaults["divSchemes"] = {
                 "type": div_tokens[0],
                 "name": div_tokens[1] if len(div_tokens) > 1 else "",
-                "parameters": " ".join(div_tokens[2:]),
+                "parameters": " ".join(str(t) for t in div_tokens[2:]),
             }
 
         if "laplacianSchemes" in parsed_dict and "default" in parsed_dict["laplacianSchemes"]:
@@ -915,7 +915,7 @@ class DictionaryReverser:
             defaults["laplacianSchemes"] = {
                 "type": lap_tokens[0],
                 "name": lap_tokens[1] if len(lap_tokens) > 1 else "",
-                "parameters": " ".join(lap_tokens[2:]),
+                "parameters": " ".join(str(t) for t in lap_tokens[2:]),
             }
 
         if "interpolationSchemes" in parsed_dict and "default" in parsed_dict["interpolationSchemes"]:
@@ -944,7 +944,7 @@ class DictionaryReverser:
                     "noOfOperators": key.count(",") + (1 if key.startswith("div(") else 0),
                     "type": tokens[0],
                     "name": tokens[1] if len(tokens) > 1 else "",
-                    "parameters": " ".join(tokens[2:]),
+                    "parameters": " ".join(str(t) for t in div_tokens[2:]),
                 }
                 if key.startswith("div(") and "," in key:
                     entry["phi"] = key.split("(")[1].split(",")[0]
@@ -965,7 +965,7 @@ class DictionaryReverser:
                     "noOfOperators": key.count(",") + 1,
                     "type": tokens[0],
                     "name": tokens[1] if len(tokens) > 1 else "",
-                    "parameters": " ".join(tokens[2:]),
+                    "parameters": " ".join(str(t) for t in tokens[2:])
                 }
                 if key.startswith("laplacian(") and "," in key:
                     inner = key[10:-1]

@@ -22,16 +22,17 @@ ddtSchemes
 gradSchemes
 {
     {% if 'gradSchemes' in default -%}
-    default           {{default.gradSchemes.type}} {{default.gradSchemes.name}};
+    default         {{ default.gradSchemes.type }} {{ default.gradSchemes.name }};
     {% endif -%}
 
-    {% for fieldName,fieldData in fields.items() -%}
-        {%- if 'gradScheme' in fieldData -%}
-        {%- set gradSchemeDict = fieldData.gradScheme -%}
-        grad({{fieldName}}) {{field.gradScheme}}
+    {% for fieldName, fieldData in fields.items() -%}
+        {% if 'gradScheme' in fieldData -%}
+            {% set gradSchemeDict = fieldData.gradScheme %}
+    grad({{ fieldName }}) {{ gradSchemeDict.type }} {{ gradSchemeDict.name }} {{ gradSchemeDict.parameters }};
         {% endif -%}
-    {% endfor -%}
+    {% endfor %}
 }
+
 
 divSchemes
 {

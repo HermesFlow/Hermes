@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Website:  https://openfoam.org                             |
-|   \\  /    A nd           | Version:  10                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -12,60 +12,62 @@ FoamFile
     location    "system";
     object      blockMeshDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// ************************************************************************* //
 
 {%- import "openFOAM/utils.jinja"  as utils %}
 
-convertToMeters {{convertToMeters}};
+convertToMeters {{ convertToMeters }};
 
-{% if params %}
-{{utils.handleValue(params)}}
+{# Optional key-value params, like nCells, arcRes, etc. #}
+{%- if params %}
+{{ utils.handleValue(params) }}
 {%- endif %}
+
 
 vertices
 (
     {%- for pnt in vertices %}
-        {{utils.toPoint(pnt)}}
+    {{ utils.toPoint(pnt) }}
     {%- endfor %}
 );
+
 
 blocks
 (
     {%- for blck in blocks %}
-    hex {{utils.toPoint(blck.hex)}}
-    {{utils.toPoint(blck.cellCount)}}
-    simpleGrading
-    (
-
-        {%- for grd in blck.grading %}
-        {%- if grd is string %}
-            {# Split any concatenated float string like "0.47186850.038571" #}
-            {{ grd | replace(')', '') | replace('(', '') | regex_replace('([0-9])([-.])', '\\1 \\2') | replace('  ', ' ') }}
-        {%- elif grd is sequence %}
-            (
-                {%- for dtl in grd %}
-                    ({{ dtl.fracDir }} {{ dtl.fracCells }} {{ dtl.expansion }})
-                {%- endfor %}
-            )
-        {%- else %}
-            {{ grd }}
-        {%- endif %}
+    hex {{ utils.toPoint(blck.hex) }}
+        {{ utils.toPoint(blck.cellCount) }}
+        simpleGrading
+        (
+            {%- for grd in blck.grading %}
+                {%- if grd is string %}
+                    {{ grd }}
+                {%- elif grd is sequence %}
+                    (
+                        {%- for dtl in grd %}
+                            ({{ dtl.fracDir }} {{ dtl.fracCells }} {{ dtl.expansion }})
+                        {%- endfor %}
+                    )
+                {%- else %}
+                    {{ grd }}
+                {%- endif %}
+            {%- endfor %}
+        )
     {%- endfor %}
-
-    )
-    {% endfor %}
 );
+
 
 defaultPatch
 {
-    type {{defaultPatch}};
+    type {{ defaultPatch }};
 }
+
 
 edges
 (
     {%- for edge in edges %}
         {%- if edge.type == "arc" %}
-        arc {{ edge.point1 }} {{ edge.point2 }} {{ utils.toPoint(edge.pointM) }}
+    arc {{ edge.point1 }} {{ edge.point2 }} {{ utils.toPoint(edge.pointM) }}
         {%- endif %}
     {%- endfor %}
 );
@@ -73,28 +75,24 @@ edges
 
 boundary
 (
-    {%- for bndry in boundary %}
-        {{bndry.name}}
-        {
-            type {{bndry.type}};
-            faces
-            (
-                {%if bndry.faces|length>0 %}
-                {%- for indx in range(bndry.faces|length)%}
-                       {{utils.toPoint(bndry.faces[indx])}}
-                {%- endfor %}
-                {% endif %}
-
-            );
-            {%- if bndry['type'] =='cyclic' %}
-                neighbourPatch {{bndry.neighbourPatch}};
-            {%- endif %}
-        }
+    {%- for b in boundary %}
+    {{ b.name }}
+    {
+        type {{ b.type }};
+        faces
+        (
+            {%- for f in b.faces %}
+                {{ utils.toPoint(f) }}
+            {%- endfor %}
+        );
+        {%- if b.type == "cyclic" and b.neighbourPatch is defined %}
+        neighbourPatch {{ b.neighbourPatch }};
+        {%- endif %}
+    }
     {%- endfor %}
 );
+
 
 mergePatchPairs
 (
 );
-
-// ************************************************************************* //
