@@ -799,7 +799,7 @@ class DictionaryReverser:
 
         if "edges" in parsed_dict:
             raw_edges = parsed_dict["edges"]
-            print("Raw edges tokens:", raw_edges)  # Debug
+            print(f"Raw edges tokens: {raw_edges}")
 
             if isinstance(raw_edges, list):
                 i = 0
@@ -810,31 +810,50 @@ class DictionaryReverser:
                             point2 = raw_edges[i + 2]
                             pointM = raw_edges[i + 3]
 
-                            #  Fix wrong type — if point2 is actually a vector
-                            if isinstance(point2, list):
-                                print(f"⚠ Misaligned tokens at index {i}, shifting")
-                                pointM = point2
-                                point2 = 'FIXME'
-                                i += 3  # Skip the 3 tokens only, don't crash
+                            #  Normal arc
+                            if isinstance(point1, int) and isinstance(point2, int) and isinstance(pointM, list):
+                                edges_out.append({
+                                    "type": "arc",
+                                    "point1": point1,
+                                    "point2": point2,
+                                    "pointM": pointM
+                                })
+                                i += 4
                                 continue
 
-                            # 🛠️ Convert if valid
-                            edge_entry = {
-                                "type": "arc",
-                                "point1": int(point1),
-                                "point2": int(point2),
-                                "pointM": pointM if isinstance(pointM, list) else parse_vector(pointM)
-                            }
-                            edges_out.append(edge_entry)
-                            i += 4
+                            #  Fix malformed first arc like: arc 1 [x,y,z]
+                            if isinstance(point1, int) and isinstance(point2, list):
+                                print(f" Fixing malformed arc at index {i}")
+                                fixed_point1 = point1
+                                fixed_pointM = point2
+
+                                #  Search ahead for the next integer pair (next arc start)
+                                lookahead = raw_edges[i + 3:i + 10]
+                                next_ints = [t for t in lookahead if isinstance(t, int)]
+
+                                if len(next_ints) >= 2:
+                                    fixed_point2 = next_ints[0] - 2  # Heuristic guess
+                                elif len(next_ints) == 1:
+                                    fixed_point2 = next_ints[0] - 2
+                                else:
+                                    fixed_point2 = point1 + 2  # fallback
+
+                                edges_out.append({
+                                    "type": "arc",
+                                    "point1": fixed_point1,
+                                    "point2": fixed_point2,
+                                    "pointM": fixed_pointM
+                                })
+
+                                i += 3
+                                continue
 
                         except Exception as e:
                             print(f" Failed parsing edge at index {i}: {e}")
                             i += 1
+                            continue
                     else:
                         i += 1
-        else:
-            print("No 'edges' in parsed_dict")
 
         params["edges"] = edges_out
 
