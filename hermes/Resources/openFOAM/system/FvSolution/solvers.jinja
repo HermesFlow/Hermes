@@ -10,8 +10,10 @@
 {{GAMG(fieldName,solverData,final)}}
 {%  elif solverData.solver =='diagonal'%}
 {{diagonal(fieldName,solverData,final)}}
+{%  elif solverData.solver =='smoothSolver'%}
+{{smoothSolver(fieldName,solverData,final)}}
 {%  else %}
-    UNKNOWN Solver, must be PCG, PBiCG or GAMG. Got {{solverData.solver}}
+    UNKNOWN Solver, must be PCG, PBiCG, GAMG, diagonal or smoothSolver. Got {{solverData.solver}}
 {% endif %}
 {%- endmacro %}
 
@@ -94,5 +96,25 @@
 {{fieldName}}{%- if final %}Final{%- endif %}
 {
     solver              diagonal;
+}
+{%- endmacro %}
+
+{#-###########################-#}
+{#-A marco for the PCG solver -#}
+{#-###########################-#}
+{%- macro smoothSolver(fieldName,solverData,final=False) -%}
+{{fieldName}}{%- if final %}Final{%- endif %}
+{
+    solver              smoothSolver;
+    smoother            {{solverData.smoother}};
+    {%- if 'nSweeps' in solverData %}
+    nSweeps    {{solverData.nSweeps}};
+    {% endif -%}
+    {%- if 'tolerance' in solverData %}
+    tolerance       {{solverData.tolerance}};
+    {% endif -%}
+    {%- if 'relTol' in solverData %}
+    relTol          {{solverData.relTol}};
+    {% endif -%}
 }
 {%- endmacro %}
