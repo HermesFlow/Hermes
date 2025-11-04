@@ -87,9 +87,19 @@ castellatedMeshControls
             level {{utils.toPoint(geometryData.refinementSurfaceLevels)}};
             patchInfo { type {{geometryData.patchType}}; }
             {% else %}
+            {% if 'refinementSurfaces' in geometryData and 'levels' in geometryData.refinementSurfaces %}
             level {{utils.toPoint(geometryData.refinementSurfaces.levels)}};
+            {% else %}
+            level (0 0);  // fallback default or handle differently
+            {% endif %}
+
+            {% if 'refinementSurfaces' in geometryData and 'patchType' in geometryData.refinementSurfaces %}
             patchInfo { type {{geometryData.refinementSurfaces.patchType}}; }
-            {%- endif %}
+            {% else %}
+            patchInfo { type wall; }  // default type or skip
+            {% endif %}
+        {% endif %}
+
 
             {%- if 'regions' in geometryData %}
             {%- set objRegions=geometryData.regions %}

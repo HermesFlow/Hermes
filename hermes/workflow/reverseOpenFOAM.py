@@ -1165,7 +1165,7 @@ class DictionaryReverser:
             "Execution": {
                 "input_parameters": {
                     "OFversion": "{Parameters.output.OFversion}",
-                    "geometryData": "{snappyHexMesh.input_parameters.geometry.objects}",
+                    "geometryData": "{snappyHexMesh.Execution.input_parameters.geometry.objects}",
                     "includeAngle": int(leaf.get("includedAngle", 150)),
                     "nonManifoldEdges": to_bool(subset.get("nonManifoldEdges", "no")),
                     "openEdges": to_bool(subset.get("openEdges", "no")),
@@ -1426,8 +1426,7 @@ class DictionaryReverser:
             return v2_structured
 
         if dict_name == "surfaceFeaturesDict":
-            node = self.convert_surfaceFeatures_to_v2(final_leaf)
-            return {"surfaceFeatures": node}
+            return self.convert_surfaceFeatures_to_v2(final_leaf)
 
         if dict_name == "g":
             return self.convert_g_dict_to_v2(final_leaf)

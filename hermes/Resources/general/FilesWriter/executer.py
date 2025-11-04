@@ -32,35 +32,30 @@ class FilesWriter(abstractExecuter):
             fileContent = groupData['fileContent']
             fileName    = groupData['fileName']
 
-            if isinstance(fileContent,dict) and fileName[-1] != '/':
-                fileName = f"{fileName}/"
+            # If fileContent is a dict, treat it as a directory of multiple files
+            # But don't append '/' – just make sure fileName is a directory name
+            is_multi_file = isinstance(fileContent, dict)
 
             newPath = os.path.join(path, fileName)
-            if not os.path.exists(os.path.dirname(newPath)):
-                try:
-                    os.makedirs(os.path.dirname(newPath),exist_ok=True)
-                except OSError as exc:  # Guard against race condition
-                    if exc.errno != errno.EEXIST:
-                        raise
-            try:
-                # Check if it is a dict - e.g a list of files.
-                fileContentParsed = json.loads(fileContent[1:-1].replace('"','\\"').replace("'",'"'))
-            except json.decoder.JSONDecodeError as e:
-                fileContentParsed = fileContent
 
+            # Create directories
+            if is_multi_file:
+                os.makedirs(newPath, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(newPath), exist_ok=True)
 
-            if isinstance(fileContentParsed,dict):
-                outputFiles =[]
-                for filenameItr,fileContent in fileContentParsed.items():
-                    finalFileName = os.path.join(newPath,filenameItr)
+            # Handle file writing
+            if is_multi_file:
+                outputFiles = []
+                for filenameItr, fileContentValue in fileContent.items():
+                    finalFileName = os.path.join(newPath, filenameItr)
                     with open(finalFileName, "w") as newfile:
-                        newfile.write(fileContent)
-
+                        newfile.write(fileContentValue)
                     outputFiles.append(finalFileName)
             else:
-                outputFiles = newPath
                 with open(newPath, "w") as newfile:
-                    newfile.write(fileContentParsed)
+                    newfile.write(fileContent)
+                outputFiles = newPath
 
             createdFiles[groupName] = outputFiles
 
