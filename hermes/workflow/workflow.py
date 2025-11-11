@@ -111,8 +111,6 @@ class workflow:
 
         workflowJSON = loadJSON(workflowJSON)
 
-        import pdb
-        pdb.set_trace()
         self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
