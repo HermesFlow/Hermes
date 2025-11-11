@@ -111,11 +111,16 @@ class workflow:
 
         workflowJSON = loadJSON(workflowJSON)
 
+        import pdb
+        pdb.set_trace()
         self.name = name
         self.WD_path=WD_path if WD_path is not None else os.getcwd()
         self.Resources_path=Resources_path
         self.logger = hermes_logging.get_logger(self)
-        workflowJSON = expandWorkflow().expand(workflowJSON)
+        ## This expand add the default values from the template and the GUI.
+        ## We find it adding bugs (because the defaults are specifc for a case, and the gui is not useful).
+        #  Hence, we remove it from here.
+        #workflowJSON = expandWorkflow().expand(workflowJSON)
         self._workflowJSON = workflowJSON
         self._hermes_task_wrapper_home = hermes_task_wrapper_home
 
