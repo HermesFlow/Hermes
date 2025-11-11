@@ -496,7 +496,7 @@ class workflow:
 
     @property
     def solver(self):
-        return self.workflowJSON['solver']
+        return self.workflowJSON.get('solver', None)
 
     @solver.setter
     def solver(self, value):
