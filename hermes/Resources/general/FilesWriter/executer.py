@@ -38,14 +38,12 @@ class FilesWriter(abstractExecuter):
 
             newPath = os.path.join(path, fileName)
 
-            # Create directories
+            # Determine if it's a multi-file directory
+            is_multi_file = isinstance(fileContent, dict)
+
+            # Make sure directory structure exists
             if is_multi_file:
                 os.makedirs(newPath, exist_ok=True)
-            else:
-                os.makedirs(os.path.dirname(newPath), exist_ok=True)
-
-            # Handle file writing
-            if is_multi_file:
                 outputFiles = []
                 for filenameItr, fileContentValue in fileContent.items():
                     finalFileName = os.path.join(newPath, filenameItr)
@@ -53,6 +51,11 @@ class FilesWriter(abstractExecuter):
                         newfile.write(fileContentValue)
                     outputFiles.append(finalFileName)
             else:
+                # Make sure we're not trying to open a directory
+                if os.path.isdir(newPath):
+                    raise ValueError(f"Cannot write to directory as a file: {newPath}")
+
+                os.makedirs(os.path.dirname(newPath), exist_ok=True)
                 with open(newPath, "w") as newfile:
                     newfile.write(fileContent)
                 outputFiles = newPath

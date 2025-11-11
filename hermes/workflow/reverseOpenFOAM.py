@@ -16,70 +16,6 @@ import re
 
 # ------ Helpers Functions ------
 
-def parse_vector(token):
-    if isinstance(token, list):
-        return token
-    if isinstance(token, str) and token.startswith('(') and token.endswith(')'):
-        try:
-            return [float(v) for v in token[1:-1].split()]
-        except ValueError as e:
-            print(f" Could not parse vector: {token} -> {e}")
-    return None
-
-
-def preprocess_blockMeshDict(raw_text: str, parsed_dict: dict) -> dict:
-    # 1. Extract variables like v 0.577; ma -0.707...
-    variables = {
-        match[0]: float(match[1])
-        for match in re.findall(r'(\w+)\s+([-\d.eE]+);', raw_text)
-    }
-
-    # Expand expressions like $v into numeric values
-    def expand(val):
-        if isinstance(val, str) and val.startswith('$'):
-            return variables.get(val[1:], val)
-        return float(val)
-
-    # 2. Expand variables in vertices
-    if "vertices" in parsed_dict:
-        parsed_dict["vertices"] = [
-            [expand(x) for x in triplet]
-            for triplet in parsed_dict["vertices"]
-        ]
-
-    # 3. Extract edges
-    edges = []
-    edge_block = re.search(r'edges\s*\((.*?)\);', raw_text, re.DOTALL)
-    if edge_block:
-        edge_lines = re.findall(r'(\w+)\s+(\d+)\s+(\d+)\s+\(([^()]+)\)', edge_block.group(1))
-        for etype, start, end, coords in edge_lines:
-            point = [expand(c) for c in coords.strip().split()]
-            edges.append({
-                "type": etype,
-                "start": int(start),
-                "end": int(end),
-                "point": point
-            })
-
-    # 4. Extract faces
-    faces = []
-    face_block = re.search(r'faces\s*\((.*?)\);', raw_text, re.DOTALL)
-    if face_block:
-        face_lines = re.findall(r'project\s+\(([\d\s]+)\)\s+(\w+)', face_block.group(1))
-        for verts_str, geometry in face_lines:
-            verts = [int(v) for v in verts_str.strip().split()]
-            faces.append({
-                "type": "project",
-                "vertices": verts,
-                "geometry": geometry
-            })
-
-    # 5. Inject into parsed_dict
-    parsed_dict["edges"] = edges
-    parsed_dict["faces"] = faces
-
-    return parsed_dict
-
 
 def convert_bools_to_lowercase(obj):
     if isinstance(obj, dict):
@@ -131,15 +67,6 @@ def _normalize_parsed_dict(data):
         return data
 
 
-
-
-def as_dict(obj):
-    if isinstance(obj, Mapping):
-        return {k: as_dict(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [as_dict(i) for i in obj]
-    else:
-        return obj
 # Helper to convert PyFoam dict-like objects to native Python types
 def to_native(obj):
     """
@@ -226,160 +153,6 @@ def unwrap_booleans_and_vectors(obj):
 
 
 
-# Helpers for snappyHexMeshDict normalization
-def extract_modules(ip: Dict[str, Any]) -> None:
-    """
-    Collect castellatedMesh, snap, addLayers, and mergeTolerance into `modules` for snappyHexMeshDict.
-    """
-    modules = {}
-    sentinel = object()
-    for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
-        val = ip.pop(key, sentinel)
-        if val is not sentinel:
-            val = unwrap_special_type(val)
-            modules["layers" if key == "addLayers" else key] = val
-    if modules:
-        ip["modules"] = modules
-
-def normalize_location_in_mesh(cmc: Dict[str, Any], logger=None) -> None:
-    loc = cmc.get("locationInMesh")
-    if isinstance(loc, str):
-        try:
-            cmc["locationInMesh"] = [float(p) for p in loc.strip("()").split()]
-        except ValueError as e:
-            if logger:
-                logger.warning(f"Failed to normalize locationInMesh: {e}")
-
-
-def hoist_geometry_objects(geometry: Dict[str, Any], logger=None):
-    objects = geometry.setdefault("objects", {})
-    normalize_in_place(objects)
-
-    try:
-        for k, v in list(geometry.items()):
-            if isinstance(k, str) and k.endswith(".obj"):
-                name = v.get("name") if isinstance(v, dict) else None
-                if not name:
-                    name = Path(k).stem
-                tgt = objects.setdefault(name, {})
-                if isinstance(v, dict):
-                    tgt.update(v)
-                tgt.setdefault("objectName", name)
-                tgt.setdefault("objectType", "obj")
-                geometry.pop(k, None)
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed hoisting triSurface objects: {e}")
-
-
-def promote_refinement_surfaces(building, regions, walls, ref_surfs, originally_flat, logger=None):
-    try:
-        bsurf = to_native(ref_surfs).get("building", {})
-        global_levels = []
-        global_ptype = "wall"
-
-        if isinstance(bsurf, dict):
-            global_levels = bsurf.get("level", []) or []
-            global_ptype = bsurf.get("patchInfo", {}).get("type", "wall")
-
-            if global_levels:
-                building["refinementSurfaces"] = {
-                    "levels": global_levels,
-                    "patchType": global_ptype
-                }
-
-            if isinstance(walls, dict) and global_levels:
-                walls.setdefault("refinementSurfaceLevels", global_levels)
-                if "type" not in walls:
-                    walls["type"] = global_ptype
-
-            rregions = bsurf.get("regions", {})
-            if isinstance(rregions, dict):
-                for rname, rdef in rregions.items():
-                    if not isinstance(rdef, dict):
-                        continue
-                    region_entry = regions.get(rname, {})
-                    if not isinstance(region_entry, dict):
-                        region_entry = {}
-                        regions[rname] = region_entry
-
-                    r_levels = rdef.get("level")
-                    r_type = rdef.get("type")
-
-                    if originally_flat:
-                        if isinstance(r_levels, list) and r_levels == [0, 0] and global_levels:
-                            r_levels = global_levels
-                        if r_type == "patch" and global_ptype:
-                            r_type = global_ptype
-                    else:
-                        if isinstance(r_levels, list) and r_levels == [0, 0]:
-                            r_levels = None
-
-                    if isinstance(r_levels, list):
-                        region_entry["refinementSurfaceLevels"] = r_levels
-                    if isinstance(r_type, str):
-                        region_entry["type"] = r_type
-
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to promote refinementSurfaces/regions: {e}")
-
-def promote_refinement_regions(
-    building: Dict[str, Any],
-    walls: Dict[str, Any],
-    ref_regs: Dict[str, Any],
-    logger=None,
-):
-    try:
-        regs = to_native(ref_regs) if ref_regs else {}
-        bld_rr = regs.get("building")
-        if isinstance(bld_rr, dict):
-            building["refinementRegions"] = bld_rr
-        else:
-            building.setdefault("refinementRegions", {})
-
-        w_rr = regs.get("Walls")
-        if isinstance(w_rr, dict):
-            walls["refinementRegions"] = w_rr
-        else:
-            walls.pop("refinementRegions", None)
-    except Exception as e:
-        if logger:
-            logger.warning(f"Failed to promote refinementRegions: {e}")
-
-def handle_add_layers_controls(
-    ip: Dict[str, Any],
-    building: Dict[str, Any],
-    geometry: Dict[str, Any]
-):
-    alc = ip.setdefault("addLayersControls", {})
-    normalize_in_place(alc)
-
-    alc.setdefault("nRelaxedIter", 20)
-    alc.setdefault("nMedialAxisIter", 10)
-    alc.setdefault("additionalReporting", False)
-
-    layers_block = alc.get("layers")
-    nsl = None
-    if isinstance(layers_block, dict):
-        nsl = layers_block.pop("nSurfaceLayers", None)
-        if not layers_block:
-            alc.pop("layers", None)
-
-    ip["addLayersControls"] = alc
-
-    if nsl is not None:
-        building.setdefault("layers", {})["nSurfaceLayers"] = nsl
-        geometry.setdefault("layers", {})["nSurfaceLayers"] = nsl
-    else:
-        geometry.setdefault("layers", {}).setdefault(
-            "nSurfaceLayers", building.get("layers", {}).get("nSurfaceLayers", 10)
-        )
-
-    geometry.setdefault("objects", geometry.get("objects", {}))
-    geometry.setdefault("refinementSurfaces", {})
-    geometry.setdefault("regions", {})
-    ip["geometry"] = geometry
 
 
 
@@ -1090,15 +863,12 @@ class DictionaryReverser:
         def clean_value(val):
             val = unwrap_booleans_and_vectors(val)
 
-            # Keep numbers & bools native
             if isinstance(val, (int, float, bool)):
                 return val
 
-            # If it's a list that looks like ["uniform", "0.1"], join it back
             if isinstance(val, list) and all(isinstance(v, str) for v in val):
                 return " ".join(val)
 
-            # Preserve "uniform ..." and "nonuniform ..." as single strings
             if isinstance(val, str):
                 s = val.strip()
                 if s.startswith("uniform") or s.startswith("nonuniform"):
@@ -1127,11 +897,6 @@ class DictionaryReverser:
 
             fields_out[field_name] = field_entry
 
-        # 🔎 DEBUG PRINT
-        import pprint
-        print("\n[DEBUG] fields_out:")
-        pprint.pprint(fields_out, width=120)
-
         return {
             "Execution": {"input_parameters": {"fields": fields_out}},
             "type": "openFOAM.system.ChangeDictionary",
@@ -1145,9 +910,7 @@ class DictionaryReverser:
         return {
             "Execution": {
                 "input_parameters": {
-                    # Always return the placeholder reference
                     "numberOfSubdomains": "{Parameters.output.decomposeProcessors}"
-                    # Do NOT include "method" since reference workflow JSON omits it
                 }
             },
             "type": "openFOAM.system.DecomposePar",
@@ -1292,7 +1055,6 @@ class DictionaryReverser:
             else:
                 clean_val = value
 
-            # If clean_val is still a list (like ['viscosityModel', '[0 ...]', 'constant'])
             if isinstance(clean_val, list) and len(clean_val) == 3:
                 clean_val = clean_val[-1]
 
@@ -1532,17 +1294,6 @@ class DictionaryReverser:
         else:
             print(f"No structured v2 data returned for {self.dict_name}")
 
-        """
-        if v2_structured is not None:
-            if self.dict_name == "surfaceFeaturesDict":
-                # For surfaceFeaturesDict, use the full node (not just input_parameters)
-                node = v2_structured
-            else:
-                # For other dictionaries, keep the existing Execution structure
-                final_leaf.clear()
-                final_leaf.update(copy.deepcopy(v2_structured))
-                node["version"] = 2
-            """
 
         return {self.dict_name: node}
 
