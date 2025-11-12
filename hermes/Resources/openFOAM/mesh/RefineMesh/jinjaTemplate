@@ -38,7 +38,7 @@ globalCoeffs
 // To refine in the third direction, use the keyword 'normal'
 directions
 (
-    {% for directionName in directions.items() -%}
+    {% for directionName in directions -%}
     {{directionName}}
     {% endfor %}
 );
@@ -46,14 +46,14 @@ directions
 // Whether to use hex topology. This will
 // - if patchLocal: all cells on selected patch should be hex
 // - split all hexes in 2x2x2 through the middle of edges.
-useHexTopology  {{useHexTopology}};
+useHexTopology  {{utils.toBool(useHexTopology)}};
 
 // Cut purely geometric (will cut hexes through vertices) or take
 // topology into account. Incompatible with 'useHexTopology'
-geometricCut    {{geometricCut}};
+geometricCut    {{utils.toBool(geometricCut)}};
 
 // Write meshes from intermediate steps
-writeMesh       {{writeMesh}};
+writeMesh       {{utils.toBool(writeMesh)}};
 
 
 

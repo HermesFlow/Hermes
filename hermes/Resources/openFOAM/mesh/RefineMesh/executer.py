@@ -14,7 +14,7 @@ class RefineMesh(JinjaTransform):
     def run(self, **inputs):
 
         # get the  name of the template
-        templateName = "openFOAM/mesh/Refine/jinjaTemplate"
+        templateName = "openFOAM/mesh/RefineMesh/jinjaTemplate"
 
         template = self._getTemplate(templateName)
         # render jinja for the choosen template
