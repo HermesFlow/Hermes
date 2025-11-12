@@ -1,0 +1,23 @@
+{
+    "Execution": {
+        "input_parameters": {
+            "geometry": {},
+            "boundary": [],
+            "vertices": []
+        }
+    },
+    "GUI": {
+        "Type":"openFOAM.mesh.Refine.workbench.RefineMeshNode",
+        "Properties":{
+                "Template":"openFOAM.mesh.RefineMesh.webGUI.Properties"
+        },
+        "GeometryFaceTypes":{
+            "TypeList":["wall","symmetry","patch","cyclic"],
+            "TypeProperties":{
+                "Template":"openFOAM.mesh.RefineMesh.webGUI.PropertyTypeList"
+            }
+        },
+        "boundary": [],
+        "vertices": []
+    }
+}

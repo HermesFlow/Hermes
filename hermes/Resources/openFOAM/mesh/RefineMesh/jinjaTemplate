@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  7                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{%- import "openFOAM/utils.jinja"  as utils %}
+
+// Cells to refine; name of 'cellSet'
+set             {{set}};
+
+// Type of coordinate system:
+// - global : coordinate system same for every cell. Usually aligned with
+//   x,y,z axis. Specify in globalCoeffs section below.
+// - patchLocal : coordinate system different for every cell. Specify in
+//   patchLocalCoeffs section below.
+coordinateSystem {{coordinateSystem}};
+
+// Specifies 2 directions by a name and a vector. The normal direction is
+// calculated as tan1^tan2
+globalCoeffs
+{
+    {% for directionName,direction in globalCoeffs.items() -%}
+    {{directionName}}   {{utils.toPoint(direction)}};
+    {% endfor %}
+}
+
+// Specifies the direction to be refined by the name used above
+// To refine in the third direction, use the keyword 'normal'
+directions
+(
+    {% for directionName in directions.items() -%}
+    {{directionName}}
+    {% endfor %}
+);
+
+// Whether to use hex topology. This will
+// - if patchLocal: all cells on selected patch should be hex
+// - split all hexes in 2x2x2 through the middle of edges.
+useHexTopology  {{useHexTopology}};
+
+// Cut purely geometric (will cut hexes through vertices) or take
+// topology into account. Incompatible with 'useHexTopology'
+geometricCut    {{geometricCut}};
+
+// Write meshes from intermediate steps
+writeMesh       {{writeMesh}};
+
+
+
+// ************************************************************************* //
