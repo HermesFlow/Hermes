@@ -1,9 +1,6 @@
 {
     "Execution": {
         "input_parameters": {
-            "geometry": {},
-            "boundary": [],
-            "vertices": []
         }
     },
     "GUI": {
