@@ -6,7 +6,7 @@ from hermes.utils.logging import initialize_logging,with_logger
 if __name__ == "__main__":
     initialize_logging(
          with_logger("hermes.bin", handlers=['console'], level='CRITICAL', propagate=False),
-         with_logger("hermes.workflow", handlers=['console'], level='CRITICAL', propagate=False),
+         with_logger("hermes.workflow", handlers=['console'], level='DEBUG', propagate=False),
         with_logger("hermes.engines", handlers=['console'], level='DEBUG', propagate=False),
     )
 

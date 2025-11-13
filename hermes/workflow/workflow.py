@@ -142,19 +142,23 @@ class workflow:
         logger = get_classMethod_logger(self,"_buildNetworkRepresentations")
         logger.debug(f"Building {taskname}")
         if taskJSON is None:
-            raise ModuleNotFoundError(f"Node {taskname} is not found")
+            logger.critical(f"Node {taskname} is not found, assuming its C++ code or other things. if not check your workflow file. ")
+            return False
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
         logger.debug(f"The required nodes for {taskname} are {requiredNodeList}")
+        notANodeList = []
         for requirednode in  requiredNodeList:
             if requirednode not in self._taskRepresentations:
                 #taskJSON = self._getTaskJSON(requirednode)
                 #if taskJSON is not None:
 
-                self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
+                ret = self._buildNetworkRepresentations(requirednode, self._getTaskJSON(requirednode))
+                if not ret:
+                    notANodeList.append(requirednode)
 
         # Now build your own network representation.
-        ListOfRequiredTaskLists = [[(node,x) for x in self._taskRepresentations[node]] for node in requiredNodeList]
+        ListOfRequiredTaskLists = [[(node,x) for x in self._taskRepresentations[node]] for node in requiredNodeList if node not in notANodeList]
 
         nodeNetworkRepresentation = []
         for i,combination in enumerate(product(*ListOfRequiredTaskLists)):
@@ -167,6 +171,7 @@ class workflow:
             nodeNetworkRepresentation.append(taskwrp)
 
         self._taskRepresentations[taskname] = nodeNetworkRepresentation
+        return True
 
     def _buildNetwork(self):
         """
