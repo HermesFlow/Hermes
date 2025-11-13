@@ -56,15 +56,18 @@ class utils:
         :return:
             The value of the parameter, str
         """
+        logger = get_classMethod_logger(self,"_evaluate_path")
+        logger.debug(f"Processing {parampath} with params {params}")
         if len(parampath) == 0:
             return '{}'
         path_tokens = parampath.split(".")
         func_name = path_tokens[0] if path_tokens[0] in ["WebGUI","parameters","workflow","input_parameters","output","Properties","WebGui","value"] else "node"
         func = getattr(self, "_handle_%s" % func_name)
         if len(path_tokens[1:]) == 0:
-            raise ValueError(f"_evaluate_path: Some error with path: <{parampath}>")
-        #retval = func(".".join(path_tokens[1:]), params.get(path_tokens[0],{}))
-        retval = func(path_tokens, params)
+            logger.critical(f"_evaluate_path: Some error with path: <{parampath}>. Assuming its C++ code.")
+            retval = None
+        else:#retval = func(".".join(path_tokens[1:]), params.get(path_tokens[0],{}))
+            retval = func(path_tokens, params)
         #print("%s-->%s == %s" % (func_name, path_tokens[1:],retval))
         return retval
 
@@ -128,44 +131,51 @@ class utils:
         return "#calc "
 
     def _parseAndEvaluatePath(self, paramPath,params):
+        logger = get_classMethod_logger(self,"_parseAndEvaluatePath")
         value = []
-        tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
-        for token, ispath in tokenList:
-            testIfTokenIsAHandler = False
-            if token.startswith("#"):
-                if len(token[1:]) > 0:
-                    testIfTokenIsAHandler = True if hasattr(self,f"_handle_token_{token[1:]}".strip()) else False
-                else:
-                    testIfTokenIsAHandler = False
-
-            if testIfTokenIsAHandler:
-                try:
-                    tknval_func = getattr(self,f"_handle_token_{token[1:]}".strip())
-                    value.append(tknval_func())
-                except AttributeError:
-                    existingTokens = ",".join([x for x in dir(self) if x.startswith("_handle_token_")])
-                    raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
-            elif ispath:
-                try:
-                    ret = self._evaluate_path(token, params)
-                    ret = f'"{str(ret)}"' if isinstance(ret,dict) else ret
-                    value.append(ret)
-                except IndexError:
-                    errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
-                    print(errMsg)
-                    raise KeyError(errMsg)
-
-                except KeyError:
-                    errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
-                    print(errMsg)
-                    raise KeyError(errMsg)
-            else:
-                value.append(token)
-
-        if (all([isinstance(x, str) or isinstance(x, float) or isinstance(x, int)  for x in value])):
-            ret = "".join([str(x) for x in value])
+        if paramPath.startswith("#{"):
+            ret = paramPath
         else:
-            ret = value[0]
+            tokenList = hermes.hermesTaskWrapper.parsePath(paramPath)
+            logger.debug(f"Inspecting the token list {tokenList}")
+            for token, ispath in tokenList:
+                logger.info(f"The token {token}")
+                testIfTokenIsAHandler = False
+                if token.startswith("#"):
+                    if len(token[1:]) > 0:
+                        testIfTokenIsAHandler = True if hasattr(self,f"_handle_token_{token[1:]}".strip()) else False
+                    else:
+                        testIfTokenIsAHandler = False
+                logger.debug(f"The token {token} is a handler? {testIfTokenIsAHandler}. Is path? {ispath}")
+                if testIfTokenIsAHandler:
+                    try:
+                        tknval_func = getattr(self,f"_handle_token_{token[1:]}".strip())
+                        value.append(tknval_func())
+                    except AttributeError:
+                        existingTokens = ",".join([x for x in dir(self) if x.startswith("_handle_token_")])
+                        raise ValueError(f"token: {token[1:]} does not exist. Available Tokens are: {existingTokens}")
+                elif ispath:
+                    try:
+                        ret = self._evaluate_path(token, params)
+                        ret = f'"{str(ret)}"' if isinstance(ret,dict) else ret
+                        value.append(ret)
+                    except IndexError:
+                        errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                        print(errMsg)
+                        raise KeyError(errMsg)
+
+                    except KeyError:
+                        errMsg = f"The token {token} not found in \n {json.dumps(params, indent=4, sort_keys=True)}"
+                        print(errMsg)
+                        raise KeyError(errMsg)
+                else:
+                    logger.debug(token)
+                    value.append(token)
+
+            if (all([isinstance(x, str) or isinstance(x, float) or isinstance(x, int)  for x in value])):
+                ret = "".join([str(x) for x in value])
+            else:
+                ret = value[0]
 
         return ret
 

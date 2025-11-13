@@ -52,15 +52,20 @@ maxCo           {{values.maxCo}};
 libs
 (
     {%- for lib in values.libs -%}
-       "lib{{lib}}.so";
-    {%- endfor -%}
+       "{{lib}}"
+    {%- endfor %}
 );
 
 functions
 {
-    {%- for function in values.functions -%}
-       {{function}};
-    {%- endfor -%}
+    {%- for functionName,functionData in values.functions.items() %}
+       {{functionName}}
+       {
+           {%- for attrName,attrData in functionData.items() -%}
+           {{attrName}} {{attrData}};
+           {%- endfor -%}
+       }
+    {% endfor %}
 }
 
 
