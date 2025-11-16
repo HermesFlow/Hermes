@@ -1,6 +1,4 @@
-from ..abstractConstantExecuter import abstractConstantExecuter
+from ....general import JinjaTransform
 
-class physicalProperties(abstractConstantExecuter):
-
-    def __init__(self,JSON):
-        super().__init__(JSON,"physicalProperties")
+class physicalProperties(JinjaTransform):
+    pass

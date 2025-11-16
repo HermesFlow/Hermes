@@ -1,6 +1,4 @@
-from ..abstractSystemExecuter import abstractSystemExecuter
+from ....general import JinjaTransform
 
-class FvSchemes(abstractSystemExecuter):
-
-    def __init__(self,JSON):
-        super().__init__(JSON,"FvSchemes")
+class FvSchemes(JinjaTransform):
+    pass

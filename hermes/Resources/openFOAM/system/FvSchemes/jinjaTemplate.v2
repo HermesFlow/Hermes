@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Website:  https://openfoam.org                                  |
-|   \\  /    A nd           | Version:  10                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -14,87 +14,102 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+{%- import "openFOAM/utils.jinja" as utils %}
+
 ddtSchemes
 {
-    default         {{ input_parameters.default.ddtScheme }};
+    {% if input_parameters.ddtSchemes is defined and input_parameters.ddtSchemes.default is defined %}
+    default         {{ utils.asTokens(input_parameters.ddtSchemes.default) }};
+    {% endif %}
 }
-
 gradSchemes
 {
-    {% if input_parameters.default.gradSchemes is defined -%}
-    default         {{ input_parameters.default.gradSchemes.type }} {{ input_parameters.default.gradSchemes.name }};
+    {% if input_parameters.gradSchemes is defined and input_parameters.gradSchemes.default is defined -%}
+    default         {{ utils.asTokens(input_parameters.gradSchemes.default) }};
     {% endif -%}
 
-    {% for fieldName, fieldData in input_parameters.fields.items() -%}
-        {% if fieldData.gradScheme is defined -%}
-        grad({{ fieldName }}) {{ fieldData.gradScheme.type }} {{ fieldData.gradScheme.name }} {{ fieldData.gradScheme.parameters }};
-        {% endif -%}
-    {% endfor -%}
+
+    {% if input_parameters.fields is defined %}
+        {% for fieldName, fieldData in input_parameters.fields.items() %}
+            {% if fieldData.gradScheme is defined %}
+    grad({{ fieldName }}) {{ fieldData.gradScheme.type }} {{ fieldData.gradScheme.name }} {{ fieldData.gradScheme.parameters }};
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 }
 
 divSchemes
 {
-    {% if input_parameters.default.divSchemes is defined -%}
-    default         {{ input_parameters.default.divSchemes.type }} {{ input_parameters.default.divSchemes.name }} {{ input_parameters.default.divSchemes.parameters }};
-    {% endif -%}
+    {% if input_parameters.divSchemes is defined %}
+        {% if input_parameters.divSchemes.default is defined %}
+    default         {{ utils.asTokens(input_parameters.divSchemes.default) }};
+        {% endif %}
 
-    {% for fieldName, fieldData in input_parameters.fields.items() -%}
-        {% if fieldData.divSchemes is defined -%}
-            {% for divScheme in fieldData.divSchemes -%}
-                {% if divScheme.noOfOperators == 0 -%}
-    {{ fieldName }}    {{ divScheme.type }} {{ divScheme.name }} {{ divScheme.parameters }};
-                {% elif divScheme.noOfOperators == 1 -%}
-    div({{ fieldName }})    {{ divScheme.type }} {{ divScheme.name }} {{ divScheme.parameters }};
-                {% else -%}
-    div({{ divScheme.phi }},{{ fieldName }})    {{ divScheme.type }} {{ divScheme.name }} {{ divScheme.parameters }};
-                {% endif -%}
-            {% endfor -%}
-        {% endif -%}
-    {% endfor -%}
+        {# Loop over all keys except 'default' #}
+        {% for name, value in input_parameters.divSchemes.items() %}
+            {% if name != "default" %}
+    {{ name }}         {{ utils.asTokens(value) }};
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 }
 
 laplacianSchemes
 {
-    {% if input_parameters.default.laplacianSchemes is defined -%}
-    default         {{ input_parameters.default.laplacianSchemes.type }} {{ input_parameters.default.laplacianSchemes.name }} {{ input_parameters.default.laplacianSchemes.parameters }};
-    {% endif -%}
+    {% if input_parameters.laplacianSchemes is defined and input_parameters.laplacianSchemes.default is defined %}
+    default         {{ utils.asTokens(input_parameters.laplacianSchemes.default) }};
+    {% endif %}
 
-    {% for fieldName, fieldData in input_parameters.fields.items() -%}
-        {% if fieldData.laplacianSchemes is defined -%}
-            {% for lapScheme in fieldData.laplacianSchemes -%}
-                {% if lapScheme.noOfOperators == 1 -%}
+    {% if input_parameters.fields is defined %}
+        {% for fieldName, fieldData in input_parameters.fields.items() %}
+            {% if fieldData.laplacianSchemes is defined %}
+                {% for lapScheme in fieldData.laplacianSchemes %}
+                    {% if lapScheme.noOfOperators == 1 %}
     laplacian({{ fieldName }})    {{ lapScheme.type }} {{ lapScheme.name }} {{ lapScheme.parameters }};
-                {% elif lapScheme.noOfOperators == 2 -%}
+                    {% elif lapScheme.noOfOperators == 2 %}
     laplacian({{ lapScheme.coefficient }},{{ fieldName }})    {{ lapScheme.type }} {{ lapScheme.name }} {{ lapScheme.parameters }};
-                {% endif -%}
-            {% endfor -%}
-        {% endif -%}
-    {% endfor -%}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 }
 
 interpolationSchemes
 {
-    default         {{ input_parameters.default.interpolationSchemes }};
+    {% if input_parameters.interpolationSchemes is defined and input_parameters.interpolationSchemes.default is defined %}
+    default         {{ utils.asTokens(input_parameters.interpolationSchemes.default) }};
+    {% endif %}
 }
 
 snGradSchemes
 {
-    default         {{ input_parameters.default.snGradSchemes }};
+    {% if input_parameters.snGradSchemes is defined and input_parameters.snGradSchemes.default is defined %}
+    default         {{ utils.asTokens(input_parameters.snGradSchemes.default) }};
+    {% endif %}
 }
 
 wallDist
 {
-    method          {{ input_parameters.default.wallDist }};
+    {% if input_parameters.wallDist is defined and input_parameters.wallDist.method is defined %}
+    method          {{ input_parameters.wallDist.method }};
+    {% endif %}
 }
 
 fluxRequired
 {
-    default         no;
-    {% for fieldName, fieldData in input_parameters.fields.items() -%}
-        {% if fieldData["fluxRequired "] is defined and fieldData["fluxRequired "] %}
+    {% if input_parameters.fluxRequired is defined and input_parameters.fluxRequired.default is defined %}
+    default         {{ "yes" if input_parameters.fluxRequired.default else "no" }};
+    {% endif %}
+
+    {% if input_parameters.fluxRequired is defined %}
+        {% for fieldName, fieldValue in input_parameters.fluxRequired.items() %}
+            {% if fieldName != "default" %}
     {{ fieldName }};
-        {% endif -%}
-    {% endfor -%}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 }
+
 
 // ************************************************************************* //

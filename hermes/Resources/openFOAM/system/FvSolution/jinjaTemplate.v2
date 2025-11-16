@@ -16,100 +16,104 @@ FoamFile
 
 solvers
 {
-    {% for fieldName, solverData in fields.items() %}
-        {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
-        "{{ fieldName }}"
-        {% else %}
-        {{ fieldName }}
+    {% for fieldName, solverData in input_parameters.solvers.items() %}
+    {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+    "{{ fieldName }}"
+    {% else %}
+    {{ fieldName }}
+    {% endif %}
+    {
+        solver          {{ solverData.solver }};
+        {% if solverData.preconditioner is defined %}
+        preconditioner  {{ solverData.preconditioner }};
         {% endif %}
-        {
-            solver          {{ solverData.solver }};
-            {% if solverData.preconditioner is defined %}
-            preconditioner  {{ solverData.preconditioner }};
-            {% endif %}
-            {% if solverData.smoother is defined %}
-            smoother        {{ solverData.smoother }};
-            {% endif %}
-            {% if solverData.maxIter is defined %}
-            maxIter         {{ solverData.maxIter }};
-            {% endif %}
-            tolerance       {{ solverData.tolerance }};
-            relTol          {{ solverData.relTol }};
-        }
+        {% if solverData.smoother is defined %}
+        smoother        {{ solverData.smoother }};
+        {% endif %}
+        {% if solverData.maxIter is defined %}
+        maxIter         {{ solverData.maxIter }};
+        {% endif %}
+        tolerance       {{ solverData.tolerance }};
+        relTol          {{ solverData.relTol }};
+    }
 
-        {% if solverData.final is defined %}
-        {{ fieldName }}Final
-        {
-            solver          {{ solverData.final.solver }};
-            {% if solverData.final.preconditioner is defined %}
-            preconditioner  {{ solverData.final.preconditioner }};
-            {% endif %}
-            {% if solverData.final.smoother is defined %}
-            smoother        {{ solverData.final.smoother }};
-            {% endif %}
-            {% if solverData.final.maxIter is defined %}
-            maxIter         {{ solverData.final.maxIter }};
-            {% endif %}
-            tolerance       {{ solverData.final.tolerance }};
-            relTol          {{ solverData.final.relTol }};
-        }
+    {% if solverData.final is defined %}
+    {{ fieldName }}Final
+    {
+        solver          {{ solverData.final.solver }};
+        {% if solverData.final.preconditioner is defined %}
+        preconditioner  {{ solverData.final.preconditioner }};
         {% endif %}
+        {% if solverData.final.smoother is defined %}
+        smoother        {{ solverData.final.smoother }};
+        {% endif %}
+        {% if solverData.final.maxIter is defined %}
+        maxIter         {{ solverData.final.maxIter }};
+        {% endif %}
+        tolerance       {{ solverData.final.tolerance }};
+        relTol          {{ solverData.final.relTol }};
+    }
+    {% endif %}
     {% endfor %}
 }
 
 
-{% if solverProperties is defined %}
-{{ solverProperties.algorithm }}
+{% if input_parameters.SIMPLE is defined %}
+SIMPLE
 {
-    {% if solverProperties.residualControl is defined %}
+    {% if input_parameters.SIMPLE.consistent is defined %}
+    consistent      {{ 'yes' if input_parameters.SIMPLE.consistent else 'no' }};
+    {% endif %}
+
+    {% if input_parameters.SIMPLE.residualControl is defined %}
     residualControl
     {
-        {% for fieldName, factor in solverProperties.residualControl.items() %}
-        {{ fieldName }}    {{ factor }};
+        {% for fieldName, factor in input_parameters.SIMPLE.residualControl.items() %}
+        {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+        "{{ fieldName }}"    {{ factor }};
+        {% else %}
+        {{ fieldName }}      {{ factor }};
+        {% endif %}
         {% endfor %}
     }
     {% endif %}
 
-    {% if solverProperties.solverFields is defined %}
-        {% for field, fieldValue in solverProperties.solverFields.items() %}
-        {{ field }}    {{ fieldValue }};
-        {% endfor %}
-    {% endif %}
+    {% for key, value in input_parameters.SIMPLE.items() %}
+        {% if key not in ['residualControl', 'consistent'] %}
+        {{ key }}    {{ value }};
+        {% endif %}
+    {% endfor %}
 }
 {% endif %}
+
 
 relaxationFactors
 {
-    {% if relaxationFactors.fields is defined %}
+    {% if input_parameters.relaxationFactors.fields is defined %}
     fields
     {
-        {% for fieldName, factor in relaxationFactors.fields.items() %}
+        {% for fieldName, factor in input_parameters.relaxationFactors.fields.items() %}
         {{ fieldName }}    {{ factor }};
         {% endfor %}
     }
     {% endif %}
 
-{% if relaxationFactors.equations is defined %}
-equations
-{
-    {% for fieldName, factorData in relaxationFactors.equations.items() %}
-        {% if factorData is mapping %}
-    "{{ fieldName }}"
+    {% if input_parameters.relaxationFactors.equations is defined %}
+    equations
     {
-        factor {{ factorData.factor }};
-        {% if factorData.final is defined %}
-        final {{ factorData.final }};
+        {% if input_parameters.relaxationFactors.equations is mapping %}
+            {% for fieldName, factor in input_parameters.relaxationFactors.equations.items() %}
+            {% if '(' in fieldName or '|' in fieldName or '*' in fieldName or '.' in fieldName %}
+            "{{ fieldName }}"    {{ factor }};
+            {% else %}
+            {{ fieldName }}      {{ factor }};
+            {% endif %}
+            {% endfor %}
+        {% else %}
+            default {{ input_parameters.relaxationFactors.equations }};
         {% endif %}
     }
-        {% else %}
-    "{{ fieldName }}"    {{ factorData }};
-        {% endif %}
-    {% endfor %}
-}
-{% endif %}
-
-
-
+    {% endif %}
 }
 
 

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from PyFoam.RunDictionary.ParsedParameterFile import ParsedParameterFile
 from PyFoam.RunDictionary.ParsedParameterFile import Field
 from PyFoam.Basics.DataStructures import Vector, BoolProxy, Dimension
@@ -29,21 +28,23 @@ def convert_bools_to_lowercase(obj):
     else:
         return obj
 
-def _normalize_parsed_dict(data):
+
+def _normalize_parsed_dict(data, split_strings=False):
     """
-    Recursively normalize PyFoam parsed dict so downstream code sees consistent types.
-    - Strings with whitespace -> split into list of tokens
-    - "yes"/"no"/"true"/"false" -> boolean
-    - Numeric strings -> int or float
-    - Already a list -> normalize elements
-    - Dicts -> recurse
-    - Everything else -> unchanged
+    Recursively normalize parsed OpenFOAM dictionaries to produce consistent Python data structures.
+
+    Args:
+        data: The parsed dictionary/list/value.
+        split_strings (bool): If True, splits whitespace-delimited strings into lists (default: False).
+
+    Returns:
+        Normalized Python data structure.
     """
     if isinstance(data, dict):
-        return {k: _normalize_parsed_dict(v) for k, v in data.items()}
+        return {k: _normalize_parsed_dict(v, split_strings=split_strings) for k, v in data.items()}
 
     elif isinstance(data, list):
-        return [_normalize_parsed_dict(x) for x in data]
+        return [_normalize_parsed_dict(x, split_strings=split_strings) for x in data]
 
     elif isinstance(data, str):
         val = data.strip().lower()
@@ -52,7 +53,7 @@ def _normalize_parsed_dict(data):
         if val in ("no", "false", "off", "0"):
             return False
 
-        # try numeric conversion
+        # Try numeric conversion
         try:
             if "." in val or "e" in val:
                 return float(val)
@@ -60,8 +61,12 @@ def _normalize_parsed_dict(data):
         except ValueError:
             pass
 
-        parts = data.split()
-        return parts if len(parts) > 1 else data.strip()
+        # Optionally split string tokens (disabled for edge safety)
+        if split_strings:
+            parts = data.strip().split()
+            return parts if len(parts) > 1 else data.strip()
+
+        return data.strip()
 
     else:
         return data
@@ -262,6 +267,7 @@ class DictionaryReverser:
         else:
             return data
 
+
     def parse(self) -> None:
         """
         Read the OpenFOAM dictionary with PyFoam, capture content, and infer
@@ -269,67 +275,86 @@ class DictionaryReverser:
         (header + path).
         """
         p = Path(self.dictionary_path)
+
+        # Manually fix malformed "edges" block in blockMeshDict
+        def _extract_edges_manually(path: Path):
+            with open(path, "r") as f:
+                txt = f.read()
+
+            import re
+            block = re.search(r"edges\s*\((.*?)\);", txt, re.S)
+            if not block:
+                return None
+
+            lines = block.group(1).strip().splitlines()
+            edges = []
+
+            for line in lines:
+                line = line.strip()
+                m = re.match(r"arc\s+(\d+)\s+(\d+)\s*\(([^)]+)\)", line)
+                if m:
+                    start = int(m.group(1))
+                    end = int(m.group(2))
+                    pt = [float(x) for x in m.group(3).split()]
+                    edges.extend(["arc", start, end, pt])
+            return edges
+
+        edge_override = None
+        if p.name == "blockMeshDict":
+            edge_override = _extract_edges_manually(p)
+
+        # Parse OpenFOAM file using PyFoam
         self.ppf = ParsedParameterFile(str(p))
 
-        # Parse and deep copy
+        # Use manual edges if needed
+        if edge_override is not None:
+            print(" Patched malformed edge parsing via manual override")
+            self.ppf.content["edges"] = edge_override
+
+        # Detect dictionary name
+        header_obj = str(self.ppf.header.get("object", "")).strip()
+        stem = p.stem.strip()
+        self.dict_name = header_obj or stem
+        if not self.dict_name:
+            raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
+
+        # Parse and copy
         raw_data = copy.deepcopy(self.ppf.content)
-
-        # Drop FoamFile block to avoid legacy headers
         raw_data.pop("FoamFile", None)
+        print(f"raw_data: {raw_data}")
 
-       # self.dict_data = _normalize_parsed_dict(self.dict_data)
+        # Convert booleans/vectors to native Python
         unwrapped = unwrap_booleans_and_vectors(raw_data)
 
-        # ⬇️ Only normalize for dicts that benefit from tokenization
-        if self.dict_name == "changeDictionaryDict":
-            self.dict_data = unwrapped
-        else:
-            self.dict_data = _normalize_parsed_dict(unwrapped)
-
-            # Normalize boundary from alternating [name, dict, name, dict, ...]
-            if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
-                boundary_list = self.dict_data["boundary"]
-                normalized = []
-                i = 0
-                while i < len(boundary_list) - 1:
-                    name = boundary_list[i]
-                    body = boundary_list[i + 1]
-                    if isinstance(name, str) and isinstance(body, dict):
-                        entry = {"name": name}
-                        entry.update(body)
-                        normalized.append(entry)
-                    i += 2
-                self.dict_data["boundary"] = normalized
-
-            # Object name (dict_name)
-            header_obj = str(self.ppf.header.get("object", "")).strip()
-            stem = p.stem.strip()
-            obj = header_obj or stem
-            if not obj:
-                raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
-            self.dict_name = obj
-
-            # Subdomain: prefer header 'location' (/0 or '/system' or '/constant'), else parent dir name
-            header_loc = str(self.ppf.header.get("location", "")).strip()  # e.g. "/system", "/constant", "/0"
-            subdomain = header_loc.strip().strip("/").split("/")[-1] if header_loc else p.parent.name
-            self.subdomain = subdomain or "system"
-            # Sanitize any quoted subdomain (like "constant")
-            self.subdomain = self.subdomain.strip('"').strip("'")
-
-            self.domain = "openFOAM"
-            pascal = self.dict_name[0].upper() + self.dict_name[1:]  # Check if this is matches template file
-            self.node_type = f"{self.domain}.{self.subdomain}.{pascal}".replace('"', '').replace("'", "")
-
-        self.log.debug(
-            f"Detected node_type={self.node_type} "
-            f"(object='{self.dict_name}', location='{header_loc}', parent='{p.parent.name}')"
+        # Normalize safely (no string splitting unless needed)
+        self.dict_data = (
+            unwrapped if self.dict_name == "changeDictionaryDict"
+            else _normalize_parsed_dict(unwrapped, split_strings=False)
         )
 
-        print("\n--- DEBUG PARSE ---")
-        print("raw_data['boundary'] =", raw_data.get("boundary"))
-        print("dict_data['boundary'] =", self.dict_data.get("boundary"))
-        print("-------------------\n")
+        # Fix boundary format if alternating [name, dict, name, dict, ...]
+        if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
+            boundary_list = self.dict_data["boundary"]
+            normalized = []
+            i = 0
+            while i < len(boundary_list) - 1:
+                name, body = boundary_list[i], boundary_list[i + 1]
+                if isinstance(name, str) and isinstance(body, dict):
+                    entry = {"name": name}
+                    entry.update(body)
+                    normalized.append(entry)
+                i += 2
+            self.dict_data["boundary"] = normalized
 
+        # Detect subdomain
+        header_loc = str(self.ppf.header.get("location", "")).strip()
+        subdomain = header_loc.strip("/").split("/")[-1] if header_loc else p.parent.name
+        self.subdomain = subdomain.strip('"').strip("'") or "system"
+
+        # Final domain and node type
+        self.domain = "openFOAM"
+        pascal = self.dict_name[0].upper() + self.dict_name[1:]
+        self.node_type = f"{self.domain}.{self.subdomain}.{pascal}".replace('"', '').replace("'", "")
 
 
     # Locate the converter class for the dictionary
@@ -345,865 +370,6 @@ class DictionaryReverser:
         converter, err = locate_class(path)
         return converter, err, path
 
-
-    def convert_snappy_dict_to_v2(self, raw_dict):
-        """
-        Convert OpenFOAM snappyHexMeshDict (parsed) into structured version 2 input JSON.
-        """
-        raw_dict = self._normalize_booleans(raw_dict)
-        input_parameters = copy.deepcopy(raw_dict)
-
-        # ----------------------------
-        # 1. Extract modules
-        # ----------------------------
-        modules = {}
-        for key in ("castellatedMesh", "snap", "addLayers", "mergeTolerance"):
-            if key in input_parameters:
-                modules["layers" if key == "addLayers" else key] = input_parameters.pop(key)
-        input_parameters["modules"] = modules
-
-        # ----------------------------
-        # 2. Preserve and extend addLayersControls
-        # ----------------------------
-        alc = copy.deepcopy(input_parameters.get("addLayersControls", {}))
-        nsl = alc.pop("nSurfaceLayers", 10)
-        alc.pop("layers", None)
-        alc["additionalReporting"] = alc.get("additionalReporting", False)
-        alc["nMedialAxisIter"] = alc.get("nMedialAxisIter", 10)
-        alc["nRelaxedIter"] = alc.get("nRelaxedIter", 20)
-        input_parameters["addLayersControls"] = alc
-
-        # ----------------------------
-        # 3. Convert geometry section
-        # ----------------------------
-        original_geometry = input_parameters.get("geometry", {})
-        geometry_objects = original_geometry.get("objects", original_geometry)
-
-        new_geometry = {
-            "objects": {},
-            "refinementSurfaces": {},
-            "regions": {},
-            "layers": {"nSurfaceLayers": nsl},
-        }
-
-        cmc = input_parameters.get("castellatedMeshControls", {})
-        refinement_regions = cmc.get("refinementRegions", {})
-        refinement_surfaces = cmc.get("refinementSurfaces", {})
-
-        for name, obj in geometry_objects.items():
-            if not isinstance(obj, dict):
-                continue
-
-            object_name = name[:-4] if name.endswith(".obj") else name
-            object_type = obj.get("objectType", "obj")
-
-            building = {
-                "objectName": object_name,
-                "objectType": object_type,
-                "levels": obj.get("levels", "1"),
-                "layers": {"nSurfaceLayers": nsl},
-                "regions": {},
-                "refinementRegions": obj.get("refinementRegions", {}),
-            }
-
-            # Move inline refinementSurfaceLevels + patchType directly onto the object
-            if "refinementSurfaceLevels" in obj:
-                building["refinementSurfaceLevels"] = obj["refinementSurfaceLevels"]
-            if "patchType" in obj:
-                building["patchType"] = obj["patchType"]
-
-            # Add refinementSurfaces block inside object
-            ref_surf_key = object_name
-            if "refinementSurfaceLevels" in obj or ref_surf_key in refinement_surfaces:
-                levels = obj.get("refinementSurfaceLevels")
-                if not levels:
-                    levels = refinement_surfaces.get(ref_surf_key, {}).get("levels") or \
-                             refinement_surfaces.get(ref_surf_key, {}).get("level", [0, 0])
-                patch_type = obj.get("patchType") or \
-                             refinement_surfaces.get(ref_surf_key, {}).get("patchType") or \
-                             refinement_surfaces.get(ref_surf_key, {}).get("patchInfo", {}).get("type", "wall")
-
-                if levels is not None and patch_type is not None:
-                    building["refinementSurfaces"] = {
-                        "levels": levels,
-                        "patchType": patch_type
-                    }
-
-            # fallback refinementRegions from castellatedMeshControls
-            if not building["refinementRegions"]:
-                # Try object name first
-                if object_name in refinement_regions:
-                    building["refinementRegions"] = refinement_regions[object_name]
-                # Then try full filename (e.g. building.obj) as fallback
-                elif name in refinement_regions:
-                    building["refinementRegions"] = refinement_regions[name]
-
-            # ----------------------------
-            # Regions
-            # ----------------------------
-            input_regions = obj.get("regions", {})
-
-            # Pull from castellatedMeshControls if available
-            ref_surf_regions = (
-                refinement_surfaces.get(ref_surf_key, {}).get("regions", {})
-            )
-
-            for region_name, region_data in input_regions.items():
-                region_entry = {}
-
-                # Explicitly preserve known keys
-                for k in ("type", "refinementRegions", "refinementSurfaceLevels", "name"):
-                    if k in region_data:
-                        region_entry[k] = region_data[k]
-
-                # Fill in from refinementSurfaces -> regions if needed
-                fallback_region_data = ref_surf_regions.get(region_name, {})
-                if "type" not in region_entry and "type" in fallback_region_data:
-                    region_entry["type"] = fallback_region_data["type"]
-                if "refinementSurfaceLevels" not in region_entry and "level" in fallback_region_data:
-                    region_entry["refinementSurfaceLevels"] = fallback_region_data["level"]
-
-                # Fill in from refinementRegions if needed
-                if "refinementRegions" not in region_entry and region_name in refinement_regions:
-                    region_entry["refinementRegions"] = refinement_regions[region_name]
-
-                # Final fallback
-                if "type" not in region_entry or not region_entry["type"]:
-                    region_entry["type"] = "patch"
-
-                building["regions"][region_name] = region_entry
-
-            new_geometry["objects"][object_name] = building
-
-        # Add empty top-level refinementSurfaces for completeness
-        new_geometry["refinementSurfaces"] = {}
-        input_parameters["geometry"] = new_geometry
-
-        # ----------------------------
-        # 4. Clean up castellatedMeshControls
-        # ----------------------------
-        for key in ("features", "refinementSurfaces", "refinementRegions"):
-            input_parameters.get("castellatedMeshControls", {}).pop(key, None)
-
-        return input_parameters
-
-
-    def convert_block_mesh_dict_to_v2(self, parsed_dict: dict) -> dict:
-
-        result = {
-            "Execution": {
-                "input_parameters": {}
-            },
-            "type": "openFOAM.mesh.BlockMesh",
-            "version": 2
-        }
-
-        params = result["Execution"]["input_parameters"]
-
-        # 1. convertToMeters
-        if "convertToMeters" in parsed_dict:
-            params["convertToMeters"] = str(parsed_dict["convertToMeters"])
-
-        # 2. vertices
-        if "vertices" in parsed_dict:
-            params["vertices"] = parsed_dict["vertices"]
-
-        # 3. blocks
-        blocks_out = []
-        if "blocks" in parsed_dict and isinstance(parsed_dict["blocks"], list):
-            blocks_raw = parsed_dict["blocks"]
-
-            # Case A: already structured list of dicts
-            if all(isinstance(b, dict) for b in blocks_raw):
-                blocks_out.extend(blocks_raw)
-            # Case B: flat token list
-            else:
-                i = 0
-                while i + 4 < len(blocks_raw):
-                    if blocks_raw[i] == "hex" and isinstance(blocks_raw[i + 1], list):
-                        try:
-                            hex_indices = blocks_raw[i + 1]
-                            cell_count = blocks_raw[i + 2]
-                            grading = blocks_raw[i + 4]  # Skip over "simpleGrading"
-
-                            block_entry = {
-                                "hex": hex_indices,
-                                "cellCount": cell_count,
-                                "grading": grading
-                            }
-                            blocks_out.append(block_entry)
-                        except Exception as e:
-                            print(f"Failed parsing block at index {i}: {e}")
-                    i += 5
-
-        params["blocks"] = blocks_out
-
-        # 4. boundary
-        if "boundary" in parsed_dict:
-            boundary_out = []
-            for bnd in parsed_dict["boundary"]:
-                if not isinstance(bnd, dict):
-                    print("Skipping invalid boundary entry:", bnd)
-                    continue
-
-                name = bnd.get("name")
-
-                if name is None and len(bnd) == 1:
-                    name, inner = next(iter(bnd.items()))
-                    bnd = inner
-
-                entry = {
-                    "name": name,
-                    "type": bnd.get("type"),
-                    "faces": bnd.get("faces", []),
-                }
-                boundary_out.append(entry)
-
-            params["boundary"] = boundary_out
-
-        # 5. geometry
-        if "geometry" in parsed_dict:
-            params["geometry"] = parsed_dict["geometry"]
-        else:
-            params["geometry"] = {}
-
-        # 6. edges
-        edges_out = []
-
-        if "edges" in parsed_dict:
-            raw_edges = parsed_dict["edges"]
-            print(f"Raw edges tokens: {raw_edges}")
-
-            if isinstance(raw_edges, list):
-                i = 0
-                while i < len(raw_edges):
-                    if raw_edges[i] == "arc":
-                        try:
-                            point1 = raw_edges[i + 1]
-                            point2 = raw_edges[i + 2]
-                            pointM = raw_edges[i + 3]
-
-                            #  Normal arc
-                            if isinstance(point1, int) and isinstance(point2, int) and isinstance(pointM, list):
-                                edges_out.append({
-                                    "type": "arc",
-                                    "point1": point1,
-                                    "point2": point2,
-                                    "pointM": pointM
-                                })
-                                i += 4
-                                continue
-
-                            #  Fix malformed first arc like: arc 1 [x,y,z]
-                            if isinstance(point1, int) and isinstance(point2, list):
-                                print(f" Fixing malformed arc at index {i}")
-                                fixed_point1 = point1
-                                fixed_pointM = point2
-
-                                #  Search ahead for the next integer pair (next arc start)
-                                lookahead = raw_edges[i + 3:i + 10]
-                                next_ints = [t for t in lookahead if isinstance(t, int)]
-
-                                if len(next_ints) >= 2:
-                                    fixed_point2 = next_ints[0] - 2  # Heuristic guess
-                                elif len(next_ints) == 1:
-                                    fixed_point2 = next_ints[0] - 2
-                                else:
-                                    fixed_point2 = point1 + 2  # fallback
-
-                                edges_out.append({
-                                    "type": "arc",
-                                    "point1": fixed_point1,
-                                    "point2": fixed_point2,
-                                    "pointM": fixed_pointM
-                                })
-
-                                i += 3
-                                continue
-
-                        except Exception as e:
-                            print(f" Failed parsing edge at index {i}: {e}")
-                            i += 1
-                            continue
-                    else:
-                        i += 1
-
-        params["edges"] = edges_out
-
-        # 7. faces
-        if "faces" in parsed_dict:
-            faces_out = []
-            for entry in parsed_dict["faces"]:
-                if isinstance(entry, dict):
-                    faces_out.append(entry)
-            params["faces"] = faces_out
-
-        return result
-
-    def convert_fv_schemes_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert fvSchemes dictionary (parsed by PyFoam) into Hermes v2 JSON format.
-        """
-
-        parsed_dict.pop("FoamFile", None)
-
-        result = {
-            "Execution": {"input_parameters": {}},
-            "type": "openFOAM.system.FvSchemes",
-            "version": 2,
-        }
-
-        params = result["Execution"]["input_parameters"]
-
-        # -------------------------
-        # Defaults
-        # -------------------------
-        defaults = {}
-        if "ddtSchemes" in parsed_dict and "default" in parsed_dict["ddtSchemes"]:
-            defaults["ddtScheme"] = parsed_dict["ddtSchemes"]["default"]
-
-        if "gradSchemes" in parsed_dict and "default" in parsed_dict["gradSchemes"]:
-            grad_tokens = parsed_dict["gradSchemes"]["default"]
-            if isinstance(grad_tokens, str):
-                grad_tokens = grad_tokens.split()
-            defaults["gradSchemes"] = {
-                "type": grad_tokens[0],
-                "name": grad_tokens[1] if len(grad_tokens) > 1 else "",
-            }
-
-        if "divSchemes" in parsed_dict and "default" in parsed_dict["divSchemes"]:
-            div_tokens = parsed_dict["divSchemes"]["default"]
-            if isinstance(div_tokens, str):
-                div_tokens = div_tokens.split()
-            defaults["divSchemes"] = {
-                "type": div_tokens[0],
-                "name": div_tokens[1] if len(div_tokens) > 1 else "",
-                "parameters": " ".join(str(t) for t in div_tokens[2:]),
-            }
-
-        if "laplacianSchemes" in parsed_dict and "default" in parsed_dict["laplacianSchemes"]:
-            lap_tokens = parsed_dict["laplacianSchemes"]["default"]
-            if isinstance(lap_tokens, str):
-                lap_tokens = lap_tokens.split()
-            defaults["laplacianSchemes"] = {
-                "type": lap_tokens[0],
-                "name": lap_tokens[1] if len(lap_tokens) > 1 else "",
-                "parameters": " ".join(str(t) for t in lap_tokens[2:]),
-            }
-
-        if "interpolationSchemes" in parsed_dict and "default" in parsed_dict["interpolationSchemes"]:
-            defaults["interpolationSchemes"] = parsed_dict["interpolationSchemes"]["default"]
-
-        if "snGradSchemes" in parsed_dict and "default" in parsed_dict["snGradSchemes"]:
-            defaults["snGradSchemes"] = parsed_dict["snGradSchemes"]["default"]
-
-        if "wallDist" in parsed_dict and "method" in parsed_dict["wallDist"]:
-            defaults["wallDist"] = parsed_dict["wallDist"]["method"]
-
-        params["default"] = defaults
-
-        # -------------------------
-        # Field-specific schemes
-        # -------------------------
-        fields_out = {}
-
-        # divSchemes
-        if "divSchemes" in parsed_dict:
-            for key, val in parsed_dict["divSchemes"].items():
-                if key == "default":
-                    continue
-                tokens = val if isinstance(val, list) else val.split()
-                entry = {
-                    "noOfOperators": key.count(",") + (1 if key.startswith("div(") else 0),
-                    "type": tokens[0],
-                    "name": tokens[1] if len(tokens) > 1 else "",
-                    "parameters": " ".join(str(t) for t in div_tokens[2:]),
-                }
-                if key.startswith("div(") and "," in key:
-                    entry["phi"] = key.split("(")[1].split(",")[0]
-                    field_name = key.split(",")[1].rstrip(")")
-                elif key.startswith("div("):
-                    field_name = key[4:-1]
-                else:
-                    field_name = key
-                fields_out.setdefault(field_name, {}).setdefault("divSchemes", []).append(entry)
-
-        # laplacianSchemes
-        if "laplacianSchemes" in parsed_dict:
-            for key, val in parsed_dict["laplacianSchemes"].items():
-                if key == "default":
-                    continue
-                tokens = val if isinstance(val, list) else val.split()
-                entry = {
-                    "noOfOperators": key.count(",") + 1,
-                    "type": tokens[0],
-                    "name": tokens[1] if len(tokens) > 1 else "",
-                    "parameters": " ".join(str(t) for t in tokens[2:])
-                }
-                if key.startswith("laplacian(") and "," in key:
-                    inner = key[10:-1]
-                    coeff, fld = inner.split(",", 1)
-                    entry["coefficient"] = coeff.strip()
-                    field_name = fld.strip()
-                else:
-                    field_name = key
-                fields_out.setdefault(field_name, {}).setdefault("laplacianSchemes", []).append(entry)
-
-        # -------------------------
-        # fluxRequired
-        # -------------------------
-        default_flux = False
-        if "fluxRequired" in parsed_dict and "default" in parsed_dict["fluxRequired"]:
-            raw_default = parsed_dict["fluxRequired"]["default"]
-            if isinstance(raw_default, str):
-                default_flux = raw_default.strip().lower() == "yes"
-            elif isinstance(raw_default, bool):
-                default_flux = raw_default
-
-        # Step 1: apply default to all fields we’ve seen
-        for fld in fields_out.keys():
-            fields_out[fld]["fluxRequired"] = default_flux
-
-        # Step 2: override for explicitly listed fields
-        if "fluxRequired" in parsed_dict:
-            for fld in parsed_dict["fluxRequired"]:
-                if fld == "default":
-                    continue
-                fields_out.setdefault(fld, {})["fluxRequired"] = True
-
-        params["fields"] = fields_out
-
-        return result
-
-    def convert_fvSolution_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert an fvSolution OpenFOAM dictionary into Hermes v2 JSON format.
-        This version keeps only user-defined (non-auto-generated) fields,
-        and removes solver variants or automatically expanded values.
-        """
-
-        def _yn(v):
-            if isinstance(v, bool):
-                return "yes" if v else "no"
-            if isinstance(v, str):
-                s = v.strip().lower()
-                if s in ("yes", "true", "on", "1"):
-                    return "yes"
-                if s in ("no", "false", "off", "0"):
-                    return "no"
-            return v
-
-        result = {
-            "Execution": {"input_parameters": {}},
-            "type": "openFOAM.system.FvSolution",
-            "version": 2,
-        }
-        params = result["Execution"]["input_parameters"]
-
-        # ------------------------------------------------------------
-        # 1. solvers — only keep user-defined solver names
-        # ------------------------------------------------------------
-        solvers_dict = parsed_dict.get("solvers", {})
-        if solvers_dict:
-            fields_out = {}
-            for name, solver in solvers_dict.items():
-                # Skip OpenFOAM-generated variants
-                if name.endswith("Final") or name in ("U", "p") and "Final" in name:
-                    continue
-                # Only keep user-relevant keys
-                cleaned = {}
-                for k in ("solver", "smoother", "tolerance", "relTol", "preconditioner", "maxIter"):
-                    if k in solver:
-                        cleaned[k] = solver[k]
-                fields_out[name] = cleaned
-            params["fields"] = fields_out
-
-        # ------------------------------------------------------------
-        # 2. SIMPLE / PISO / PIMPLE block
-        # ------------------------------------------------------------
-        for algo in ("SIMPLE", "PISO", "PIMPLE"):
-            if algo in parsed_dict:
-                algo_block = parsed_dict[algo]
-                solver_properties = {"algorithm": algo}
-
-                if "residualControl" in algo_block:
-                    solver_properties["residualControl"] = algo_block["residualControl"]
-
-                if "consistent" in algo_block:
-                    solver_properties["consistent"] = _yn(algo_block["consistent"])
-
-                params["solverProperties"] = solver_properties
-                break
-
-        # ------------------------------------------------------------
-        # 3. relaxationFactors — keep only user-defined equations
-        # ------------------------------------------------------------
-        rf = parsed_dict.get("relaxationFactors")
-        if isinstance(rf, dict):
-            rf_out = {}
-            eq_val = rf.get("equations")
-            if eq_val:
-                # keep minimal: if scalar, wrap in dict
-                if isinstance(eq_val, (float, int)):
-                    rf_out["equations"] = {".*": eq_val}
-                elif isinstance(eq_val, dict):
-                    rf_out["equations"] = eq_val
-            params["relaxationFactors"] = rf_out
-
-        return result
-
-    def convert_changeDictionary_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert parsed changeDictionary file (boundary condition definitions) into v2 JSON.
-        Returns a full structured node wrapped in "defineNewBoundaryConditions".
-        """
-
-        fields_out = {}
-
-        def clean_value(val):
-            val = unwrap_booleans_and_vectors(val)
-
-            if isinstance(val, (int, float, bool)):
-                return val
-
-            if isinstance(val, list) and all(isinstance(v, str) for v in val):
-                return " ".join(val)
-
-            if isinstance(val, str):
-                s = val.strip()
-                if s.startswith("uniform") or s.startswith("nonuniform"):
-                    return s
-                return s
-
-            return val
-
-        for field_name, field_data in parsed_dict.items():
-            if field_name in ("FoamFile",):
-                continue
-
-            field_entry = {}
-
-            if "internalField" in field_data:
-                field_entry["internalField"] = clean_value(field_data["internalField"])
-
-            if "boundaryField" in field_data:
-                bfields = {}
-                for patch_name, patch_data in field_data["boundaryField"].items():
-                    patch_entry = {}
-                    for key, val in patch_data.items():
-                        patch_entry[key] = clean_value(val)
-                    bfields[patch_name] = patch_entry
-                field_entry["boundaryField"] = bfields
-
-            fields_out[field_name] = field_entry
-
-        return {
-            "Execution": {"input_parameters": {"fields": fields_out}},
-            "type": "openFOAM.system.ChangeDictionary",
-            "version": 2,
-        }
-
-    def convert_decomposeParDict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert parsed decomposeParDict into v2 JSON format.
-        """
-        return {
-            "Execution": {
-                "input_parameters": {
-                    "numberOfSubdomains": "{Parameters.output.decomposeProcessors}"
-                }
-            },
-            "type": "openFOAM.system.DecomposePar",
-            "version": 2,
-        }
-
-    def convert_surfaceFeatures_to_v2(self, leaf: dict) -> dict:
-        subset = leaf.get("subsetFeatures", {})
-
-        def to_bool(val: str) -> bool:
-            val = str(val).strip().lower()
-            return val in ("no", "false")  # treat "no" as True, "yes" as False
-
-        return {
-            "Execution": {
-                "input_parameters": {
-                    "OFversion": "{Parameters.output.OFversion}",
-                    "geometryData": "{snappyHexMesh.Execution.input_parameters.geometry.objects}",
-                    "includeAngle": int(leaf.get("includedAngle", 150)),
-                    "nonManifoldEdges": to_bool(subset.get("nonManifoldEdges", "no")),
-                    "openEdges": to_bool(subset.get("openEdges", "no")),
-                },
-                "type": "openFOAM.systemExecuters.surfaceFeaturesDict",
-            },
-            "type": "openFOAM.system.SurfaceFeatures",
-            "version": 2,
-        }
-
-    def convert_g_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert 'g' file to Hermes v2 format.
-
-        Example OpenFOAM:
-        dimensions      [0 1 -2 0 0 0 0];
-        value           (0 0 -9.81);
-
-        Hermes v2 input_parameters:
-        {
-            "x": 0,
-            "y": 0,
-            "z": -9.81
-        }
-        """
-        val = parsed_dict.get("value", [0, 0, -9.81])
-        if isinstance(val, str):
-            # Convert string "(0 0 -9.81)" to list
-            val = val.strip("()").split()
-            val = [float(v) for v in val]
-
-        return {
-            "x": val[0] if len(val) > 0 else 0,
-            "y": val[1] if len(val) > 1 else 0,
-            "z": val[2] if len(val) > 2 else -9.81
-        }
-
-    def convert_momentum_transport_to_v2(self, parsed_dict: dict, as_node: bool = False) -> dict:
-        """
-        Convert a parsed OpenFOAM momentumTransport dictionary to Hermes v2 format.
-        Relies only on the parsed input, doesn't use hardcoded defaults.
-        """
-        # Extract simulation type (e.g., RAS, LES, laminar)
-        sim_type = parsed_dict.get("simulationType", "").strip()
-
-        # Get the corresponding block (e.g., parsed_dict["RAS"])
-        sim_block = parsed_dict.get(sim_type, {})
-
-        # Build the input_parameters purely from parsed_dict
-        input_parameters = {
-            "simulationType": sim_type,
-            "Model": sim_block.get("model") or sim_block.get(f"{sim_type}Model") or "",
-            "turbulence": self._as_bool(sim_block.get("turbulence")),
-            "printCoeffs": self._as_bool(sim_block.get("printCoeffs")),
-        }
-
-        if as_node:
-            return {
-                "Execution": {"input_parameters": input_parameters},
-                "type": "openFOAM.constant.momentumTransport",
-                "version": 2,
-            }
-
-        return input_parameters
-
-    def _as_bool(self, value):
-        """Convert typical OpenFOAM 'on'/'off' or booleans to True/False."""
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, str):
-            return value.strip().lower() in ("on", "true", "yes", "1")
-        return False
-
-    def convert_physical_properties_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert physicalProperties (or transportProperties) dictionary into Hermes v2 format.
-        Supports both modern and legacy styles (with dimensions, printName, etc.).
-        Produces clean JSON ready for Jinja rendering.
-        """
-        result = {
-            "transportModel": parsed_dict.get("transportModel", "Newtonian"),
-        }
-
-        # Handle nu as top-level scalar
-        if "nu" in parsed_dict:
-            val = parsed_dict["nu"]
-            if isinstance(val, list):
-                result["nu"] = val[-1]  # always last element is the numeric value
-            elif isinstance(val, dict):
-                result["nu"] = val.get("value", val)
-            else:
-                result["nu"] = val
-
-        # Optional rhoInf
-        if "rhoInf" in parsed_dict:
-            val = parsed_dict["rhoInf"]
-            if isinstance(val, list):
-                result["rhoInf"] = val[-1]
-            elif isinstance(val, dict):
-                result["rhoInf"] = val.get("value", val)
-            else:
-                result["rhoInf"] = val
-
-        parameters = {}
-        reserved = {"FoamFile", "transportModel", "nu", "rhoInf"}
-
-        for key, value in parsed_dict.items():
-            if key in reserved:
-                continue
-
-            clean_val = None
-            dims = "[0 0 0 0 0 0 0]"
-
-            # Handle old-style list
-            if isinstance(value, list):
-                clean_val = value[-1] if len(value) > 0 else None
-
-            # Handle dict-style
-            elif isinstance(value, dict):
-                clean_val = value.get("value", None)
-                dims = str(value.get("dimensions", dims))
-
-            # Handle plain scalar
-            else:
-                clean_val = value
-
-            if isinstance(clean_val, list) and len(clean_val) == 3:
-                clean_val = clean_val[-1]
-
-            parameters[key] = {
-                "dimensions": dims,
-                "value": clean_val
-            }
-
-        if parameters:
-            result["parameters"] = parameters
-
-        return result
-
-    def convert_transport_properties_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert OpenFOAM transportProperties dictionary into Hermes v2 JSON format.
-        Handles: transportModel, nu, optional rhoInf, and optional extra parameters.
-        """
-        input_parameters = {}
-
-        # Required fields
-        input_parameters["transportModel"] = parsed_dict.get("transportModel", "Newtonian")
-        input_parameters["nu"] = parsed_dict.get("nu")
-
-        # Optional rhoInf
-        if "rhoInf" in parsed_dict:
-            input_parameters["rhoInf"] = parsed_dict["rhoInf"]
-
-        # Reserved keys not treated as additional parameters
-        reserved = {"transportModel", "nu", "rhoInf", "FoamFile"}
-        extras = {}
-
-        for key, value in parsed_dict.items():
-            if key in reserved:
-                continue
-
-            if isinstance(value, dict):
-                extras[key] = {
-                    "dimensions": value.get("dimensions", "[0 0 0 0 0 0 0]"),
-                    "value": value.get("value")
-                }
-            else:
-                extras[key] = {
-                    "dimensions": "[0 0 0 0 0 0 0]",
-                    "value": value
-                }
-
-        if extras:
-            input_parameters["parameters"] = extras
-
-        return {
-            "Execution": {
-                "input_parameters": input_parameters
-            },
-            "type": "openFOAM.constant.transportProperties",
-            "version": 2
-        }
-
-    def convert_turbulence_properties_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Alias: turbulenceProperties is the same as momentumTransport (RASProperties).
-        """
-        return self.convert_momentum_transport_to_v2(parsed_dict, as_node=True)
-
-    def convert_mesh_quality_dict_to_v2(self, parsed_dict: dict) -> dict:
-        """
-        Convert a meshQualityDict parsed dictionary to Hermes v2 node format.
-        Supports both full dictionaries and include-only templates.
-        """
-        result = {
-            "Execution": {
-                "input_parameters": {}
-            },
-            "type": "openFOAM.system.MeshQualityDict",
-            "version": 2
-        }
-
-        input_params = result["Execution"]["input_parameters"]
-
-        # Case: include-only format
-        if "0" in parsed_dict and isinstance(parsed_dict["0"], list):
-            input_params["0"] = parsed_dict["0"]
-            return result
-
-        # Handle main keys
-        for key, value in parsed_dict.items():
-            if key == "relaxed" and isinstance(value, dict):
-                # Preserve nested relaxed block
-                input_params["relaxed"] = {}
-                for rk, rv in value.items():
-                    input_params["relaxed"][rk] = rv
-            elif isinstance(value, (str, int, float, bool, list, dict)):
-                input_params[key] = value
-            else:
-                print(f"Skipping unknown meshQualityDict key: {key} -> {value}")
-
-        return result
-
-    def apply_v2_conversion(self, dict_name: str, final_leaf: dict) -> Optional[dict]:
-        """
-        Apply v2 conversion for supported OpenFOAM dictionaries.
-        Returns a v2-structured node or None if no conversion is defined.
-        """
-        print(f"apply_v2_conversion: dict_name = {dict_name}")
-
-        if dict_name == "snappyHexMeshDict":
-            return self.convert_snappy_dict_to_v2(final_leaf)
-
-        if dict_name == "blockMeshDict":
-            return self.convert_block_mesh_dict_to_v2(final_leaf)
-
-        if dict_name == "fvSchemes":
-            v2_structured = self.convert_fv_schemes_dict_to_v2(final_leaf)
-            return v2_structured
-
-        if dict_name == "fvSolution":
-            v2_structured = self.convert_fvSolution_dict_to_v2(final_leaf)
-            return v2_structured
-
-        if dict_name == "changeDictionaryDict":
-            # Treat both like boundary-condition dictionaries
-            v2_structured = self.convert_changeDictionary_to_v2(final_leaf)
-            return v2_structured
-
-        if dict_name == "transportProperties":
-            v2_structured = self.convert_transport_properties_to_v2(final_leaf)
-            return v2_structured
-
-        if dict_name == "decomposeParDict":
-            v2_structured = self.convert_decomposeParDict_to_v2(final_leaf)
-            return v2_structured
-
-        if dict_name == "surfaceFeaturesDict":
-            return self.convert_surfaceFeatures_to_v2(final_leaf)
-
-        if dict_name == "g":
-            return self.convert_g_dict_to_v2(final_leaf)
-
-        if dict_name == "meshQualityDict":
-            return self.convert_mesh_quality_dict_to_v2(final_leaf)
-
-        if dict_name in ("RASProperties", "turbulenceProperties", "momentumTransport"):
-            print(f"Converting momentumTransport via convert_momentum_transport_to_v2()")
-            return self.convert_momentum_transport_to_v2(final_leaf)
-
-        if dict_name == "physicalProperties":
-            return self.convert_physical_properties_to_v2(final_leaf)
-
-        return None
 
     def build_node(self, list_strategy: str = "replace") -> Dict[str, Any]:
         if self.ppf is None:
@@ -1273,28 +439,7 @@ class DictionaryReverser:
             convert_bools_to_lowercase(final_leaf)
             node["version"] = 2
 
-        # Apply v2 conversion if available
-        v2_structured = self.apply_v2_conversion(self.dict_name, final_leaf)
-
-        print(f"\n apply_v2_conversion() returned for {self.dict_name}:")
-        print(json.dumps(v2_structured, indent=4, default=str))
-
-        if isinstance(v2_structured, dict) and "Execution" in v2_structured and "input_parameters" in v2_structured[
-            "Execution"]:
-            final_leaf.clear()
-            final_leaf.update(copy.deepcopy(v2_structured["Execution"]["input_parameters"]))
-            node["type"] = v2_structured.get("type", node["type"])
-            node["version"] = v2_structured.get("version", 2)
-
-        elif isinstance(v2_structured, dict):  # Flat format (e.g., blockMeshDict, fvSchemes)
-            final_leaf.clear()
-            final_leaf.update(copy.deepcopy(v2_structured))
-            node["version"] = 2
-
-        else:
-            print(f"No structured v2 data returned for {self.dict_name}")
-
-
+        node["version"] = 2
         return {self.dict_name: node}
 
     def to_json_str(self, node: dict) -> str:

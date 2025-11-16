@@ -11,8 +11,6 @@ class abstractSystemExecuter(JinjaTransform):
     def run(self, **executer_parameters):
         logger = logging.getLogger("abstractSystemExecuter")
 
-        print("### DEBUG: abstractSystemExecuter JSON:")
-        print(json.dumps(self._JSON, indent=2))  # <--- use print instead of logger.debug
 
         version = self._JSON.get("version", 1)
         logger.debug(f"[abstractSystemExecuter] Detected version: {version}")

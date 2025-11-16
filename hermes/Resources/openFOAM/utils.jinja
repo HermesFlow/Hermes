@@ -17,7 +17,19 @@
     {%- endif -%}
 {%- endmacro %}
 
+{%- macro toSwitch(val) -%}
+  {{ "on" if val else "off" }}
+{%- endmacro %}
 
+{%- macro asTokens(val) -%}
+  {%- if val is string -%}
+    {{ val }}
+  {%- elif val is sequence -%}
+    {{ val | join(" ") }}
+  {%- else -%}
+    {{ val }}
+  {%- endif -%}
+{%- endmacro %}
 
 {%- macro toBool(var) -%}
   {%- if var%}true{%- else%}false{%endif%}

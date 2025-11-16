@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Website:  https://openfoam.org                          |
-|   \\  /    A nd           | Version:  10                  |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
@@ -29,7 +29,7 @@ writeInterval       {{ v.writeInterval }};
 purgeWrite          {{ v.purgeWrite }};
 writeFormat         {{ v.writeFormat }};
 writePrecision      {{ v.writePrecision }};
-writeCompression    {{ utils.toBool(v.writeCompression) }};
+writeCompression    {{ utils.toSwitch(v.writeCompression) }};
 timeFormat          {{ v.timeFormat }};
 timePrecision       {{ v.timePrecision }};
 runTimeModifiable   {{ utils.toBool(v.runTimeModifiable) }};

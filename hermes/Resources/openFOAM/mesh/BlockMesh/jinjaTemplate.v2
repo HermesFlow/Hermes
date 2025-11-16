@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Website:  https://openfoam.org                               |
-|   \\  /    A nd           | Version:  10                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
@@ -29,32 +29,32 @@ vertices
 
 blocks
 (
-{% for b in p.blocks %}
-    hex ({{ b.hex | join(' ') }}) ({{ b.cellCount | join(' ') }}) simpleGrading
-    (
-        {%- for g in b.grading %}
-            {%- if g is sequence %}
-        (
-            {%- for sub in g %}
-            ({{ sub.fracDir }} {{ sub.fracCells }} {{ sub.expansion }})
-            {%- endfor %}
-        )
-            {%- else %}
-        {{ g }}
-            {%- endif %}
-        {%- endfor %}
-    )
+{% for i in range(0, p.blocks | length, 5) %}
+    {% set keyword = p.blocks[i] %}
+    {% set points = p.blocks[i+1] if p.blocks[i+1] is sequence else [] %}
+    {% set cells = p.blocks[i+2] if p.blocks[i+2] is sequence else [] %}
+    {% set gradingType = p.blocks[i+3] %}
+    {% set grading = p.blocks[i+4] if p.blocks[i+4] is sequence else [] %}
+
+    {{ keyword }} ({{ points | join(' ') }}) ({{ cells | join(' ') }}) {{ gradingType }} ({{ grading | join(' ') }})
 {% endfor %}
 );
 
 edges
 (
-{% for e in p.edges %}
-    {% if e.type == "arc" %}
-    arc ({{ e.point1 | join(' ') }}) ({{ e.point2 | join(' ') }}) ({{ e.pointM | join(' ') }})
-    {% endif %}
+{% for i in range(0, (p.edges | length) - 3, 4) %}
+    {% set keyword = p.edges[i] %}
+    {% set start = p.edges[i+1] %}
+    {% set endp = p.edges[i+2] %}
+    {% set pt = p.edges[i+3] %}
+    {{ keyword }} {{ start }} {{ endp }} (
+        {{ "%.16g"|format(pt[0]|float) }} {{ "%.16g"|format(pt[1]|float) }} {{ "%.16g"|format(pt[2]|float) }}
+    )
 {% endfor %}
 );
+
+
+
 
 boundary
 (
@@ -75,10 +75,11 @@ boundary
 {% endfor %}
 );
 
+{% if p.defaultPatch is defined and p.defaultPatch.type is defined %}
 defaultPatch
 {
-    type {{ p.defaultPatch }};
+    type {{ p.defaultPatch.type }};
 }
+{% endif %}
 
 mergePatchPairs();
-
