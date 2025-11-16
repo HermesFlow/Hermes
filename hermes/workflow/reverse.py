@@ -2,6 +2,10 @@ import argparse
 import json
 from pathlib import Path
 from .reverseOpenFOAM import DictionaryReverser
+from hermes.Resources.openFOAM.BuildAllrun.executer import BuildAllrun
+from hermes.Resources.general.FilesWriter.executer import FilesWriter
+
+
 
 class HermesEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -161,23 +165,24 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         })
 
     # Add buildAllRun node
-    nodes["buildAllRun"] = {
-        "Execution": {
-            "input_parameters": {
-                "casePath": "{Parameters.output.targetDirectory}",
-                "caseExecution": {
-                    "parallelCase": True,
-                    "slurm": False,
-                    "getNumberOfSubdomains": 10,
-                    "runFile": run_steps
-                },
-                "parallelCase": True,
-                "runFile": run_steps
-            }
-        },
-        #"requires": "createEmptyCase",
-        "type": "openFOAM.BuildAllrun"
+    # Create input params
+    build_inputs = {
+        "casePath": "{Parameters.output.targetDirectory}",
+        "parallelCase": True,
+        "slurm": False,
+        "getNumberOfSubdomains": 10,
+        "runFile": run_steps
     }
+
+    build_exec = BuildAllrun({})
+    build_node = build_exec.json() or {}
+    build_node.update({
+        "Execution": {
+            "input_parameters": build_inputs
+        },
+        "type": "openFOAM.BuildAllrun"
+    })
+    nodes["buildAllRun"] = build_node
 
     # fileWriter mapping with only existing nodes
     files_mapping = {
@@ -191,7 +196,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         "physicalProperties": "constant/physicalProperties",
         "momentumTransport": "constant/momentumTransport",
         "defineNewBoundaryConditions": "system/changeDictionaryDict",
-        "surfaceFeatures": "system"
+        "surfaceFeatures": "system/surfaceFeaturesDict"
     }
 
     files = {}
@@ -203,17 +208,21 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
             }
 
     # Add fileWriter node
-    nodes["fileWriter"] = {
-        "Execution": {
-            "input_parameters": {
-                "directoryPath": ".",
-                "Files": files,
-                "casePath": "{Parameters.output.targetDirectory}"
-            }
-        },
-        #"requires": "createEmptyCase",
-        "type": "general.FilesWriter"
+    files_writer_inputs = {
+        "directoryPath": ".",
+        "Files": files,
+        "casePath": "{Parameters.output.targetDirectory}"
     }
+
+    file_writer_exec = FilesWriter({})
+    file_writer_node = file_writer_exec.json() or {}
+    file_writer_node.update({
+        "Execution": {
+            "input_parameters": files_writer_inputs
+        },
+        "type": "general.FilesWriter"
+    })
+    nodes["fileWriter"] = file_writer_node
 
     # Finalize nodeList
     ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]

@@ -13,139 +13,186 @@ FoamFile
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-{%- import "openFOAM/utils.jinja" as utils %}
+{% import "openFOAM/utils.jinja" as utils %}
+{% set p = input_parameters %}
 
-{%- set p = input_parameters %}
+castellatedMesh {{ utils.toSwitch(p.modules.castellatedMesh) }};
+snap            {{ utils.toSwitch(p.modules.snap) }};
+addLayers       {{ utils.toSwitch(p.modules.addLayers) }};
 
-castellatedMesh {{ utils.toBool(p.modules.castellatedMesh) }};
-snap            {{ utils.toBool(p.modules.snap) }};
-addLayers       {{ utils.toBool(p.modules.layers) }};
-
+{% if p.geometry is defined and p.geometry | length > 0 %}
 geometry
 {
-    {%- for geometryName, geometryData in p.geometry.objects.items() %}
-    {{ geometryData.objectName }}.{{ geometryData.objectType }}
+    {% for geometryName, geometryData in p.geometry.items() %}
+    {% if geometryData.type is defined %}
+    {{ geometryName }}
     {
-        type triSurfaceMesh;
-        name {{ geometryName }};
-        {%- if 'regions' in geometryData %}
-        regions {
-            {%- for regionName, regionData in geometryData.regions.items() %}
-            {{ regionName }}
-            {
-                name {{ regionData.get('name', regionName) }};
-            }
-            {%- endfor %}
-        }
-        {%- endif %}
+        type {{ geometryData.type }};
+        {% if geometryData.file is defined %}
+        file {{ geometryData.file }};
+        {% endif %}
+        {% if geometryData.min is defined and geometryData.max is defined %}
+        min  {{ utils.toPoint(geometryData.min) }};
+        max  {{ utils.toPoint(geometryData.max) }};
+        {% endif %}
     }
-    {%- endfor %}
+    {% endif %}
+    {% endfor %}
 };
+{% endif %}
 
 castellatedMeshControls
 {
+    {% if p.castellatedMeshControls.maxGlobalCells is defined %}
     maxGlobalCells      {{ p.castellatedMeshControls.maxGlobalCells }};
+    {% endif %}
+    {% if p.castellatedMeshControls.maxLocalCells is defined %}
     maxLocalCells       {{ p.castellatedMeshControls.maxLocalCells }};
+    {% endif %}
+    {% if p.castellatedMeshControls.minRefinementCells is defined %}
     minRefinementCells  {{ p.castellatedMeshControls.minRefinementCells }};
+    {% endif %}
+    {% if p.castellatedMeshControls.maxLoadUnbalance is defined %}
     maxLoadUnbalance    {{ p.castellatedMeshControls.maxLoadUnbalance }};
+    {% endif %}
+    {% if p.castellatedMeshControls.nCellsBetweenLevels is defined %}
     nCellsBetweenLevels {{ p.castellatedMeshControls.nCellsBetweenLevels }};
+    {% endif %}
+    {% if p.castellatedMeshControls.resolveFeatureAngle is defined %}
     resolveFeatureAngle {{ p.castellatedMeshControls.resolveFeatureAngle }};
+    {% endif %}
+    {% if p.castellatedMeshControls.allowFreeStandingZoneFaces is defined %}
     allowFreeStandingZoneFaces {{ utils.toBool(p.castellatedMeshControls.allowFreeStandingZoneFaces) }};
+    {% endif %}
+    {% if p.castellatedMeshControls.locationInMesh is defined %}
     locationInMesh {{ utils.toPoint(p.castellatedMeshControls.locationInMesh) }};
+    {% endif %}
+    {% if p.castellatedMeshControls.insidePoint is defined %}
+    insidePoint {{ utils.toPoint(p.castellatedMeshControls.insidePoint) }};
+    {% endif %}
 
-    features (
-        {%- for geometryName, geometryData in p.geometry.objects.items() %}
+    {% if p.castellatedMeshControls.features is defined and p.castellatedMeshControls.features %}
+    features
+    (
+        {% for feature in p.castellatedMeshControls.features %}
         {
-            file "{{ geometryData.objectName }}.eMesh";
-            level {{ geometryData.get('levels', 1) }};
+            file {{ feature.file }};
+            level {{ feature.level }};
         }
-        {%- endfor %}
+        {% endfor %}
     );
+    {% endif %}
 
+    {% if p.castellatedMeshControls.refinementSurfaces is defined and p.castellatedMeshControls.refinementSurfaces %}
     refinementSurfaces
     {
-        {%- for geometryName, geometryData in p.geometry.objects.items() %}
-        {{ geometryName }}
+        {% for surfaceName, surfaceData in p.castellatedMeshControls.refinementSurfaces.items() %}
+        {{ surfaceName }}
         {
-            {%- set levels = geometryData.get('refinementSurfaceLevels') or geometryData.get('refinementSurfaces', {}).get('levels', [1, 1]) %}
-            {%- set patch_type = geometryData.get('patchType') or geometryData.get('refinementSurfaces', {}).get('patchType', 'wall') %}
-
-            level {{ utils.toPoint(levels) }};
-            patchInfo { type {{ patch_type }}; }
-
-            {%- if 'regions' in geometryData %}
-            regions {
-                {%- for regionName, regionData in geometryData.regions.items() %}
-                {{ regionData.get('name', regionName) }}
-                {
-                    level {{ utils.toPoint(regionData.get('refinementSurfaceLevels', [0, 0])) }};
-                    {%- if 'type' in regionData %}
-                    type {{ regionData.type }};
-                    {%- endif %}
-                }
-                {%- endfor %}
-            }
-            {%- endif %}
+            level {{ utils.toPoint(surfaceData.level) }};
+            patchInfo { type {{ surfaceData.patchInfo.type }}; }
         }
-        {%- endfor %}
+        {% endfor %}
     }
+    {% endif %}
 
-
+    {% if p.castellatedMeshControls.refinementRegions is defined and p.castellatedMeshControls.refinementRegions %}
     refinementRegions
     {
-        {%- for geometryName, geometryData in p.geometry.objects.items() %}
-        {%- set rr = geometryData.refinementRegions %}
-        {%- if rr and 'mode' in rr %}
-        {{ geometryName }}
+        {% for regionName, regionData in p.castellatedMeshControls.refinementRegions.items() %}
+        {{ regionName }}
         {
-            mode {{ rr.mode }};
-            levels (
-                {%- if rr.mode in ['inside', 'outside'] -%}
-                {{ utils.toPoint(rr.levels) }}
-                {%- elif rr.mode == 'distance' -%}
-                {%- for pnt in rr.levels %} {{ utils.toPoint(pnt) }} {%- endfor %}
-                {%- endif -%}
-            );
+            mode {{ regionData.mode }};
+            level {{ regionData.level }};
         }
-        {%- endif %}
-
-        {%- if 'regions' in geometryData %}
-        {%- for regionName, regionData in geometryData.regions.items() %}
-        {%- set rrr = regionData.get('refinementRegions') %}
-        {%- if rrr %}
-        {{ regionData.get('name', regionName) }}
-        {
-            mode {{ rrr.mode }};
-            levels (
-                {%- if rrr.mode in ['inside', 'outside'] -%}
-                {{ utils.toPoint(rrr.levels) }}
-                {%- elif rrr.mode == 'distance' -%}
-                {%- for pnt in rrr.levels %} {{ utils.toPoint(pnt) }} {%- endfor %}
-                {%- endif -%}
-            );
-        }
-        {%- endif %}
-        {%- endfor %}
-        {%- endif %}
-        {%- endfor %}
+        {% endfor %}
     }
+    {% endif %}
 };
 
+{% if p.snapControls is defined %}
 snapControls
 {
+    {% if p.snapControls.nSmoothPatch is defined %}
     nSmoothPatch        {{ p.snapControls.nSmoothPatch }};
+    {% endif %}
+    {% if p.snapControls.tolerance is defined %}
     tolerance           {{ p.snapControls.tolerance }};
+    {% endif %}
+    {% if p.snapControls.nSolveIter is defined %}
     nSolveIter          {{ p.snapControls.nSolveIter }};
+    {% endif %}
+    {% if p.snapControls.nRelaxIter is defined %}
     nRelaxIter          {{ p.snapControls.nRelaxIter }};
+    {% endif %}
+    {% if p.snapControls.nFeatureSnapIter is defined %}
     nFeatureSnapIter    {{ p.snapControls.nFeatureSnapIter }};
+    {% endif %}
+    {% if p.snapControls.explicitFeatureSnap is defined %}
     explicitFeatureSnap {{ utils.toBool(p.snapControls.explicitFeatureSnap) }};
+    {% endif %}
+    {% if p.snapControls.multiRegionFeatureSnap is defined %}
     multiRegionFeatureSnap {{ utils.toBool(p.snapControls.multiRegionFeatureSnap) }};
+    {% endif %}
+    {% if p.snapControls.implicitFeatureSnap is defined %}
     implicitFeatureSnap {{ utils.toBool(p.snapControls.implicitFeatureSnap) }};
+    {% endif %}
 };
-"""
+{% endif %}
 
-# Write the content to the file
-template_path.write_text(template_content.strip())
+{% if p.addLayersControls is defined %}
+addLayersControls
+{
+    {% if p.addLayersControls.layers is defined and p.addLayersControls.layers %}
+    layers
+    {
+        {% for name, settings in p.addLayersControls.layers.items() %}
+        {{ name }}
+        {
+            {% if settings.nSurfaceLayers is defined %}
+            nSurfaceLayers {{ settings.nSurfaceLayers }};
+            {% endif %}
+        }
+        {% endfor %}
+    }
+    {% endif %}
 
-# Return the path to the user
-template_path.name
+    {% if p.addLayersControls.relativeSizes is defined %}
+    relativeSizes       {{ utils.toBool(p.addLayersControls.relativeSizes) }};
+    {% endif %}
+    {% if p.addLayersControls.expansionRatio is defined %}
+    expansionRatio      {{ p.addLayersControls.expansionRatio }};
+    {% endif %}
+    {% if p.addLayersControls.finalLayerThickness is defined %}
+    finalLayerThickness {{ p.addLayersControls.finalLayerThickness }};
+    {% endif %}
+    {% if p.addLayersControls.minThickness is defined %}
+    minThickness        {{ p.addLayersControls.minThickness }};
+    {% endif %}
+};
+{% endif %}
+
+{% if p.meshQualityControls is defined %}
+meshQualityControls
+{
+    {% for paramName, paramValue in p.meshQualityControls.items() %}
+    {{ paramName }} {{ paramValue }};
+    {% endfor %}
+};
+{% endif %}
+
+{% if p.writeFlags is defined and p.writeFlags %}
+writeFlags
+(
+    {% for flag in p.writeFlags %}
+    {{ flag }}
+    {% endfor %}
+);
+{% endif %}
+
+{% if p.mergeTolerance is defined %}
+mergeTolerance {{ p.mergeTolerance }};
+{% endif %}
+
+
+// ************************************************************************* //

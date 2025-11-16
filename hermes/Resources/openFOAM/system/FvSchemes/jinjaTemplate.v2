@@ -24,18 +24,23 @@ ddtSchemes
 }
 gradSchemes
 {
-    {% if input_parameters.gradSchemes is defined and input_parameters.gradSchemes.default is defined -%}
+    {%- if input_parameters.gradSchemes is defined and input_parameters.gradSchemes.default is defined %}
     default         {{ utils.asTokens(input_parameters.gradSchemes.default) }};
-    {% endif -%}
+    {%- endif %}
 
+    {# Render any aliases like 'limited' #}
+    {%- for aliasName, aliasValue in input_parameters.gradSchemes.items() if aliasName != "default" %}
+    {{ aliasName }}    {{ utils.asTokens(aliasValue) }};
+    {%- endfor %}
 
-    {% if input_parameters.fields is defined %}
-        {% for fieldName, fieldData in input_parameters.fields.items() %}
-            {% if fieldData.gradScheme is defined %}
-    grad({{ fieldName }}) {{ fieldData.gradScheme.type }} {{ fieldData.gradScheme.name }} {{ fieldData.gradScheme.parameters }};
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    {# Field-specific gradSchemes #}
+    {%- if input_parameters.fields is defined %}
+        {%- for fieldName, fieldData in input_parameters.fields.items() %}
+            {%- if fieldData.gradScheme is defined %}
+    grad({{ fieldName }})    {{ utils.asTokens(fieldData.gradScheme) }};
+            {%- endif %}
+        {%- endfor %}
+    {%- endif %}
 }
 
 divSchemes

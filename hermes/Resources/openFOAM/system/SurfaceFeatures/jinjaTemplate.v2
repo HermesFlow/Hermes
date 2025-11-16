@@ -14,10 +14,11 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 {% if OFversion == "of2212" %}
-{{geometryData.objectName}}.{{geometryData.objectType}}
+{% if geometryData is defined %}
+{{ geometryData.objectName }}.{{ geometryData.objectType }}
 {
     extractionMethod    extractFromSurface;
-    includedAngle       {{includeAngle}};
+    includedAngle       {{ includeAngle }};
 
     subsetFeatures
     {
@@ -27,10 +28,45 @@ FoamFile
 
     writeObj            yes;
 }
-{% else %}
-surfaces ("{{geometryData.objectName}}.{{geometryData.objectType}}");
+{% elif surfaces is defined and surfaces | length > 0 %}
+{# Extract from first surface filename #}
+{% set surface_file = surfaces[0] %}
+{% set dot_index = surface_file.rfind('.') %}
+{% if dot_index > 0 %}
+{% set name = surface_file[:dot_index] %}
+{% set ext = surface_file[dot_index+1:] %}
+{{ name }}.{{ ext }}
+{
+    extractionMethod    extractFromSurface;
+    includedAngle       {{ includeAngle }};
 
-includedAngle       {{includeAngle}};
+    subsetFeatures
+    {
+        nonManifoldEdges   {{ "yes" if nonManifoldEdges else "no" }};
+        openEdges          {{ "yes" if openEdges else "no" }};
+    }
+
+    writeObj            yes;
+}
+{% endif %}
+{% endif %}
+
+{% else %}
+{% if geometryData is defined %}
+surfaces ("{{ geometryData.objectName }}.{{ geometryData.objectType }}");
+{% elif surfaces is defined and surfaces | length > 0 %}
+{% set surface_file = surfaces[0] %}
+{% set dot_index = surface_file.rfind('.') %}
+{% if dot_index > 0 %}
+{% set name = surface_file[:dot_index] %}
+{% set ext = surface_file[dot_index+1:] %}
+surfaces ("{{ name }}.{{ ext }}");
+{% else %}
+surfaces ("{{ surface_file }}");
+{% endif %}
+{% endif %}
+
+includedAngle       {{ includeAngle }};
 
 subsetFeatures
 {
@@ -38,5 +74,6 @@ subsetFeatures
     openEdges          {{ "yes" if openEdges else "no" }};
 }
 {% endif %}
+
 
 // ************************************************************************* //

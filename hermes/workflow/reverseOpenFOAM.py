@@ -305,6 +305,7 @@ class DictionaryReverser:
 
         # Parse OpenFOAM file using PyFoam
         self.ppf = ParsedParameterFile(str(p))
+        print(f"ParsedParameterFile content: {self.ppf.content}")
 
         # Use manual edges if needed
         if edge_override is not None:

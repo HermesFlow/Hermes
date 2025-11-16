@@ -116,6 +116,15 @@ relaxationFactors
     {% endif %}
 }
 
+{% if input_parameters.potentialFlow is defined %}
+potentialFlow
+{
+    {% for key, value in input_parameters.potentialFlow.items() %}
+    {{ key }}     {{ value }};
+    {% endfor %}
+}
+{% endif %}
+
 
 
 // ************************************************************************* //
