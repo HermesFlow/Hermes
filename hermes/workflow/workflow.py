@@ -142,7 +142,7 @@ class workflow:
         logger = get_classMethod_logger(self,"_buildNetworkRepresentations")
         logger.debug(f"Building {taskname}")
         if taskJSON is None:
-            logger.critical(f"Node {taskname} is not found, assuming its C++ code or other things. if not check your workflow file. ")
+            logger.info(f"Node {taskname} is not found, assuming its C++ code or other things. if not check your workflow file. ")
             return False
         requiredNodeList = [x for x in hermesTaskWrapper.getRequiredTasks(taskJSON) if not (x.startswith("#") or x in ['workflow',''])]
 
