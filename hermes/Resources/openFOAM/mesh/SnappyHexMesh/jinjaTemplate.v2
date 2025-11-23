@@ -16,185 +16,163 @@ FoamFile
 {% import "openFOAM/utils.jinja" as utils %}
 {% set p = input_parameters %}
 
-castellatedMesh {{ utils.toSwitch(p.modules.castellatedMesh) }};
-snap            {{ utils.toSwitch(p.modules.snap) }};
-addLayers       {{ utils.toSwitch(p.modules.addLayers) }};
+{#--- Include at the top if present ---#}
+{% if p["0"] is defined %}
+{{ p["0"] }}
+{% endif %}
 
-{% if p.geometry is defined and p.geometry | length > 0 %}
+{% if p.castellatedMesh is defined %}
+castellatedMesh {{ utils.toSwitch(p.modules.castellatedMesh) if p.castellatedMesh else "no" }};
+{% endif %}
+{% if p.snap is defined %}
+snap            {{ utils.toSwitch(p.modules.snap) if p.snap else "no" }};
+{% endif %}
+{% if p.addLayers is defined %}
+addLayers       {{ utils.toSwitch(p.modules.addLayers) if p.addLayers else "no" }};
+{% endif %}
+
+{#--- Geometry ---#}
+{% if p.geometry is defined %}
 geometry
 {
-    {% for geometryName, geometryData in p.geometry.items() %}
-    {% if geometryData.type is defined %}
-    {{ geometryName }}
+    {% for name, geom in p.geometry.items() %}
+    {{ name }}
     {
-        type {{ geometryData.type }};
-        {% if geometryData.file is defined %}
-        file {{ geometryData.file }};
-        {% endif %}
-        {% if geometryData.min is defined and geometryData.max is defined %}
-        min  {{ utils.toPoint(geometryData.min) }};
-        max  {{ utils.toPoint(geometryData.max) }};
-        {% endif %}
+        {% for key, val in geom.items() %}
+            {% if val is sequence and val is not string %}
+        {{ key }}    ({{ val | join(" ") }});
+            {% else %}
+        {{ key }}    {{ val }};
+            {% endif %}
+        {% endfor %}
     }
-    {% endif %}
     {% endfor %}
 };
 {% endif %}
 
+{#--- Castellated Mesh Controls ---#}
+{% if p.castellatedMeshControls is defined %}
 castellatedMeshControls
 {
-    {% if p.castellatedMeshControls.maxGlobalCells is defined %}
-    maxGlobalCells      {{ p.castellatedMeshControls.maxGlobalCells }};
-    {% endif %}
-    {% if p.castellatedMeshControls.maxLocalCells is defined %}
-    maxLocalCells       {{ p.castellatedMeshControls.maxLocalCells }};
-    {% endif %}
-    {% if p.castellatedMeshControls.minRefinementCells is defined %}
-    minRefinementCells  {{ p.castellatedMeshControls.minRefinementCells }};
-    {% endif %}
-    {% if p.castellatedMeshControls.maxLoadUnbalance is defined %}
-    maxLoadUnbalance    {{ p.castellatedMeshControls.maxLoadUnbalance }};
-    {% endif %}
-    {% if p.castellatedMeshControls.nCellsBetweenLevels is defined %}
-    nCellsBetweenLevels {{ p.castellatedMeshControls.nCellsBetweenLevels }};
-    {% endif %}
-    {% if p.castellatedMeshControls.resolveFeatureAngle is defined %}
-    resolveFeatureAngle {{ p.castellatedMeshControls.resolveFeatureAngle }};
-    {% endif %}
-    {% if p.castellatedMeshControls.allowFreeStandingZoneFaces is defined %}
-    allowFreeStandingZoneFaces {{ utils.toBool(p.castellatedMeshControls.allowFreeStandingZoneFaces) }};
-    {% endif %}
-    {% if p.castellatedMeshControls.locationInMesh is defined %}
-    locationInMesh {{ utils.toPoint(p.castellatedMeshControls.locationInMesh) }};
-    {% endif %}
-    {% if p.castellatedMeshControls.insidePoint is defined %}
-    insidePoint {{ utils.toPoint(p.castellatedMeshControls.insidePoint) }};
-    {% endif %}
-
-    {% if p.castellatedMeshControls.features is defined and p.castellatedMeshControls.features %}
+    {% for key, val in p.castellatedMeshControls.items() %}
+        {% if key == "features" and val %}
     features
     (
-        {% for feature in p.castellatedMeshControls.features %}
+        {% for feature in val %}
         {
-            file {{ feature.file }};
-            level {{ feature.level }};
+            {% for k, v in feature.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
         }
         {% endfor %}
     );
-    {% endif %}
-
-    {% if p.castellatedMeshControls.refinementSurfaces is defined and p.castellatedMeshControls.refinementSurfaces %}
+        {% elif key == "refinementSurfaces" %}
     refinementSurfaces
     {
-        {% for surfaceName, surfaceData in p.castellatedMeshControls.refinementSurfaces.items() %}
+        {% for surfaceName, surfaceData in val.items() %}
         {{ surfaceName }}
         {
-            level {{ utils.toPoint(surfaceData.level) }};
-            patchInfo { type {{ surfaceData.patchInfo.type }}; }
+            {% for k, v in surfaceData.items() %}
+                {% if k == "level" and v is sequence %}
+            level {{ "(" ~ v | join(" ") ~ ")" }};
+                {% elif v is mapping %}
+            {{ k }}
+            {
+                {% for subk, subv in v.items() %}
+                {{ subk }}    {{ subv }};
+                {% endfor %}
+            }
+                {% else %}
+            {{ k }}    {{ v }};
+                {% endif %}
+            {% endfor %}
         }
         {% endfor %}
     }
-    {% endif %}
-
-    {% if p.castellatedMeshControls.refinementRegions is defined and p.castellatedMeshControls.refinementRegions %}
+        {% elif key == "refinementRegions" %}
     refinementRegions
     {
-        {% for regionName, regionData in p.castellatedMeshControls.refinementRegions.items() %}
+        {% for regionName, regionData in val.items() %}
         {{ regionName }}
         {
-            mode {{ regionData.mode }};
-            level {{ regionData.level }};
+            {% for k, v in regionData.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
         }
         {% endfor %}
     }
-    {% endif %}
-    {% if p.castellatedMeshControls.insidePoint is defined %}
-    insidePoint {{ utils.toPoint(p.castellatedMeshControls.insidePoint) }};
-    {% endif %}
-
-};
-
-{% if p.snapControls is defined %}
-snapControls
-{
-    {% if p.snapControls.nSmoothPatch is defined %}
-    nSmoothPatch        {{ p.snapControls.nSmoothPatch }};
-    {% endif %}
-    {% if p.snapControls.tolerance is defined %}
-    tolerance           {{ p.snapControls.tolerance }};
-    {% endif %}
-    {% if p.snapControls.nSolveIter is defined %}
-    nSolveIter          {{ p.snapControls.nSolveIter }};
-    {% endif %}
-    {% if p.snapControls.nRelaxIter is defined %}
-    nRelaxIter          {{ p.snapControls.nRelaxIter }};
-    {% endif %}
-    {% if p.snapControls.nFeatureSnapIter is defined %}
-    nFeatureSnapIter    {{ p.snapControls.nFeatureSnapIter }};
-    {% endif %}
-    {% if p.snapControls.explicitFeatureSnap is defined %}
-    explicitFeatureSnap {{ utils.toBool(p.snapControls.explicitFeatureSnap) }};
-    {% endif %}
-    {% if p.snapControls.multiRegionFeatureSnap is defined %}
-    multiRegionFeatureSnap {{ utils.toBool(p.snapControls.multiRegionFeatureSnap) }};
-    {% endif %}
-    {% if p.snapControls.implicitFeatureSnap is defined %}
-    implicitFeatureSnap {{ utils.toBool(p.snapControls.implicitFeatureSnap) }};
-    {% endif %}
-};
-{% endif %}
-
-{% if p.addLayersControls is defined %}
-addLayersControls
-{
-    {% if p.addLayersControls.layers is defined and p.addLayersControls.layers %}
-    layers
+        {% elif val is sequence and val is not string %}
+    {{ key }}    ({{ val | join(" ") }});
+        {% elif val is mapping %}
+    {{ key }}
     {
-        {% for name, settings in p.addLayersControls.layers.items() %}
-        "{{ name }}"
-        {
-            {% if settings.nSurfaceLayers is defined %}
-            nSurfaceLayers {{ settings.nSurfaceLayers }};
-            {% endif %}
-        }
-        {% endfor %}
-    }
-    {% endif %}
-
-    {% if p.addLayersControls.relativeSizes is defined %}
-    relativeSizes       {{ utils.toBool(p.addLayersControls.relativeSizes) }};
-    {% endif %}
-    {% if p.addLayersControls.expansionRatio is defined %}
-    expansionRatio      {{ p.addLayersControls.expansionRatio }};
-    {% endif %}
-    {% if p.addLayersControls.finalLayerThickness is defined %}
-    finalLayerThickness {{ p.addLayersControls.finalLayerThickness }};
-    {% endif %}
-    {% if p.addLayersControls.minThickness is defined %}
-    minThickness        {{ p.addLayersControls.minThickness }};
-    {% endif %}
-};
-{% endif %}
-
-
-{% if p.meshQualityControls is defined and p.meshQualityControls|length > 0 %}
-meshQualityControls
-{
-    {% for paramName, paramValue in p.meshQualityControls.items() %}
-        {% if paramValue is mapping %}
-    {{ paramName }}
-    {
-        {% for subName, subValue in paramValue.items() %}
-        {{ subName }} {{ subValue }};
+        {% for k, v in val.items() %}
+        {{ k }}    {{ v }};
         {% endfor %}
     }
         {% else %}
-    {{ paramName }} {{ paramValue }};
+    {{ key }}    {{ val }};
         {% endif %}
     {% endfor %}
 };
 {% endif %}
 
+{#--- Snap Controls ---#}
+{% if p.snapControls is defined %}
+snapControls
+{
+    {% for key, val in p.snapControls.items() %}
+    {{ key }}    {{ "true" if val else "false" if val is boolean else val }};
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Add Layers Controls ---#}
+{% if p.addLayersControls is defined %}
+addLayersControls
+{
+    {% for key, val in p.addLayersControls.items() %}
+        {% if key == "layers" %}
+    layers
+    {
+        {% for surfName, surfParams in val.items() %}
+        "{{ surfName }}"
+        {
+            {% for k, v in surfParams.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+        {% elif val is boolean %}
+    {{ key }}    {{ "true" if val else "false" }};
+        {% else %}
+    {{ key }}    {{ val }};
+        {% endif %}
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Mesh Quality Controls ---#}
+{% if p.meshQualityControls is defined and p.meshQualityControls|length > 0 %}
+meshQualityControls
+{
+    {% for key, val in p.meshQualityControls.items() %}
+        {% if val is mapping %}
+    {{ key }}
+    {
+        {% for subk, subv in val.items() %}
+        {{ subk }}    {{ subv }};
+        {% endfor %}
+    }
+        {% else %}
+    {{ key }}    {{ val }};
+        {% endif %}
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Write Flags ---#}
 {% if p.writeFlags is defined and p.writeFlags %}
 writeFlags
 (
@@ -204,8 +182,9 @@ writeFlags
 );
 {% endif %}
 
+{#--- Merge Tolerance ---#}
 {% if p.mergeTolerance is defined %}
-mergeTolerance {{ p.mergeTolerance }};
+mergeTolerance    {{ p.mergeTolerance }};
 {% endif %}
 
 
