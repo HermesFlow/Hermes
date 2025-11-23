@@ -103,17 +103,19 @@ relaxationFactors
     {
         {% if input_parameters.relaxationFactors.equations is mapping %}
             {% for fieldName, factor in input_parameters.relaxationFactors.equations.items() %}
-            {% if '(' in fieldName or '|' in fieldName or '*' in fieldName or '.' in fieldName %}
-            "{{ fieldName }}"    {{ factor }};
-            {% else %}
-            {{ fieldName }}      {{ factor }};
-            {% endif %}
+                {% if '(' in fieldName or '|' in fieldName or '*' in fieldName or '.' in fieldName %}
+                "{{ fieldName }}"    {{ factor }};
+                {% else %}
+                {{ fieldName }}      {{ factor }};
+                {% endif %}
             {% endfor %}
         {% else %}
             default {{ input_parameters.relaxationFactors.equations }};
         {% endif %}
     }
-    {% endif %}
+{% endif %}
+
+
 }
 
 {% if input_parameters.potentialFlow is defined %}

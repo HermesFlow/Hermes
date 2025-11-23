@@ -13,17 +13,21 @@ FoamFile
     object      momentumTransport;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{%- set model_type = input_parameters.simulationType %}
+{%- set model_data = input_parameters[model_type] %}
 
-simulationType {{ input_parameters.simulationType }};
+simulationType {{ model_type }};
 
-{% if input_parameters.simulationType != 'laminar' %}
-{{ input_parameters.simulationType }}
+{{ model_type }}
 {
-    model           {{ input_parameters.Model }};
-
-    turbulence      {{ 'on' if input_parameters.turbulence else 'off' }};
-    printCoeffs     {{ 'on' if input_parameters.printCoeffs else 'off' }};
+    {% for key, val in model_data.items() %}
+        {% if val is boolean %}
+    {{ key }}    {{ 'on' if val else 'off' }};
+        {%- else %}
+    {{ key }}    {{ val }};
+        {%- endif %}
+    {% endfor %}
 }
-{% endif %}
+
 
 // ************************************************************************* //

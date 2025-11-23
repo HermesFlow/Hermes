@@ -13,33 +13,10 @@ FoamFile
     object      physicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-{% if transportModel is defined %}
-transportModel  {{ transportModel }};
-{% endif %}
 
-{% if nu is defined %}
-nu              {{ nu }};
-{% endif %}
 
-{% if rhoInf is defined %}
-rhoInf          {{ rhoInf }};
-{% endif %}
-
-{# Optional additional parameters #}
-{% if parameters is defined %}
-{% for name, data in parameters.items() %}
-    {% if data is mapping and 'value' in data %}
-        {# Handle old structure: {"value": [float or list]} #}
-        {% if data.value is iterable and data.value is not string %}
-{{ name }}  {{ data.value[-1] }};
-        {% else %}
-{{ name }}  {{ data.value }};
-        {% endif %}
-    {% else %}
-        {# Default: render as-is (float, int, string, etc.) #}
-{{ name }}  {{ data }};
-    {% endif %}
+{% for name, val in input_parameters.items() %}
+{{ name }}    {{ val }};
 {% endfor %}
-{% endif %}
 
 // ************************************************************************* //

@@ -27,6 +27,22 @@ vertices
 {% endfor %}
 );
 
+{% for key, val in values.items() %}
+    {% if key not in ['vertices', 'blocks', 'edges', 'boundary', 'mergePatchPairs', 'convertToMeters'] %}
+        {% if val is iterable and val is not string %}
+{{ key }}
+(
+    {% for face in val %}
+    ({{ face | join(' ') }})
+    {% endfor %}
+);
+
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+
+
 blocks
 (
 {% for i in range(0, p.blocks | length, 5) %}
@@ -40,6 +56,7 @@ blocks
 {% endfor %}
 );
 
+
 edges
 (
 {% for i in range(0, (p.edges | length) - 3, 4) %}
@@ -49,6 +66,15 @@ edges
     {% set pt = p.edges[i+3] %}
     {{ keyword }} {{ start }} {{ endp }} (
         {{ "%.16g"|format(pt[0]|float) }} {{ "%.16g"|format(pt[1]|float) }} {{ "%.16g"|format(pt[2]|float) }}
+    )
+{% endfor %}
+);
+
+edges
+(
+{% for e in p.edges %}
+    {{ e.keyword }} {{ e.start }} {{ e.end }} (
+        {{ "%.16g"|format(e.point[0]) }} {{ "%.16g"|format(e.point[1]) }} {{ "%.16g"|format(e.point[2]) }}
     )
 {% endfor %}
 );
