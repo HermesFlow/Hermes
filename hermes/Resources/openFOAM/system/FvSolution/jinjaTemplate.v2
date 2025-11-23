@@ -13,20 +13,16 @@ FoamFile
     object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-{#-- Optional: Map regex to expanded fields --#}
-{% set field_aliases = {
-    "(U|k|epsilon)": ["U", "k", "epsilon"],
-    "(k|epsilon)": ["k", "epsilon"],
-    "(U|k|epsilon)Final": ["UFinal", "kFinal", "epsilonFinal"]
-} %}
+
 
 solvers
 {
     {% for fieldName, solverData in input_parameters.solvers.items() %}
-        {% set expanded = field_aliases.get(fieldName, [fieldName]) %}
-
-        {% for field in expanded %}
-    {{ field }}
+    {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+    "{{ fieldName }}"
+    {% else %}
+    {{ fieldName }}
+    {% endif %}
     {
         solver          {{ solverData.solver }};
         {% if solverData.preconditioner is defined %}
@@ -41,12 +37,9 @@ solvers
         tolerance       {{ solverData.tolerance }};
         relTol          {{ solverData.relTol }};
     }
-        {% endfor %}
 
-        {% if solverData.final is defined %}
-            {% set final_expanded = field_aliases.get(fieldName ~ "Final", [fieldName ~ "Final"]) %}
-            {% for finalField in final_expanded %}
-    {{ finalField }}
+    {% if solverData.final is defined %}
+    {{ fieldName }}Final
     {
         solver          {{ solverData.final.solver }};
         {% if solverData.final.preconditioner is defined %}
@@ -61,11 +54,9 @@ solvers
         tolerance       {{ solverData.final.tolerance }};
         relTol          {{ solverData.final.relTol }};
     }
-            {% endfor %}
-        {% endif %}
+    {% endif %}
     {% endfor %}
 }
-
 
 
 {% if input_parameters.SIMPLE is defined %}
@@ -96,7 +87,6 @@ SIMPLE
 }
 {% endif %}
 
-
 relaxationFactors
 {
     {% if input_parameters.relaxationFactors.fields is defined %}
@@ -123,9 +113,7 @@ relaxationFactors
             default {{ input_parameters.relaxationFactors.equations }};
         {% endif %}
     }
-{% endif %}
-
-
+    {% endif %}
 }
 
 {% if input_parameters.potentialFlow is defined %}
@@ -137,6 +125,14 @@ potentialFlow
 }
 {% endif %}
 
+{% if input_parameters.cache is defined %}
+cache
+{
+    {% for line in input_parameters.cache %}
+    {{ line }};
+    {% endfor %}
+}
+{% endif %}
 
 
 // ************************************************************************* //

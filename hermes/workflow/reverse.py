@@ -146,31 +146,24 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     })
     nodes["buildAllRun"] = build_node
 
-    # fileWriter mapping with only existing nodes
-    files_mapping = {
-        "blockMeshDict": "system/blockMeshDict",
-        "decomposeParDict": "system/decomposeParDict",
-        "snappyHexMeshDict": "system/snappyHexMeshDict",
-        "g": "constant/g",
-        "controlDict": "system/controlDict",
-        "fvSchemes": "system/fvSchemes",
-        "fvSolution": "system/fvSolution",
-        "meshQualityDict": "system/meshQualityDict",
-        "defineNewBoundaryConditionsDict": "system/changeDictionaryDict",
-        "surfaceFeaturesDict": "system/surfaceFeaturesDict",
-        "topoSetDict": "system/topoSetDict",
-        "physicalProperties": "constant/physicalProperties",
-        "momentumTransport": "constant/momentumTransport"
-
-    }
-
     files = {}
-    for node_name, file_path in files_mapping.items():
-        if node_name in nodes:
-            files[node_name] = {
-                "fileName": file_path,
-                "fileContent": f"{{{node_name}.output.openFOAMfile}}"
-            }
+    for node_name, node_data in nodes.items():
+        if node_name in {"buildAllRun", "fileWriter", "Parameters"}:
+            continue  # skip non-dictionary nodes
+
+        # Try to infer original path from dictionary object or guess it
+        default_dir = "system"
+        if node_name in ["g", "physicalProperties", "momentumTransport"]:
+            default_dir = "constant"
+        elif node_name in ["epsilon", "U", "p", "k", "nut"]:
+            default_dir = "0"
+
+        file_path = f"{default_dir}/{node_name}"
+
+        files[node_name] = {
+            "fileName": file_path,
+            "fileContent": f"{{{node_name}.output.openFOAMfile}}"
+        }
 
     # Add fileWriter node
     files_writer_inputs = {
