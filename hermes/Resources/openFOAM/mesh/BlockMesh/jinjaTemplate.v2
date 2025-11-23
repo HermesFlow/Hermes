@@ -18,7 +18,14 @@ FoamFile
 {% import "openFOAM/utils.jinja" as utils %}
 {% set p = input_parameters %}
 
-convertToMeters {{ p.convertToMeters }};
+{% if input_parameters.convertToMeters is defined %}
+convertToMeters    {{ input_parameters.convertToMeters }};
+{% endif %}
+
+{% if input_parameters.scale is defined %}
+scale              {{ input_parameters.scale }};
+{% endif %}
+
 
 vertices
 (

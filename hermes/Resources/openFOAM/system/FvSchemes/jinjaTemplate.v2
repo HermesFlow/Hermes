@@ -101,6 +101,19 @@ wallDist
     {% endif %}
 }
 
+{% if input_parameters.wallDist is defined %}
+wallDist
+{
+    {% if input_parameters.wallDist.method is defined %}
+    method          {{ input_parameters.wallDist.method }};
+    {% endif %}
+    {% if input_parameters.wallDist.nRequired is defined %}
+    nRequired       {{ "yes" if input_parameters.wallDist.nRequired else "no" }};
+    {% endif %}
+}
+{% endif %}
+
+
 fluxRequired
 {
     {% if input_parameters.fluxRequired is defined and input_parameters.fluxRequired.default is defined %}

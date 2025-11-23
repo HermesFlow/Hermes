@@ -14,7 +14,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
 solvers
 {
     {% for fieldName, solverData in input_parameters.solvers.items() %}
@@ -24,39 +23,24 @@ solvers
     {{ fieldName }}
     {% endif %}
     {
-        solver          {{ solverData.solver }};
-        {% if solverData.preconditioner is defined %}
-        preconditioner  {{ solverData.preconditioner }};
-        {% endif %}
-        {% if solverData.smoother is defined %}
-        smoother        {{ solverData.smoother }};
-        {% endif %}
-        {% if solverData.maxIter is defined %}
-        maxIter         {{ solverData.maxIter }};
-        {% endif %}
-        tolerance       {{ solverData.tolerance }};
-        relTol          {{ solverData.relTol }};
+        {% for key, value in solverData.items() %}
+            {% if key != "final" %}
+        {{ key }}          {{ value }};
+            {% endif %}
+        {% endfor %}
     }
 
     {% if solverData.final is defined %}
     {{ fieldName }}Final
     {
-        solver          {{ solverData.final.solver }};
-        {% if solverData.final.preconditioner is defined %}
-        preconditioner  {{ solverData.final.preconditioner }};
-        {% endif %}
-        {% if solverData.final.smoother is defined %}
-        smoother        {{ solverData.final.smoother }};
-        {% endif %}
-        {% if solverData.final.maxIter is defined %}
-        maxIter         {{ solverData.final.maxIter }};
-        {% endif %}
-        tolerance       {{ solverData.final.tolerance }};
-        relTol          {{ solverData.final.relTol }};
+        {% for key, value in solverData.final.items() %}
+        {{ key }}          {{ value }};
+        {% endfor %}
     }
     {% endif %}
     {% endfor %}
 }
+
 
 
 {% if input_parameters.SIMPLE is defined %}
