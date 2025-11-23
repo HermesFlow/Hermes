@@ -108,6 +108,10 @@ castellatedMeshControls
         {% endfor %}
     }
     {% endif %}
+    {% if p.castellatedMeshControls.insidePoint is defined %}
+    insidePoint {{ utils.toPoint(p.castellatedMeshControls.insidePoint) }};
+    {% endif %}
+
 };
 
 {% if p.snapControls is defined %}
@@ -147,7 +151,7 @@ addLayersControls
     layers
     {
         {% for name, settings in p.addLayersControls.layers.items() %}
-        {{ name }}
+        "{{ name }}"
         {
             {% if settings.nSurfaceLayers is defined %}
             nSurfaceLayers {{ settings.nSurfaceLayers }};
@@ -172,11 +176,21 @@ addLayersControls
 };
 {% endif %}
 
-{% if p.meshQualityControls is defined %}
+
+{% if p.meshQualityControls is defined and p.meshQualityControls|length > 0 %}
 meshQualityControls
 {
     {% for paramName, paramValue in p.meshQualityControls.items() %}
+        {% if paramValue is mapping %}
+    {{ paramName }}
+    {
+        {% for subName, subValue in paramValue.items() %}
+        {{ subName }} {{ subValue }};
+        {% endfor %}
+    }
+        {% else %}
     {{ paramName }} {{ paramValue }};
+        {% endif %}
     {% endfor %}
 };
 {% endif %}

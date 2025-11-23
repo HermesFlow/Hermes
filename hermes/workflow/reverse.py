@@ -25,6 +25,7 @@ DEFAULT_NODE_ORDER = [
     "controlDict",
     "fvSchemes",
     "fvSolution",
+    "meshQualityDict",
     "physicalProperties",
     "momentumTransport",
     "defineNewBoundaryConditions",
@@ -196,7 +197,8 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         "physicalProperties": "constant/physicalProperties",
         "momentumTransport": "constant/momentumTransport",
         "defineNewBoundaryConditions": "system/changeDictionaryDict",
-        "surfaceFeatures": "system/surfaceFeaturesDict"
+        "surfaceFeatures": "system/surfaceFeaturesDict",
+        "meshQualityDict": "system/meshQualityDict"
     }
 
     files = {}

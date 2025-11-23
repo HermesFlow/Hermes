@@ -20,13 +20,15 @@ simulationType {{ model_type }};
 
 {{ model_type }}
 {
-    {% for key, val in model_data.items() %}
-        {% if val is boolean %}
+{% for key, val in model_data.items() %}
+    {% if val is boolean %}
     {{ key }}    {{ 'on' if val else 'off' }};
-        {%- else %}
+    {% else %}
     {{ key }}    {{ val }};
-        {%- endif %}
-    {% endfor %}
+    {% endif %}
+{% endfor %}
+}
+
 }
 
 
