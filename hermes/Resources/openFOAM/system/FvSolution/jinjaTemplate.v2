@@ -13,15 +13,20 @@ FoamFile
     object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{#-- Optional: Map regex to expanded fields --#}
+{% set field_aliases = {
+    "(U|k|epsilon)": ["U", "k", "epsilon"],
+    "(k|epsilon)": ["k", "epsilon"],
+    "(U|k|epsilon)Final": ["UFinal", "kFinal", "epsilonFinal"]
+} %}
 
 solvers
 {
     {% for fieldName, solverData in input_parameters.solvers.items() %}
-    {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
-    "{{ fieldName }}"
-    {% else %}
-    {{ fieldName }}
-    {% endif %}
+        {% set expanded = field_aliases.get(fieldName, [fieldName]) %}
+
+        {% for field in expanded %}
+    {{ field }}
     {
         solver          {{ solverData.solver }};
         {% if solverData.preconditioner is defined %}
@@ -36,9 +41,12 @@ solvers
         tolerance       {{ solverData.tolerance }};
         relTol          {{ solverData.relTol }};
     }
+        {% endfor %}
 
-    {% if solverData.final is defined %}
-    {{ fieldName }}Final
+        {% if solverData.final is defined %}
+            {% set final_expanded = field_aliases.get(fieldName ~ "Final", [fieldName ~ "Final"]) %}
+            {% for finalField in final_expanded %}
+    {{ finalField }}
     {
         solver          {{ solverData.final.solver }};
         {% if solverData.final.preconditioner is defined %}
@@ -53,9 +61,11 @@ solvers
         tolerance       {{ solverData.final.tolerance }};
         relTol          {{ solverData.final.relTol }};
     }
-    {% endif %}
+            {% endfor %}
+        {% endif %}
     {% endfor %}
 }
+
 
 
 {% if input_parameters.SIMPLE is defined %}

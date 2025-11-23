@@ -70,14 +70,6 @@ edges
 {% endfor %}
 );
 
-edges
-(
-{% for e in p.edges %}
-    {{ e.keyword }} {{ e.start }} {{ e.end }} (
-        {{ "%.16g"|format(e.point[0]) }} {{ "%.16g"|format(e.point[1]) }} {{ "%.16g"|format(e.point[2]) }}
-    )
-{% endfor %}
-);
 
 
 
@@ -109,3 +101,5 @@ defaultPatch
 {% endif %}
 
 mergePatchPairs();
+
+// ************************************************************************* //

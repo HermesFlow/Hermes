@@ -15,40 +15,6 @@ class HermesEncoder(json.JSONEncoder):
             return str(obj)
         return super().default(obj)
 
-# Ordered nodes for Hermes workflow (preferred display order)
-DEFAULT_NODE_ORDER = [
-    "Parameters",
-    "blockMeshDict",
-    "snappyHexMeshDict",
-    "surfaceFeatures",
-    "decomposeParDict",
-    "controlDict",
-    "fvSchemes",
-    "fvSolution",
-    "meshQualityDict",
-    "physicalProperties",
-    "momentumTransport",
-    "defineNewBoundaryConditions",
-    "buildAllRun",
-    "fileWriter"
-]
-
-# Map from OpenFOAM dict filenames to Hermes node names
-DICT_TO_NODE_NAME = {
-    "blockMeshDict": "blockMesh",
-    "snappyHexMeshDict": "snappyHexMesh",
-    "surfaceFeaturesDict": "surfaceFeatures",
-    "decomposeParDict": "decomposePar",
-    "controlDict": "controlDict",
-    "fvSchemes": "fvSchemes",
-    "fvSolution": "fvSolution",
-    "changeDictionaryDict": "defineNewBoundaryConditions",
-    "thermophysicalProperties": "physicalProperties",
-    "momentumTransport": "momentumTransport",
-    "g": "g"
-}
-
-
 def find_dicts(case_path: Path) -> dict[str, Path]:
     """
     Find dictionary files in system/, constant/, and 0/
@@ -104,12 +70,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
             print(f" Checking {filename} as {dict_name}")
 
             node_dict = reverser.build_node()
-
-
-            # Normalize the name based on mapping
-            hermes_name = DICT_TO_NODE_NAME.get(dict_name, dict_name)
-            print(f"Adding {hermes_name} to nodes")
-            nodes[hermes_name] = node_dict[dict_name]
+            nodes[dict_name] = node_dict[dict_name]
 
             print(f"Finished: {list(node_dict.keys())[0]}")
         except Exception as e:
@@ -122,28 +83,28 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     # Dynamically build run steps only for available nodes
     run_steps = []
 
-    if "blockMesh" in nodes:
+    if "blockMeshDict" in nodes:
         run_steps.append({
             "name": "blockMesh",
             "parameters": None,
             "couldRunInParallel": False
         })
 
-    if "surfaceFeatures" in nodes:
+    if "surfaceFeaturesDict" in nodes:
         run_steps.append({
             "name": "surfaceFeatures",
             "parameters": "-dict system/building",
             "couldRunInParallel": False
         })
 
-    if "decomposePar" in nodes:
+    if "decomposeParDict" in nodes:
         run_steps.append({
             "name": "decomposePar",
             "parameters": "-force",
             "couldRunInParallel": False
         })
 
-    if "snappyHexMesh" in nodes:
+    if "snappyHexMeshDict" in nodes:
         run_steps.append({
             "name": "snappyHexMesh",
             "parameters": "-overwrite",
@@ -158,7 +119,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
         "foamJob": False
     })
 
-    if "defineNewBoundaryConditions" in nodes:
+    if "defineNewBoundaryConditionsDict" in nodes:
         run_steps.append({
             "name": "changeDictionary",
             "parameters": None,
@@ -187,18 +148,20 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
 
     # fileWriter mapping with only existing nodes
     files_mapping = {
-        "blockMesh": "system/blockMeshDict",
-        "decomposePar": "system/decomposeParDict",
-        "snappyHexMesh": "system/snappyHexMeshDict",
+        "blockMeshDict": "system/blockMeshDict",
+        "decomposeParDict": "system/decomposeParDict",
+        "snappyHexMeshDict": "system/snappyHexMeshDict",
         "g": "constant/g",
         "controlDict": "system/controlDict",
         "fvSchemes": "system/fvSchemes",
         "fvSolution": "system/fvSolution",
+        "meshQualityDict": "system/meshQualityDict",
+        "defineNewBoundaryConditionsDict": "system/changeDictionaryDict",
+        "surfaceFeaturesDict": "system/surfaceFeaturesDict",
+        "topoSetDict": "system/topoSetDict",
         "physicalProperties": "constant/physicalProperties",
-        "momentumTransport": "constant/momentumTransport",
-        "defineNewBoundaryConditions": "system/changeDictionaryDict",
-        "surfaceFeatures": "system/surfaceFeaturesDict",
-        "meshQualityDict": "system/meshQualityDict"
+        "momentumTransport": "constant/momentumTransport"
+
     }
 
     files = {}
@@ -226,10 +189,8 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
     })
     nodes["fileWriter"] = file_writer_node
 
-    # Finalize nodeList
-    ordered_nodes = [n for n in DEFAULT_NODE_ORDER if n in nodes]
-    remaining_nodes = [n for n in nodes if n not in ordered_nodes]
-    node_list = ordered_nodes + remaining_nodes
+    node_list = list(nodes.keys())
+
 
     return {
         "workflow": {
