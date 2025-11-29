@@ -1,0 +1,122 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    {% for fieldName, solverData in input_parameters.solvers.items() %}
+    {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+    "{{ fieldName }}"
+    {% else %}
+    {{ fieldName }}
+    {% endif %}
+    {
+        {% for key, value in solverData.items() %}
+            {% if key != "final" %}
+        {{ key }}          {{ value }};
+            {% endif %}
+        {% endfor %}
+    }
+
+    {% if solverData.final is defined %}
+    {{ fieldName }}Final
+    {
+        {% for key, value in solverData.final.items() %}
+        {{ key }}          {{ value }};
+        {% endfor %}
+    }
+    {% endif %}
+    {% endfor %}
+}
+
+
+
+{% if input_parameters.SIMPLE is defined %}
+SIMPLE
+{
+    {% if input_parameters.SIMPLE.consistent is defined %}
+    consistent      {{ 'yes' if input_parameters.SIMPLE.consistent else 'no' }};
+    {% endif %}
+
+    {% if input_parameters.SIMPLE.residualControl is defined %}
+    residualControl
+    {
+        {% for fieldName, factor in input_parameters.SIMPLE.residualControl.items() %}
+        {% if '(' in fieldName or '|' in fieldName or '*' in fieldName %}
+        "{{ fieldName }}"    {{ factor }};
+        {% else %}
+        {{ fieldName }}      {{ factor }};
+        {% endif %}
+        {% endfor %}
+    }
+    {% endif %}
+
+    {% for key, value in input_parameters.SIMPLE.items() %}
+        {% if key not in ['residualControl', 'consistent'] %}
+        {{ key }}    {{ value }};
+        {% endif %}
+    {% endfor %}
+}
+{% endif %}
+
+relaxationFactors
+{
+    {% if input_parameters.relaxationFactors.fields is defined %}
+    fields
+    {
+        {% for fieldName, factor in input_parameters.relaxationFactors.fields.items() %}
+        {{ fieldName }}    {{ factor }};
+        {% endfor %}
+    }
+    {% endif %}
+
+    {% if input_parameters.relaxationFactors.equations is defined %}
+    equations
+    {
+        {% if input_parameters.relaxationFactors.equations is mapping %}
+            {% for fieldName, factor in input_parameters.relaxationFactors.equations.items() %}
+                {% if '(' in fieldName or '|' in fieldName or '*' in fieldName or '.' in fieldName %}
+                "{{ fieldName }}"    {{ factor }};
+                {% else %}
+                {{ fieldName }}      {{ factor }};
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            default {{ input_parameters.relaxationFactors.equations }};
+        {% endif %}
+    }
+    {% endif %}
+}
+
+{% if input_parameters.potentialFlow is defined %}
+potentialFlow
+{
+    {% for key, value in input_parameters.potentialFlow.items() %}
+    {{ key }}     {{ value }};
+    {% endfor %}
+}
+{% endif %}
+
+{% if input_parameters.cache is defined %}
+cache
+{
+    {% for line in input_parameters.cache %}
+    {{ line }};
+    {% endfor %}
+}
+{% endif %}
+
+
+// ************************************************************************* //

@@ -1,0 +1,191 @@
+/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\\\    /   O peration     | Website:  https://openfoam.org                             |
+|   \\\\  /    A nd           | Version:  10                |
+|    \\\\/     M anipulation  |                                                 |
+\\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{% import "openFOAM/utils.jinja" as utils %}
+{% set p = input_parameters %}
+
+{#--- Include at the top if present ---#}
+{% if p["0"] is defined %}
+{{ p["0"] }}
+{% endif %}
+
+{% if p.castellatedMesh is defined %}
+castellatedMesh {{ utils.toSwitch(p.castellatedMesh) }};
+{% endif %}
+{% if p.snap is defined %}
+snap            {{ utils.toSwitch(p.snap) }};
+{% endif %}
+{% if p.addLayers is defined %}
+addLayers       {{ utils.toSwitch(p.addLayers) }};
+{% endif %}
+
+{#--- Geometry ---#}
+{% if p.geometry is defined %}
+geometry
+{
+    {% for name, geom in p.geometry.items() %}
+    {{ name }}
+    {
+        {% for key, val in geom.items() %}
+            {% if val is sequence and val is not string %}
+        {{ key }}    ({{ val | join(" ") }});
+            {% else %}
+        {{ key }}    {{ val }};
+            {% endif %}
+        {% endfor %}
+    }
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Castellated Mesh Controls ---#}
+{% if p.castellatedMeshControls is defined %}
+castellatedMeshControls
+{
+    {% for key, val in p.castellatedMeshControls.items() %}
+        {% if key == "features" and val %}
+    features
+    (
+        {% for feature in val %}
+        {
+            {% for k, v in feature.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
+        }
+        {% endfor %}
+    );
+        {% elif key == "refinementSurfaces" %}
+    refinementSurfaces
+    {
+        {% for surfaceName, surfaceData in val.items() %}
+        {{ surfaceName }}
+        {
+            {% for k, v in surfaceData.items() %}
+                {% if k == "level" and v is sequence %}
+            level {{ "(" ~ v | join(" ") ~ ")" }};
+                {% elif v is mapping %}
+            {{ k }}
+            {
+                {% for subk, subv in v.items() %}
+                {{ subk }}    {{ subv }};
+                {% endfor %}
+            }
+                {% else %}
+            {{ k }}    {{ v }};
+                {% endif %}
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+        {% elif key == "refinementRegions" %}
+    refinementRegions
+    {
+        {% for regionName, regionData in val.items() %}
+        {{ regionName }}
+        {
+            {% for k, v in regionData.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+        {% elif val is sequence and val is not string %}
+    {{ key }}    ({{ val | join(" ") }});
+        {% elif val is mapping %}
+    {{ key }}
+    {
+        {% for k, v in val.items() %}
+        {{ k }}    {{ v }};
+        {% endfor %}
+    }
+        {% else %}
+    {{ key }}    {{ val }};
+        {% endif %}
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Snap Controls ---#}
+{% if p.snapControls is defined %}
+snapControls
+{
+    {% for key, val in p.snapControls.items() %}
+    {{ key }}    {{ "true" if val else "false" if val is boolean else val }};
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Add Layers Controls ---#}
+{% if p.addLayersControls is defined %}
+addLayersControls
+{
+    {% for key, val in p.addLayersControls.items() %}
+        {% if key == "layers" %}
+    layers
+    {
+        {% for surfName, surfParams in val.items() %}
+        "{{ surfName }}"
+        {
+            {% for k, v in surfParams.items() %}
+            {{ k }}    {{ v }};
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+        {% elif val is boolean %}
+    {{ key }}    {{ "true" if val else "false" }};
+        {% else %}
+    {{ key }}    {{ val }};
+        {% endif %}
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Mesh Quality Controls ---#}
+{% if p.meshQualityControls is defined and p.meshQualityControls|length > 0 %}
+meshQualityControls
+{
+    {% for key, val in p.meshQualityControls.items() %}
+        {% if val is mapping %}
+    {{ key }}
+    {
+        {% for subk, subv in val.items() %}
+        {{ subk }}    {{ subv }};
+        {% endfor %}
+    }
+        {% else %}
+    {{ key }}    {{ val }};
+        {% endif %}
+    {% endfor %}
+};
+{% endif %}
+
+{#--- Write Flags ---#}
+{% if p.writeFlags is defined and p.writeFlags %}
+writeFlags
+(
+    {% for flag in p.writeFlags %}
+    {{ flag }}
+    {% endfor %}
+);
+{% endif %}
+
+{#--- Merge Tolerance ---#}
+{% if p.mergeTolerance is defined %}
+mergeTolerance    {{ p.mergeTolerance }};
+{% endif %}
+
+
+// ************************************************************************* //

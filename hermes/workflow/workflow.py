@@ -166,6 +166,7 @@ class workflow:
                                                                     workflowJSON=self._workflowJSON)
             nodeNetworkRepresentation.append(taskwrp)
 
+
         self._taskRepresentations[taskname] = nodeNetworkRepresentation
 
     def _buildNetwork(self):
@@ -197,8 +198,9 @@ class workflow:
 
         return rootTaskName
 
+
     def _getTaskJSON(self, nodeName):
-        return self._workflowJSON["workflow"]["nodes"].get(nodeName,None)
+        return self._workflowJSON["workflow"]["nodes"].get(nodeName, None)
 
     def _createFinalNode(self):
         """

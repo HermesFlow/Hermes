@@ -25,14 +25,16 @@
 {{fieldName}}{%- if final %}Final{%- endif %}
 {
     solver              PCG;
+    {%- if solverData.preconditioner is defined %}
     preconditioner      {{solverData.preconditioner}};
-    {%- if 'tolerance' in solverData %}
+    {%- endif %}
+    {%- if solverData.tolerance in is defined %}
     tolerance           {{solverData.tolerance}};
     {% endif -%}
-    {%- if 'relTol' in solverData %}
+    {%- if solverData.relTol is defined %}
     relTol              {{solverData.relTol}};
     {% endif -%}
-    {%- if 'maxIter' in solverData %}
+    {%- if solverData.maxIter is defined %}
     maxIter             {{solverData.maxIter}};
     {% endif -%}
 }
@@ -46,14 +48,16 @@
 {{fieldName}}{%- if final %}Final{%- endif %}
 {
     solver              PBiCG;
+    {%- if solverData.preconditioner is defined %}
     preconditioner      {{solverData.preconditioner}};
-    {%- if 'tolerance' in solverData %}
+    {% endif -%}
+    {%- if solverData.tolerance  is defined %}
     tolerance           {{solverData.tolerance}};
     {% endif -%}
-    {%- if 'relTol' in solverData %}
+    {%- if solverData.relTol is defined %}
     relTol              {{solverData.relTol}};
     {% endif -%}
-    {%- if 'maxIter' in solverData %}
+    {%- if solverData.maxIter is defined %}
     maxIter             {{solverData.maxIter}};
     {% endif -%}
 }
@@ -62,31 +66,41 @@
 {#-#############################-#}
 {#-A marco for the GAMG solver -#}
 {#-#############################-#}
-{%- macro GAMG(fieldName,solverData,final=False) -%}
-{{fieldName}}{%- if final %}Final{%- endif %}
+{%- macro GAMG(fieldName, solverData, final=False) -%}
+{{ fieldName }}{%- if final %}Final{%- endif %}
 {
     solver GAMG;
-    smoother        {{solverData.smoother}};
-    {%- set CAbool=solverData.cacheAgglomeration %}
-    {{ 'cacheAgglomeration on;' if CAbool else 'cacheAgglomeration off;' }}
 
-    {%- if 'agglomerator' in solverData %}
-    agglomerator    {{solverData.agglomerator}};
-    {% endif -%}
-    {%- if 'nCellsInCoarsestLevel' in solverData %}
-    nCellsInCoarsestLevel {{solverData.nCellsInCoarsestLevel}};
-    {% endif -%}
-    {%- if 'mergeLevels' in solverData %}
-    mergeLevels     {{solverData.mergeLevels}};
-    {% endif -%}
-    {%- if 'tolerance' in solverData %}
-    tolerance       {{solverData.tolerance}};
-    {% endif -%}
-    {%- if 'relTol' in solverData %}
-    relTol          {{solverData.relTol}};
-    {% endif -%}
+    {%- if solverData.smoother is defined %}
+    smoother {{ solverData.smoother }};
+    {%- endif %}
+
+    {%- if solverData.cacheAgglomeration is defined %}
+    cacheAgglomeration {{ 'on' if solverData.cacheAgglomeration else 'off' }};
+    {%- endif %}
+
+    {%- if solverData.agglomerator is defined %}
+    agglomerator {{ solverData.agglomerator }};
+    {%- endif %}
+
+    {%- if solverData.nCellsInCoarsestLevel is defined %}
+    nCellsInCoarsestLevel {{ solverData.nCellsInCoarsestLevel }};
+    {%- endif %}
+
+    {%- if solverData.mergeLevels is defined %}
+    mergeLevels {{ solverData.mergeLevels }};
+    {%- endif %}
+
+    {%- if solverData.tolerance is defined %}
+    tolerance {{ solverData.tolerance }};
+    {%- endif %}
+
+    {%- if solverData.relTol is defined %}
+    relTol {{ solverData.relTol }};
+    {%- endif %}
 }
 {%- endmacro %}
+
 
 
 {#-###########################-#}

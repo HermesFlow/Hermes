@@ -1,15 +1,15 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                                  |
+|   \\  /    A nd           | Version:  3                       |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
+    location    "system";
     object      snappyHexMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -85,9 +85,19 @@ castellatedMeshControls
             level {{utils.toPoint(geometryData.refinementSurfaceLevels)}};
             patchInfo { type {{geometryData.patchType}}; }
             {% else %}
+            {% if 'refinementSurfaces' in geometryData and 'levels' in geometryData.refinementSurfaces %}
             level {{utils.toPoint(geometryData.refinementSurfaces.levels)}};
+            {% else %}
+            level (0 0);  // fallback default or handle differently
+            {% endif %}
+
+            {% if 'refinementSurfaces' in geometryData and 'patchType' in geometryData.refinementSurfaces %}
             patchInfo { type {{geometryData.refinementSurfaces.patchType}}; }
-            {%- endif %}
+            {% else %}
+            patchInfo { type wall; }  // default type or skip
+            {% endif %}
+        {% endif %}
+
 
             {%- if 'regions' in geometryData %}
             {%- set objRegions=geometryData.regions %}

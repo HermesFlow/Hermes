@@ -1,4 +1,4 @@
 from ....general import JinjaTransform
 
-class physicalProperties(JinjaTransform):
+class FvConstraints(JinjaTransform):
     pass

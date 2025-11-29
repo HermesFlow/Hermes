@@ -32,35 +32,33 @@ class FilesWriter(abstractExecuter):
             fileContent = groupData['fileContent']
             fileName    = groupData['fileName']
 
-            if isinstance(fileContent,dict) and fileName[-1] != '/':
-                fileName = f"{fileName}/"
+            # If fileContent is a dict, treat it as a directory of multiple files
+            # But don't append '/' – just make sure fileName is a directory name
+            is_multi_file = isinstance(fileContent, dict)
 
             newPath = os.path.join(path, fileName)
-            if not os.path.exists(os.path.dirname(newPath)):
-                try:
-                    os.makedirs(os.path.dirname(newPath),exist_ok=True)
-                except OSError as exc:  # Guard against race condition
-                    if exc.errno != errno.EEXIST:
-                        raise
-            try:
-                # Check if it is a dict - e.g a list of files.
-                fileContentParsed = json.loads(fileContent[1:-1].replace('"','\\"').replace("'",'"'))
-            except json.decoder.JSONDecodeError as e:
-                fileContentParsed = fileContent
 
+            # Determine if it's a multi-file directory
+            is_multi_file = isinstance(fileContent, dict)
 
-            if isinstance(fileContentParsed,dict):
-                outputFiles =[]
-                for filenameItr,fileContent in fileContentParsed.items():
-                    finalFileName = os.path.join(newPath,filenameItr)
+            # Make sure directory structure exists
+            if is_multi_file:
+                os.makedirs(newPath, exist_ok=True)
+                outputFiles = []
+                for filenameItr, fileContentValue in fileContent.items():
+                    finalFileName = os.path.join(newPath, filenameItr)
                     with open(finalFileName, "w") as newfile:
-                        newfile.write(fileContent)
-
+                        newfile.write(fileContentValue)
                     outputFiles.append(finalFileName)
             else:
-                outputFiles = newPath
+                # Make sure we're not trying to open a directory
+                if os.path.isdir(newPath):
+                    raise ValueError(f"Cannot write to directory as a file: {newPath}")
+
+                os.makedirs(os.path.dirname(newPath), exist_ok=True)
                 with open(newPath, "w") as newfile:
-                    newfile.write(fileContentParsed)
+                    newfile.write(fileContent)
+                outputFiles = newPath
 
             createdFiles[groupName] = outputFiles
 

@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website: https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      meshQualityDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+{%- import "openFOAM/utils.jinja" as utils %}
+{%- set p = input_parameters %}
+
+{# ----------------------------- #
+   Render top-level entries
+# ----------------------------- #}
+{%- for key, val in p.items() %}
+    {%- if key != 'relaxed' %}
+
+        {# Case 1: key is numeric → raw line from reverse parser #}
+        {%- if key | int ~ '' == key %}
+{{ val }}
+        {%- else %}
+{{ key }}    {{ val }};
+        {%- endif %}
+
+    {%- endif %}
+{%- endfor %}
+
+{# ----------------------------- #
+   Handle 'relaxed' block
+# ----------------------------- #}
+{%- if p.relaxed is defined and p.relaxed %}
+relaxed
+{
+    {% for key, val in p.relaxed.items() %}
+    {{ key }}    {{ val }};
+    {% endfor %}
+}
+{%- endif %}
+
+
+// ************************************************************************* //

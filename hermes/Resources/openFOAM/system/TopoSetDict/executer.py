@@ -1,4 +1,4 @@
 from ....general import JinjaTransform
 
-class FvSchemes(JinjaTransform):
+class TopoSetDict(JinjaTransform):
     pass

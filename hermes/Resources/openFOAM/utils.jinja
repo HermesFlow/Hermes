@@ -1,5 +1,34 @@
-{%- macro toPoint(vertices) -%}
-  ({%- for coord in vertices %} {{ coord }} {%- endfor %})
+{%- macro toPoint(pt) -%}
+    {%- if pt is string -%}
+        ({{ pt
+            | replace('[', '')
+            | replace(']', '')
+            | replace(',', ' ')
+            | replace('(', '')
+            | replace(')', '')
+            | trim
+        }})
+    {%- elif pt is sequence -%}
+        ({{ pt | join(' ') }})
+    {%- elif pt is number -%}
+        {{ pt }}
+    {%- else -%}
+        (INVALID_POINT)
+    {%- endif -%}
+{%- endmacro %}
+
+{%- macro toSwitch(val) -%}
+  {{ "on" if val else "off" }}
+{%- endmacro %}
+
+{%- macro asTokens(val) -%}
+  {%- if val is string -%}
+    {{ val }}
+  {%- elif val is sequence -%}
+    {{ val | join(" ") }}
+  {%- else -%}
+    {{ val }}
+  {%- endif -%}
 {%- endmacro %}
 
 {%- macro toBool(var) -%}

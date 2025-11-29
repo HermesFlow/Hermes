@@ -1,15 +1,15 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\    /   O peration     | Website:  https://openfoam.org                                |
+|   \\  /    A nd           | Version:   3                       |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     2.0;
     format      ascii;
     class       dictionary;
+    location    "system";
     object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -22,16 +22,17 @@ ddtSchemes
 gradSchemes
 {
     {% if 'gradSchemes' in default -%}
-    default           {{default.gradSchemes.type}} {{default.gradSchemes.name}};
+    default         {{ default.gradSchemes.type }} {{ default.gradSchemes.name }};
     {% endif -%}
 
-    {% for fieldName,fieldData in fields.items() -%}
-        {%- if 'gradScheme' in fieldData -%}
-        {%- set gradSchemeDict = fieldData.gradScheme -%}
-        grad({{fieldName}}) {{field.gradScheme}}
+    {% for fieldName, fieldData in fields.items() -%}
+        {% if 'gradScheme' in fieldData -%}
+            {% set gradSchemeDict = fieldData.gradScheme %}
+    grad({{ fieldName }}) {{ gradSchemeDict.type }} {{ gradSchemeDict.name }} {{ gradSchemeDict.parameters }};
         {% endif -%}
-    {% endfor -%}
+    {% endfor %}
 }
+
 
 divSchemes
 {

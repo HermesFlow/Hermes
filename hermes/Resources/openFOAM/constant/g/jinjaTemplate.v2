@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  3.0.1                                 |
+|  \\    /   O peration     | Version:  2.2.2                                 |
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,21 +9,13 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      physicalProperties;
+    class       uniformDimensionedVectorField;
+    location    "constant";
+    object      g;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-transportModel  {{transportModel}};
-
-nu              [0 2 -1 0 0 0 0] {{nu}};
-
-{% if rhoInf is defined %}
-rhoInf          [1 -3 0 0 0 0 0] {{rhoInf}};
-{% endif %}
-
-{% for varname,vardata in parameters.items() -%}
-    {{varname}} {{varname if vardata.get('printName',false) else '' }} {{vardata['dimensions']}} {{vardata['value']}};
-{% endfor %}
+dimensions      [0 1 -2 0 0 0 0];
+value           ( {{ input_parameters.x }} {{ input_parameters.y }} {{ input_parameters.z }} );
 
 // ************************************************************************* //

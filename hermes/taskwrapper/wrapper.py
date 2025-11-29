@@ -260,3 +260,4 @@ t
         ret = self.taskfullname +"\n"
         ret += "".join(["\t%s->%s\n" % (key,value.taskfullname) for key,value in self._requiredTasks.items()])
         return ret
+

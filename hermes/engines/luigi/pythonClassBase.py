@@ -1,4 +1,5 @@
 import jinja2
+import pprint
 
 class transform:
     """
@@ -32,7 +33,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
     
     def __init__(self,*args,**kwargs): 
         super().__init__(*args,**kwargs)
-        self._taskJSON ={}
+        self._taskJSON = {{ taskwrapper.taskJSON | to_python }}
         
         self._workflowJSON = {{taskwrapper.task_workflowJSON}}['workflow']
 
@@ -72,9 +73,14 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         params['input_parameters'] = executer_parameters 
         params['output'] = output        
         
-        out_params = params
+        # Merge the original node JSON with runtime output
+        full_output = dict(self._taskJSON)
+        full_output["Execution"]["input_parameters"] = executer_parameters
+        full_output["output"] = output
+        
         with open(self.output().fn, "w") as outfile:
-            json.dump(out_params, outfile,indent=4)
+            json.dump(full_output, outfile, indent=4)
+
 """
 
     def transform(self,taskWrapper,WD_path):
@@ -140,6 +146,12 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         :return:
             A string of the Luigi Task.
         """
-        rtemplate = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(self._basicLuigiTemplate)
+        #rtemplate = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(self._basicLuigiTemplate)
+        env = jinja2.Environment(loader=jinja2.BaseLoader())
+
+        env.filters["to_python"] = lambda value: pprint.pformat(value, indent=4)
+
+        rtemplate = env.from_string(self._basicLuigiTemplate)
+
         return rtemplate.render(taskwrapper=taskWrapper,enumerate=enumerate,len=len,WD_path=WD_path,)
 

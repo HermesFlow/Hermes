@@ -70,6 +70,7 @@ class hermesTaskWrapperHome(object):
         except KeyError as e:
             raise KeyError(f"Missing data in processing Node {taskname}: {taskJSON}. Error is {e}")
 
+
         return hermesTaskWrapperObj(taskname=taskname,
                                     taskJSON=taskJSON,
                                     taskid=taskid,

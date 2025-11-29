@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website:  https://openfoam.org                  |
+|   \\  /    A nd           | Version:  10                                    |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+{%- macro render_entry(key, value, indent=0) %}
+{%- set ind = '    ' * indent %}
+{%- if value is mapping %}
+{{ ind }}{{ key }}
+{{ ind }}{
+    {% for subkey, subval in value.items() %}
+{{ render_entry(subkey, subval, indent + 1) }}
+    {% endfor %}
+{{ ind }}}
+
+{% elif value is iterable and value is not string %}
+{{ ind }}{{ key }}
+{{ ind }}(
+    {% for item in value %}
+    {{ ind }}    {{ item }};
+    {% endfor %}
+{{ ind }})
+
+{% elif value is boolean %}
+    {%- if key == 'writeCompression' %}
+{{ ind }}{{ key }}    {{ 'on' if value else 'off' }};
+    {%- else %}
+{{ ind }}{{ key }}    {{ 'true' if value else 'false' }};
+{%- endif %}
+
+{% else %}
+{{ ind }}{{ key }}    {{ value }};
+{% endif %}
+{%- endmacro %}
+
+
+{# ---- MAIN RENDERING LOOP ---- #}
+{% for key, val in values.items() %}
+{{ render_entry(key, val) }}
+{% endfor %}
+
+
+// ************************************************************************* //

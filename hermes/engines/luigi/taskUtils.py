@@ -91,10 +91,12 @@ class utils:
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_input_parameters(self, parameterPath, params):
-        params = params.get(parameterPath[0],{})
+        params = params.get(parameterPath[0], {})
         parameterPath = ".".join(parameterPath[1:])
         retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
+
+
 
     def _handle_output(self,parameterPath, params):
         # if len(parameterPath) == 1:
