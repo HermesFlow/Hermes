@@ -6,18 +6,6 @@ import sys
 import hermes
 from ...utils.logging import get_classMethod_logger,get_logger
 class utils:
-    def _clean_input_parameters(self, params):
-        """
-        Removes invalid keys like "0" that are incorrectly parsed from #includeEtc
-        """
-        if not isinstance(params, dict):
-            return params
-
-        return {
-            k: v for k, v in params.items()
-            if not str(k).isdigit()
-        }
-
 
     def get_all_required_outputs(self):
         ret = {}
