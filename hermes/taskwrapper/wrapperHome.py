@@ -70,11 +70,6 @@ class hermesTaskWrapperHome(object):
         except KeyError as e:
             raise KeyError(f"Missing data in processing Node {taskname}: {taskJSON}. Error is {e}")
 
-        # Inject full node JSON into Parameters block (only for RunPythonCode type nodes)
-        if taskJSON.get("type") == "general.RunPythonCode":
-            input_params = taskJSON.get("Execution", {}).get("input_parameters", {})
-            params = input_params.setdefault("Parameters", {})
-            params["fullJSON"] = taskJSON  # ✅ Inject full node JSON
 
         return hermesTaskWrapperObj(taskname=taskname,
                                     taskJSON=taskJSON,
