@@ -22,13 +22,13 @@ FoamFile
 {% endif %}
 
 {% if p.castellatedMesh is defined %}
-castellatedMesh {{ utils.toSwitch(p.modules.castellatedMesh) }};
+castellatedMesh {{ utils.toSwitch(p.castellatedMesh) }};
 {% endif %}
 {% if p.snap is defined %}
-snap            {{ utils.toSwitch(p.modules.snap) }};
+snap            {{ utils.toSwitch(p.snap) }};
 {% endif %}
 {% if p.addLayers is defined %}
-addLayers       {{ utils.toSwitch(p.modules.addLayers) }};
+addLayers       {{ utils.toSwitch(p.addLayers) }};
 {% endif %}
 
 {#--- Geometry ---#}

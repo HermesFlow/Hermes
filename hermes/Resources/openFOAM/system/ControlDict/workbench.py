@@ -17,6 +17,7 @@ class ControlDict(WebGuiNode):
     #     ''' convert the json data to "input_parameters" structure '''
     #     super().guiToExecute(obj)
 
+
     def executeToGui(self, obj, parameters):
          ''' import the "input_parameters" data into the json obj data '''
          super().executeToGui(obj,parameters)
