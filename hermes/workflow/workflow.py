@@ -156,9 +156,7 @@ class workflow:
         nodeNetworkRepresentation = []
         for i,combination in enumerate(product(*ListOfRequiredTaskLists)):
             # each combination is a list of tuples (node name,TaskWrapper).
-            task_json_to_pass = self._getTaskJSON(taskname)
-            print(f"\n DEBUG: JSON passed to {taskname}:\n{json.dumps(task_json_to_pass, indent=2)}\n")
-            taskwrp = self._hermes_task_wrapper_home.getTaskWrapper(taskJSON=task_json_to_pass,
+            taskwrp = self._hermes_task_wrapper_home.getTaskWrapper(taskJSON=taskJSON,
                                                                     taskid=i,
                                                                     taskname=taskname,
                                                                     requiredTasks=dict(combination),
@@ -197,10 +195,9 @@ class workflow:
 
         return rootTaskName
 
+
     def _getTaskJSON(self, nodeName):
-        node = self._workflowJSON["workflow"]["nodes"].get(nodeName, None)
-        print(f"### DEBUG: _getTaskJSON('{nodeName}') returns:\n{json.dumps(node, indent=2)}")
-        return node
+        return self._workflowJSON["workflow"]["nodes"].get(nodeName, None)
 
     def _createFinalNode(self):
         """
@@ -578,13 +575,13 @@ class hermesNode:
 
     @property
     def executionJSON(self):
-        # Return the Execution JSON, but inject version if it exists
-        exec_json = self._nodeJSON.get('Execution', {})
-        if 'version' in self._nodeJSON:
-            exec_json['version'] = self._nodeJSON['version']
-        if 'type' in self._nodeJSON:
-            exec_json['type'] = self._nodeJSON['type']
-        return exec_json
+        """
+            Return the JSON file without the GUI node.
+        Returns
+        -------
+
+        """
+        return self._nodeJSON['Execution']
 
     @property
     def parametersTable(self):
