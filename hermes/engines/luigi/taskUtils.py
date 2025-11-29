@@ -103,16 +103,12 @@ class utils:
         return retval if len(retval) > 1 else retval[0]
 
     def _handle_input_parameters(self, parameterPath, params):
-        raw_params = params.get(parameterPath[0], {})
-        clean_params = self._clean_input_parameters(raw_params)
+        params = params.get(parameterPath[0], {})
         parameterPath = ".".join(parameterPath[1:])
-        print("Evaluating input_parameters for path:", parameterPath)
-        #print("Params:", params)
-        retval = jp.match(parameterPath, clean_params)
-        if not retval:
-            raise ValueError(f"Expected non-empty list at input_parameters, got: {retval}")
-
+        retval = jp.match(parameterPath, params)
         return retval if len(retval) > 1 else retval[0]
+
+
 
     def _handle_output(self,parameterPath, params):
         # if len(parameterPath) == 1:
