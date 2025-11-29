@@ -36,7 +36,7 @@ class expandWorkflow:
 
     @property
     def templateCenter(self):
-        return self._templateCenter 
+        return self._templateCenter
 
     def __init__(self):
         self.TEMPLATE = "Template"
@@ -93,7 +93,6 @@ class expandWorkflow:
         logger.info("---------------- Start ------------")
         logger.debug(f"Got templateJSON : {templateJSON}")
         JsonObjectfromFile = loadJSON(templateJSON)
-        #nodeList = JsonObjectfromFile["workflow"]["nodeList"]
         nodes = JsonObjectfromFile["workflow"]["nodes"]
 
         for nodeName,nodeData in nodes.items():
@@ -103,8 +102,6 @@ class expandWorkflow:
             logger.debug(f"Got template, now updating map {fullNodeData}")
             self.updateMap(fullNodeData,nodeData)
 
-            fullNodeData["type"] = nodeData.get("type", fullNodeData.get("type"))
-            fullNodeData["version"] = nodeData.get("version", fullNodeData.get("version"))
 
             JsonObjectfromFile["workflow"]["nodes"][nodeName] = fullNodeData
 
