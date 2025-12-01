@@ -46,6 +46,8 @@ class templateCenter:
 
         try:
             default = resources.files("hermes.Resources").joinpath(*template.split("."),"jsonForm.json")
+            import pdb
+            pdb.set_trace()
             basicTemplate = loadJSON(default.read_text())
         except FileNotFoundError:
             fl = [x for x in resources.files("hermes.Resources").glob(f"{template.replace('.',os.path.sep)}*")]

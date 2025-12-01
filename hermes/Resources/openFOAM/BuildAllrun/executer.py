@@ -65,7 +65,7 @@ class BuildAllrun(abstractExecuter):
 
         isSlurm   = execConfiguration['caseExecution'].get('slurm',False)
         isParallel = execConfiguration['parallelCase']
-        outputFileName = execConfiguration['caseExecution'].get('outputfile',"Allrun")
+        outputFileName = execConfiguration['caseExecution'].get('fileName',"Allrun")
         execLine = ""
 
         for execNode in execConfiguration['runFile']:
@@ -84,12 +84,10 @@ class BuildAllrun(abstractExecuter):
             screenDefault = False if isSlurm else True
             screen  = execNode.get("screen",screenDefault)
 
-
             if foamJob:
                 execLine += f"foamJob {parallelFlag} -append {'-screen' if screen else ''} {'-wait' if wait else ''} {progName} {params}\n"
             else:
                 execLine += f"{progName} {params}\n"
-
 
         allrunFile = os.path.join(caseDirectory,outputFileName)
         if not os.path.exists(caseDirectory):
