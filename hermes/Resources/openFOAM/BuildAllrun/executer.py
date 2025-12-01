@@ -81,7 +81,7 @@ class BuildAllrun(abstractExecuter):
 
             foamJob = execNode.get("foamJob",True)
             wait    = execNode.get("wait",True)
-            screen  = execNode.get("screen",True)
+            screen  = execNode.get("screen",False)
 
             if foamJob:
                 execLine += f"foamJob {parallelFlag} -append {'-screen' if screen else ''} {'-wait' if wait else ''} {progName} {params}\n"
