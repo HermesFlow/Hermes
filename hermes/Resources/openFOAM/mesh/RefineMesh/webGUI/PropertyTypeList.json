@@ -1,0 +1,14 @@
+{
+    "wall":{
+        "Template":"openFOAM.mesh.BlockMesh.webGUI.wall"
+    },
+    "symmetry":{
+        "Template":"openFOAM.mesh.BlockMesh.webGUI.sym"
+    },
+    "patch": {
+        "Template":"openFOAM.mesh.BlockMesh.webGUI.patch"
+    },
+    "cyclic": {
+        "Template":"openFOAM.mesh.BlockMesh.webGUI.cyclic"
+    }
+}

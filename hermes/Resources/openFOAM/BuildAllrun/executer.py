@@ -21,7 +21,7 @@ class BuildAllrun(abstractExecuter):
         return dict(buildAllRun="buildAllrun")
 
 
-    def buildCaseExecutionScript(self,caseDirectory,execConfiguration,getNumberOfSubdomains=None):
+    def buildCaseExecutionScript(self,caseDirectory,execConfiguration):
         """
             Writes the allRun file that executes the workflow and the allClean file
             that cleans the case to the case directory.
@@ -49,6 +49,7 @@ class BuildAllrun(abstractExecuter):
                                                        #     default True
                     "wait"     : true|false            # wait to the end of execution before next step
                                                        #     default True
+                    "slurm"    : true|false            #  Use slurm support to run the code. (override foamJob).
                   }
                 ]
                             --------------- A list of nodes.
@@ -62,18 +63,17 @@ class BuildAllrun(abstractExecuter):
 
         """
 
-        isSlurm   = execConfiguration.get('slurm',False)
+        isSlurm   = execConfiguration['caseExecution'].get('slurm',False)
         isParallel = execConfiguration['parallelCase']
 
         execLine = ""
 
         for execNode in execConfiguration['runFile']:
             #logger.debug(f"Processing Node {execNode['name']}")
-
-            parallelFlag = "-parallel" if (isParallel and execNode['couldRunInParallel']) else ""
+            parallelInstruction = (isParallel and execNode['couldRunInParallel'])
+            parallelFlag = "-parallel" if parallelInstruction else ""
             progName = execNode['name']
             parameters = execNode.get('parameters',None)
-
             if parameters is not None:
                 params   = " ".join(numpy.atleast_1d(execNode['parameters']))
             else:
@@ -82,17 +82,12 @@ class BuildAllrun(abstractExecuter):
             foamJob = execNode.get("foamJob",True)
             wait    = execNode.get("wait",True)
             screen  = execNode.get("screen",True)
-            slurm   = ""
-            if isSlurm:
-                slurm = "srun"
-                if isParallel:
-                    procCount = getNumberOfSubdomains
-                    execLine += f"salloc {procCount}\n"
 
             if foamJob:
-                execLine += f"{slurm} foamJob {parallelFlag} -append {'-screen' if screen else ''} {'-wait' if wait else ''} {progName} {params}\n"
+                execLine += f"foamJob {parallelFlag} -append {'-screen' if screen else ''} {'-wait' if wait else ''} {progName} {params}\n"
             else:
-                execLine += f"{slurm} {progName} {params}\n"
+                execLine += f"{progName} {params}\n"
+
 
         allrunFile = os.path.join(caseDirectory,"Allrun")
         if not os.path.exists(caseDirectory):
