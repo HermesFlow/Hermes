@@ -187,6 +187,7 @@ def build_workflow(case_path: Path, template_paths=None) -> dict:
 
     return {
         "workflow": {
+            "version": 2,
             "root": None,
             "solver": "simpleFoam",
             "SolvedFields": "p U k epsilon nut",

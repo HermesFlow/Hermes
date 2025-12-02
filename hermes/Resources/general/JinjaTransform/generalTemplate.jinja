@@ -7,10 +7,9 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSolution;
+    {% for key, val in FoamFile.items() %}
+    {{ key }}    {{ val }};
+    {% endfor %}
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

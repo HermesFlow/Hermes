@@ -15,20 +15,6 @@ import re
 
 # ------ Helpers Functions ------
 
-""" 
-def convert_bools_to_lowercase(obj):
-    if isinstance(obj, dict):
-        return {k: convert_bools_to_lowercase(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_bools_to_lowercase(v) for v in obj]
-    elif obj is True:
-        return "true"
-    elif obj is False:
-        return "false"
-    else:
-        return obj
-
-"""
 
 def _normalize_parsed_dict(data, split_strings=False):
     """
@@ -222,95 +208,31 @@ class DictionaryReverser:
 
     def parse(self) -> None:
         """
-        Read the OpenFOAM dictionary with PyFoam, capture content, and infer
-        node identifiers (domain/subdomain/node_type) directly from the input
-        (header + path).
+        Generic parser for OpenFOAM dictionaries using PyFoam.
+        Extracts dictionary content, cleans it, and infers metadata.
         """
         p = Path(self.dictionary_path)
-
-        # Manually fix malformed "edges" block in blockMeshDict
-        def _extract_edges_manually(path: Path):
-            with open(path, "r") as f:
-                txt = f.read()
-
-            import re
-            block = re.search(r"edges\s*\((.*?)\);", txt, re.S)
-            if not block:
-                return None
-
-            lines = block.group(1).strip().splitlines()
-            edges = []
-
-            for line in lines:
-                line = line.strip()
-                m = re.match(r"arc\s+(\d+)\s+(\d+)\s*\(([^)]+)\)", line)
-                if m:
-                    start = int(m.group(1))
-                    end = int(m.group(2))
-                    pt = [float(x) for x in m.group(3).split()]
-                    edges.extend(["arc", start, end, pt])
-            return edges
-
-        edge_override = None
-        if p.name == "blockMeshDict":
-            edge_override = _extract_edges_manually(p)
-
-        # Parse OpenFOAM file using PyFoam
         self.ppf = ParsedParameterFile(str(p))
-        print(f"ParsedParameterFile content: {self.ppf.content}")
 
-        # Use manual edges if needed
-        if edge_override is not None:
-            print(" Patched malformed edge parsing via manual override")
-            self.ppf.content["edges"] = edge_override
-
-        # Detect dictionary name
-        header_obj = str(self.ppf.header.get("object", "")).strip()
-        stem = p.stem.strip()
-        self.dict_name = header_obj or stem
-        if not self.dict_name:
-            raise ValueError(f"Cannot detect dictionary object name for {self.dictionary_path}")
-
-        # Parse and copy
+        # Remove FoamFile block
         raw_data = copy.deepcopy(self.ppf.content)
         raw_data.pop("FoamFile", None)
-        print(f"raw_data: {raw_data}")
 
-        # Convert booleans/vectors to native Python
-        unwrapped = unwrap_booleans_and_vectors(raw_data)
+        # Convert PyFoam types to native Python
+        self.dict_data = unwrap_booleans_and_vectors(raw_data)
 
-        # Normalize safely (no string splitting unless needed)
-        self.dict_data = unwrapped
+        # Metadata detection
+        self.dict_name = str(self.ppf.header.get("object", "")) or p.stem
+        if not self.dict_name:
+            raise ValueError(f"Cannot detect dictionary name in {p}")
 
-        #self.dict_data = (
-        #    unwrapped if self.dict_name == "changeDictionaryDict"
-        #    else _normalize_parsed_dict(unwrapped, split_strings=False)
-        #)
-
-        # Fix boundary format if alternating [name, dict, name, dict, ...]
-        if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
-            boundary_list = self.dict_data["boundary"]
-            normalized = []
-            i = 0
-            while i < len(boundary_list) - 1:
-                name, body = boundary_list[i], boundary_list[i + 1]
-                if isinstance(name, str) and isinstance(body, dict):
-                    entry = {"name": name}
-                    entry.update(body)
-                    normalized.append(entry)
-                i += 2
-            self.dict_data["boundary"] = normalized
-
-        # Detect subdomain
         header_loc = str(self.ppf.header.get("location", "")).strip()
-        subdomain = header_loc.strip("/").split("/")[-1] if header_loc else p.parent.name
-        self.subdomain = subdomain.strip('"').strip("'") or "system"
+        self.subdomain = header_loc.strip("/").split("/")[-1] if header_loc else p.parent.name
+        self.subdomain = self.subdomain.strip('"').strip("'") or "system"
 
-        # Final domain and node type
         self.domain = "openFOAM"
         pascal = self.dict_name[0].upper() + self.dict_name[1:]
         self.node_type = f"{self.domain}.{self.subdomain}.{pascal}".replace('"', '').replace("'", "")
-
 
     # Locate the converter class for the dictionary
     def locate_converter_class(self):
@@ -391,8 +313,8 @@ class DictionaryReverser:
                 final_leaf[key] = []
 
 
-        node["version"] = 2
         return {self.dict_name: node}
+
 
     def to_json_str(self, node: dict) -> str:
         return json.dumps(node, indent=4, ensure_ascii=False, cls=FoamJSONEncoder)

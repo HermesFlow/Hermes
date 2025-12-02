@@ -1,43 +1,12 @@
-from ...general.JinjaTransform.executer import JinjaTransform
+from ...general import JinjaTransform
 import logging
-import json
 
+# abstractSystemExecuter.py
 class abstractSystemExecuter(JinjaTransform):
-    def __init__(self, JSON, templateName):
-        super().__init__(JSON)
-        self.templateName = templateName
-        self._JSON = JSON  # used by JinjaTransform
+    def __init__(self, JSON, templateName=None, full_workflow=None):
+        workflow = full_workflow or JSON.get("workflowJSON") or JSON.get("workflow")
+        super().__init__(JSON, full_workflow=workflow)
+        self._templateName = f"openFOAM/system/{templateName}/jinjaTemplate" if templateName else None
 
-    def run(self, **executer_parameters):
-        logger = logging.getLogger("abstractSystemExecuter")
-
-
-        version = self._JSON.get("version", 1)
-        logger.debug(f"[abstractSystemExecuter] Detected version: {version}")
-
-        if version == 2:
-            node_type = self._JSON.get("type", "")
-            if not node_type:
-                raise ValueError("Missing 'type' field in JSON for version 2 node")
-
-            # Convert dot notation to folder path and add template file name
-            templateName = node_type.replace(".", "/") + "/jinjaTemplate.v2"
-            parameters = self._JSON.get("Execution", {}).get("input_parameters", {})
-            logger.debug(f"Using version 2 template: {templateName}")
-
-        else:
-            # version 1 fallback
-            templateName = f"openFOAM/system/{self.templateName}/jinjaTemplate"
-            parameters = self._JSON
-            logger.debug(f"[abstractSystemExecuter] Using version 1 template: {templateName}")
-
-        # Pass to JinjaTransform
-        #from hermes.Resources.general.JinjaTransform.executer import JinjaTransform
-        # return JinjaTransform(self._JSON).run(template=templateName, parameters=parameters)
-        # return JinjaTransform(self._JSON).run(parameters=parameters)
-
-        logger.debug(f"abstractSystemExecuter got JSON:\n{json.dumps(self._JSON, indent=2)}")
-
-        return super().run(template=templateName, parameters=parameters)
-
-
+    def run(self, **inputs):
+        return super().run(template=self._templateName, parameters=self._JSON.get("Execution", {}).get("input_parameters"))

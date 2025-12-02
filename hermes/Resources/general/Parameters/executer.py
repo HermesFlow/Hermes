@@ -1,6 +1,8 @@
 from ...executers.abstractExecuter import abstractExecuter
 
 class Parameters(abstractExecuter):
+    def __init__(self, JSON, full_workflow=None):
+        super().__init__(JSON)
 
     def _defaultParameters(self):
         return dict(

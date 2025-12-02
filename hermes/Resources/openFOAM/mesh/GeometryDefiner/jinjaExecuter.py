@@ -12,4 +12,12 @@ class GeometryDefinerExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(GeometryDefinerExecuter="GeometryDefinerExecuter")
+        version = self._workflow.get("workflow", {})
+
+        if version == 2:
+            return super().run()
+        else:
+            template_name = "openFOAM/mesh/GeometryDefiner/jinjaTemplate"
+            return super().run(template=template_name, parameters=inputs)
+
+

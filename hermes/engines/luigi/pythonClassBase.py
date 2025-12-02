@@ -35,7 +35,7 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         super().__init__(*args,**kwargs)
         self._taskJSON = {{ taskwrapper.taskJSON | to_python }}
         
-        self._workflowJSON = {{taskwrapper.task_workflowJSON}}['workflow']
+        self._workflowJSON = {{ workflowJSON | to_python }}
 
     def output(self):
         targetBaseFile = os.path.abspath(__file__).split(".")[0]
@@ -68,7 +68,12 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         executer_parameters['WD_path']='{{WD_path}}'
                     
         from {{taskwrapper.getExecuterPackage()}} import {{taskwrapper.getExecuterClass()}}  
-        output = {{taskwrapper.getExecuterClass()}}(self._taskJSON).run(**executer_parameters)
+        output = {{taskwrapper.getExecuterClass()}}(
+                    self._taskJSON,
+                    full_workflow=self._workflowJSON
+                 ).run(**executer_parameters)
+
+
         
         params['input_parameters'] = executer_parameters 
         params['output'] = output        
@@ -151,7 +156,17 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
 
         env.filters["to_python"] = lambda value: pprint.pformat(value, indent=4)
 
+        full_workflow_json = taskWrapper.task_workflowJSON
+        extracted_workflow = full_workflow_json or {}
+
+
         rtemplate = env.from_string(self._basicLuigiTemplate)
 
-        return rtemplate.render(taskwrapper=taskWrapper,enumerate=enumerate,len=len,WD_path=WD_path,)
+        return rtemplate.render(
+            taskwrapper=taskWrapper,
+            workflowJSON=extracted_workflow,
+            enumerate=enumerate,
+            len=len,
+            WD_path=WD_path,
+        )
 

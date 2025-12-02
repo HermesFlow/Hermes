@@ -5,8 +5,8 @@ import os, sys, stat
 
 class FilesWriter(abstractExecuter):
 
-    def __init__(self, tskJSON):
-        pass
+    def __init__(self, JSON, full_workflow=None):
+        super().__init__(JSON)
 
     def _defaultParameters(self):
         return dict(
