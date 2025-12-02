@@ -116,19 +116,11 @@ class JinjaTransform(abstractExecuter):
         template_name = None
 
         if version == 2:
-            # Version 2: use type -> path/jinjaTemplate.v2
-            if not node_type:
-                raise ValueError("[JinjaTransform] Missing 'type' for version 2 node (looked in top-level and Execution)")
-            # convert dot path to folder path and build template file name
-            type_path = node_type.replace(".", "/")
-            template_name = f"{type_path}/jinjaTemplate.v2"
-            # parameters come from Execution.input_parameters if present, else fallback to top-level node JSON
             execution_params = (self._JSON.get("Execution") or {}).get("input_parameters")
             if execution_params is None:
-                # fallback: some nodes may put input parameters at top-level (defensive)
                 execution_params = self._JSON.get("input_parameters") or {}
             parameters = copy.deepcopy(execution_params) if isinstance(execution_params, dict) else {}
-            logger.debug(f"[JinjaTransform] Version 2: template_name='{template_name}', parameters keys={list(parameters.keys())}")
+            template_name = "general/JinjaTransform/generalTemplate.jinja"
         else:
             # Version 1: template should be passed in inputs
             template_name = inputs.get("template")

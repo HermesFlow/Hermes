@@ -15,7 +15,7 @@ import re
 
 # ------ Helpers Functions ------
 
-
+""" 
 def convert_bools_to_lowercase(obj):
     if isinstance(obj, dict):
         return {k: convert_bools_to_lowercase(v) for k, v in obj.items()}
@@ -28,6 +28,7 @@ def convert_bools_to_lowercase(obj):
     else:
         return obj
 
+"""
 
 def _normalize_parsed_dict(data, split_strings=False):
     """
@@ -70,37 +71,6 @@ def _normalize_parsed_dict(data, split_strings=False):
 
     else:
         return data
-
-
-# Helper to convert PyFoam dict-like objects to native Python types
-def to_native(obj):
-    """
-    Recursively convert PyFoam dict-like objects to native Python types.
-    """
-    if isinstance(obj, dict):
-        try:
-            return {k: to_native(v) for k, v in obj.items()}
-        except Exception:
-            try:
-                return {k: to_native(obj[k]) for k in list(obj)}
-            except Exception:
-                return str(obj)
-    elif isinstance(obj, list):
-        return [to_native(i) for i in obj]
-    elif hasattr(obj, "__dict__"):
-        return to_native(vars(obj))
-    else:
-        return obj
-
-def normalize_in_place(d: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convert a dictionary in place to native Python types
-    """
-    native = to_native(d)
-    if native is not d:
-        d.clear()
-        d.update(native)
-    return d
 
 
 def unwrap_special_type(val):
@@ -250,24 +220,6 @@ class DictionaryReverser:
         self._template_center = templateCenter(template_paths)
         self._converter_cache: Dict[str, Tuple[Optional[type], Optional[Exception]]] = {}
 
-    def _normalize_booleans(self, data):
-        """
-        Recursively converts string booleans ("true", "false") into actual Python bools (True, False).
-        """
-        if isinstance(data, dict):
-            return {k: self._normalize_booleans(v) for k, v in data.items()}
-        elif isinstance(data, list):
-            return [self._normalize_booleans(v) for v in data]
-        elif isinstance(data, str):
-            if data.lower() == "true":
-                return True
-            elif data.lower() == "false":
-                return False
-            return data
-        else:
-            return data
-
-
     def parse(self) -> None:
         """
         Read the OpenFOAM dictionary with PyFoam, capture content, and infer
@@ -328,10 +280,12 @@ class DictionaryReverser:
         unwrapped = unwrap_booleans_and_vectors(raw_data)
 
         # Normalize safely (no string splitting unless needed)
-        self.dict_data = (
-            unwrapped if self.dict_name == "changeDictionaryDict"
-            else _normalize_parsed_dict(unwrapped, split_strings=False)
-        )
+        self.dict_data = unwrapped
+
+        #self.dict_data = (
+        #    unwrapped if self.dict_name == "changeDictionaryDict"
+        #    else _normalize_parsed_dict(unwrapped, split_strings=False)
+        #)
 
         # Fix boundary format if alternating [name, dict, name, dict, ...]
         if "boundary" in self.dict_data and isinstance(self.dict_data["boundary"], list):
@@ -436,9 +390,6 @@ class DictionaryReverser:
             if isinstance(final_leaf.get(key), dict):
                 final_leaf[key] = []
 
-        if is_control:
-            convert_bools_to_lowercase(final_leaf)
-            node["version"] = 2
 
         node["version"] = 2
         return {self.dict_name: node}
