@@ -24,8 +24,6 @@ solvers
             {{ solvers.solver(fieldName + "Final", solverData.final, False) }}
         {% endif %}
     {% endfor %}
-
-
 }
 
 {{solverProperties.algorithm}}

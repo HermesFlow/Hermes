@@ -28,7 +28,7 @@
     {%- if solverData.preconditioner is defined %}
     preconditioner      {{solverData.preconditioner}};
     {%- endif %}
-    {%- if solverData.tolerance in is defined %}
+    {%- if solverData.tolerance is defined %}
     tolerance           {{solverData.tolerance}};
     {% endif -%}
     {%- if solverData.relTol is defined %}

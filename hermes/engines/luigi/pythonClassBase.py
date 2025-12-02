@@ -67,8 +67,10 @@ class {{taskwrapper.taskfullname}}(luigi.Task,hermesutils):
         executer_parameters = self.build_executer_parameters(task_executer_mapping, params)
         executer_parameters['WD_path']='{{WD_path}}'
                     
-        from {{taskwrapper.getExecuterPackage()}} import {{taskwrapper.getExecuterClass()}}  
-        output = {{taskwrapper.getExecuterClass()}}(self._taskJSON).run(**executer_parameters)
+        from {{taskwrapper.getExecuterPackage()}} import {{taskwrapper.getExecuterClass()}}
+        executerClass ={{taskwrapper.getExecuterClass()}}(self._taskJSON)
+        executerClass.version = self.workflowJSON.get("version",1)
+        output = executerClass.run(**executer_parameters)
         
         params['input_parameters'] = executer_parameters 
         params['output'] = output        

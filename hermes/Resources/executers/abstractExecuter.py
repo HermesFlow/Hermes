@@ -42,7 +42,7 @@ Example executers:
 
 """
 import abc
-from ...hermesLogging.loggingObject import loggedObject
+from hermes.hermesLogging.loggingObject import loggedObject
 
 class abstractExecuter(loggedObject):
     """
@@ -54,7 +54,17 @@ class abstractExecuter(loggedObject):
 
     """
 
-    _parameters = None
+    parameters = None
+
+    version = None # The version of the OF template.
+
+    @property
+    def executerType(self):
+        return self.parameters['type']
+
+    @property
+    def taskJSON(self):
+        return self.parameters['Execution']
 
     def __init__(self,JSON):
         """
@@ -64,8 +74,9 @@ class abstractExecuter(loggedObject):
             the json that overrides the default parameters.
         """
         super().__init__()
-        defaultparameters = self._defaultParameters()
-        self._parameters  = defaultparameters.update(JSON)
+        self.parameters  = self._defaultParameters()
+        self.parameters.update(JSON)
+        self.version = 1
 
     @abc.abstractmethod
     def _defaultParameters(self):

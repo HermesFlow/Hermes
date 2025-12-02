@@ -40,11 +40,11 @@
 {%- endmacro %}
 
 {%- macro handleValue(params) -%}
-{%- for paramName,paramValue in params.items() -%}
+{% for paramName,paramValue in params.items() %}
 {% if paramValue is sequence %}
 {{paramName}} {% for valueItem in paramValue -%}{{valueItem}}{%- endfor %};
-{%- else %}
+{% else %}
 {{paramName}} {{paramValue}};
-{%- endif %}
-{% endfor -%}
+{% endif %}
+{% endfor %}
 {%- endmacro %}
