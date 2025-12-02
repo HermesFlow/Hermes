@@ -272,11 +272,6 @@ class DictionaryReverser:
             work_leaf = ensure_path(target, ("Execution", "input_parameters", "values")) if is_control \
                 else target["Execution"]["input_parameters"]
 
-            # Promote fields
-            for k in list(target.keys()):
-                if k not in {"Execution", "type"}:
-                    work_leaf[k] = target.pop(k)
-
             if not work_leaf:
                 merge_into(work_leaf, self.dict_data or {}, list_strategy)
         else:
@@ -301,17 +296,7 @@ class DictionaryReverser:
         }
 
         override_type = override_types.get(self.dict_name, self.node_type)
-
         node = {"Execution": target["Execution"], "type": override_type}
-
-        # Normalize quirks
-        final_leaf = ensure_path(node, ("Execution", "input_parameters", "values")) if is_control \
-            else node["Execution"]["input_parameters"]
-
-        for key in ["functions", "libs"]:
-            if isinstance(final_leaf.get(key), dict):
-                final_leaf[key] = []
-
 
         return {self.dict_name: node}
 

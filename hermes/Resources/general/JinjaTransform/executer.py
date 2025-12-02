@@ -24,12 +24,10 @@ class JinjaTransform(abstractExecuter):
         super().__init__(JSON)
         self._JSON = JSON
 
-        # Auto-infer full workflow
         if full_workflow is None:
             full_workflow = JSON.get("workflowJSON") or JSON.get("workflow") or {}
 
         self._workflow = full_workflow
-        logger.debug(f"[Init] Full workflow version: {self._workflow.get('workflow', {}).get('version')}")
 
     def _defaultParameters(self):
         return dict(
@@ -86,13 +84,11 @@ class JinjaTransform(abstractExecuter):
             )
 
             if not isinstance(execution_params, dict):
-                logger.warning("[JinjaTransform] input_parameters not a dict — coercing to empty.")
                 execution_params = {}
 
             ctx = copy.deepcopy(execution_params)
             template_name = "general/JinjaTransform/generalTemplate.jinja"
             template = self._getTemplate(template_name)
-            logger.debug(f"[run] Using general template for version=2: {template_name}")
 
         else:
             # Use classic node-specific template
@@ -113,7 +109,6 @@ class JinjaTransform(abstractExecuter):
                 ctx = {}
 
             template = self._getTemplate(normalized_template_path, additionalTemplatePath=path_list)
-            logger.debug(f"[run] Using classic template: {normalized_template_path}")
 
         # Add aliases
         for alias in ["input_parameters", "parameters", "values"]:
@@ -127,16 +122,11 @@ class JinjaTransform(abstractExecuter):
             "object": default_object
         })
 
-        ctx.setdefault("type", node_type)
-        ctx.setdefault("version", version)
-        #ctx.setdefault("fields", {})
-        #ctx.setdefault("solverProperties", {})
+        #ctx.setdefault("type", node_type)
+        #ctx.setdefault("version", version)
 
-        try:
-            output = template.render(**ctx)
-        except Exception as e:
-            logger.error(f"[JinjaTransform] Template render failed: {e}")
-            raise
 
-        logger.info(f"[JinjaTransform] Rendered for type={node_type}, version={version}")
+        output = template.render(**ctx)
+
+
         return dict(openFOAMfile=output)
