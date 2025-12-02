@@ -90,25 +90,22 @@ class JinjaTransform(abstractExecuter):
             template_name = "general/JinjaTransform/generalTemplate.jinja"
             template = self._getTemplate(template_name)
 
+
         else:
-            # Use classic node-specific template
+            # Classic template, infer template path from node type
             template_name = inputs.get("template")
             if not template_name:
-                raise ValueError("[JinjaTransform] No template provided for classic workflow")
+                if node_type:
+                    parts = node_type.split(".")
+                    template_name = os.path.join(*parts, "jinjaTemplate")
 
             path_list = [os.path.abspath(p) for p in np.atleast_1d(inputs.get("path", []))]
             path_list.append(os.getcwd())
-
-            regexPattern = '|'.join(map(re.escape, [".", "/", "\\"]))
-            parts = re.split(regexPattern, template_name)
-            normalized_template_path = os.path.sep.join(parts)
-
             ctx = inputs.get("parameters", {})
             if not isinstance(ctx, dict):
-                logger.warning("[JinjaTransform] parameters not a dict — coercing to empty.")
                 ctx = {}
 
-            template = self._getTemplate(normalized_template_path, additionalTemplatePath=path_list)
+            template = self._getTemplate(template_name, additionalTemplatePath=path_list)
 
         # Add aliases
         for alias in ["input_parameters", "parameters", "values"]:
