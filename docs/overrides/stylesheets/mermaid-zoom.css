@@ -1,0 +1,75 @@
+/* Mermaid diagram click-to-expand zoom */
+
+/* Wrapper for diagram + button */
+.mermaid-zoom-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Expand button */
+.mermaid-zoom-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  background: var(--md-primary-fg-color, #4051b5);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.mermaid-zoom-btn:hover {
+  opacity: 1;
+}
+
+/* Fullscreen overlay */
+.mermaid-zoom-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.97);
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow: auto;
+  cursor: zoom-out;
+}
+
+.mermaid-zoom-overlay.active {
+  display: flex;
+}
+
+/* Dark mode */
+[data-md-color-scheme="slate"] .mermaid-zoom-overlay {
+  background: rgba(30, 30, 30, 0.97);
+}
+
+/* SVG inside overlay scales nicely */
+.mermaid-zoom-overlay svg {
+  max-width: 95vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+}
+
+/* Close hint */
+.mermaid-zoom-close-hint {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color--light);
+  opacity: 0.7;
+}

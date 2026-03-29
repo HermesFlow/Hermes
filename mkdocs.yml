@@ -1,0 +1,120 @@
+site_name: Hermes Documentation
+site_description: Technical reference and user guide for the Hermes workflow automation framework for CFD and simulation pipelines
+site_url: https://HermesFlow.github.io/Hermes/
+repo_url: https://github.com/HermesFlow/Hermes
+repo_name: HermesFlow/Hermes
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.instant
+    - navigation.instant.progress
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra_css:
+  - overrides/stylesheets/mermaid-zoom.css
+
+extra_javascript:
+  - overrides/javascripts/mermaid-zoom.js
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Overview: user_guide/index.md
+      - Installation & Setup: user_guide/installation.md
+      - Key Concepts: user_guide/concepts.md
+      - Quick Start Tutorial: user_guide/quickstart.md
+      - CLI Reference: user_guide/cli.md
+      - Nodes:
+          - Overview: user_guide/nodes/index.md
+          - General Nodes:
+              - Overview: user_guide/nodes/general/index.md
+              - CopyDirectory: user_guide/nodes/general/copy_directory.md
+              - CopyFile: user_guide/nodes/general/copy_file.md
+              - RunOsCommand: user_guide/nodes/general/run_os_command.md
+              - RunPythonCode: user_guide/nodes/general/run_python_code.md
+              - JinjaTransform: user_guide/nodes/general/jinja_transform.md
+              - FilesWriter: user_guide/nodes/general/files_writer.md
+              - Parameters: user_guide/nodes/general/parameters.md
+          - OpenFOAM Nodes:
+              - Overview: user_guide/nodes/openfoam/index.md
+              - Mesh:
+                  - BlockMesh: user_guide/nodes/openfoam/mesh/blockmesh.md
+                  - SnappyHexMesh: user_guide/nodes/openfoam/mesh/snappyhexmesh.md
+              - System:
+                  - ControlDict: user_guide/nodes/openfoam/system/controldict.md
+                  - FvSchemes: user_guide/nodes/openfoam/system/fvschemes.md
+                  - FvSolution: user_guide/nodes/openfoam/system/fvsolution.md
+              - Constant:
+                  - TransportProperties: user_guide/nodes/openfoam/constant/transport_properties.md
+                  - TurbulenceProperties: user_guide/nodes/openfoam/constant/turbulence_properties.md
+                  - PhysicalProperties: user_guide/nodes/openfoam/constant/physical_properties.md
+                  - MomentumTransport: user_guide/nodes/openfoam/constant/momentum_transport.md
+                  - BuildAllrun: user_guide/nodes/openfoam/constant/build_allrun.md
+              - Dispersion:
+                  - KinematicCloudProperties: user_guide/nodes/openfoam/dispersion/kinematic_cloud.md
+              - Boundary Conditions: user_guide/nodes/openfoam/boundary_conditions.md
+      - FreeCAD Integration: user_guide/freecad.md
+      - Examples: examples/index.md
+      - Troubleshooting: user_guide/troubleshooting.md
+      - FAQ: user_guide/faq.md
+  - Developer Guide:
+      - Overview: developer_guide/index.md
+      - Architecture:
+          - Core Concepts: developer_guide/architecture/core_concepts.md
+          - Workflow Engine: developer_guide/architecture/workflow_engine.md
+          - Execution Engines: developer_guide/architecture/execution_engines.md
+      - JSON Structure: developer_guide/json_structure.md
+      - Creating Custom Nodes: developer_guide/creating_nodes.md
+      - API Reference:
+          - Workflow: developer_guide/api/workflow.md
+          - TaskWrapper: developer_guide/api/taskwrapper.md
+          - Engines: developer_guide/api/engines.md
+      - Roadmap: developer_guide/roadmap.md
