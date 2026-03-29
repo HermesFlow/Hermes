@@ -1,27 +1,59 @@
 # pyHermes
 
-This python package is the execution engine of the Hermes workflow package. 
+The Python execution engine for the Hermes workflow framework.
 
-The current implementation trasnlates a JSON workflow to a Luigi workflow. 
-We implemented this package to automate the construction of the luigi workflow. 
+Translates JSON workflow definitions into executable [Luigi](https://luigi.readthedocs.io/) pipelines, automating the construction of task-based workflows for CFD and structural simulation applications.
 
-## Installation 
+**Full documentation: [https://hermesflow.github.io/Hermes/](https://hermesflow.github.io/Hermes/)**
 
-1. Make sure anaconda is installed. 
-2. Clone the github project. 
-3. build the Hermes workflow 
+## Package Structure
 
-```bash
-conda create --name Hermes --file CondaHermes
+```
+hermes/
+├── bin/                    # CLI entry point (hermes-workflow)
+├── workflow/               # Core workflow engine
+│   ├── workflow.py         # Workflow class — loads JSON, builds dependency graph
+│   ├── expandWorkflow.py   # Template expansion
+│   └── reverse.py          # Reverse-engineer workflows from existing cases
+├── taskwrapper/            # Task wrapper abstraction
+│   ├── wrapper.py          # hermesTaskWrapper — holds task metadata & connectivity
+│   ├── wrapperHome.py      # Wrapper factory
+│   └── specializedwrapper/ # Domain-specific wrappers (OpenFOAM)
+├── engines/                # Execution engine implementations
+│   └── luigi/              # Luigi engine (builder, transformers, utilities)
+├── Resources/              # Node type definitions & templates
+│   ├── general/            # General nodes (CopyDirectory, RunOsCommand, Jinja, etc.)
+│   ├── openFOAM/           # OpenFOAM nodes (mesh, system, constant, dispersion)
+│   ├── BC/                 # Boundary condition nodes
+│   ├── executers/          # Shared execution logic
+│   └── workbench/          # FreeCAD workbench GUI nodes
+├── utils/                  # Utility modules (JSON, workflow assembly)
+└── hermesLogging/          # Logging configuration
 ```
 
-4. Activate the environment before work 
+## Installation
 
-## Example 
+```bash
+pip install -e .
+```
 
-A simple example that shows the use of the path and environemts. 
+## Usage
 
-## Todo 
+```bash
+# Build and execute a workflow
+hermes-workflow buildExecute workflow.json
 
-The execution code is not implemented yet. 
+# Or step by step
+hermes-workflow expand workflow.json myCase
+hermes-workflow build workflow.json myCase
+hermes-workflow execute myCase
+```
 
+## Key Classes
+
+- **`workflow`** (`workflow/workflow.py`) — central engine that loads JSON, resolves templates, and builds the task network
+- **`hermesTaskWrapper`** (`taskwrapper/wrapper.py`) — wraps each node with metadata, parameters, and dependency information
+- **`hermesNode`** (`workflow/workflow.py`) — interface to individual node JSON definitions
+- **`LuigiBuilder`** (`engines/luigi/builder.py`) — generates Luigi Python code from the task network
+
+See the [Developer Guide](https://hermesflow.github.io/Hermes/developer_guide/) for architecture details and API reference.

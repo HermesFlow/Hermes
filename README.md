@@ -1,110 +1,139 @@
-# Hermes 2.0
+# Hermes
 
-Hermes is a package designed to simplify the construction of a task-based workflow pipelines for executers like 
-Luigi or Airflow. The Hermes package focuses on pipelines for CFD/solid applications.
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://hermesflow.github.io/Hermes/)
 
-A workflow is described using JSON file. The package consists of tools to transform the JSON-workflow 
-to a Luigi (or other execution engine) python file. 
-The package also constructs GUI to set the parameters of the workflow. 
+Hermes is a Python framework for building task-based workflow pipelines, with a focus on CFD (Computational Fluid Dynamics) and structural simulation applications.
 
-Since the workflow is focused on CFD/structural simulations the GUI is based on FreeCAD package. 
+Workflows are described in JSON format and executed via engines like [Luigi](https://luigi.readthedocs.io/) or [Airflow](https://airflow.apache.org/). The framework also provides a [FreeCAD](https://www.freecad.org/)-based GUI for visual workflow configuration.
 
+**Documentation: [https://hermesflow.github.io/Hermes/](https://hermesflow.github.io/Hermes/)**
 
-## This project contains
-1. FreeCad source modifications that allow the functionality of pyHermes
+## Features
 
-2. pyHermes Python source files and example
+- **JSON-based workflows** — define pipelines as JSON, enabling version control, comparison, and querying
+- **Node system** — 40+ built-in node types for general operations and OpenFOAM simulations
+- **Template engine** — Jinja2-based file generation for OpenFOAM configuration files
+- **FreeCAD integration** — GUI workbench for visual workflow and boundary condition setup
+- **Extensible architecture** — create custom nodes and execution engine backends
+
+## Quick Start
+
+```bash
+git clone https://github.com/HermesFlow/Hermes.git
+cd Hermes
+pip install -e .
+```
+
+Run a workflow:
+
+```bash
+hermes-workflow buildExecute examples/general/copyDir/copyDir.json
+```
+
+## Project Structure
+
+```
+Hermes/
+├── hermes/                        # Main Python package
+│   ├── bin/                       # CLI (hermes-workflow)
+│   ├── workflow/                  # Core workflow engine
+│   ├── taskwrapper/               # Task wrapper abstraction
+│   ├── engines/                   # Execution engines (Luigi)
+│   ├── Resources/                 # Node types & templates
+│   │   ├── general/               # General-purpose nodes
+│   │   ├── openFOAM/              # OpenFOAM simulation nodes
+│   │   ├── BC/                    # Boundary condition nodes
+│   │   └── workbench/             # FreeCAD workbench nodes
+│   └── utils/                     # Utilities
+├── examples/                      # Workflow examples
+├── freecad_source_hermes/         # FreeCAD integration source
+├── docs/                          # Documentation source (MkDocs)
+└── doc/                           # Legacy Sphinx documentation
+```
 
 ## Installation
 
-The provided **install.sh** script can be used to produce and environment to run/develop FreeCad with HermesFlow.
-The script performs the following:
+### Standard (CLI only)
 
-1. downloads and installs the docker image from:
-    https://gitlab.com/daviddaish/freecad_docker_env 
-
-2. sets up two docker launch scripts:
-    docker.sh
-    docker_dev.sh
-
- 
-3. downloads  the necessary repositories:
-    HermesFlow/pyHermes
-    HermesFlow/JsonExample
-    FreeCad
-
-4. sets up the Python environment needed for running/development in "dot_local" directory that is bound to ~/.local of the docker user by means of bind directive in doker launch script, it contains the following Python components:
-    PyQt5
-    jsonpath_rw_ext
-    luigi
-
-   to update the dot_local: 
-   
-   a. modify docker_dev.sh to bind the .local in read-write mode (rw)
-
-   b. "pip3 --user install" the additional packages inside docker
-   
-   c. exit docker
-   
-   d. to commit the updated dot_local into git:
-   
-       i.   tar cvf dot_local.tar.gz
-       ii.  move the tarbal into freecad_build_files of thew git tree
-       iii. git commit -m "some comment" freecad_build_files/dot_local.tar.gz
-       iv.  git push
-
-
-
-Usage of install.sh, requires executable permissions of the script:
-
-
-Usage:
-```
-    install.sh -o destination [-f freecad_hash] [-d docker_digest] [-i docker_id] [-p diff_file]  [-b hermes_branch]
+```bash
+pip install -e .
 ```
 
-Script that installs HermesFlow/pyHermes-enabled FreeCad
+### Docker-based (with FreeCAD GUI)
 
-Options:
--    -o destination          directory which will contain the build files
--    -b hermes_branch        scpecify HermesFlow/Hermes branch
--    -i docker_id            specify docker image id to use, default: ee7e3ecee4ca
--    -d docker_digest        specify docker image digest to pull, default: sha256:6537079d971a332ba198967ede01748bb87c3a6618564cd2b11f8edcb42a80d0
--    -f freecad_hash         specify freecad source hash to pull, default: 0.18-1194-g5a352ea63
--    -p diff-file            specify freecad source diff that fixes compilation problems, default patch file: destination/Hermes_git/freecad_5a352ea63_git.diff
--    -v                      debug mode (implies "set -x")
--    -h,-?                   print this help message
+```bash
+chmod +x install.sh
+./install.sh -o /path/to/destination
+```
 
-Author: Yakov Mindelis
-ISCFDC - Israeli CFD Center LTD
+See the [Installation Guide](https://hermesflow.github.io/Hermes/user_guide/installation/) for full details and options.
 
-        
-to produce a diff file from non-default source dir one should fixe the compilation problems and run:
-    git diff > file.diff
+## CLI Usage
 
-### For users 
+```bash
+# Build and execute a workflow
+hermes-workflow buildExecute workflow.json
 
-Use docker.sh script inside the installation directory. Note: "xhost +"  is required to allow X11 connection from docker to hosts's X11 server to allow displaying graphics. 
+# Expand a workflow with default values
+hermes-workflow expand workflow.json myCase
 
-### For developers. 
+# Build Luigi Python file
+hermes-workflow build workflow.json myCase
 
-Use docker_dev.sh script inside the installation directory. The script will launch the /mnt/source/build_script.sh which was produced from the original build_script.sh, it has the following modification:
+# Execute a built workflow
+hermes-workflow execute myCase
+```
 
-    -D FREECAD_USE_QTWEBMODULE="Qt\ Webkit" 
+## Example Workflow
 
-Invoking the script will trigger the build process. 
+```json
+{
+    "workflow": {
+        "root": null,
+        "nodeList": ["CopyDirectory", "RunPythonCode"],
+        "nodes": {
+            "CopyDirectory": {
+                "Execution": {
+                    "input_parameters": {
+                        "Source": "source",
+                        "Target": "target",
+                        "dirs_exist_ok": true
+                    }
+                },
+                "type": "general.CopyDirectory"
+            },
+            "RunPythonCode": {
+                "Execution": {
+                    "input_parameters": {
+                        "ModulePath": "my_module",
+                        "ClassName": "MyClass",
+                        "MethodName": "process",
+                        "Parameters": {
+                            "source": "{CopyDirectory.output.Source}",
+                            "target": "{CopyDirectory.output.Target}"
+                        }
+                    }
+                },
+                "type": "general.RunPythonCode"
+            }
+        }
+    }
+}
+```
 
-## Execute in gui mode
+## Documentation
 
+Full documentation is available at **[https://hermesflow.github.io/Hermes/](https://hermesflow.github.io/Hermes/)**, including:
 
-## Execute in script mode
+- [User Guide](https://hermesflow.github.io/Hermes/user_guide/) — installation, concepts, tutorials, node reference
+- [Developer Guide](https://hermesflow.github.io/Hermes/developer_guide/) — architecture, JSON schema, creating custom nodes, API reference
 
-Use one of the examples in the examaple directory
+To serve docs locally:
 
-## Execute in gui mode
+```bash
+./serve_docs.sh
+```
 
+## License
 
-## Execute in script mode
-
-Use one of the examples in the examaple directory
-
+See [LICENSE](LICENSE) for details.
