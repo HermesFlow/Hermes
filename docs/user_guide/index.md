@@ -8,7 +8,8 @@ Welcome to the Hermes User Guide. This section covers everything you need to ins
 
 1. **[Installation & Setup](installation.md)** — Install Hermes and configure your environment
 2. **[Key Concepts](concepts.md)** — Understand workflows, nodes, JSON structure, and execution engines
-3. **[Quick Start Tutorial](quickstart.md)** — Build and run your first workflow in 10 minutes
+3. **[The Hermes Pipeline](pipeline.md)** — How Hermes works as an abstract method to execute simulations and instructions
+4. **[Quick Start Tutorial](quickstart.md)** — Build and run your first workflow in 10 minutes
 4. **[CLI Reference](cli.md)** — Command-line tools for building and executing workflows
 
 ## Working with Nodes

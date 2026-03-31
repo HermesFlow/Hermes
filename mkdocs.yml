@@ -70,6 +70,7 @@ nav:
       - Overview: user_guide/index.md
       - Installation & Setup: user_guide/installation.md
       - Key Concepts: user_guide/concepts.md
+      - The Hermes Pipeline: user_guide/pipeline.md
       - Quick Start Tutorial: user_guide/quickstart.md
       - CLI Reference: user_guide/cli.md
       - Nodes:
