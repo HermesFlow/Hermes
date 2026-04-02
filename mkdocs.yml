@@ -131,6 +131,7 @@ nav:
           - Workflow Engine: developer_guide/architecture/workflow_engine.md
           - Execution Engines: developer_guide/architecture/execution_engines.md
       - JSON Structure: developer_guide/json_structure.md
+      - Jinja2 Template System: developer_guide/jinja_system.md
       - Creating Custom Nodes: developer_guide/creating_nodes.md
       - API Reference:
           - Workflow: developer_guide/api/workflow.md

@@ -13,6 +13,7 @@ This section is for developers working on or extending the Hermes framework. It 
 ## Extending Hermes
 
 - **[JSON Structure](json_structure.md)** — Complete JSON schema reference for workflows and nodes
+- **[Jinja2 Template System](jinja_system.md)** — How the JinjaTransform engine generates OpenFOAM files from templates
 - **[Creating Custom Nodes](creating_nodes.md)** — Step-by-step guide to adding new node types
 
 ## API Reference
