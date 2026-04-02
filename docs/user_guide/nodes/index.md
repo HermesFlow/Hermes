@@ -57,8 +57,8 @@ Specialized nodes for OpenFOAM CFD simulation setup.
 
 | Category | Nodes | Description |
 |----------|-------|-------------|
-| [Mesh](openfoam/mesh/blockmesh.md) | BlockMesh, SnappyHexMesh | Mesh generation |
-| [System](openfoam/system/controldict.md) | ControlDict, FvSchemes, FvSolution | Solver configuration |
-| [Constant](openfoam/constant/transport_properties.md) | Transport, Turbulence, Physical properties | Physical properties |
-| [Dispersion](openfoam/dispersion/kinematic_cloud.md) | KinematicCloudProperties | Particle dispersion |
+| [Mesh](openfoam/mesh/blockmesh.md) | BlockMesh, SnappyHexMesh, GeometryDefiner, RefineMesh | Mesh generation |
+| [System](openfoam/system/controldict.md) | ControlDict, FvSchemes, FvSolution, ChangeDictionary, CreatePatch, DecomposePar, FvConstraints, MeshQualityDict, SetFields, SurfaceFeatures, TopoSetDict | Solver and case configuration |
+| [Constant](openfoam/constant/transport_properties.md) | TransportProperties, TurbulenceProperties, PhysicalProperties, MomentumTransport, ThermophysicalProperties, Gravity, WindLogProfile, BuildAllrun | Physical properties and execution |
+| [Dispersion](openfoam/dispersion/kinematic_cloud.md) | KinematicCloudProperties, MakeFlowDispersion, Stable2018Dict, Neutral2018Dict, Convective2018Dict, IndoorDict | Particle and atmospheric dispersion |
 | [BC](openfoam/boundary_conditions.md) | Boundary Conditions | Field boundary conditions |

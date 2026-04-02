@@ -89,18 +89,36 @@ nav:
               - Mesh:
                   - BlockMesh: user_guide/nodes/openfoam/mesh/blockmesh.md
                   - SnappyHexMesh: user_guide/nodes/openfoam/mesh/snappyhexmesh.md
+                  - GeometryDefiner: user_guide/nodes/openfoam/mesh/geometry_definer.md
+                  - RefineMesh: user_guide/nodes/openfoam/mesh/refine_mesh.md
               - System:
                   - ControlDict: user_guide/nodes/openfoam/system/controldict.md
                   - FvSchemes: user_guide/nodes/openfoam/system/fvschemes.md
                   - FvSolution: user_guide/nodes/openfoam/system/fvsolution.md
+                  - ChangeDictionary: user_guide/nodes/openfoam/system/change_dictionary.md
+                  - CreatePatch: user_guide/nodes/openfoam/system/create_patch.md
+                  - DecomposePar: user_guide/nodes/openfoam/system/decompose_par.md
+                  - FvConstraints: user_guide/nodes/openfoam/system/fv_constraints.md
+                  - MeshQualityDict: user_guide/nodes/openfoam/system/mesh_quality_dict.md
+                  - SetFields: user_guide/nodes/openfoam/system/set_fields.md
+                  - SurfaceFeatures: user_guide/nodes/openfoam/system/surface_features.md
+                  - TopoSetDict: user_guide/nodes/openfoam/system/topo_set_dict.md
               - Constant:
                   - TransportProperties: user_guide/nodes/openfoam/constant/transport_properties.md
                   - TurbulenceProperties: user_guide/nodes/openfoam/constant/turbulence_properties.md
                   - PhysicalProperties: user_guide/nodes/openfoam/constant/physical_properties.md
                   - MomentumTransport: user_guide/nodes/openfoam/constant/momentum_transport.md
+                  - ThermophysicalProperties: user_guide/nodes/openfoam/constant/thermophysical_properties.md
+                  - Gravity: user_guide/nodes/openfoam/constant/gravity.md
+                  - WindLogProfile: user_guide/nodes/openfoam/constant/wind_log_profile.md
                   - BuildAllrun: user_guide/nodes/openfoam/constant/build_allrun.md
               - Dispersion:
                   - KinematicCloudProperties: user_guide/nodes/openfoam/dispersion/kinematic_cloud.md
+                  - MakeFlowDispersion: user_guide/nodes/openfoam/dispersion/make_flow_dispersion.md
+                  - Stable2018Dict: user_guide/nodes/openfoam/dispersion/stable_2018.md
+                  - Neutral2018Dict: user_guide/nodes/openfoam/dispersion/neutral_2018.md
+                  - Convective2018Dict: user_guide/nodes/openfoam/dispersion/convective_2018.md
+                  - IndoorDict: user_guide/nodes/openfoam/dispersion/indoor_dict.md
               - Boundary Conditions: user_guide/nodes/openfoam/boundary_conditions.md
       - FreeCAD Integration: user_guide/freecad.md
       - Examples: examples/index.md
