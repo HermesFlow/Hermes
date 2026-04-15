@@ -10,3 +10,4 @@ doc/source/.idea/
 /examples/Tutorial/Workflow2/workflow.py
 .idea
 .vscode
+site/
