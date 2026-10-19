@@ -93,4 +93,4 @@ class weightedSumSimulation(abstractExecuter):
         
         xarr = sum(ds*weight for ds, weight in zip(xarrs, weights))
         
-        return dict(setAgentQuantity="setAgentQuantity",xarray=str(self.save_dask_tree(project=p, dask_tree=xarr)))
+        return dict(xarray=str(self.save_dask_tree(project=p, dask_tree=xarr)))

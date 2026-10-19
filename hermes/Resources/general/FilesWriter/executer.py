@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 from ...executers.abstractExecuter import abstractExecuter
 
@@ -18,7 +19,7 @@ class FilesWriter(abstractExecuter):
         )
     
     @staticmethod
-    def testParamValues(params: dict[str, any]):
+    def testParamValues(params: dict[str, Any]):
         passed, status_message = abstractExecuter.checkParamType(params, "casePath", str, required=True)
         if not passed:
             return passed, status_message
@@ -77,5 +78,4 @@ class FilesWriter(abstractExecuter):
             createdFiles[groupName] = outputFiles
 
 
-        return dict(fileWriterTemplate="fileWriterTemplate",
-                    files=createdFiles)
+        return dict(files=createdFiles)

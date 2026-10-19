@@ -85,5 +85,5 @@ class RunOsCommand(abstractExecuter):
         if ErrorMsg is not None:
             raise ValueError(ErrorMsg)
 
-        return dict(RunOsCommand="RunOsCommand",commands=ret)
+        return dict(commands=ret)
 

@@ -78,4 +78,4 @@ class runProtectionPolicy(abstractExecuter):
         policy.addActions({"actions":[{"name": policy_name, "params":policy_desc} for policy_name, policy_desc in policy_dict.items()]})
 
         res = policy.compute(conc, C="C", lazy=True)
-        return dict(runProtectionPolicy="runProtectionPolicy",concentrationXarray=str(self.save_dask_tree(project=p, dask_tree=res)))
+        return dict(concentrationXarray=str(self.save_dask_tree(project=p, dask_tree=res)))

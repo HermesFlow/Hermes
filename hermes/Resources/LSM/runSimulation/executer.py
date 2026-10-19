@@ -110,4 +110,4 @@ class runSimulation(abstractExecuter):
         d_file = self.save_dask_tree(project=p, dask_tree=res.getDosage())
         c_file = self.save_dask_tree(project=p, dask_tree=res.getConcentration())
         
-        return dict(runSimulation="runSimulation",dosageXarray=str(d_file), concentrationXarray=str(c_file))
+        return dict(dosageXarray=str(d_file), concentrationXarray=str(c_file))

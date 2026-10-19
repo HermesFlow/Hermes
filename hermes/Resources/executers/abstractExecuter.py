@@ -126,7 +126,7 @@ class abstractExecuter(loggedObject):
 
 
     @staticmethod
-    def isReference(s:any)->bool:
+    def isReference(s:Any)->bool:
         return isinstance(s,str) and s.startswith("{") and s.endswith('}')
 
     @staticmethod
@@ -226,7 +226,6 @@ class abstractExecuter(loggedObject):
     def save_dask_tree(project, dask_tree):
         """Serializes the dask-task-tree with cloudpickle"""
         import pathlib
-        from hashlib import sha256
 
         import cloudpickle
         from dask.tokenize import tokenize

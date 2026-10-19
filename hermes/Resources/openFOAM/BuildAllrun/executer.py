@@ -20,7 +20,7 @@ class BuildAllrun(abstractExecuter):
         self.buildCaseExecutionScript(caseDirectory=path,
                                       execConfiguration=inputs)
 
-        return dict(buildAllRun="buildAllrun")
+        return dict()
 
 
     def buildCaseExecutionScript(self,caseDirectory,execConfiguration):

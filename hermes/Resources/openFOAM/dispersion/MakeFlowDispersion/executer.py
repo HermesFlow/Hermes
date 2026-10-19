@@ -1,6 +1,8 @@
-from ....executers.abstractExecuter import abstractExecuter
 import logging
 import os
+
+from ....executers.abstractExecuter import abstractExecuter
+
 
 class MakeFlowDispersion(abstractExecuter):
 
@@ -37,4 +39,4 @@ class MakeFlowDispersion(abstractExecuter):
 
 
 
-        return dict(MakeFlowDispersion="MakeFlowDispersion",flowField=case)
+        return dict(flowField=case)

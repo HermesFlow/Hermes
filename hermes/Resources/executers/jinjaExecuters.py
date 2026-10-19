@@ -15,4 +15,4 @@ class GeometryDefinerExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(GeometryDefinerExecuter="GeometryDefinerExecuter")
+        return dict()

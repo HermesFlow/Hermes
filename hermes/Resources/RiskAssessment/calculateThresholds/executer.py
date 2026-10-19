@@ -91,8 +91,5 @@ class calculateThresholds(abstractExecuter):
             xarr, _ = self.load_xarray(xarr_path)
             return calculator.calculateRegionOfInjured(xarr, "C")
         _, doc = load_and_calc_region_of_injured(inputs["LSMConcentration"])
-        
-        with open("temp.txt", "w") as f:
-            f.write(f"writing to {doc.resource} hoping that it contains something like: {doc}")
 
-        return dict(setAgentQuantity="setAgentQuantity",xarray=doc.resource)
+        return dict(xarray=doc.resource)

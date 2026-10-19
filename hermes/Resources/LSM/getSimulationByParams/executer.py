@@ -103,5 +103,5 @@ class getSimulationByParams(abstractExecuter):
         d_file = self.save_dask_tree(project=p, dask_tree=d_dask_tree)
         c_file = self.save_dask_tree(project=p, dask_tree=c_dask_tree)
         
-        return dict(runSimulation="runSimulation",dosageXarray=str(d_file), concentrationXarray=str(c_file))
+        return dict(dosageXarray=str(d_file), concentrationXarray=str(c_file))
 

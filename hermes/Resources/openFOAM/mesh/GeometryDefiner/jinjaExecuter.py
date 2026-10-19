@@ -1,5 +1,6 @@
 from ....executers.abstractExecuter import abstractExecuter
 
+
 class GeometryDefinerExecuter(abstractExecuter):
 
     def _defaultParameters(self):
@@ -12,4 +13,4 @@ class GeometryDefinerExecuter(abstractExecuter):
         )
 
     def run(self, **inputs):
-        return dict(GeometryDefinerExecuter="GeometryDefinerExecuter")
+        return dict()

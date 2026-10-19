@@ -73,4 +73,4 @@ class RunPythonCode(abstractExecuter):
 
         func   = getattr(newobj,inputs["MethodName"])
         ret = func(**inputs.get('Parameters', {}))
-        return dict(pythonExecuter="pythonExecuter",Return=ret)
+        return dict(Return=ret)

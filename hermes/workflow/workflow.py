@@ -190,7 +190,7 @@ class workflow:
         # print(root_task)
         # print("--------------------------")
 
-        logger.debug(f"Building network for\n {json.dumps(self._workflowJSON)}")
+        logger.debug("Building network representation of tasks")
         self._buildNetworkRepresentations(root_task_name, root_task)
 
 
